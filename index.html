@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GTM Engine — живой прототип</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+ --graphite:#14171F;--ink:#131A54;--signal:#0057FF;--echo:#A9BDF0;--mist:#DCEBF8;--paper:#F7F9FC;
+ --line:#D9E2EE;--line2:#E8EEF6;--muted:#5D6B85;--muted2:#8A97AC;
+ --ok:#0F7B5A;--warn:#8A6A12;--stop:#A32B2B;--violet:#5B3FA8;
+ --act:56px;--side:272px;--bot:180px;--asst:360px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:'Manrope',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--paper);
+ color:var(--graphite);font-size:13px;line-height:1.45;overflow:hidden;-webkit-font-smoothing:antialiased}
+.mono{font-family:'JetBrains Mono',ui-monospace,Menlo,monospace}
+button{font-family:inherit;font-size:inherit;color:inherit;background:none;border:none;cursor:pointer}
+input,textarea,select{font-family:inherit;font-size:inherit;color:inherit}
+svg{stroke-linecap:round;stroke-linejoin:round}
+
+#app{display:grid;height:100vh;grid-template-columns:var(--act) var(--side) 1fr var(--asst);
+ grid-template-rows:38px 1fr 22px;
+ grid-template-areas:"t t t t" "a s m r" "b b b b";transition:grid-template-columns .16s}
+#app.noside{grid-template-columns:var(--act) 0 1fr var(--asst)}
+#app.noasst{grid-template-columns:var(--act) var(--side) 1fr 0}
+#app.noside.noasst{grid-template-columns:var(--act) 0 1fr 0}
+
+#title{grid-area:t;background:var(--graphite);color:#fff;display:flex;align-items:center;padding:0 11px;gap:12px}
+.brand{display:flex;align-items:center;gap:8px;font-weight:800;font-size:12.5px;letter-spacing:-.01em}
+.bmark{width:15px;height:15px;border:2px solid var(--signal);border-radius:3px;position:relative;flex:none}
+.bmark::after{content:'';position:absolute;inset:2.5px 2.5px auto auto;width:4px;height:4px;background:var(--signal);border-radius:1px}
+.brand em{font-style:normal;font-weight:500;color:#8E9AB4;font-size:11px}
+.tsep{width:1px;height:15px;background:#2C313D}
+.tbtn{color:#9AA6BE;font-size:11.5px;padding:4px 8px;border-radius:4px;font-weight:500;display:flex;align-items:center;gap:6px}
+.tbtn:hover{background:#242935;color:#fff}
+.tbtn.on{background:#242935;color:#fff}
+.tbtn svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:1.7}
+.kbd{font-family:'JetBrains Mono',monospace;font-size:10px;background:#242935;color:#9AA6BE;padding:2px 5px;border-radius:3px;border:1px solid #333947}
+.tsp{flex:1}
+.who{display:flex;align-items:center;gap:7px;font-size:11.5px;color:#9AA6BE}
+.who b{color:#fff;font-weight:600}
+.avatar{width:20px;height:20px;border-radius:50%;background:var(--signal);color:#fff;font-size:10px;font-weight:700;
+ display:flex;align-items:center;justify-content:center}
+
+#act{grid-area:a;background:#1B1F29;display:flex;flex-direction:column;align-items:center;padding-top:5px;gap:2px}
+.ai{width:44px;height:44px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+ border-radius:5px;color:#6E7A92;position:relative}
+.ai svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.6}
+.ai span{font-size:8.5px;font-weight:700;letter-spacing:.01em}
+.ai:hover{color:#C3CCDE}.ai.on{color:#fff}
+.ai.on::before{content:'';position:absolute;left:-6px;top:6px;bottom:6px;width:2px;background:var(--signal);border-radius:0 2px 2px 0}
+.ai .bdg{position:absolute;top:3px;right:2px;min-width:15px;height:15px;background:var(--signal);color:#fff;border-radius:8px;
+ font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0 4px}
+.aisp{flex:1}
+
+#side{grid-area:s;background:#fff;border-right:1px solid var(--line);display:flex;flex-direction:column;overflow:hidden}
+#app.noside #side{display:none}
+.sh{padding:9px 12px 7px;font-size:10.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--muted2);
+ display:flex;align-items:center;justify-content:space-between;flex:none}
+.sb{flex:1;overflow-y:auto;padding-bottom:14px}
+.sgrp{margin-bottom:3px}
+.sgh{display:flex;align-items:center;gap:5px;padding:4px 12px;font-size:10.5px;font-weight:700;color:var(--muted);
+ letter-spacing:.05em;text-transform:uppercase;cursor:pointer;user-select:none}
+.sgh .chev{width:9px;height:9px;transition:transform .12s;stroke:var(--muted2);fill:none;stroke-width:2}
+.sgrp.cl .chev{transform:rotate(-90deg)}.sgrp.cl .sgi{display:none}
+.si{display:flex;align-items:center;gap:8px;padding:4px 12px 4px 23px;cursor:pointer;border-left:2px solid transparent;font-size:12.5px}
+.si:hover{background:var(--paper)}
+.si.on{background:var(--mist);border-left-color:var(--signal);font-weight:600}
+.si .d{width:6px;height:6px;border-radius:50%;flex:none;background:#CAD5E4}
+.si .n{margin-left:auto;font-size:10.5px;color:var(--muted2);font-family:'JetBrains Mono',monospace}
+.si .tx{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.snote{padding:10px 12px;font-size:11px;color:var(--muted2);line-height:1.5;border-top:1px solid var(--line2);margin-top:8px}
+.sact{margin:8px 12px;display:flex;gap:6px}
+
+#main{grid-area:m;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+#tabs{height:34px;background:#fff;border-bottom:1px solid var(--line);display:flex;overflow-x:auto;flex:none;scrollbar-width:none}
+#tabs::-webkit-scrollbar{display:none}
+.tb{display:flex;align-items:center;gap:7px;padding:0 9px 0 12px;border-right:1px solid var(--line2);font-size:12px;
+ color:var(--muted);cursor:pointer;white-space:nowrap;position:relative;max-width:240px}
+.tb:hover{background:var(--paper)}
+.tb.on{background:var(--paper);color:var(--graphite);font-weight:600}
+.tb.on::after{content:'';position:absolute;left:0;right:0;top:0;height:2px;background:var(--signal)}
+.tb .ti{font-size:9.5px;font-family:'JetBrains Mono',monospace;color:var(--signal);font-weight:700}
+.tb .x{width:15px;height:15px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:14px;
+ line-height:1;color:var(--muted2);opacity:0}
+.tb:hover .x,.tb.on .x{opacity:1}
+.tb .x:hover{background:var(--line);color:var(--graphite)}
+#ed{flex:1;overflow:auto;background:var(--paper)}
+.pad{padding:17px 21px 36px}
+
+#bot{height:var(--bot);background:#fff;border-top:1px solid var(--line);display:flex;flex-direction:column;flex:none}
+#bot.cl{height:29px}#bot.cl .bb{display:none}
+.bh{height:29px;display:flex;align-items:center;gap:2px;padding:0 9px;border-bottom:1px solid var(--line2);flex:none}
+.bt{padding:4px 9px;font-size:11px;font-weight:700;color:var(--muted2);border-radius:4px}
+.bt.on{color:var(--graphite);background:var(--mist)}
+.bsp{flex:1}
+.bb{flex:1;overflow-y:auto;padding:6px 11px;font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.7}
+.lr{display:flex;gap:9px;padding:1px 0}
+.lr:hover{background:var(--paper)}
+.lt{color:var(--muted2);flex:none;width:52px}
+.ls{flex:none;width:98px;font-weight:700;font-size:10px}
+.lm{flex:1}.lm b{font-weight:600;color:var(--ink)}
+.c-auto{color:var(--signal)}.c-gate{color:var(--warn)}.c-human{color:var(--ok)}.c-stop{color:var(--stop)}.c-sys{color:var(--muted2)}
+
+#asst{grid-area:r;background:#fff;border-left:1px solid var(--line);display:flex;flex-direction:column;overflow:hidden}
+#app.noasst #asst{display:none}
+.ah{padding:9px 13px;border-bottom:1px solid var(--line2);display:flex;align-items:center;gap:8px;flex:none}
+.arobot{width:24px;height:24px;border-radius:6px;background:var(--ink);display:flex;align-items:center;justify-content:center;flex:none}
+.arobot svg{width:14px;height:14px;stroke:#fff;fill:none;stroke-width:1.7}
+.ahn{font-size:12.5px;font-weight:700;letter-spacing:-.01em;line-height:1.2}
+.ahs{font-size:10.5px;color:var(--muted2)}
+.ab{flex:1;overflow-y:auto;padding:11px 13px}
+.amsg{margin-bottom:11px}
+.amsg.me{text-align:right}
+.abub{display:inline-block;max-width:92%;text-align:left;padding:8px 11px;border-radius:9px;font-size:12.5px;line-height:1.5;
+ background:var(--paper);border:1px solid var(--line2)}
+.amsg.me .abub{background:var(--signal);color:#fff;border-color:var(--signal)}
+.abub b{font-weight:700}
+.abub ul{margin:5px 0 0 15px;padding:0}
+.abub li{margin-bottom:3px}
+.aq{background:#FFF9EC;border:1px solid #E8D5A0;border-radius:9px;padding:10px 12px;margin-bottom:11px}
+.aq-h{font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--warn);margin-bottom:5px}
+.aq-t{font-size:12.5px;line-height:1.5;margin-bottom:8px}
+.aq-t b{font-weight:700}
+.aq-why{font-size:11.5px;color:var(--muted);line-height:1.45;margin-bottom:9px;padding-left:9px;border-left:2px solid #E8D5A0}
+.aq-btns{display:flex;gap:6px;flex-wrap:wrap}
+.af{padding:9px 13px;border-top:1px solid var(--line2);flex:none}
+.achips{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px}
+.achip{padding:3px 9px;border:1px solid var(--line);border-radius:12px;font-size:11px;color:var(--muted);white-space:nowrap}
+.achip:hover{border-color:var(--signal);color:var(--signal);background:var(--mist)}
+.ain{display:flex;gap:6px;align-items:center;border:1px solid var(--line);border-radius:6px;padding:5px 9px}
+.ain input{flex:1;border:none;outline:none;font-size:12.5px}
+.ain button{color:var(--signal);font-weight:700;font-size:12px}
+
+#status{grid-area:b;background:var(--ink);color:#C9D4F0;display:flex;align-items:center;padding:0 10px;font-size:11px}
+.st{display:flex;align-items:center;gap:5px;padding:0 9px;height:100%;white-space:nowrap}
+.st:hover{background:rgba(255,255,255,.09)}
+.st b{color:#fff;font-weight:600;font-family:'JetBrains Mono',monospace}
+.stsp{flex:1}
+.sdot{width:6px;height:6px;border-radius:50%}
+
+/* общие */
+.ph{margin-bottom:14px}
+.pk{font-size:10.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--signal);margin-bottom:4px}
+.pt{font-size:20px;font-weight:800;letter-spacing:-.025em;margin-bottom:4px;line-height:1.18}
+.pd{font-size:12.5px;color:var(--muted);max-width:680px;line-height:1.55}
+.tbl{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:5px;overflow:hidden}
+.tbl th{text-align:left;padding:7px 10px;font-size:10px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;
+ color:var(--muted2);background:var(--paper);border-bottom:1px solid var(--line);white-space:nowrap;cursor:pointer;user-select:none}
+.tbl th:hover{color:var(--signal)}
+.tbl th .sort{opacity:.45;font-size:9px}
+.tbl td{padding:7px 10px;border-bottom:1px solid var(--line2);font-size:12px;vertical-align:top}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tbody tr{cursor:pointer}
+.tbl tbody tr:hover{background:var(--paper)}
+.tbl tbody tr.on{background:var(--mist)}
+.tbl tbody tr.flag{background:#FFFBF0}
+.tbl tbody tr.flag:hover{background:#FFF6E3}
+.tbl td.mono{font-size:11px}
+.gap{color:var(--stop);font-weight:600;font-size:11px}
+.tag{display:inline-flex;align-items:center;gap:4px;padding:1px 7px;border-radius:3px;font-size:10.5px;font-weight:700;white-space:nowrap}
+.t-ok{background:#E3F2EC;color:var(--ok)}.t-warn{background:#FBF2DC;color:var(--warn)}
+.t-stop{background:#FBE7E7;color:var(--stop)}.t-neu{background:var(--line2);color:var(--muted)}
+.t-sig{background:var(--mist);color:var(--ink)}.t-vio{background:#EDE7FB;color:var(--violet)}
+.lnk{color:var(--signal);cursor:pointer}.lnk:hover{text-decoration:underline}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:5px 11px;border-radius:5px;font-size:12px;font-weight:600;
+ border:1px solid var(--line);background:#fff;transition:.1s;white-space:nowrap}
+.btn:hover{border-color:var(--muted2);background:var(--paper)}
+.btn-p{background:var(--signal);color:#fff;border-color:var(--signal)}
+.btn-p:hover{background:#0048D6;border-color:#0048D6}
+.btn-g{border-color:transparent;color:var(--muted)}
+.btn-g:hover{background:var(--line2);color:var(--graphite)}
+.btn-d{color:var(--stop);border-color:transparent}
+.btn-d:hover{background:#FBE7E7;border-color:#F0C9C9}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:1.8}
+.btn-s{padding:3px 8px;font-size:11px}
+.tool{display:flex;align-items:center;gap:7px;margin-bottom:12px;flex-wrap:wrap}
+.tool .sp{flex:1}
+.fld{display:flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--line);border-radius:5px;padding:4px 9px}
+.fld label{font-size:11px;color:var(--muted);font-weight:600}
+.fld select,.fld input{border:none;outline:none;background:none;font-size:12px;font-weight:600;min-width:60px}
+.srch{display:flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--line);border-radius:5px;padding:4px 9px;min-width:210px}
+.srch svg{width:13px;height:13px;stroke:var(--muted2);fill:none;stroke-width:1.8;flex:none}
+.srch input{flex:1;border:none;outline:none;font-size:12px}
+.card{background:#fff;border:1px solid var(--line);border-radius:6px;padding:12px 14px;margin-bottom:10px}
+.ch{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.ct{font-size:13px;font-weight:700;letter-spacing:-.01em}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.met{background:#fff;border:1px solid var(--line);border-radius:6px;padding:10px 12px}
+.mk{font-size:10px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--muted2);margin-bottom:3px}
+.mv{font-size:22px;font-weight:800;letter-spacing:-.03em;font-family:'JetBrains Mono',monospace;line-height:1}
+.ms{font-size:11px;color:var(--muted);margin-top:3px}
+.empty{padding:44px 20px;text-align:center;color:var(--muted2);font-size:12.5px}
+.empty svg{width:32px;height:32px;stroke:var(--line);fill:none;stroke-width:1.3;margin-bottom:10px}
+.kv{display:flex;gap:8px;padding:3px 0;font-size:12px;align-items:baseline}
+.kvk{width:118px;flex:none;color:var(--muted);font-size:11.5px}
+.kvv{flex:1;min-width:0;word-break:break-word}
+
+/* ── BPMN конструктор ─────────────────── */
+.wf{display:grid;grid-template-columns:186px 1fr;gap:0;border:1px solid var(--line);border-radius:6px;overflow:hidden;background:#fff}
+.pal{border-right:1px solid var(--line);background:var(--paper);padding:9px}
+.palh{font-size:9.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted2);margin:7px 0 5px}
+.palh:first-child{margin-top:0}
+.palb{display:flex;align-items:center;gap:7px;padding:6px 8px;background:#fff;border:1px solid var(--line);border-radius:5px;
+ margin-bottom:4px;cursor:pointer;font-size:11.5px;font-weight:600}
+.palb:hover{border-color:var(--signal);background:var(--mist)}
+.palb .bi{width:20px;height:20px;flex:none;display:flex;align-items:center;justify-content:center}
+.canvas{padding:16px 18px;overflow:auto;min-height:440px;
+ background-image:radial-gradient(var(--line2) 1px,transparent 1px);background-size:14px 14px}
+.bcol{display:flex;flex-direction:column;align-items:flex-start;gap:0}
+.brow{display:flex;align-items:flex-start;gap:12px}
+.bnode{background:#fff;border:1.5px solid var(--graphite);cursor:pointer;position:relative;transition:.1s;flex:none}
+.bnode:hover{box-shadow:0 2px 9px rgba(19,26,84,.13)}
+.bnode.on{border-color:var(--signal);box-shadow:0 0 0 3px rgba(0,87,255,.15)}
+.bnode.live{border-color:var(--signal);background:var(--mist);animation:pls 1s infinite}
+.bnode.done{border-color:var(--ok)}
+.bnode.fail{border-color:var(--stop);background:#FDF4F4}
+@keyframes pls{0%,100%{box-shadow:0 0 0 0 rgba(0,87,255,.3)}50%{box-shadow:0 0 0 7px rgba(0,87,255,0)}}
+.b-task{border-radius:7px;padding:8px 11px;width:224px;border-width:1.5px}
+.b-task .bt2{font-size:12px;font-weight:600;line-height:1.3}
+.b-task .bd{font-size:10.5px;color:var(--muted);margin-top:2px;line-height:1.35}
+.b-task .bw{position:absolute;top:-8px;left:9px;font-size:8.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;
+ padding:1px 5px;border-radius:3px;background:#fff;border:1px solid var(--line)}
+.bw-auto{color:var(--signal);border-color:var(--echo)!important}
+.bw-human{color:var(--ok);border-color:#9FD3BF!important}
+.b-ev{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.b-ev.end{border-width:3px}
+.b-ev svg{width:17px;height:17px;stroke:var(--graphite);fill:none;stroke-width:1.8}
+.b-gw{width:42px;height:42px;transform:rotate(45deg);border-radius:4px;display:flex;align-items:center;justify-content:center}
+.b-gw span{transform:rotate(-45deg);font-size:17px;font-weight:300;color:var(--graphite);line-height:1}
+.blbl{font-size:11.5px;font-weight:600;line-height:1.35}
+.blbl small{display:block;font-weight:400;color:var(--muted);font-size:10.5px}
+.blbl.evl{padding:9px 0 0 11px;max-width:230px}
+.blbl.gwl{padding:11px 0 0 11px;width:172px;flex:none}
+.vln{width:1px;height:20px;background:var(--graphite);margin-left:18px;position:relative;flex:none}
+.vln::after{content:'';position:absolute;left:-3.5px;bottom:0;border-top:6px solid var(--graphite);
+ border-left:3.5px solid transparent;border-right:3.5px solid transparent}
+.vln.t{margin-left:110px}
+.vln.g{margin-left:20px}
+.vln.hot,.vln.hot::after{background:var(--signal)}
+.vln.hot::after{border-top-color:var(--signal);background:none}
+.hln{height:1px;width:44px;background:var(--graphite);margin-top:21px;position:relative;flex:none}
+.hln::after{content:'';position:absolute;right:0;top:-3.5px;border-left:6px solid var(--graphite);
+ border-top:3.5px solid transparent;border-bottom:3.5px solid transparent}
+.hlbl{position:absolute;top:-15px;left:1px;font-size:9.5px;font-weight:700;color:var(--muted);background:#fff;
+ padding:0 3px;white-space:nowrap;z-index:3}
+.bside{display:flex;align-items:flex-start;gap:0;margin-left:0}
+.wfval{margin-top:11px;padding:9px 12px;border-radius:6px;font-size:12px;line-height:1.5}
+.wfval.ok{background:#E9F5F0;border:1px solid #9FD3BF;color:#0B5B43}
+.wfval.bad{background:#FFF9EC;border:1px solid #E8D5A0;color:#5E4A12}
+
+/* ── отображения в workspace ──────────── */
+.fun{display:flex;flex-direction:column;gap:6px;max-width:660px}
+.funrow{display:flex;align-items:center;gap:11px;cursor:pointer}
+.funbar{height:38px;border-radius:5px;display:flex;align-items:center;padding:0 12px;color:#fff;font-weight:700;
+ font-size:12.5px;transition:.15s;min-width:96px}
+.funrow:hover .funbar{filter:brightness(1.09)}
+.funmeta{font-size:11.5px;color:var(--muted);white-space:nowrap}
+.funmeta b{color:var(--graphite);font-family:'JetBrains Mono',monospace}
+.board{display:flex;gap:10px;overflow-x:auto;padding-bottom:9px}
+.bcol2{flex:none;width:224px;background:var(--paper);border:1px solid var(--line);border-radius:6px;display:flex;flex-direction:column}
+.bch{padding:8px 10px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:6px;font-size:11px;font-weight:800;
+ letter-spacing:.03em;text-transform:uppercase;color:var(--muted)}
+.bch .n{margin-left:auto;font-family:'JetBrains Mono',monospace;color:var(--muted2)}
+.bcb{padding:7px;display:flex;flex-direction:column;gap:6px;min-height:52px}
+.crd{background:#fff;border:1px solid var(--line);border-radius:5px;padding:8px 10px;cursor:pointer}
+.crd:hover{border-color:var(--echo);box-shadow:0 2px 7px rgba(19,26,84,.07)}
+.crd.on{border-color:var(--signal);box-shadow:0 0 0 2px rgba(0,87,255,.13)}
+.crdn{font-size:12px;font-weight:700;margin-bottom:2px}
+.crdo{font-size:11px;color:var(--muted);margin-bottom:5px}
+.crdf{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--muted2);font-family:'JetBrains Mono',monospace}
+
+/* ── выбор роли ───────────────────────── */
+.rolegrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:11px;max-width:940px}
+.rolecard{background:#fff;border:1.5px solid var(--line);border-radius:8px;padding:15px;cursor:pointer;transition:.12s}
+.rolecard:hover{border-color:var(--echo);box-shadow:0 3px 12px rgba(19,26,84,.08)}
+.rolecard.on{border-color:var(--signal);box-shadow:0 0 0 3px rgba(0,87,255,.12)}
+.ric{width:34px;height:34px;border-radius:8px;background:var(--mist);display:flex;align-items:center;justify-content:center;margin-bottom:9px}
+.ric svg{width:18px;height:18px;stroke:var(--ink);fill:none;stroke-width:1.6}
+.rn{font-size:14px;font-weight:800;letter-spacing:-.015em;margin-bottom:2px}
+.rw{font-size:11.5px;color:var(--muted2);margin-bottom:8px}
+.rl{font-size:11.5px;color:var(--muted);line-height:1.5}
+.rl b{color:var(--graphite);font-weight:600}
+.step{display:flex;align-items:center;gap:8px;margin-bottom:15px}
+.stp{display:flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;color:var(--muted2)}
+.stp .num{width:19px;height:19px;border-radius:50%;background:var(--line2);color:var(--muted);display:flex;
+ align-items:center;justify-content:center;font-size:10px;font-family:'JetBrains Mono',monospace}
+.stp.on{color:var(--graphite)}.stp.on .num{background:var(--signal);color:#fff}
+.stp.ok .num{background:var(--ok);color:#fff}
+.stpar{width:16px;height:1px;background:var(--line)}
+
+#pal{position:fixed;inset:0;background:rgba(20,23,31,.34);z-index:100;display:none;align-items:flex-start;
+ justify-content:center;padding-top:13vh;backdrop-filter:blur(2px)}
+#pal.open{display:flex}
+.palbox{width:min(580px,92vw);background:#fff;border-radius:9px;box-shadow:0 16px 46px rgba(19,26,84,.25);overflow:hidden}
+.palbox input{width:100%;border:none;outline:none;padding:14px 17px;font-size:15px;font-weight:500;border-bottom:1px solid var(--line)}
+.pall{max-height:340px;overflow-y:auto;padding:5px}
+.pali{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:5px;cursor:pointer;font-size:13px}
+.pali.on{background:var(--mist)}
+.pali .pk2{font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
+ color:var(--muted2);width:82px;flex:none}
+.pali .ph2{margin-left:auto;font-size:10.5px;color:var(--muted2)}
+#toast{position:fixed;bottom:34px;left:50%;transform:translateX(-50%) translateY(13px);background:var(--graphite);color:#fff;
+ padding:9px 16px;border-radius:6px;font-size:12.5px;font-weight:500;opacity:0;pointer-events:none;transition:.2s;z-index:120}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#modal{position:fixed;inset:0;background:rgba(20,23,31,.34);z-index:110;display:none;align-items:center;justify-content:center}
+#modal.open{display:flex}
+.mbox{width:min(460px,92vw);background:#fff;border-radius:9px;box-shadow:0 16px 46px rgba(19,26,84,.25);overflow:hidden}
+.mh{padding:13px 16px;border-bottom:1px solid var(--line2);font-size:14px;font-weight:700}
+.mb{padding:15px 16px}
+.mf{padding:11px 16px;border-top:1px solid var(--line2);display:flex;gap:7px;justify-content:flex-end;background:var(--paper)}
+.finp{width:100%;border:1px solid var(--line);border-radius:5px;padding:8px 10px;font-size:13px;outline:none;margin-top:5px}
+.finp:focus{border-color:var(--signal)}
+.flab{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.03em;text-transform:uppercase}
+::-webkit-scrollbar{width:9px;height:9px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#CAD5E4;border-radius:5px;border:2px solid var(--paper)}
+@media(max-width:1300px){#app{grid-template-columns:var(--act) 232px 1fr 320px}}
+</style>
+</head>
+<body>
+<div id="app">
+ <div id="title">
+  <div class="brand"><div class="bmark"></div>GTM Engine <em>живой прототип</em></div>
+  <div class="tsep"></div>
+  <button class="tbtn" onclick="openPal()"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Команда <span class="kbd">⌘K</span></button>
+  <button class="tbtn" id="btnSide" onclick="toggleSide()"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/></svg>Меню</button>
+  <button class="tbtn on" id="btnAsst" onclick="toggleAsst()"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M15 4v16"/></svg>Помощник</button>
+  <div class="tsp"></div>
+  <div class="who" id="whoBox"></div>
+ </div>
+
+ <div id="act">
+  <button class="ai on" data-v="data" onclick="go('data')" title="Data — сырые данные">
+   <svg viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6"/><path d="M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg>
+   <span>Data</span></button>
+  <button class="ai" data-v="flows" onclick="go('flows')" title="Workflows — конструктор процессов">
+   <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="6" rx="1.5"/><rect x="14" y="15" width="7" height="6" rx="1.5"/><path d="M6.5 9v6a3 3 0 0 0 3 3H14"/></svg>
+   <span>Flows</span></button>
+  <button class="ai" data-v="space" onclick="go('space')" title="Workspaces — рабочие пространства">
+   <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M9 20V9"/></svg>
+   <span>Spaces</span><span class="bdg" id="spBadge">3</span></button>
+  <div class="aisp"></div>
+  <button class="ai" data-v="about" onclick="go('about')" title="Про прототип">
+   <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>
+   <span>Инфо</span></button>
+ </div>
+
+ <div id="side">
+  <div class="sh"><span id="sideT">Обозреватель</span>
+   <button class="btn-g" style="font-size:15px;line-height:1;padding:0 4px" onclick="toggleSide()">−</button></div>
+  <div class="sb" id="sideB"></div>
+ </div>
+
+ <div id="main">
+  <div id="tabs"></div>
+  <div id="ed"><div class="pad" id="pad"></div></div>
+  <div id="bot">
+   <div class="bh">
+    <button class="bt on" data-b="log" onclick="setBot('log')">Журнал</button>
+    <button class="bt" data-b="run" onclick="setBot('run')">Что сейчас делают роботы</button>
+    <button class="bt" data-b="hist" onclick="setBot('hist')">История изменений</button>
+    <div class="bsp"></div>
+    <button class="btn btn-g btn-s" onclick="clearLog()">Очистить</button>
+    <button class="btn btn-g btn-s" id="botTgl" onclick="toggleBot()">Свернуть</button>
+   </div>
+   <div class="bb" id="botB"></div>
+  </div>
+ </div>
+
+ <div id="asst">
+  <div class="ah">
+   <div class="arobot"><svg viewBox="0 0 24 24"><rect x="4" y="8" width="16" height="11" rx="3"/><path d="M12 4v4M9 13h.01M15 13h.01"/></svg></div>
+   <div style="flex:1;min-width:0"><div class="ahn" id="asstN">Помощник</div><div class="ahs" id="asstS">—</div></div>
+   <button class="btn-g" style="font-size:15px;line-height:1;padding:0 4px" onclick="toggleAsst()">×</button>
+  </div>
+  <div class="ab" id="asstB"></div>
+  <div class="af">
+   <div class="achips" id="asstChips"></div>
+   <div class="ain"><input id="asstIn" placeholder="Спросить помощника…" onkeydown="if(event.key==='Enter')askAsst(this.value)">
+    <button onclick="askAsst(document.getElementById('asstIn').value)">↑</button></div>
+  </div>
+ </div>
+
+ <div id="status">
+  <div class="st" onclick="go('data')"><span class="sdot" style="background:#5BD1A0"></span>Данные <b id="stRows">—</b></div>
+  <div class="st" onclick="go('flows')">Шаблонов процессов <b id="stTpl">—</b></div>
+  <div class="st" onclick="go('space')">Ждут решения <b id="stQ">—</b></div>
+  <div class="st">Роботы работают <b id="stBots">4</b></div>
+  <div class="stsp"></div>
+  <div class="st" id="stRole" onclick="go('space')">Роль не выбрана</div>
+  <div class="st" onclick="go('about')">Демо-данные</div>
+ </div>
+</div>
+
+<div id="pal" onclick="if(event.target.id==='pal')closePal()">
+ <div class="palbox"><input id="palIn" placeholder="Команда, таблица, процесс или пространство…" autocomplete="off"
+  oninput="renderPal()" onkeydown="palKey(event)"><div class="pall" id="palL"></div></div>
+</div>
+<div id="modal" onclick="if(event.target.id==='modal')closeModal()"><div class="mbox" id="modalBox"></div></div>
+<div id="toast"></div>
+<script>
+/* ═════ ДЕМО-ДАННЫЕ. Компании и люди вымышленные ═════ */
+const DB={
+companies:[
+ {id:'co1',Компания:'Northwind Robotics',Домен:'northwind-robotics.com',Отрасль:'Промышленная автоматизация',Людей:14,Город:'Boston, MA',Годность:82},
+ {id:'co2',Компания:'Vellum Health',Домен:'vellumhealth.io',Отрасль:'Цифровое здравоохранение',Людей:8,Город:'Austin, TX',Годность:74},
+ {id:'co3',Компания:'Kestrel Labs',Домен:'kestrel-labs.com',Отрасль:'Инструменты разработчика',Людей:22,Город:'New York, NY',Годность:91},
+ {id:'co4',Компания:'Ardent Freight',Домен:'ardentfreight.com',Отрасль:'Логистика',Людей:31,Город:'Newark, NJ',Годность:44},
+ {id:'co5',Компания:'Solace Analytics',Домен:'solace-analytics.com',Отрасль:'Данные',Людей:null,Город:'Remote',Годность:63},
+ {id:'co6',Компания:'Halden Systems',Домен:'haldensystems.com',Отрасль:'Кибербезопасность',Людей:17,Город:'Boston, MA',Годность:78},
+ {id:'co7',Компания:'Pale Blue Works',Домен:'palebluewk.com',Отрасль:null,Людей:11,Город:'Denver, CO',Годность:59},
+],
+people:[
+ {id:'pe1',Имя:'Dana Whitfield',Роль:'Head of Engineering',Компания:'co1',Почта:'dana@northwind-robotics.com',LinkedIn:'in/danawhitfield',Стадия:'Открыли',Канал:'почта · LinkedIn'},
+ {id:'pe2',Имя:'Marcus Bell',Роль:'CTO',Компания:'co3',Почта:'marcus@kestrel-labs.com',LinkedIn:'in/marcusbell',Стадия:'Ответили',Канал:'почта · LinkedIn'},
+ {id:'pe3',Имя:'Iris Kohl',Роль:'COO',Компания:'co2',Почта:'iris@vellumhealth.io',LinkedIn:'in/iriskohl',Стадия:'Закрыт',Канал:'закрыт полностью'},
+ {id:'pe4',Имя:'Tomás Pereira',Роль:'Founder',Компания:'co5',Почта:'tomas@solace-analytics.com',LinkedIn:'in/tomaspereira',Стадия:'Новые',Канал:'почта · LinkedIn'},
+ {id:'pe5',Имя:'Ava Lindqvist',Роль:'VP Talent',Компания:'co3',Почта:'ava@kestrel-labs.com',LinkedIn:'in/avalindqvist',Стадия:'Написали',Канал:'почта · LinkedIn'},
+ {id:'pe6',Имя:'Ruben Sato',Роль:'Operations Lead',Компания:'co4',Почта:'ruben@ardentfreight.com',LinkedIn:'in/rubensato',Стадия:'Закрыт',Канал:'закрыт полностью'},
+ {id:'pe7',Имя:'Priya Raman',Роль:'Director of Engineering',Компания:'co6',Почта:'priya@haldensystems.com',LinkedIn:'in/priyaraman',Стадия:'Написали',Канал:'почта · LinkedIn'},
+ {id:'pe8',Имя:'Jonas Køhler',Роль:'CTO',Компания:'co6',Почта:'jonas@haldensystems.com',LinkedIn:'in/jonaskohler',Стадия:'Новые',Канал:'только LinkedIn'},
+ {id:'pe9',Имя:'Elena Márquez',Роль:null,Компания:'co7',Почта:null,LinkedIn:'in/elenamarquez',Стадия:'Новые',Канал:'только LinkedIn'},
+ {id:'pe10',Имя:'Sam Osei',Роль:'Head of People',Компания:'co7',Почта:'sam@palebluewk.com',LinkedIn:null,Стадия:'Встреча',Канал:'только почта'},
+ {id:'pe11',Имя:'Kirra Nolan',Роль:'VP Engineering',Компания:'co1',Почта:'kirra@northwind-robotics.com',LinkedIn:'in/kirranolan',Стадия:'Открыли',Канал:'почта · LinkedIn'},
+ {id:'pe12',Имя:'Theo Lindgren',Роль:'Founder',Компания:'co2',Почта:'theo@vellumhealth.io',LinkedIn:'in/theolindgren',Стадия:'Сделка',Канал:'почта · LinkedIn'},
+],
+signals:[
+ {id:'sg1',Событие:'Founding Data Engineer · удалённо',Компания:'co5',Тип:'вакансия',Когда:'сегодня 09:12',Живёт:'30 дней'},
+ {id:'sg2',Событие:'Senior Firmware Engineer · Boston',Компания:'co1',Тип:'вакансия',Когда:'вчера 16:40',Живёт:'30 дней'},
+ {id:'sg3',Событие:'Security Engineer · Boston',Компания:'co6',Тип:'вакансия',Когда:'3 дня назад',Живёт:'30 дней'},
+ {id:'sg4',Событие:'Series A · $12M · Lightpath',Компания:'co3',Тип:'раунд',Когда:'4 дня назад',Живёт:'90 дней'},
+ {id:'sg5',Событие:'Новый COO, пришёл из Stripe',Компания:'co2',Тип:'смена работы',Когда:'6 дней назад',Живёт:'60 дней'},
+ {id:'sg6',Событие:'Открыли офис в Денвере',Компания:'co7',Тип:'новость',Когда:'8 дней назад',Живёт:'45 дней'},
+],
+touches:[
+ {id:'t1',Кому:'pe1',Что:'Письмо 1',Когда:'11 сент. 09:30',Ящик:'sn2',Итог:'открыто дважды'},
+ {id:'t2',Кому:'pe1',Что:'Письмо 2',Когда:'завтра 10:20',Ящик:'sn2',Итог:'запланировано'},
+ {id:'t3',Кому:'pe2',Что:'Письмо 1',Когда:'9 сент. 10:05',Ящик:'sn1',Итог:'открыто'},
+ {id:'t4',Кому:'pe2',Что:'Письмо 2',Когда:'12 сент. 10:05',Ящик:'sn1',Итог:'ответ получен'},
+ {id:'t5',Кому:'pe5',Что:'LinkedIn · касание 1',Когда:'14 сент. 14:05',Ящик:'sn7',Итог:'просили писать на почту'},
+ {id:'t6',Кому:'pe7',Что:'Письмо 1',Когда:'сегодня 16:50',Ящик:'sn3',Итог:'уходит сейчас'},
+ {id:'t7',Кому:'pe3',Что:'Письмо 2',Когда:'2 сент. 19:40',Ящик:'sn4',Итог:'отписка'},
+ {id:'t8',Кому:'pe6',Что:'Письмо 1',Когда:'29 авг. 07:00',Ящик:'sn6',Итог:'жалоба на спам'},
+ {id:'t9',Кому:'pe12',Что:'Встреча',Когда:'10 сент. 15:00',Ящик:'—',Итог:'договорились о пилоте'},
+],
+senders:[
+ {id:'sn1',Канал:'Почта',Адрес:'ivan@go-intwin.com',Состояние:'здоров',Лимит:45,Сегодня:22,Прогрев:94,Репутация:'высокая'},
+ {id:'sn2',Канал:'Почта',Адрес:'ivan@intwin-team.com',Состояние:'здоров',Лимит:45,Сегодня:19,Прогрев:91,Репутация:'высокая'},
+ {id:'sn3',Канал:'Почта',Адрес:'lisa@intwin-team.com',Состояние:'здоров',Лимит:30,Сегодня:3,Прогрев:88,Репутация:'средняя'},
+ {id:'sn4',Канал:'Почта',Адрес:'lisa@intwin-hq.com',Состояние:'прогрев',Лимит:12,Сегодня:4,Прогрев:41,Репутация:'—'},
+ {id:'sn5',Канал:'Почта',Адрес:'team@intwin-hq.com',Состояние:'прогрев',Лимит:8,Сегодня:2,Прогрев:22,Репутация:'—'},
+ {id:'sn6',Канал:'Почта',Адрес:'hello@intwin-mail.com',Состояние:'выведен',Лимит:0,Сегодня:0,Прогрев:55,Репутация:'низкая'},
+ {id:'sn7',Канал:'LinkedIn',Адрес:'in/intwin-ivan',Состояние:'здоров',Лимит:20,Сегодня:6,Прогрев:100,Репутация:'—'},
+ {id:'sn8',Канал:'LinkedIn',Адрес:'in/intwin-lisa',Состояние:'ограничен',Лимит:5,Сегодня:5,Прогрев:100,Репутация:'—'},
+],
+replies:[
+ {id:'rp1',От:'pe2',Разбор:'интерес',Когда:'сегодня 08:12',Суть:'Присылайте профили. Бюджет ограничен, уже работаем с агентством.',Черновик:'Маркус, спасибо — присылаю четыре профиля.\n\nПро условия: оплата по факту выхода, без предоплаты. Если человек не проходит испытательный срок — замена бесплатно. С вашим агентством это совместимо: платите только тому, кто привёл вышедшего.\n\nУдобно созвониться в четверг после 15:00?'},
+ {id:'rp2',От:'pe1',Разбор:'не сейчас',Когда:'вчера 17:44',Суть:'Закрываем позицию своими силами. Напишите в ноябре.',Черновик:'Дана, понял — не буду мешать.\n\nПоставил напоминание на начало ноября. Если своими силами не закроется раньше — ответьте на это письмо, подключимся быстро.'},
+ {id:'rp3',От:'pe5',Разбор:'смена канала',Когда:'вчера 12:20',Суть:'Пишите на почту, в LinkedIn захожу редко. Наймом занимаюсь я, но после 1 октября.',Черновик:'Ава, перенёс переписку на почту.\n\nВернусь 1 октября с готовым списком под ваши открытые роли. Если сдвинется раньше — просто ответьте сюда.'},
+],
+};
+const TABLES={
+ companies:{n:'Компании',cols:['Компания','Домен','Отрасль','Людей','Город','Годность'],req:['Отрасль','Людей']},
+ people:{n:'Люди',cols:['Имя','Роль','Компания','Почта','LinkedIn','Стадия','Канал'],req:['Роль','Почта','LinkedIn']},
+ signals:{n:'Сигналы',cols:['Событие','Компания','Тип','Когда','Живёт'],req:[]},
+ touches:{n:'Касания',cols:['Кому','Что','Когда','Ящик','Итог'],req:[]},
+ replies:{n:'Ответы',cols:['От','Разбор','Когда','Суть'],req:[]},
+ senders:{n:'Ящики и аккаунты',cols:['Канал','Адрес','Состояние','Лимит','Сегодня','Прогрев','Репутация'],req:[]},
+};
+
+/* ═════ ШАБЛОНЫ ПРОЦЕССОВ · нотация BPMN 2.0 ═════
+   start · task · gateway (ромб, ветка «нет» уходит вправо) · timer · end   */
+let TPL=[
+{id:'tpl1',name:'Аутрич по сигналу',desc:'От повода до ответа. Основной процесс Люси.',uses:2,edited:'сегодня',
+ nodes:[
+  {id:'n1',type:'start',name:'Появился сигнал',desc:'вакансия · раунд · смена работы',who:'auto'},
+  {id:'n2',type:'gw',name:'Компания годится?',desc:'2–30 человек · нужный штат',who:'auto',no:'выбывает',
+   branch:[{id:'n2b',type:'end',name:'Не наш профиль',who:'auto'}]},
+  {id:'n3',type:'gw',name:'Писали раньше?',desc:'проверка до обогащения — чтобы не платить зря',who:'auto',no:'писали',
+   branch:[{id:'n3b',type:'end',name:'Уже в работе',who:'auto'}]},
+  {id:'n4',type:'task',name:'Дозапросить контакты',desc:'почта, телефон, профиль · $0,10–0,50',who:'auto'},
+  {id:'n5',type:'gw',name:'Писать разрешено?',desc:'отписки · жалобы · страна · недавнее касание',who:'auto',no:'запрещено',
+   branch:[{id:'n5b',type:'end',name:'Канал закрыт',who:'auto'}]},
+  {id:'n6',type:'task',name:'Взять здоровый ящик',desc:'прогретый, с запасом дневного лимита',who:'auto'},
+  {id:'n7',type:'task',name:'Отправить письмо 1',desc:'текст собирается под человека и компанию',who:'auto'},
+  {id:'n8',type:'timer',name:'Ждать 3 дня',desc:'ответил — процесс встаёт сам',who:'auto'},
+  {id:'n9',type:'task',name:'Отправить письмо 2',desc:'тот же ящик, тот же тред',who:'auto'},
+  {id:'n10',type:'gw',name:'Ответ пришёл?',desc:'',who:'auto',no:'молчит',
+   branch:[{id:'n10b',type:'task',name:'Касание в LinkedIn',desc:'через 7 дней',who:'auto'},
+           {id:'n10c',type:'end',name:'Вернуть в холодные',who:'auto'}]},
+  {id:'n11',type:'task',name:'Разобрать ответ',desc:'интерес · отказ · не сейчас · автоответ',who:'auto'},
+  {id:'n12',type:'task',name:'Человек проверяет и отправляет',desc:'черновик готов, правка и отправка',who:'human'},
+  {id:'n13',type:'end',name:'Разговор пошёл',who:'auto'},
+ ]},
+{id:'tpl2',name:'Защита канала',desc:'Что делать, когда домен начинает чернеть.',uses:1,edited:'вчера',
+ nodes:[
+  {id:'m1',type:'start',name:'Seed-тест показал спад',desc:'письма съезжают в «Промоакции»',who:'auto'},
+  {id:'m2',type:'task',name:'Вывести домен из ротации',desc:'кампании переезжают на запасной',who:'auto'},
+  {id:'m3',type:'gw',name:'Есть прогретая замена?',desc:'',who:'auto',no:'нет замены',
+   branch:[{id:'m3b',type:'task',name:'Спросить у человека денег',desc:'сумма и обоснование',who:'human'},
+           {id:'m3c',type:'end',name:'Ждём решения',who:'auto'}]},
+  {id:'m4',type:'task',name:'Перевести кампании',desc:'без потери тредов',who:'auto'},
+  {id:'m5',type:'end',name:'Канал восстановлен',who:'auto'},
+ ]},
+{id:'tpl3',name:'Разбор входящего ответа',desc:'Как ответ превращается в стадию и черновик.',uses:3,edited:'4 дня назад',
+ nodes:[
+  {id:'k1',type:'start',name:'Пришёл ответ',desc:'',who:'auto'},
+  {id:'k2',type:'task',name:'Определить смысл',desc:'интерес · отказ · не сейчас · автоответ · сменил работу',who:'auto'},
+  {id:'k3',type:'gw',name:'Это отписка?',desc:'',who:'auto',no:'отписка',
+   branch:[{id:'k3b',type:'task',name:'Закрыть все каналы',desc:'запись в согласия',who:'auto'},
+           {id:'k3c',type:'end',name:'Человек закрыт',who:'auto'}]},
+  {id:'k4',type:'task',name:'Поставить стадию',desc:'двигает карточку в воронке',who:'auto'},
+  {id:'k5',type:'task',name:'Написать черновик',desc:'с учётом всей переписки',who:'auto'},
+  {id:'k6',type:'task',name:'Человек решает',desc:'отправить · переписать · не отвечать',who:'human'},
+  {id:'k7',type:'end',name:'Готово',who:'auto'},
+ ]},
+];
+
+/* ═════ РОЛИ ═════ */
+const ROLES={
+ director:{n:'Директор',who:'Николай',ic:'M3 20h18M6 20V9M12 20V4M18 20v-7',
+  sees:'Итоги и деньги. Вопросы приходят только те, где нужно разрешить трату или разобраться, почему просело всё сразу.',
+  views:['funnel','table'],chips:['Как идут дела','Где мы теряем деньги','Что просело']},
+ operator:{n:'Оператор',who:'Алина',ic:'M4 5h16v12H8l-4 3z M8 9h8M8 12.5h5',
+  sees:'Очередь на сегодня. Каждый вопрос — про конкретного человека: отправить, переписать, отложить.',
+  views:['board','list','funnel'],chips:['Что мне делать сейчас','Кто ждёт ответа','Покажи готовые черновики']},
+ product:{n:'Продакт',who:'Лиза',ic:'M12 3l8 4.5v9L12 21l-8-4.5v-9z M12 12l8-4.5M12 12v9M12 12L4 7.5',
+  sees:'Кто отвечает и почему. Вопросы про сегменты, тексты и то, куда смещать следующую партию.',
+  views:['funnel','board','table'],chips:['Кто отвечает лучше всех','Какой текст работает','Где узкое место']},
+ engineer:{n:'Инженер',who:'Роман',ic:'M8 4l-4 8 4 8M16 4l4 8-4 8',
+  sees:'Техническая сторона: доставляемость, провайдеры, дубли и дыры в данных.',
+  views:['table','list'],chips:['Проверь доставляемость','Где дыры в данных','Что с провайдером']},
+};
+
+/* ═════ ВОПРОСЫ ЧЕЛОВЕКУ · экспертная система ═════ */
+let HITL=[
+ {id:'q1',role:'director',t:'Через 6 дней отправлять будет не с чего',
+  why:'Три ящика в прогреве, один выведен после жалобы. На текущем темпе здоровых хватит на 6 дней. Сам я это починить не могу — нужны деньги.',
+  ask:'Предлагаю купить два домена с прогревом: <b>$92/мес</b>, полная мощность через 21 день.',
+  opts:[{t:'Купить два',k:'ok',do:'buy2'},{t:'Купить один',k:'',do:'buy1'},{t:'Не сейчас',k:'no',do:'defer'}]},
+ {id:'q2',role:'director',t:'Просело всё сразу — дело не в ящиках',
+  why:'Открываемость упала с 41% до 19% одновременно по всем шести ящикам. Одновременная просадка по всем ресурсам означает, что причина в списках или текстах. Домены менять не стал.',
+  ask:'Предлагаю откатить текст письма 1 к версии от 2 сентября и сравнить неделю к неделе.',
+  opts:[{t:'Откатить текст',k:'ok',do:'rollback'},{t:'Показать сравнение',k:'',do:'compare'},{t:'Оставить как есть',k:'no',do:'defer'}]},
+ {id:'q3',role:'operator',t:'Marcus Bell ответил — черновик готов',
+  why:'Разобрано как интерес. Спрашивает условия, упомянул ограниченный бюджет и действующее агентство. В черновике это учтено.',
+  ask:'Отправить черновик с ящика ivan@go-intwin.com?',
+  opts:[{t:'Отправить',k:'ok',do:'send_rp1'},{t:'Открыть и править',k:'',do:'open_rp1'},{t:'Не отвечать',k:'no',do:'skip_rp1'}]},
+ {id:'q4',role:'operator',t:'Ava просит писать на почту, а не в LinkedIn',
+  why:'Это не отказ, а смена канала. Если оставить как есть, следующее касание уйдёт снова в LinkedIn и сожжёт контакт.',
+  ask:'Закрыть ей канал LinkedIn и перевести цепочку на почту?',
+  opts:[{t:'Перевести на почту',k:'ok',do:'switch_pe5'},{t:'Оставить оба',k:'no',do:'defer'}]},
+ {id:'q5',role:'product',t:'Компании 5–15 человек отвечают вдвое лучше',
+  why:'За две недели: 5–15 человек — 11% ответов, 16–30 человек — 5%. Разница устойчивая, выборка 180 касаний.',
+  ask:'Сместить следующую партию в сторону 5–15 человек?',
+  opts:[{t:'Сместить',k:'ok',do:'narrow'},{t:'Показать разбор',k:'',do:'segment'},{t:'Не трогать',k:'no',do:'defer'}]},
+ {id:'q6',role:'engineer',t:'Провайдер отправки искажает результат',
+  why:'Одни и те же письма по одному списку: через наш сервис доходят 71%, через тот, что использует клиент, — 94%. Дело не в текстах.',
+  ask:'Прогнать A/B на 200 адресах через двух провайдеров и сравнить доставляемость?',
+  opts:[{t:'Запустить тест',k:'ok',do:'abtest'},{t:'Показать цифры',k:'',do:'deliver'},{t:'Позже',k:'no',do:'defer'}]},
+ {id:'q7',role:'engineer',t:'В данных дыры, которые ломают отправку',
+  why:'У Elena Márquez нет почты, у Sam Osei нет LinkedIn, у двух компаний не хватает отрасли и размера. Такие записи молча выбывают на проверке годности.',
+  ask:'Показать все неполные записи одним списком?',
+  opts:[{t:'Показать',k:'ok',do:'gaps'},{t:'Позже',k:'no',do:'defer'}]},
+];
+
+/* ═════ СОСТОЯНИЕ ═════ */
+let S={view:'data',tabs:['tbl:companies'],active:'tbl:companies',sel:null,bot:'log',log:[],hist:[],
+ role:null,space:null,spaceStep:1,pick:{role:null,tpl:null,data:null},
+ wfSel:null,wfRun:{},wfBusy:false,tblSort:{},tblQ:{},flagGaps:false,
+ answered:[],asst:[],side:true,asstOpen:true,disp:'funnel',crdSel:null,drafts:{},sentBots:4};
+
+const T=id=>DB[id]; const row=(t,id)=>DB[t].find(r=>r.id===id);
+const co=id=>(row('companies',id)||{}).Компания||id;
+const pers=id=>(row('people',id)||{}).Имя||id;
+const sndr=id=>(row('senders',id)||{}).Адрес||id;
+const esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const nl=s=>esc(s).replace(/\n/g,'<br>');
+const tplById=id=>TPL.find(t=>t.id===id);
+
+function now(){const d=new Date();return[d.getHours(),d.getMinutes(),d.getSeconds()].map(x=>String(x).padStart(2,'0')).join(':')}
+function log(src,kind,m){S.log.unshift({t:now(),src,kind,m});if(S.log.length>160)S.log.pop();if(S.bot==='log')renderBot()}
+function hist(m){S.hist.unshift({t:now(),m});if(S.bot==='hist')renderBot()}
+function clearLog(){if(S.bot==='hist')S.hist=[];else S.log=[];renderBot()}
+const KC={auto:'c-auto',gate:'c-gate',human:'c-human',stop:'c-stop',sys:'c-sys'};
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');
+ clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),2200)}
+
+/* ═════ НАВИГАЦИЯ ═════ */
+const HOME={data:'tbl:companies',flows:'tpl:tpl1',space:'spaces',about:'about'};
+function go(v){S.view=v;document.querySelectorAll('.ai').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
+ const h=HOME[v];if(h){if(!S.tabs.includes(h))S.tabs.push(h);S.active=h}
+ renderAsst();render()}
+function openTab(id){if(!S.tabs.includes(id))S.tabs.push(id);S.active=id;
+ const v=viewOf(id);if(v&&v!==S.view){S.view=v;document.querySelectorAll('.ai').forEach(b=>b.classList.toggle('on',b.dataset.v===v));renderAsst()}
+ render()}
+function viewOf(id){const t=id.split(':')[0];
+ if(['tbl','rec'].includes(t))return 'data';
+ if(['tpl','newtpl'].includes(t))return 'flows';
+ if(['spaces','ws'].includes(t))return 'space';
+ if(t==='about')return 'about';return null}
+function closeTab(id,e){e&&e.stopPropagation();S.tabs=S.tabs.filter(x=>x!==id);
+ if(S.active===id)S.active=S.tabs[S.tabs.length-1]||null;render()}
+function toggleSide(){S.side=!S.side;document.getElementById('app').classList.toggle('noside',!S.side);
+ document.getElementById('btnSide').classList.toggle('on',S.side)}
+function toggleAsst(){S.asstOpen=!S.asstOpen;document.getElementById('app').classList.toggle('noasst',!S.asstOpen);
+ document.getElementById('btnAsst').classList.toggle('on',S.asstOpen)}
+function setBot(b){S.bot=b;document.querySelectorAll('.bt').forEach(x=>x.classList.toggle('on',x.dataset.b===b));renderBot()}
+function toggleBot(){const p=document.getElementById('bot');p.classList.toggle('cl');
+ document.getElementById('botTgl').textContent=p.classList.contains('cl')?'Развернуть':'Свернуть'}
+function openModal(h){document.getElementById('modalBox').innerHTML=h;document.getElementById('modal').classList.add('open')}
+function closeModal(){document.getElementById('modal').classList.remove('open')}
+
+/* ═════ БОКОВАЯ ПАНЕЛЬ ═════ */
+function renderSide(){
+ const B=document.getElementById('sideB');let h='';
+ if(S.view==='data'){
+  document.getElementById('sideT').textContent='Data · таблицы';
+  h+='<div class="sgrp"><div class="sgh">Таблицы</div><div class="sgi">';
+  Object.entries(TABLES).forEach(([k,v])=>{
+   h+='<div class="si'+(S.active==='tbl:'+k?' on':'')+'" onclick="openTab(\'tbl:'+k+'\')">'+
+   '<span class="d"></span><span class="tx">'+esc(v.n)+'</span><span class="n">'+DB[k].length+'</span></div>'});
+  h+='</div></div>';
+  const g=gaps();
+  h+='<div class="sact"><button class="btn btn-s" style="flex:1;justify-content:center" onclick="checkGaps()">Проверить полноту</button></div>';
+  if(S.flagGaps)h+='<div class="snote" style="border-top:none;margin-top:0">Подсвечено неполных записей: <b>'+g.length+'</b>. Они молча выбывают на проверке годности. <span class="lnk" onclick="S.flagGaps=false;render()">снять подсветку</span></div>';
+  else h+='<div class="snote">База данных у всех одинаковая — обычные таблицы. Разница в том, как их отображают и как ими пользуются.</div>';
+ }
+ else if(S.view==='flows'){
+  document.getElementById('sideT').textContent='Workflows · шаблоны';
+  h+='<div class="sgrp"><div class="sgh">Библиотека шаблонов</div><div class="sgi">';
+  TPL.forEach(t=>{h+='<div class="si'+(S.active==='tpl:'+t.id?' on':'')+'" onclick="openTab(\'tpl:'+t.id+'\')">'+
+   '<span class="d" style="background:'+(t.uses?'#0F7B5A':'#CAD5E4')+'"></span><span class="tx">'+esc(t.name)+'</span>'+
+   '<span class="n">'+t.nodes.length+'</span></div>'});
+  h+='</div></div>';
+  h+='<div class="sact"><button class="btn btn-p btn-s" style="flex:1;justify-content:center" onclick="newTpl()">+ Новый процесс</button></div>';
+  h+='<div class="snote">Собирается редко — раз в сто лет. Дальше шаблон применяется к данным в рабочем пространстве.</div>';
+ }
+ else if(S.view==='space'){
+  document.getElementById('sideT').textContent='Workspaces';
+  h+='<div class="sgrp"><div class="sgh">Пространства</div><div class="sgi">'+
+   '<div class="si'+(S.active==='spaces'?' on':'')+'" onclick="openTab(\'spaces\')"><span class="d"></span><span class="tx">Собрать пространство</span></div>';
+  if(S.space)h+='<div class="si'+(S.active==='ws'?' on':'')+'" onclick="openTab(\'ws\')"><span class="d" style="background:#0057FF"></span>'+
+   '<span class="tx">'+esc(S.space.name)+'</span><span class="n">'+openQ().length+'</span></div>';
+  h+='</div></div>';
+  if(S.space){
+   h+='<div class="sgrp"><div class="sgh">Отображение</div><div class="sgi">';
+   const D={funnel:'Воронка',board:'Доска',list:'Список',table:'Таблица'};
+   ROLES[S.space.role].views.forEach(v=>{h+='<div class="si'+(S.disp===v?' on':'')+'" onclick="setDisp(\''+v+'\')">'+
+    '<span class="d"></span><span class="tx">'+D[v]+'</span></div>'});
+   h+='</div></div>';
+  }
+  h+='<div class="snote">'+(S.space?'Роль <b>'+ROLES[S.space.role].n+'</b> определяет, какие отображения доступны и какие вопросы задаёт робот. <span class="lnk" onclick="resetSpace()">сменить роль</span>':'Пространство = роль + шаблон процесса + набор данных. 90% времени человек проводит здесь.')+'</div>';
+ }
+ else{document.getElementById('sideT').textContent='Инфо';
+  h='<div class="sgrp"><div class="sgi"><div class="si on" onclick="openTab(\'about\')"><span class="d"></span><span class="tx">Что это за прототип</span></div></div></div>';}
+ B.innerHTML=h;
+}
+
+/* ═════ ВКЛАДКИ ═════ */
+function tabName(id){const[t,a]=id.split(':');
+ if(t==='tbl')return['DB',TABLES[a].n];
+ if(t==='rec')return['·',recName(a)];
+ if(t==='tpl'){const x=tplById(a);return['WF',x?x.name:'Процесс']}
+ if(t==='spaces')return['WS','Собрать пространство'];
+ if(t==='ws')return['WS',S.space?S.space.name:'Пространство'];
+ if(t==='about')return['?','Про прототип'];return['','?']}
+function recName(k){const[t,id]=k.split('/');const r=row(t,id);if(!r)return id;
+ return r.Имя||r.Компания||r.Событие||r.Адрес||id}
+function renderTabs(){document.getElementById('tabs').innerHTML=S.tabs.map(id=>{const[i,n]=tabName(id);
+ return '<div class="tb'+(S.active===id?' on':'')+'" onclick="S.active=\''+id+'\';render()">'+
+ '<span class="ti">'+i+'</span><span style="overflow:hidden;text-overflow:ellipsis">'+esc(n)+'</span>'+
+ '<span class="x" onclick="closeTab(\''+id+'\',event)">×</span></div>'}).join('')}
+
+/* ═════ DATA ═════ */
+function gaps(){const out=[];
+ Object.entries(TABLES).forEach(([k,cfg])=>{if(!cfg.req.length)return;
+  DB[k].forEach(r=>{const miss=cfg.req.filter(c=>r[c]==null||r[c]==='');
+   if(miss.length)out.push({tbl:k,id:r.id,name:recName(k+'/'+r.id),miss})})});
+ return out}
+function checkGaps(){const g=gaps();S.flagGaps=true;
+ log('помощник','gate','Проверка полноты: неполных записей <b>'+g.length+'</b>');
+ asstSay('Прошёл по таблицам. Неполных записей: <b>'+g.length+'</b>.<ul>'+
+  g.map(x=>'<li>'+esc(x.name)+' — нет: '+x.miss.map(m=>esc(m.toLowerCase())).join(', ')+'</li>').join('')+'</ul>'+
+  'Такие записи выбывают на проверке годности молча — человек об этом не узнаёт.');
+ if(g.length)openTab('tbl:'+g[0].tbl); else render();
+ toast('Подсвечено неполных: '+g.length)}
+function sortBy(t,c){const cur=S.tblSort[t];S.tblSort[t]=cur&&cur.c===c?{c,d:-cur.d}:{c,d:1};render()}
+function tblSearch(t,v){S.tblQ[t]=v;render()}
+function rowsOf(t){let r=[...DB[t]];const q=(S.tblQ[t]||'').toLowerCase().trim();
+ if(q)r=r.filter(x=>TABLES[t].cols.some(c=>{let v=x[c];
+  if(c==='Компания'&&t==='people')v=co(v);if(c==='Кому'||c==='От')v=pers(v);if(c==='Ящик')v=sndr(v);
+  return String(v==null?'':v).toLowerCase().includes(q)}));
+ const s=S.tblSort[t];
+ if(s)r.sort((a,b)=>{let x=a[s.c],y=b[s.c];if(x==null)return 1;if(y==null)return -1;
+  return (typeof x==='number'?x-y:String(x).localeCompare(String(y)))*s.d});
+ return r}
+function cellVal(t,r,c){
+ let v=r[c];
+ if(v==null||v==='')return '<span class="gap">нет данных</span>';
+ if(t==='people'&&c==='Компания')return '<span class="lnk" onclick="event.stopPropagation();openRec(\'companies\',\''+v+'\')">'+esc(co(v))+'</span>';
+ if(t==='signals'&&c==='Компания')return '<span class="lnk" onclick="event.stopPropagation();openRec(\'companies\',\''+v+'\')">'+esc(co(v))+'</span>';
+ if((c==='Кому'||c==='От'))return '<span class="lnk" onclick="event.stopPropagation();openRec(\'people\',\''+v+'\')">'+esc(pers(v))+'</span>';
+ if(c==='Ящик'&&v!=='—')return '<span class="mono" style="font-size:11px">'+esc(sndr(v))+'</span>';
+ if(c==='Годность')return '<span class="tag '+(v>=75?'t-ok':v>=60?'t-warn':'t-neu')+'">'+v+'</span>';
+ if(c==='Состояние'||c==='Стадия'||c==='Разбор'||c==='Тип')return tag(v);
+ if(c==='Канал')return v==='закрыт полностью'?'<span class="tag t-stop">закрыт</span>':
+   v.startsWith('только')?'<span class="tag t-warn">'+esc(v)+'</span>':'<span class="tag t-ok">'+esc(v)+'</span>';
+ if(c==='Прогрев')return '<span class="mono">'+v+'%</span>';
+ if(c==='Домен'||c==='Почта'||c==='LinkedIn'||c==='Адрес')return '<span class="mono" style="font-size:11px">'+esc(v)+'</span>';
+ return esc(v)}
+function tag(v){const m={'здоров':'t-ok','прогрев':'t-warn','выведен':'t-stop','ограничен':'t-warn',
+ 'Ответили':'t-ok','Сделка':'t-ok','Встреча':'t-ok','Открыли':'t-sig','Написали':'t-sig','Новые':'t-neu','Закрыт':'t-stop',
+ 'интерес':'t-ok','не сейчас':'t-warn','смена канала':'t-sig','вакансия':'t-sig','раунд':'t-vio','смена работы':'t-warn','новость':'t-neu'};
+ return '<span class="tag '+(m[v]||'t-neu')+'">'+esc(v)+'</span>'}
+function openRec(t,id){openTab('rec:'+t+'/'+id)}
+
+function vTable(t){const cfg=TABLES[t];const rs=rowsOf(t);const g=gaps();
+ let h='<div class="ph"><div class="pk">Data</div><div class="pt">'+esc(cfg.n)+'</div>'+
+  '<div class="pd">Сырые данные в табличном виде. Заголовок сортирует, строка открывается, поиск работает.</div></div>';
+ h+='<div class="tool"><div class="srch"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>'+
+  '<input placeholder="Искать в таблице…" value="'+esc(S.tblQ[t]||'')+'" oninput="tblSearch(\''+t+'\',this.value)"></div>';
+ if(S.tblQ[t])h+='<button class="btn btn-g btn-s" onclick="tblSearch(\''+t+'\',\'\')">сбросить</button>';
+ h+='<div class="sp"></div><button class="btn btn-s" onclick="checkGaps()">Проверить полноту</button>'+
+  '<button class="btn btn-s" onclick="addRow(\''+t+'\')">+ Запись</button>'+
+  '<span style="font-size:11.5px;color:var(--muted)">'+rs.length+' из '+DB[t].length+'</span></div>';
+ h+='<table class="tbl"><thead><tr>';
+ cfg.cols.forEach(c=>{const s=S.tblSort[t];
+  h+='<th onclick="sortBy(\''+t+'\',\''+c+'\')">'+esc(c)+(s&&s.c===c?' <span class="sort">'+(s.d>0?'▲':'▼')+'</span>':'')+'</th>'});
+ h+='<th></th></tr></thead><tbody>';
+ rs.forEach(r=>{const bad=S.flagGaps&&g.some(x=>x.tbl===t&&x.id===r.id);
+  h+='<tr class="'+(bad?'flag':'')+'" onclick="openRec(\''+t+'\',\''+r.id+'\')">';
+  cfg.cols.forEach(c=>{h+='<td'+(['Людей','Лимит','Сегодня'].includes(c)?' class="mono"':'')+'>'+cellVal(t,r,c)+'</td>'});
+  h+='<td style="text-align:right"><button class="btn btn-g btn-s" onclick="event.stopPropagation();openRec(\''+t+'\',\''+r.id+'\')">→</button></td></tr>'});
+ if(!rs.length)h+='<tr><td colspan="9" style="text-align:center;padding:26px;color:var(--muted2)">Ничего не нашлось по «'+esc(S.tblQ[t])+'»</td></tr>';
+ h+='</tbody></table>';
+ if(S.flagGaps&&g.filter(x=>x.tbl===t).length)h+='<div class="wfval bad" style="max-width:640px">Жёлтым подсвечены записи, где не хватает обязательных полей. Их '+
+  g.filter(x=>x.tbl===t).length+' в этой таблице.</div>';
+ return h}
+
+function addRow(t){const cfg=TABLES[t];
+ openModal('<div class="mh">Новая запись · '+esc(cfg.n)+'</div><div class="mb">'+
+  cfg.cols.slice(0,4).map((c,i)=>'<div style="margin-bottom:9px"><div class="flab">'+esc(c)+'</div>'+
+   '<input class="finp" id="nf'+i+'" placeholder="'+esc(c)+'"></div>').join('')+
+  '<div style="font-size:11.5px;color:var(--muted)">Запись появится в таблице сразу и будет видна процессам.</div></div>'+
+  '<div class="mf"><button class="btn" onclick="closeModal()">Отмена</button>'+
+  '<button class="btn btn-p" onclick="saveRow(\''+t+'\')">Создать</button></div>')}
+function saveRow(t){const cfg=TABLES[t];const r={id:t.slice(0,2)+(Date.now()%9999)};
+ cfg.cols.forEach((c,i)=>{const el=document.getElementById('nf'+i);r[c]=el?(el.value||null):null});
+ DB[t].push(r);closeModal();
+ log('человек','human','Добавлена запись в <b>'+esc(cfg.n)+'</b>: '+esc(recName(t+'/'+r.id)));
+ hist('Создана запись в таблице «'+cfg.n+'»');
+ toast('Запись создана');render()}
+
+function vRec(key){const[t,id]=key.split('/');const r=row(t,id);
+ if(!r)return '<div class="empty">Запись не найдена</div>';
+ const cfg=TABLES[t];
+ let h='<div class="ph"><div class="pk">'+esc(cfg.n)+'</div><div class="pt">'+esc(recName(key))+'</div></div>';
+ h+='<div class="g2"><div class="card"><div class="ch"><span class="ct">Поля</span>'+
+  '<div style="flex:1"></div><button class="btn btn-s" onclick="editRec(\''+key+'\')">Изменить</button></div>';
+ cfg.cols.forEach(c=>{h+='<div class="kv"><span class="kvk">'+esc(c)+'</span><span class="kvv">'+cellVal(t,r,c)+'</span></div>'});
+ h+='</div><div class="card"><div class="ch"><span class="ct">Связи</span></div>'+relOf(t,id)+'</div></div>';
+ return h}
+function relOf(t,id){let h='';
+ if(t==='companies'){const ppl=DB.people.filter(p=>p.Компания===id),sg=DB.signals.filter(s=>s.Компания===id);
+  h+='<div class="kv"><span class="kvk">Люди</span><span class="kvv">'+(ppl.length?ppl.map(p=>'<span class="lnk" onclick="openRec(\'people\',\''+p.id+'\')">'+esc(p.Имя)+'</span>').join(', '):'нет')+'</span></div>';
+  h+='<div class="kv"><span class="kvk">Сигналы</span><span class="kvv">'+(sg.length?sg.map(s=>esc(s.Событие)).join('<br>'):'нет')+'</span></div>'}
+ else if(t==='people'){const tc=DB.touches.filter(x=>x.Кому===id),rp=DB.replies.filter(x=>x.От===id);
+  h+='<div class="kv"><span class="kvk">Компания</span><span class="kvv"><span class="lnk" onclick="openRec(\'companies\',\''+row('people',id).Компания+'\')">'+esc(co(row('people',id).Компания))+'</span></span></div>';
+  h+='<div class="kv"><span class="kvk">Касания</span><span class="kvv">'+(tc.length?tc.map(x=>esc(x.Что)+' · '+esc(x.Итог)).join('<br>'):'не касались')+'</span></div>';
+  h+='<div class="kv"><span class="kvk">Ответы</span><span class="kvv">'+(rp.length?rp.map(x=>esc(x.Суть)).join('<br>'):'нет')+'</span></div>'}
+ else if(t==='senders'){const tc=DB.touches.filter(x=>x.Ящик===id);
+  h+='<div class="kv"><span class="kvk">Касаний с него</span><span class="kvv">'+tc.length+'</span></div>'}
+ else h+='<div style="font-size:12px;color:var(--muted2)">Связи подтянутся, когда таблица наполнится.</div>';
+ return h}
+function editRec(key){const[t,id]=key.split('/');const r=row(t,id);const cfg=TABLES[t];
+ openModal('<div class="mh">Изменить · '+esc(recName(key))+'</div><div class="mb" style="max-height:52vh;overflow:auto">'+
+  cfg.cols.map((c,i)=>'<div style="margin-bottom:9px"><div class="flab">'+esc(c)+'</div>'+
+   '<input class="finp" id="ef'+i+'" value="'+esc(r[c]==null?'':r[c])+'"></div>').join('')+'</div>'+
+  '<div class="mf"><button class="btn" onclick="closeModal()">Отмена</button>'+
+  '<button class="btn btn-p" onclick="saveEdit(\''+key+'\')">Сохранить</button></div>')}
+function saveEdit(key){const[t,id]=key.split('/');const r=row(t,id);const cfg=TABLES[t];const ch=[];
+ cfg.cols.forEach((c,i)=>{const el=document.getElementById('ef'+i);if(!el)return;
+  let v=el.value===''?null:el.value;if(typeof r[c]==='number'&&v!=null)v=Number(v);
+  if(String(r[c])!==String(v)){ch.push(c);r[c]=v}});
+ closeModal();
+ if(ch.length){log('человек','human','Правка <b>'+esc(recName(key))+'</b>: '+ch.join(', '));
+  hist('Изменены поля «'+ch.join(', ')+'» у записи '+recName(key));toast('Сохранено')}
+ render()}
+
+/* ═════ WORKFLOWS · конструктор BPMN 2.0 ═════ */
+const ICO={start:'<circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/>',
+ end:'<rect x="7" y="7" width="10" height="10" rx="2"/>',
+ timer:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/>'};
+function nodeBox(n,st){
+ const cls='bnode '+(st||'')+(S.wfSel===n.id?' on':'');
+ if(n.type==='start'||n.type==='end')
+  return '<div class="'+cls+' b-ev'+(n.type==='end'?' end':'')+'" id="bn_'+n.id+'" onclick="selNode(\''+n.id+'\')">'+
+   '<svg viewBox="0 0 24 24">'+(n.type==='end'?ICO.end:ICO.start)+'</svg></div>';
+ if(n.type==='timer')
+  return '<div class="'+cls+' b-ev" id="bn_'+n.id+'" onclick="selNode(\''+n.id+'\')"><svg viewBox="0 0 24 24">'+ICO.timer+'</svg></div>';
+ if(n.type==='gw')
+  return '<div class="'+cls+' b-gw" id="bn_'+n.id+'" onclick="selNode(\''+n.id+'\')"><span>✕</span></div>';
+ return '<div class="'+cls+' b-task" id="bn_'+n.id+'" onclick="selNode(\''+n.id+'\')">'+
+  '<span class="bw '+(n.who==='human'?'bw-human':'bw-auto')+'">'+(n.who==='human'?'человек':'робот')+'</span>'+
+  '<div class="bt2">'+esc(n.name)+'</div>'+(n.desc?'<div class="bd">'+esc(n.desc)+'</div>':'')+'</div>'}
+
+function drawFlow(nodes,depth){
+ let h='<div class="bcol">';
+ nodes.forEach((n,i)=>{
+  const st=S.wfRun[n.id]||'';
+  h+='<div class="brow">'+nodeBox(n,st);
+  if(n.type==='gw'){
+   h+='<div class="blbl gwl">'+esc(n.name)+(n.desc?'<small>'+esc(n.desc)+'</small>':'')+'</div>';
+   h+='<div class="hln"><span class="hlbl">'+esc(n.no||'нет')+'</span></div>';
+   h+='<div>'+drawFlow(n.branch||[],(depth||0)+1)+'</div>';
+  } else if(n.type!=='task'){
+   h+='<div class="blbl evl">'+esc(n.name)+(n.desc?'<small>'+esc(n.desc)+'</small>':'')+'</div>';
+  }
+  h+='</div>';
+  if(i<nodes.length-1){
+   const cls=n.type==='task'?'vln t':(n.type==='gw'?'vln g':'vln');
+   h+='<div class="'+cls+(st==='done'?' hot':'')+'" id="lk_'+n.id+'"></div>';
+  }
+ });
+ return h+'</div>'}
+
+function vTpl(id){
+ const t=tplById(id);if(!t)return '<div class="empty">Процесс не найден</div>';
+ let h='<div class="ph"><div class="pk">Workflows · BPMN 2.0</div><div class="pt">'+esc(t.name)+'</div>'+
+  '<div class="pd">'+esc(t.desc)+' Блок выбирается кликом на канве и настраивается в палитре слева: имя, пояснение, исполнитель, порядок.</div></div>';
+ h+='<div class="tool">'+
+  '<button class="btn btn-p btn-s" onclick="runTpl(\''+id+'\')" id="runBtn"><svg viewBox="0 0 24 24"><path d="M6 4l14 8-14 8z" fill="currentColor" stroke="none"/></svg>Прогнать процесс</button>'+
+  '<button class="btn btn-s" onclick="S.wfRun={};render()">Сбросить</button>'+
+  '<button class="btn btn-s" onclick="validateTpl(\''+id+'\')">Проверить</button>'+
+  '<button class="btn btn-s" onclick="cloneTpl(\''+id+'\')">Сохранить как копию</button>'+
+  '<div class="sp"></div><span style="font-size:11.5px;color:var(--muted)">блоков: '+cnt(t.nodes)+' · правился '+esc(t.edited)+'</span></div>';
+ h+='<div class="wf"><div class="pal">'+
+  '<div class="palh">Добавить блок</div>'+
+  palBtn(id,'task','Задача','<div style="width:17px;height:12px;border:1.5px solid var(--graphite);border-radius:3px"></div>')+
+  palBtn(id,'gw','Развилка','<div style="width:13px;height:13px;border:1.5px solid var(--graphite);transform:rotate(45deg);border-radius:2px"></div>')+
+  palBtn(id,'timer','Таймер','<div style="width:15px;height:15px;border:1.5px solid var(--graphite);border-radius:50%"></div>')+
+  palBtn(id,'end','Конец','<div style="width:15px;height:15px;border:3px solid var(--graphite);border-radius:50%"></div>')+
+  '<div class="palh">Выбранный блок</div>'+
+  (S.wfSel?nodeProps(id):'<div style="font-size:11px;color:var(--muted2);line-height:1.5">Кликните блок на канве — здесь появятся его настройки.</div>')+
+  '</div><div class="canvas">'+drawFlow(t.nodes,0)+'</div></div>';
+ if(S.wfVal)h+='<div class="wfval '+(S.wfVal.ok?'ok':'bad')+'">'+S.wfVal.m+'</div>';
+ return h}
+function cnt(ns){return ns.reduce((a,n)=>a+1+(n.branch?cnt(n.branch):0),0)}
+function palBtn(tid,type,label,ic){
+ return '<div class="palb" onclick="addNode(\''+tid+'\',\''+type+'\')"><span class="bi">'+ic+'</span>'+label+'</div>'}
+function findNode(ns,id){for(const n of ns){if(n.id===id)return n;if(n.branch){const r=findNode(n.branch,id);if(r)return r}}return null}
+function findParent(ns,id){for(const n of ns){if(n.id===id)return ns;if(n.branch){const r=findParent(n.branch,id);if(r)return r}}return null}
+function selNode(id){S.wfSel=S.wfSel===id?null:id;render()}
+function nodeProps(tid){
+ const t=tplById(tid);const n=findNode(t.nodes,S.wfSel);
+ if(!n)return '<div style="font-size:11px;color:var(--muted2)">Блок удалён.</div>';
+ const TY={start:'Начало',task:'Задача',gw:'Развилка',timer:'Таймер',end:'Конец'};
+ let h='<div style="font-size:11px;color:var(--muted2);margin-bottom:5px">'+TY[n.type]+'</div>'+
+  '<input class="finp" style="margin-top:0;font-size:12px;padding:5px 7px" value="'+esc(n.name)+'" '+
+  'oninput="renameNode(\''+tid+'\',\''+n.id+'\',this.value)">';
+ if(n.type==='task'||n.type==='gw')h+='<input class="finp" style="font-size:11px;padding:5px 7px" placeholder="пояснение" '+
+  'value="'+esc(n.desc||'')+'" oninput="descNode(\''+tid+'\',\''+n.id+'\',this.value)">';
+ if(n.type==='task')h+='<div style="display:flex;gap:4px;margin-top:6px">'+
+  '<button class="btn btn-s'+(n.who==='auto'?' btn-p':'')+'" style="flex:1;justify-content:center" onclick="whoNode(\''+tid+'\',\''+n.id+'\',\'auto\')">робот</button>'+
+  '<button class="btn btn-s'+(n.who==='human'?' btn-p':'')+'" style="flex:1;justify-content:center" onclick="whoNode(\''+tid+'\',\''+n.id+'\',\'human\')">человек</button></div>';
+ h+='<div style="display:flex;gap:4px;margin-top:6px">'+
+  '<button class="btn btn-s" style="flex:1;justify-content:center" onclick="moveNode(\''+tid+'\',\''+n.id+'\',-1)">↑</button>'+
+  '<button class="btn btn-s" style="flex:1;justify-content:center" onclick="moveNode(\''+tid+'\',\''+n.id+'\',1)">↓</button>'+
+  '<button class="btn btn-s btn-d" style="flex:1;justify-content:center" onclick="delNode(\''+tid+'\',\''+n.id+'\')">✕</button></div>';
+ return h}
+function touchTpl(t){t.edited='только что'}
+function addNode(tid,type){const t=tplById(tid);
+ const id='x'+Math.random().toString(36).slice(2,7);
+ const N={start:{name:'Начало'},task:{name:'Новая задача',desc:'',who:'auto'},
+  gw:{name:'Новое условие?',desc:'',no:'нет',branch:[{id:id+'b',type:'end',name:'Выход'}]},
+  timer:{name:'Ждать 1 день'},end:{name:'Конец'}}[type];
+ const node=Object.assign({id,type},N);
+ const sel=S.wfSel?findNode(t.nodes,S.wfSel):null;
+ const arr=sel?findParent(t.nodes,S.wfSel):t.nodes;
+ const at=sel?arr.indexOf(sel)+1:t.nodes.length;
+ arr.splice(at,0,node);S.wfSel=id;touchTpl(t);
+ log('человек','human','В процесс <b>'+esc(t.name)+'</b> добавлен блок «'+esc(node.name)+'»');
+ hist('Добавлен блок «'+node.name+'» в процесс «'+t.name+'»');
+ S.wfVal=null;render();toast('Блок добавлен — настройте его слева')}
+function renameNode(tid,id,v){const t=tplById(tid);const n=findNode(t.nodes,id);if(!n)return;n.name=v;touchTpl(t);
+ const el=document.getElementById('bn_'+id);if(el){const b=el.querySelector('.bt2');if(b)b.textContent=v}
+ const lbl=el&&el.parentElement.querySelector('.blbl');if(lbl)lbl.childNodes[0].nodeValue=v}
+function descNode(tid,id,v){const t=tplById(tid);const n=findNode(t.nodes,id);if(!n)return;n.desc=v;touchTpl(t)}
+function whoNode(tid,id,w){const t=tplById(tid);const n=findNode(t.nodes,id);if(!n)return;n.who=w;touchTpl(t);
+ log('человек','human','Блок «'+esc(n.name)+'» теперь выполняет '+(w==='human'?'человек':'робот'));
+ hist('Исполнитель блока «'+n.name+'» → '+(w==='human'?'человек':'робот'));render()}
+function moveNode(tid,id,d){const t=tplById(tid);const arr=findParent(t.nodes,id);if(!arr)return;
+ const n=findNode(t.nodes,id);const i=arr.indexOf(n);const j=i+d;
+ if(j<0||j>=arr.length)return toast('Дальше некуда');
+ arr.splice(i,1);arr.splice(j,0,n);touchTpl(t);S.wfVal=null;
+ log('человек','human','Блок «'+esc(n.name)+'» переставлен');hist('Порядок блоков изменён в «'+t.name+'»');render()}
+function delNode(tid,id){const t=tplById(tid);const arr=findParent(t.nodes,id);if(!arr)return;
+ const n=findNode(t.nodes,id);arr.splice(arr.indexOf(n),1);S.wfSel=null;touchTpl(t);S.wfVal=null;
+ log('человек','human','Блок «'+esc(n.name)+'» удалён из <b>'+esc(t.name)+'</b>');
+ hist('Удалён блок «'+n.name+'»');render();toast('Блок удалён')}
+function validateTpl(id){const t=tplById(id);const errs=[];
+ if(t.nodes[0]&&t.nodes[0].type!=='start')errs.push('первый блок — не начало');
+ const flat=(ns)=>ns.reduce((a,n)=>a.concat([n],n.branch?flat(n.branch):[]),[]);
+ const all=flat(t.nodes);
+ if(!all.some(n=>n.type==='end'))errs.push('нет ни одного конца');
+ all.forEach(n=>{if(!n.name||!n.name.trim())errs.push('блок без названия')});
+ const last=t.nodes[t.nodes.length-1];
+ if(last&&last.type!=='end')errs.push('основная ветка не заканчивается блоком «конец»');
+ all.filter(n=>n.type==='gw').forEach(n=>{if(!n.branch||!n.branch.length)errs.push('у развилки «'+n.name+'» пустая вторая ветка')});
+ S.wfVal=errs.length?{ok:false,m:'Процесс собран не до конца:<br>· '+errs.join('<br>· ')}:
+  {ok:true,m:'Процесс замкнут: '+cnt(t.nodes)+' блоков, все ветки заканчиваются. Можно применять в рабочем пространстве.'};
+ log('помощник',errs.length?'gate':'auto','Проверка «'+esc(t.name)+'»: '+(errs.length?errs.length+' замечаний':'всё сходится'));
+ render()}
+function cloneTpl(id){const t=tplById(id);
+ openModal('<div class="mh">Сохранить как новый шаблон</div><div class="mb">'+
+  '<div class="flab">Название</div><input class="finp" id="tplName" value="'+esc(t.name)+' — копия">'+
+  '<div class="flab" style="margin-top:9px">Для чего</div><input class="finp" id="tplDesc" value="'+esc(t.desc)+'">'+
+  '<div style="font-size:11.5px;color:var(--muted);margin-top:9px">Шаблон появится в библиотеке слева и станет доступен при сборке рабочего пространства.</div></div>'+
+  '<div class="mf"><button class="btn" onclick="closeModal()">Отмена</button>'+
+  '<button class="btn btn-p" onclick="doClone(\''+id+'\')">Сохранить</button></div>')}
+function doClone(id){const t=tplById(id);
+ const nt=JSON.parse(JSON.stringify(t));nt.id='tpl'+(TPL.length+1)+Math.random().toString(36).slice(2,4);
+ nt.name=document.getElementById('tplName').value||t.name+' — копия';
+ nt.desc=document.getElementById('tplDesc').value||t.desc;nt.uses=0;nt.edited='только что';
+ TPL.push(nt);closeModal();
+ log('человек','human','Сохранён шаблон <b>'+esc(nt.name)+'</b>');hist('Создан шаблон «'+nt.name+'»');
+ openTab('tpl:'+nt.id);toast('Шаблон сохранён — он уже в библиотеке')}
+function newTpl(){const nt={id:'tpl'+Date.now()%9999,name:'Новый процесс',desc:'Собран с нуля.',uses:0,edited:'только что',
+ nodes:[{id:'s'+Date.now()%999,type:'start',name:'Начало',desc:'',who:'auto'}]};
+ TPL.push(nt);log('человек','human','Создан пустой процесс');hist('Создан процесс «Новый процесс»');
+ openTab('tpl:'+nt.id);toast('Добавляйте блоки из палитры слева')}
+
+const RUNFAIL={n2:null,n3:null,n5:null};
+function runTpl(id){
+ if(S.wfBusy)return;const t=tplById(id);S.wfBusy=true;S.wfRun={};S.wfVal=null;render();
+ const flat=(ns)=>ns.reduce((a,n)=>a.concat([n]),[]);
+ const seq=flat(t.nodes);let i=0;
+ log('прогон','sys','Пошёл по процессу <b>'+esc(t.name)+'</b>');
+ const step=()=>{
+  if(i>0)S.wfRun[seq[i-1].id]='done';
+  if(i>=seq.length){S.wfBusy=false;log('прогон','sys','Процесс дошёл до конца');toast('Процесс прошёл целиком');paint();render();return}
+  const n=seq[i];S.wfRun[n.id]='live';paint();
+  const el=document.getElementById('bn_'+n.id);if(el)el.scrollIntoView({behavior:'smooth',block:'center'});
+  setTimeout(()=>{
+   log(n.who==='human'?'человек':(n.type==='gw'?'развилка':'робот'),
+     n.who==='human'?'human':(n.type==='gw'?'gate':'auto'),
+     '<b>'+esc(n.name)+'</b>'+(n.type==='gw'?' — да, идём дальше':n.type==='timer'?' — таймер поставлен':' — выполнено'));
+   i++;step()},n.type==='timer'?820:480)};
+ const paint=()=>{const f=(ns)=>ns.forEach(n=>{const e=document.getElementById('bn_'+n.id);
+  if(e)e.className=e.className.replace(/\b(live|done|fail)\b/g,'').trim()+' '+(S.wfRun[n.id]||'');
+  const l=document.getElementById('lk_'+n.id);
+  if(l)l.className=l.className.replace(/ hot/,'')+(S.wfRun[n.id]==='done'?' hot':'');
+  if(n.branch)f(n.branch)});f(t.nodes)};
+ step()}
+
+/* ═════ WORKSPACES ═════ */
+const DATASETS=[
+ {id:'ds1',n:'Бостон · вакансии инженеров',rule:'сигнал = вакансия · 2–30 человек · штат MA',n2:()=>DB.people.filter(p=>['co1','co6'].includes(p.Компания)).length},
+ {id:'ds2',n:'Все, кто в работе',rule:'любой человек со стадией выше «Новые»',n2:()=>DB.people.filter(p=>!['Новые','Закрыт'].includes(p.Стадия)).length},
+ {id:'ds3',n:'Свежие раунды',rule:'сигнал = раунд ≤ 90 дней',n2:()=>DB.people.filter(p=>p.Компания==='co3').length},
+];
+const STAGES=['Новые','Написали','Открыли','Ответили','Встреча','Сделка'];
+const SC={'Новые':'#8A97AC','Написали':'#7FA2E8','Открыли':'#4E7FE0','Ответили':'#0057FF','Встреча':'#1F6F8B','Сделка':'#0F7B5A'};
+
+function vSpaces(){
+ let h='<div class="ph"><div class="pk">Workspaces</div><div class="pt">Собрать рабочее пространство</div>'+
+  '<div class="pd">Пространство — это роль плюс шаблон процесса плюс набор данных. Роль определяет, что вы видите и о чём вас спрашивает робот.</div></div>';
+ h+='<div class="step">'+
+  stp(1,'Роль',S.pick.role)+arw()+stp(2,'Процесс',S.pick.tpl)+arw()+stp(3,'Данные',S.pick.data)+'</div>';
+ if(S.spaceStep===1){
+  h+='<div class="rolegrid">';
+  Object.entries(ROLES).forEach(([k,r])=>{
+   h+='<div class="rolecard'+(S.pick.role===k?' on':'')+'" onclick="pickRole(\''+k+'\')">'+
+    '<div class="ric"><svg viewBox="0 0 24 24"><path d="'+r.ic+'"/></svg></div>'+
+    '<div class="rn">'+esc(r.n)+'</div><div class="rw">'+esc(r.who)+'</div>'+
+    '<div class="rl">'+esc(r.sees)+'</div>'+
+    '<div style="margin-top:9px;font-size:11px;color:var(--muted2)">Отображения: '+r.views.map(v=>({funnel:'воронка',board:'доска',list:'список',table:'таблица'})[v]).join(' · ')+'</div></div>'});
+  h+='</div>';
+ }
+ else if(S.spaceStep===2){
+  h+='<div class="g3">';
+  TPL.forEach(t=>{h+='<div class="rolecard'+(S.pick.tpl===t.id?' on':'')+'" onclick="pickTpl(\''+t.id+'\')">'+
+   '<div class="rn" style="font-size:13px">'+esc(t.name)+'</div>'+
+   '<div class="rl" style="margin-top:5px">'+esc(t.desc)+'</div>'+
+   '<div style="margin-top:9px;font-size:11px;color:var(--muted2)">'+cnt(t.nodes)+' блоков · правился '+esc(t.edited)+'</div>'+
+   '<button class="btn btn-s" style="margin-top:9px" onclick="event.stopPropagation();openTab(\'tpl:'+t.id+'\')">Посмотреть схему</button></div>'});
+  h+='</div><div style="margin-top:11px"><button class="btn btn-g btn-s" onclick="S.spaceStep=1;render()">← назад к ролям</button></div>';
+ }
+ else{
+  h+='<div class="g3">';
+  DATASETS.forEach(d=>{h+='<div class="rolecard'+(S.pick.data===d.id?' on':'')+'" onclick="pickData(\''+d.id+'\')">'+
+   '<div class="rn" style="font-size:13px">'+esc(d.n)+'</div>'+
+   '<div class="rl mono" style="margin-top:5px;font-size:11px">'+esc(d.rule)+'</div>'+
+   '<div style="margin-top:9px;font-size:11px;color:var(--muted2)">сейчас записей: '+d.n2()+'</div></div>'});
+  h+='</div><div style="margin-top:13px;display:flex;gap:7px"><button class="btn btn-g btn-s" onclick="S.spaceStep=2;render()">← назад к процессам</button>'+
+   '<button class="btn btn-p" onclick="openSpace()"'+(S.pick.data?'':' disabled')+'>Открыть пространство</button></div>';
+ }
+ return h}
+function stp(i,n,v){return '<div class="stp '+(S.spaceStep===i?'on':v?'ok':'')+'"><span class="num">'+(v&&S.spaceStep!==i?'✓':i)+'</span>'+n+'</div>'}
+function arw(){return '<div class="stpar"></div>'}
+function pickRole(k){S.pick.role=k;S.spaceStep=2;log('человек','human','Выбрана роль <b>'+ROLES[k].n+'</b>');render()}
+function pickTpl(id){S.pick.tpl=id;S.spaceStep=3;log('человек','human','Выбран процесс <b>'+esc(tplById(id).name)+'</b>');render()}
+function pickData(id){S.pick.data=id;render()}
+function openSpace(){
+ const r=ROLES[S.pick.role],t=tplById(S.pick.tpl),d=DATASETS.find(x=>x.id===S.pick.data);
+ S.space={role:S.pick.role,tpl:S.pick.tpl,data:S.pick.data,name:r.n+' · '+d.n};
+ S.disp=r.views[0];S.role=S.pick.role;t.uses++;
+ log('человек','human','Открыто пространство <b>'+esc(S.space.name)+'</b>');
+ hist('Создано пространство «'+S.space.name+'»');
+ asstReset();openTab('ws');toast('Пространство открыто — робот уже работает внутри')}
+function resetSpace(){S.space=null;S.role=null;S.pick={role:null,tpl:null,data:null};S.spaceStep=1;
+ asstReset();openTab('spaces')}
+function setDisp(v){S.disp=v;log('человек','human','Отображение: '+({funnel:'воронка',board:'доска',list:'список',table:'таблица'})[v]);render()}
+function spaceRows(){
+ const d=S.space.data;
+ if(d==='ds1')return DB.people.filter(p=>['co1','co6'].includes(p.Компания));
+ if(d==='ds3')return DB.people.filter(p=>p.Компания==='co3');
+ return DB.people.filter(p=>!['Новые','Закрыт'].includes(p.Стадия))}
+function openQ(){return HITL.filter(q=>S.space&&q.role===S.space.role&&!S.answered.includes(q.id))}
+
+function vWs(){
+ if(!S.space)return vSpaces();
+ const r=ROLES[S.space.role],t=tplById(S.space.tpl),rows=spaceRows();
+ let h='<div class="ph"><div class="pk">Workspace · роль: '+esc(r.n)+'</div><div class="pt">'+esc(S.space.name)+'</div>'+
+  '<div class="pd">Процесс <span class="lnk" onclick="openTab(\'tpl:'+t.id+'\')">'+esc(t.name)+'</span> применён к набору данных. Роботы идут по нему сами; вопросы к вам — справа.</div></div>';
+ h+='<div class="tool">';
+ const D={funnel:'Воронка',board:'Доска',list:'Список',table:'Таблица'};
+ r.views.forEach(v=>{h+='<button class="btn btn-s'+(S.disp===v?' btn-p':'')+'" onclick="setDisp(\''+v+'\')">'+D[v]+'</button>'});
+ h+='<div class="sp"></div><span style="font-size:11.5px;color:var(--muted)">в работе '+rows.length+' человек</span>'+
+  '<button class="btn btn-s" onclick="resetSpace()">Сменить роль</button></div>';
+ const q=openQ();
+ if(q.length)h+='<div class="wfval bad" style="margin:0 0 12px"><b>Робот ждёт вашего решения: '+q.length+'.</b> Вопросы в панели помощника справа — она открыта.</div>';
+ h+={funnel:dFunnel,board:dBoard,list:dList,table:dTable}[S.disp](rows);
+ return h}
+function dFunnel(rows){
+ const mx=Math.max(1,...STAGES.map(s=>rows.filter(p=>p.Стадия===s).length));
+ let h='<div class="fun">';
+ STAGES.forEach((s,i)=>{const n=rows.filter(p=>p.Стадия===s).length;
+  const w=Math.max(96,Math.round(n/mx*460));
+  const prev=i?rows.filter(p=>p.Стадия===STAGES[i-1]).length:null;
+  h+='<div class="funrow" onclick="stageDetail(\''+s+'\')">'+
+   '<div class="funbar" style="width:'+w+'px;background:'+SC[s]+'">'+esc(s)+' · '+n+'</div>'+
+   '<div class="funmeta">'+(prev===null?'вход':prev?'переход <b>'+Math.round(n/prev*100)+'%</b>':'—')+'</div></div>'});
+ h+='</div><div style="margin-top:11px;font-size:11.5px;color:var(--muted)">Клик по полосе — кто в ней стоит. Воронка это просто один из видов отображения того же процесса.</div>';
+ return h}
+function stageDetail(s){const rows=spaceRows().filter(p=>p.Стадия===s);
+ openModal('<div class="mh">'+esc(s)+' · '+rows.length+'</div><div class="mb" style="max-height:54vh;overflow:auto">'+
+  (rows.length?rows.map(p=>'<div style="display:flex;gap:8px;align-items:baseline;padding:6px 0;border-bottom:1px solid var(--line2)">'+
+   '<b style="flex:1">'+esc(p.Имя)+'</b><span style="color:var(--muted);font-size:11.5px">'+esc(co(p.Компания))+'</span>'+
+   '<button class="btn btn-s" onclick="closeModal();openRec(\'people\',\''+p.id+'\')">карточка</button></div>').join('')
+   :'<div style="color:var(--muted2)">Пусто</div>')+'</div>'+
+  '<div class="mf"><button class="btn" onclick="closeModal()">Закрыть</button></div>')}
+function dBoard(rows){
+ let h='<div class="board">';
+ STAGES.forEach(s=>{const rs=rows.filter(p=>p.Стадия===s);
+  h+='<div class="bcol2"><div class="bch"><span class="sdot" style="background:'+SC[s]+'"></span>'+esc(s)+'<span class="n">'+rs.length+'</span></div><div class="bcb">';
+  rs.forEach(p=>{h+='<div class="crd'+(S.crdSel===p.id?' on':'')+'" onclick="S.crdSel=\''+p.id+'\';render()">'+
+   '<div class="crdn">'+esc(p.Имя)+'</div><div class="crdo">'+esc(p.Роль||'должность неизвестна')+' · '+esc(co(p.Компания))+'</div>'+
+   '<div class="crdf">'+esc(p.Канал)+'</div>'+
+   (S.crdSel===p.id?'<div style="display:flex;gap:4px;margin-top:7px">'+
+     '<button class="btn btn-s" onclick="event.stopPropagation();moveStage(\''+p.id+'\',1)">дальше →</button>'+
+     '<button class="btn btn-s btn-g" onclick="event.stopPropagation();openRec(\'people\',\''+p.id+'\')">карточка</button></div>':'')+
+   '</div>'});
+  if(!rs.length)h+='<div style="font-size:11px;color:var(--muted2);padding:6px">пусто</div>';
+  h+='</div></div>'});
+ return h+'</div><div style="margin-top:11px;font-size:11.5px;color:var(--muted)">Карточка выбирается кликом, кнопка «дальше» двигает её по стадиям — и это сразу видно в воронке.</div>'}
+function moveStage(id,d){const p=row('people',id);const i=STAGES.indexOf(p.Стадия);
+ if(i<0||i+d>=STAGES.length)return toast('Дальше стадии нет');
+ p.Стадия=STAGES[i+d];
+ log('человек','human','<b>'+esc(p.Имя)+'</b> → стадия «'+esc(p.Стадия)+'»');
+ hist(p.Имя+' переведён на стадию «'+p.Стадия+'»');render();toast(p.Имя+' → '+p.Стадия)}
+function dList(rows){
+ let h='<div class="card" style="padding:0">';
+ rows.forEach((p,i)=>{h+='<div style="display:flex;gap:10px;align-items:center;padding:9px 13px;'+
+  (i?'border-top:1px solid var(--line2);':'')+'cursor:pointer" onclick="openRec(\'people\',\''+p.id+'\')">'+
+  '<span class="sdot" style="background:'+SC[p.Стадия]+'"></span>'+
+  '<b style="width:150px">'+esc(p.Имя)+'</b>'+
+  '<span style="width:170px;color:var(--muted);font-size:12px">'+esc(p.Роль||'—')+'</span>'+
+  '<span style="flex:1;color:var(--muted);font-size:12px">'+esc(co(p.Компания))+'</span>'+
+  tag(p.Стадия)+'</div>'});
+ return h+'</div>'}
+function dTable(rows){
+ let h='<table class="tbl"><thead><tr><th>Имя</th><th>Роль</th><th>Компания</th><th>Стадия</th><th>Канал</th><th>Почта</th></tr></thead><tbody>';
+ rows.forEach(p=>{h+='<tr onclick="openRec(\'people\',\''+p.id+'\')"><td><b>'+esc(p.Имя)+'</b></td>'+
+  '<td>'+(p.Роль?esc(p.Роль):'<span class="gap">нет данных</span>')+'</td><td>'+esc(co(p.Компания))+'</td>'+
+  '<td>'+tag(p.Стадия)+'</td><td style="font-size:11.5px">'+esc(p.Канал)+'</td>'+
+  '<td class="mono" style="font-size:11px">'+(p.Почта?esc(p.Почта):'<span class="gap">нет</span>')+'</td></tr>'});
+ return h+'</tbody></table>'}
+
+/* ═════ ПОМОЩНИК · human-in-the-loop ═════ */
+const ASST={
+ data:{n:'Помощник по данным',s:'следит за полнотой таблиц',
+  chips:['Проверь полноту','Что изменилось за сегодня','Каких людей нельзя касаться'],
+  hello:'Слежу за таблицами. Могу проверить полноту, найти дубли и показать, кого касаться нельзя.'},
+ flows:{n:'Помощник по процессам',s:'проверяет, что процесс замкнут',
+  chips:['Проверь этот процесс','Где здесь человек','Что будет, если убрать проверку'],
+  hello:'Вижу схему процесса. Могу проверить, что он замкнут, и сказать, где в нём появляется человек.'},
+ space:{n:'Помощник в пространстве',s:'работает внутри процесса',
+  chips:['Что мне делать сейчас','Покажи узкое место','Сколько ждут решения'],
+  hello:'Иду по процессу сам. Когда упрусь во что-то, где нужно ваше решение, — спрошу здесь.'},
+ about:{n:'Помощник',s:'',chips:['Что уже работает','Чего пока нет'],hello:'Спрашивайте про прототип.'},
+};
+function asstReset(){S.asst=[];renderAsst()}
+function asstSay(html){S.asst.push({me:false,h:html});renderAsst();scrollAsst()}
+function asstMe(t){S.asst.push({me:true,h:esc(t)});renderAsst();scrollAsst()}
+function scrollAsst(){const b=document.getElementById('asstB');if(b)b.scrollTop=b.scrollHeight}
+function renderAsst(){
+ const cfg=ASST[S.view]||ASST.data;
+ document.getElementById('asstN').textContent=cfg.n;
+ document.getElementById('asstS').textContent=S.space&&S.view==='space'?'роль: '+ROLES[S.space.role].n:cfg.s;
+ const B=document.getElementById('asstB');let h='';
+ if(!S.asst.length)h+='<div class="amsg"><div class="abub">'+cfg.hello+'</div></div>';
+ S.asst.forEach(m=>{h+='<div class="amsg'+(m.me?' me':'')+'"><div class="abub">'+m.h+'</div></div>'});
+ if(S.view==='space'&&S.space){
+  openQ().forEach(q=>{
+   h+='<div class="aq"><div class="aq-h">нужно решение · '+esc(ROLES[q.role].n)+'</div>'+
+    '<div class="aq-t">'+esc(q.t)+'</div><div class="aq-why">'+esc(q.why)+'</div>'+
+    '<div class="aq-t" style="margin-bottom:9px">'+q.ask+'</div><div class="aq-btns">'+
+    q.opts.map(o=>'<button class="btn btn-s'+(o.k==='ok'?' btn-p':o.k==='no'?' btn-g':'')+'" onclick="answer(\''+q.id+'\',\''+o.do+'\',\''+esc(o.t)+'\')">'+esc(o.t)+'</button>').join('')+
+    '</div></div>'});
+ }
+ B.innerHTML=h;
+ const chips=(S.view==='space'&&S.space)?ROLES[S.space.role].chips:cfg.chips;
+ document.getElementById('asstChips').innerHTML=chips.map(c=>'<button class="achip" onclick="askAsst(\''+esc(c)+'\')">'+esc(c)+'</button>').join('');
+}
+function answer(qid,act,label){
+ const q=HITL.find(x=>x.id===qid);S.answered.push(qid);
+ log('человек','human','Ответ роботу: <b>'+esc(q.t)+'</b> → '+esc(label));
+ hist('Решение: '+q.t+' → '+label);
+ const R={
+  buy2:()=>{DB.senders.push({id:'sn9',Канал:'Почта',Адрес:'ivan@intwin-go.com',Состояние:'прогрев',Лимит:6,Сегодня:0,Прогрев:5,Репутация:'—'},
+    {id:'sn10',Канал:'Почта',Адрес:'lisa@intwin-go.com',Состояние:'прогрев',Лимит:6,Сегодня:0,Прогрев:5,Репутация:'—'});
+   asstSay('Заказал два домена, прогрев пошёл. В таблице «Ящики и аккаунты» они уже видны — <span class="lnk" onclick="openTab(\'tbl:senders\')">открыть</span>. Полная мощность через 21 день.');
+   log('робот','auto','Куплены 2 домена, прогрев начат')},
+  buy1:()=>{DB.senders.push({id:'sn9',Канал:'Почта',Адрес:'ivan@intwin-go.com',Состояние:'прогрев',Лимит:6,Сегодня:0,Прогрев:5,Репутация:'—'});
+   asstSay('Взял один домен. Запаса хватит примерно на 11 дней вместо 6 — вернусь к вам, когда снова упрёмся.')},
+  rollback:()=>{asstSay('Откатил текст письма 1 к версии от 2 сентября. Сравню открываемость через неделю и покажу разницу здесь же.');
+   log('робот','auto','Текст письма 1 откачен к версии 02.09')},
+  compare:()=>asstSay('Открываемость по неделям: 02–08 сент. — <b>41%</b>, 09–15 сент. — <b>19%</b>. Тексты менялись 9 сентября, ящики не менялись. Совпадение по дате точное.'),
+  send_rp1:()=>{asstSay('Отправил ответ Marcus Bell с ящика ivan@go-intwin.com. Стадию оставил «Ответили», следующий шаг поставил на +4 дня.');
+   log('робот','auto','Ответ Marcus Bell отправлен')},
+  open_rp1:()=>{openRec('people','pe2');asstSay('Открыл карточку. Черновик лежит в таблице «Ответы».')},
+  skip_rp1:()=>asstSay('Не отвечаю. Разговор закрыт, в следующую партию Marcus не попадёт.'),
+  switch_pe5:()=>{const p=row('people','pe5');p.Канал='только почта';
+   asstSay('Закрыл LinkedIn для Ava Lindqvist, цепочка переведена на почту. Проверка канала теперь не пустит туда ни одно касание.');
+   log('робот','auto','Ava Lindqvist: канал LinkedIn закрыт')},
+  narrow:()=>{asstSay('Сместил следующую партию: 5–15 человек вместо 5–30. Ожидаю рост ответов примерно вдвое, проверю на 200 касаниях.');
+   log('робот','auto','Сегмент сужен до 5–15 человек')},
+  segment:()=>asstSay('Разбор по размеру компании:<ul><li>5–15 человек — 11% ответов (92 касания)</li><li>16–30 человек — 5% ответов (88 касаний)</li></ul>Разница держится третью неделю подряд.'),
+  abtest:()=>{asstSay('Запустил тест: 200 адресов, два провайдера, один и тот же текст. Первые цифры будут завтра к обеду.');
+   log('робот','auto','A/B по провайдерам запущен, 200 адресов')},
+  deliver:()=>asstSay('Доставляемость за две недели:<ul><li>наш сервис — <b>71%</b> во «Входящие»</li><li>сервис клиента — <b>94%</b></li></ul>Тексты и списки одинаковые. Разница только в провайдере.'),
+  gaps:()=>{checkGaps()},
+  defer:()=>asstSay('Отложил. Вернусь с этим же вопросом, когда станет срочнее.'),
+ }[act];
+ if(R)R(); else asstSay('Принято.');
+ render()}
+function askAsst(q){
+ if(!q||!q.trim())return;
+ document.getElementById('asstIn').value='';asstMe(q);
+ const s=q.toLowerCase();
+ setTimeout(()=>{
+  if(s.includes('полнот')||s.includes('дыр'))return checkGaps();
+  if(s.includes('касат')||s.includes('нельзя')){
+   const bad=DB.people.filter(p=>p.Канал!=='почта · LinkedIn');
+   return asstSay('Ограничения по каналам:<ul>'+bad.map(p=>'<li>'+esc(p.Имя)+' — '+esc(p.Канал)+'</li>').join('')+'</ul>Это проверяется перед каждой отправкой, а не при постановке в очередь.')}
+  if(s.includes('изменил'))return asstSay(S.hist.length?'За сегодня:<ul>'+S.hist.slice(0,6).map(x=>'<li>'+esc(x.m)+'</li>').join('')+'</ul>':'Сегодня изменений не было.');
+  if(s.includes('процесс')&&s.includes('провер')){const id=S.active.split(':')[1];if(id&&tplById(id)){validateTpl(id);
+   return asstSay(S.wfVal.m)}}
+  if(s.includes('где')&&s.includes('человек')){const id=S.active.split(':')[1];const t=tplById(id);
+   if(t){const hu=[];const f=ns=>ns.forEach(n=>{if(n.who==='human')hu.push(n.name);if(n.branch)f(n.branch)});f(t.nodes);
+    return asstSay(hu.length?'Человек появляется тут:<ul>'+hu.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>Всё остальное иду сам.':'В этом процессе человека нет вообще — он идёт целиком сам.')}}
+  if(s.includes('убрать')&&s.includes('провер'))return asstSay('Если убрать проверку «Писать разрешено?», касания пойдут тем, кто отписался или пожаловался. Одна такая отправка — и домен уходит в чёрные списки на недели. Эта проверка стоит перед каждой отправкой, а не один раз при постановке в очередь.');
+  if(s.includes('делать сейчас')||s.includes('что мне')){const q2=openQ();
+   return asstSay(q2.length?'Ждут вашего решения: <b>'+q2.length+'</b>.<ul>'+q2.map(x=>'<li>'+esc(x.t)+'</li>').join('')+'</ul>Кнопки под каждым вопросом ниже.':'Сейчас ничего не жду. Иду по процессу дальше сам.')}
+  if(s.includes('узкое'))return asstSay('Узкое место — переход «Открыли → Ответили»: доходит '+
+   Math.round(spaceRows().filter(p=>p.Стадия==='Ответили').length/Math.max(1,spaceRows().filter(p=>['Открыли','Ответили','Встреча','Сделка'].includes(p.Стадия)).length)*100)+
+   '%. Письмо открывают, а отвечать не начинают — вопрос к тексту, не к спискам.');
+  if(s.includes('ждут решен')||s.includes('сколько ждут'))return asstSay('Открытых вопросов: <b>'+openQ().length+'</b>.');
+  if(s.includes('дела')||s.includes('итог'))return asstSay('Коротко: в работе '+(S.space?spaceRows().length:DB.people.length)+' человек, '+
+   DB.senders.filter(x=>x.Состояние==='здоров').length+' ящиков здоровы, ответов за неделю — '+DB.replies.length+'. Один вопрос про деньги ждёт вас ниже.');
+  if(s.includes('теря')||s.includes('деньг'))return asstSay('Деньги утекают в двух местах: обогащение контактов, которые потом выбывают на проверке согласия ($0,10–0,50 за каждого), и сожжённые домены — один вывод из ротации стоит трёх недель прогрева.');
+  if(s.includes('прос'))return asstSay('Открываемость упала с 41% до 19% одновременно по всем ящикам — значит дело не в ящиках, а в текстах или списках. Вопрос про откат текста ждёт вас ниже.');
+  if(s.includes('отвеч')&&s.includes('лучш'))return asstSay('Отвечают лучше всего компании 5–15 человек: 11% против 5% у 16–30. Выборка 180 касаний за две недели.');
+  if(s.includes('текст'))return asstSay('Из двух текстов письма 1 лучше работает тот, что начинается с конкретного сигнала («увидел вакансию…») — 14% ответов против 6% у общего.');
+  if(s.includes('доставля')||s.includes('провайдер'))return asstSay('Наш сервис отправки даёт 71% во «Входящие», сервис клиента — 94% на тех же списках и текстах. Разницу видно только по seed-тестам, жалоб ещё нет.');
+  if(s.includes('дубл'))return asstSay('Полных дублей не нашёл. Есть один человек, у которого два адреса в разных компаниях — это смена работы, а не дубль.');
+  if(s.includes('работает')&&s.includes('уже'))return asstSay('Работает всё, что видно: таблицы с поиском и правкой, конструктор процессов с добавлением и удалением блоков, сборка пространства, четыре отображения, решения по вопросам.');
+  if(s.includes('чего пока нет'))return asstSay('Нет настоящей базы — данные лежат в файле. Нет отправки писем. Нет входа по паролю. Всё остальное можно трогать.');
+  asstSay('Так пока не умею. Попробуйте кнопки под строкой ввода — они рабочие.');
+ },320)}
+
+/* ═════ ПРО ПРОТОТИП ═════ */
+function vAbout(){
+ return '<div class="ph"><div class="pk">Прототип</div><div class="pt">Живая система, а не картинка</div>'+
+ '<div class="pd">Каркас взят с VS Code: выдвигающееся меню слева, плитки-вкладки в центре, помощник справа, журнал снизу. Три больших раздела — Data, Workflows, Workspaces. Данные внутри выдуманные, но всё, что видно, нажимается и что-то делает.</div></div>'+
+ '<div class="g3" style="margin-bottom:13px">'+
+ '<div class="card"><div class="ch"><span class="tag t-sig">Data</span><span class="ct">Сырые данные</span></div>'+
+ '<div style="font-size:12.5px;color:var(--muted);line-height:1.55">Шесть таблиц. Заголовок сортирует, поиск ищет, запись открывается и правится, новая создаётся. Помощник проверяет полноту и подсвечивает дыры.</div></div>'+
+ '<div class="card"><div class="ch"><span class="tag t-sig">Workflows</span><span class="ct">Конструктор</span></div>'+
+ '<div style="font-size:12.5px;color:var(--muted);line-height:1.55">Нотация BPMN 2.0: начало, задачи, развилки-ромбы, таймеры, концы. Блоки добавляются, переименовываются, переставляются, удаляются. Процесс проверяется на замкнутость и сохраняется шаблоном.</div></div>'+
+ '<div class="card"><div class="ch"><span class="tag t-sig">Workspaces</span><span class="ct">Где работают</span></div>'+
+ '<div style="font-size:12.5px;color:var(--muted);line-height:1.55">Пространство собирается из трёх шагов: роль → процесс → данные. Роль решает, какие отображения доступны и о чём спрашивает робот. Один и тот же набор данных смотрится воронкой, доской, списком или таблицей.</div></div></div>'+
+ '<div class="card"><div class="ch"><span class="ct">Что нажимается прямо сейчас</span></div>'+
+ '<div style="font-size:12.5px;line-height:1.95">'+
+ '· <b>⌘K</b> — палитра команд<br>'+
+ '· <b>Data → Проверить полноту</b> — помощник находит записи без почты и должности и подсвечивает их жёлтым<br>'+
+ '· <b>Data → клик по строке → Изменить</b> — правка сохраняется и попадает в историю изменений внизу<br>'+
+ '· <b>Workflows → палитра слева</b> — добавьте задачу, переименуйте её, переставьте стрелками, удалите<br>'+
+ '· <b>Workflows → Проверить</b> — процесс проверяется на замкнутость и говорит, чего не хватает<br>'+
+ '· <b>Workflows → Прогнать процесс</b> — робот идёт по схеме, подсвечивая блоки, и пишет в журнал<br>'+
+ '· <b>Workspaces → выбрать роль</b> — от роли зависят отображения и вопросы робота; попробуйте Директора и Оператора подряд<br>'+
+ '· <b>Доска → карточка → «дальше»</b> — человек переезжает по стадиям, и это сразу видно в воронке<br>'+
+ '· <b>Помощник справа</b> — кнопки под строкой ввода работают, вопросы с решениями меняют данные</div></div>'+
+ '<div class="card"><div class="ch"><span class="ct">Чего нет и почему</span></div>'+
+ '<div style="font-size:12.5px;color:var(--muted);line-height:1.7">Нет базы — данные живут в памяти страницы и сбрасываются при перезагрузке. Нет настоящей отправки писем и входа по паролю. Перетаскивание блоков мышью заменено кнопками порядка: в прототипе важнее, что схему можно менять, чем как именно её тянут.</div></div>';
+}
+
+/* ═════ РЕНДЕР ═════ */
+function renderContent(){
+ const id=S.active,P=document.getElementById('pad');
+ if(!id){P.innerHTML='<div class="empty"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/></svg><div>Вкладок нет. Откройте что-нибудь слева или нажмите ⌘K.</div></div>';return}
+ const[t,a]=[id.split(':')[0],id.split(':').slice(1).join(':')];
+ const F={tbl:vTable,rec:vRec,tpl:vTpl,spaces:vSpaces,ws:vWs,about:vAbout}[t];
+ P.innerHTML=F?F(a):'<div class="empty">Пусто</div>';
+}
+function renderBot(){
+ const B=document.getElementById('botB');
+ if(S.bot==='log'){B.innerHTML=S.log.length?S.log.map(r=>'<div class="lr"><span class="lt">'+r.t+'</span>'+
+  '<span class="ls '+(KC[r.kind]||'c-sys')+'">'+esc(r.src)+'</span><span class="lm">'+r.m+'</span></div>').join('')
+  :'<div style="color:var(--muted2);padding:4px 0">Пока тихо. Нажмите что-нибудь — здесь появятся строки.</div>'}
+ else if(S.bot==='hist'){B.innerHTML=S.hist.length?S.hist.map(r=>'<div class="lr"><span class="lt">'+r.t+'</span>'+
+  '<span class="lm">'+esc(r.m)+'</span></div>').join('')
+  :'<div style="color:var(--muted2);padding:4px 0">Изменений не было. Правка записи, сборка процесса или решение по вопросу попадут сюда.</div>'}
+ else{
+  const bots=[
+   {n:'сборщик сигналов',s:'следит за вакансиями и раундами · последняя находка 9 минут назад'},
+   {n:'отправщик',s:'держит окно 09:00–17:00 · сегодня ушло '+DB.touches.filter(t=>t.Итог!=='запланировано').length+' касаний'},
+   {n:'страж канала',s:'seed-тесты каждые 6 часов · один домен выведен'},
+   {n:'разборщик ответов',s:'разобрал '+DB.replies.length+' ответа · черновики готовы'},
+  ];
+  B.innerHTML=bots.map(b=>'<div class="lr"><span class="lt">24/7</span><span class="ls c-auto">'+esc(b.n)+'</span>'+
+   '<span class="lm">'+esc(b.s)+'</span></div>').join('')+
+   '<div class="lr"><span class="lt"></span><span class="ls c-sys">итого</span><span class="lm">роботы работают сами; человека зовут только в точках, где нужно решение</span></div>'}
+}
+function renderStatus(){
+ document.getElementById('stRows').textContent=Object.keys(TABLES).reduce((a,k)=>a+DB[k].length,0);
+ document.getElementById('stTpl').textContent=TPL.length;
+ document.getElementById('stQ').textContent=S.space?openQ().length:HITL.length-S.answered.length;
+ document.getElementById('stRole').textContent=S.space?'Роль: '+ROLES[S.space.role].n+' · '+ROLES[S.space.role].who:'Роль не выбрана';
+ document.getElementById('spBadge').textContent=S.space?openQ().length:HITL.length-S.answered.length;
+ document.getElementById('whoBox').innerHTML=S.space?
+  '<div class="avatar">'+esc(ROLES[S.space.role].who[0])+'</div><span>'+esc(ROLES[S.space.role].who)+' · <b>'+esc(ROLES[S.space.role].n)+'</b></span>'
+  :'<span>Роль не выбрана</span><button class="btn btn-s" style="background:#242935;border-color:#333947;color:#fff" onclick="go(\'space\')">Выбрать</button>';
+}
+function render(){renderSide();renderTabs();renderContent();renderStatus();renderAsst()}
+
+/* ═════ ПАЛИТРА ═════ */
+function CMDS(){const c=[
+ {k:'раздел',t:'Data — таблицы',h:'сырые данные',go:()=>go('data')},
+ {k:'раздел',t:'Workflows — процессы',h:'конструктор',go:()=>go('flows')},
+ {k:'раздел',t:'Workspaces — работа',h:'роль + процесс + данные',go:()=>go('space')},
+];
+ Object.entries(TABLES).forEach(([k,v])=>c.push({k:'таблица',t:v.n,h:DB[k].length+' записей',go:()=>openTab('tbl:'+k)}));
+ TPL.forEach(t=>c.push({k:'процесс',t:t.name,h:cnt(t.nodes)+' блоков',go:()=>openTab('tpl:'+t.id)}));
+ Object.entries(ROLES).forEach(([k,r])=>c.push({k:'роль',t:'Войти как '+r.n,h:r.who,go:()=>{S.pick.role=k;S.spaceStep=2;go('space');openTab('spaces')}}));
+ c.push({k:'действие',t:'Проверить полноту данных',h:'',go:()=>checkGaps()});
+ c.push({k:'действие',t:'Новый процесс',h:'с нуля',go:()=>newTpl()});
+ c.push({k:'действие',t:'Прогнать текущий процесс',h:'',go:()=>{const id=S.active.split(':')[1];if(tplById(id))runTpl(id);else toast('Откройте процесс')}});
+ c.push({k:'вид',t:'Спрятать помощника',h:'',go:()=>toggleAsst()});
+ c.push({k:'вид',t:'Спрятать меню',h:'',go:()=>toggleSide()});
+ c.push({k:'вид',t:'Свернуть журнал',h:'',go:()=>toggleBot()});
+ c.push({k:'справка',t:'Про прототип',h:'',go:()=>go('about')});
+ return c}
+let palIdx=0;
+function openPal(){document.getElementById('pal').classList.add('open');const i=document.getElementById('palIn');
+ i.value='';palIdx=0;renderPal();setTimeout(()=>i.focus(),25)}
+function closePal(){document.getElementById('pal').classList.remove('open')}
+function palHits(){const q=document.getElementById('palIn').value.toLowerCase().trim();const all=CMDS();
+ return q?all.filter(c=>(c.t+' '+c.k+' '+c.h).toLowerCase().includes(q)):all}
+function renderPal(){const h=palHits();if(palIdx>=h.length)palIdx=0;
+ document.getElementById('palL').innerHTML=h.length?h.map((c,i)=>'<div class="pali'+(i===palIdx?' on':'')+'" onclick="palRun('+i+')">'+
+  '<span class="pk2">'+esc(c.k)+'</span><span>'+esc(c.t)+'</span>'+(c.h?'<span class="ph2">'+esc(c.h)+'</span>':'')+'</div>').join('')
+  :'<div style="padding:15px;color:var(--muted2);font-size:12.5px">Ничего не нашлось</div>'}
+function palRun(i){const h=palHits();if(h[i]){closePal();h[i].go()}}
+function palKey(e){const h=palHits();
+ if(e.key==='ArrowDown'){palIdx=Math.min(palIdx+1,h.length-1);renderPal();e.preventDefault()}
+ else if(e.key==='ArrowUp'){palIdx=Math.max(palIdx-1,0);renderPal();e.preventDefault()}
+ else if(e.key==='Enter')palRun(palIdx);
+ else if(e.key==='Escape')closePal()}
+document.addEventListener('keydown',e=>{
+ if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){e.preventDefault();openPal()}
+ else if(e.key==='Escape'){closePal();closeModal()}});
+
+/* ═════ СТАРТ ═════ */
+log('система','sys','Прототип загружен. Данные демонстрационные, всё нажимается.');
+log('система','sys','Начните с <b>Workspaces</b> — выберите роль, и интерфейс подстроится под неё.');
+render();renderBot();
+</script>
+</body>
+</html>
