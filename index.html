@@ -348,6 +348,9 @@ svg{stroke-linecap:round;stroke-linejoin:round}
   <button class="ai" data-v="flows" onclick="go('flows')" title="Workflows — конструктор процессов">
    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="6" rx="1.5"/><rect x="14" y="15" width="7" height="6" rx="1.5"/><path d="M6.5 9v6a3 3 0 0 0 3 3H14"/></svg>
    <span>Flows</span></button>
+  <button class="ai" data-v="out" onclick="go('out')" title="Аутрич — кампании и рассылки">
+   <svg viewBox="0 0 24 24"><path d="M4 12l16-8-6 16-2.5-6z"/></svg>
+   <span>Аутрич</span></button>
   <button class="ai" data-v="space" onclick="go('space')" title="Workspaces — рабочие пространства">
    <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M9 20V9"/></svg>
    <span>Spaces</span><span class="bdg" id="spBadge">3</span></button>
@@ -475,6 +478,30 @@ replies:[
  {id:'rp3',От:'pe5',Разбор:'смена канала',Когда:'вчера 12:20',Суть:'Пишите на почту, в LinkedIn захожу редко. Наймом занимаюсь я, но после 1 октября.',Черновик:'Ава, перенёс переписку на почту.\n\nВернусь 1 октября с готовым списком под ваши открытые роли. Если сдвинется раньше — просто ответьте сюда.'},
 ],
 };
+DB.timeline=[
+ {id:'tl1',who:'pe2',kind:'письмо',dir:'out',when:'9 сент. 10:05',t:'Ищете инженеров в Kestrel Labs?',
+  b:'Маркус, увидел вакансию Senior Backend и раунд на прошлой неделе. Закрываем такие роли за 3–4 недели. Показать, кого нашли бы на этой неделе?'},
+ {id:'tl2',who:'pe2',kind:'письмо',dir:'out',when:'12 сент. 10:05',t:'(в том же треде)',
+  b:'Собрал четырёх человек под вашу вакансию, двое сейчас в процессе у конкурентов. Отправить список?'},
+ {id:'tl3',who:'pe2',kind:'письмо',dir:'in',when:'сегодня 08:12',t:'Re: Ищете инженеров?',
+  b:'Да, присылайте. Но сразу скажу: бюджет на рекрутинг до конца квартала ограничен, и мы уже работаем с одним агентством. Если ваши люди сильнее — посмотрим. Какие условия?'},
+ {id:'tl4',who:'pe12',kind:'встреча',dir:'in',when:'10 сент. 15:00',t:'Первый созвон · 40 мин',
+  b:'Тео рассказал, что команда выросла с 4 до 8 за квартал и следующий наём — два инженера до Нового года. Жаловался, что предыдущее агентство присылало людей не из их стека. Договорились о пилоте на одну вакансию.'},
+ {id:'tl5',who:'pe12',kind:'заметка',dir:'in',when:'10 сент. 15:45',t:'После звонка',
+  b:'Решает он, но бюджет подписывает основатель-партнёр. Важно: стек Elixir, людей мало, срок закрытия для них важнее цены.'},
+ {id:'tl6',who:'pe12',kind:'письмо',dir:'out',when:'11 сент. 09:20',t:'Условия пилота',
+  b:'Тео, как договорились: оплата по факту выхода, замена бесплатно, старт на этой неделе.'},
+ {id:'tl7',who:'pe1',kind:'письмо',dir:'out',when:'11 сент. 09:30',t:'Ищете инженеров в Northwind Robotics?',b:'Дана, увидел вакансию Senior Firmware.'},
+ {id:'tl8',who:'pe1',kind:'письмо',dir:'in',when:'вчера 17:44',t:'Re: Ищете инженеров?',
+  b:'Сейчас не готовы — закрываем позицию своими силами до конца месяца. Напишите в ноябре.'},
+ {id:'tl9',who:'pe5',kind:'linkedin',dir:'out',when:'14 сент. 14:05',t:'Запрос на связь + сообщение',b:'Ава, поздравляю с раундом.'},
+ {id:'tl10',who:'pe5',kind:'linkedin',dir:'in',when:'вчера 12:20',t:'Ответ',
+  b:'Пишите на почту, в LinkedIn захожу редко. Наймом занимаюсь я, но давайте после 1 октября.'},
+];
+DB.meetings=[
+ {id:'mt1',who:'pe12',when:'сегодня 16:30',t:'Обсудить первую вакансию',prep:true},
+ {id:'mt2',who:'pe2',when:'четверг 15:00',t:'Условия и профили',prep:false},
+];
 const TABLES={
  companies:{n:'Компании',cols:['Компания','Домен','Отрасль','Людей','Город','Годность'],req:['Отрасль','Людей']},
  people:{n:'Люди',cols:['Имя','Роль','Компания','Почта','LinkedIn','Стадия','Канал'],req:['Роль','Почта','LinkedIn']},
@@ -605,7 +632,7 @@ function toast(m){const t=document.getElementById('toast');t.textContent=m;t.cla
  clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),2200)}
 
 /* ═════ НАВИГАЦИЯ ═════ */
-const HOME={start:'start',data:'tbl:companies',flows:'tpl:tpl1',space:'spaces',channel:'channel',about:'about'};
+const HOME={start:'start',out:'camps',data:'tbl:companies',flows:'tpl:tpl1',space:'spaces',channel:'channel',about:'about'};
 function go(v){S.view=v;document.querySelectorAll('.ai').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
  const h=HOME[v];if(h){if(!S.tabs.includes(h))S.tabs.push(h);S.active=h}
  renderAsst();render()}
@@ -614,6 +641,7 @@ function openTab(id){if(!S.tabs.includes(id))S.tabs.push(id);S.active=id;
  render()}
 function viewOf(id){const t=id.split(':')[0];
  if(t==='start')return 'start';
+ if(['camps','camp','newcamp'].includes(t))return 'out';
  if(t==='channel'||t==='bill')return 'channel';
  if(['tbl','rec'].includes(t))return 'data';
  if(['tpl','newtpl'].includes(t))return 'flows';
@@ -680,6 +708,16 @@ function renderSide(){
     '<span class="tx">'+esc(x.k)+'</span></div>').join('')+'</div></div>'+
    '<div class="snote">Настройка бывает один раз. Дальше система работает сама и зовёт вас, только когда решение за вами.</div>';
  }
+ else if(S.view==='out'){
+  document.getElementById('sideT').textContent='Аутрич';
+  h='<div class="sgrp"><div class="sgh">Кампании</div><div class="sgi">'+
+   CAMP.map(c=>'<div class="si'+(S.active==='camp:'+c.id?' on':'')+'" onclick="openTab(\'camp:'+c.id+'\')">'+
+    '<span class="d" style="background:'+(c.state==='идёт'?'#0F7B5A':c.state==='на паузе'?'#8A6A12':'#CAD5E4')+'"></span>'+
+    '<span class="tx">'+esc(c.name)+'</span><span class="n">'+c.sent+'</span></div>').join('')+
+   '<div class="si'+(S.active==='camps'?' on':'')+'" onclick="openTab(\'camps\')"><span class="d"></span><span class="tx">Все кампании</span></div>'+
+   '</div></div><div class="sact"><button class="btn btn-p btn-s" style="flex:1;justify-content:center" onclick="newCamp()">+ Новая кампания</button></div>'+
+   '<div class="snote">Кампания = список + процесс + тексты. Процесс берётся из Workflows и решает, что происходит между касаниями.</div>';
+ }
  else if(S.view==='channel'){
   document.getElementById('sideT').textContent='Канал';
   h='<div class="sgrp"><div class="sgi">'+
@@ -698,6 +736,9 @@ function tabName(id){const[t,a]=id.split(':');
  if(t==='tbl')return['DB',TABLES[a].n];
  if(t==='rec')return['·',recName(a)];
  if(t==='start')return['▶','Начало'];
+ if(t==='camps')return['✉','Кампании'];
+ if(t==='newcamp')return['+','Новая кампания'];
+ if(t==='camp'){const x=CAMP.find(y=>y.id===a);return['✉',x?x.name:'Кампания']}
  if(t==='channel')return['CH','Канал'];
  if(t==='bill')return['$','Счёт'];
  if(t==='tpl'){const x=tplById(a);return['WF',x?x.name:'Процесс']}
@@ -793,6 +834,7 @@ function saveRow(t){const cfg=TABLES[t];const r={id:t.slice(0,2)+(Date.now()%999
 
 function vRec(key){const[t,id]=key.split('/');const r=row(t,id);
  if(!r)return '<div class="empty">Запись не найдена</div>';
+ if(t==='people')return vPerson(id);
  const cfg=TABLES[t];
  let h='<div class="ph"><div class="pk">'+esc(cfg.n)+'</div><div class="pt">'+esc(recName(key))+'</div></div>';
  h+='<div class="g2"><div class="card"><div class="ch"><span class="ct">Поля</span>'+
@@ -826,6 +868,117 @@ function saveEdit(key){const[t,id]=key.split('/');const r=row(t,id);const cfg=TA
  if(ch.length){log('человек','human','Правка <b>'+esc(recName(key))+'</b>: '+ch.join(', '));
   hist('Изменены поля «'+ch.join(', ')+'» у записи '+recName(key));toast('Сохранено')}
  render()}
+
+
+/* ═════ КАРТОЧКА ЧЕЛОВЕКА · то, что открывают перед звонком ═════ */
+const KI={'письмо':'✉','linkedin':'in','встреча':'☎','заметка':'✎'};
+function vPerson(id){
+ const p=row('people',id),c=row('companies',p.Компания)||{};
+ const tl=DB.timeline.filter(x=>x.who===id);
+ const mt=DB.meetings.find(x=>x.who===id);
+ const last=tl[tl.length-1];
+ let h='<div class="ph"><div class="pk">Карточка</div><div class="pt">'+esc(p.Имя)+'</div>'+
+  '<div class="pd">'+esc(p.Роль||'должность неизвестна')+' · <span class="lnk" onclick="openRec(\'companies\',\''+p.Компания+'\')">'+esc(c.Компания||'')+'</span>'+
+  ' · '+esc(c.Людей||'?')+' человек · '+esc(c.Город||'')+'</div></div>';
+
+ if(mt)h+='<div class="aq" style="margin-bottom:12px"><div class="aq-h">встреча '+esc(mt.when)+'</div>'+
+  '<div class="aq-t"><b>'+esc(mt.t)+'</b></div>'+
+  '<div class="aq-why">Готовлюсь заранее: собрал всё, что было между вами, и что стоит спросить.</div>'+
+  '<div class="aq-btns"><button class="btn btn-s btn-p" onclick="prepCall(\''+id+'\')">Подготовить к звонку</button>'+
+  '<button class="btn btn-s" onclick="toast(\'Перенос — в прототипе не реализован\')">Перенести</button></div></div>';
+
+ h+='<div class="g3" style="margin-bottom:12px">'+
+  '<div class="met"><div class="mk">Последний контакт</div><div class="mv" style="font-size:15px">'+(last?esc(last.when):'не было')+'</div>'+
+  '<div class="ms">'+(last?esc(last.kind)+' · '+(last.dir==='in'?'от него':'от нас'):'ни одного касания')+'</div></div>'+
+  '<div class="met"><div class="mk">Всего касаний</div><div class="mv">'+tl.length+'</div><div class="ms">'+
+   tl.filter(x=>x.dir==='in').length+' ответов от него</div></div>'+
+  '<div class="met"><div class="mk">Стадия</div><div class="mv" style="font-size:15px">'+esc(p.Стадия)+'</div>'+
+  '<div class="ms">'+(p.Канал==='закрыт полностью'?'писать нельзя':esc(p.Канал))+'</div></div></div>';
+
+ h+='<div class="g2" style="align-items:start"><div>';
+ h+='<div class="card" style="padding:0"><div class="ch" style="padding:11px 14px 8px;margin:0"><span class="ct">Что между вами было</span>'+
+  '<div style="flex:1"></div><span style="font-size:11px;color:var(--muted2)">'+tl.length+' записей</span></div>';
+ if(!tl.length)h+='<div style="padding:18px;color:var(--muted2);font-size:12.5px">Ни одного касания. Это первый контакт.</div>';
+ tl.slice().reverse().forEach(x=>{
+  h+='<div style="padding:10px 14px;border-top:1px solid var(--line2)">'+
+   '<div style="display:flex;align-items:center;gap:7px;margin-bottom:4px">'+
+   '<span class="tag '+(x.dir==='in'?'t-ok':'t-sig')+'" style="font-family:\'JetBrains Mono\',monospace">'+KI[x.kind]+'</span>'+
+   '<b style="font-size:12px">'+esc(x.t)+'</b>'+
+   '<span style="margin-left:auto;font-size:10.5px;color:var(--muted2)" class="mono">'+esc(x.when)+'</span></div>'+
+   '<div style="font-size:12px;line-height:1.5;color:'+(x.kind==='заметка'?'var(--violet)':'#2C3444')+'">'+esc(x.b)+'</div></div>';
+ });
+ h+='<div style="padding:10px 14px;border-top:1px solid var(--line2);display:flex;gap:6px">'+
+  '<button class="btn btn-s" onclick="addNote(\''+id+'\')">+ Заметка</button>'+
+  '<button class="btn btn-s" onclick="quickMail(\''+id+'\')">Написать письмо</button></div></div></div>';
+
+ h+='<div>';
+ h+='<div class="card"><div class="ch"><span class="ct">Кто это</span></div>'+
+  '<div class="kv"><span class="kvk">Компания</span><span class="kvv">'+esc(c.Компания||'')+' · '+esc(c.Отрасль||'отрасль неизвестна')+'</span></div>'+
+  '<div class="kv"><span class="kvk">Повод был</span><span class="kvv">'+esc((DB.signals.find(x=>x.Компания===p.Компания)||{}).Событие||'не было')+'</span></div>'+
+  '<div class="kv"><span class="kvk">Почта</span><span class="kvv mono" style="font-size:11px">'+(p.Почта||'<span class="gap">нет</span>')+'</span></div>'+
+  '<div class="kv"><span class="kvk">LinkedIn</span><span class="kvv mono" style="font-size:11px">'+(p.LinkedIn||'<span class="gap">нет</span>')+'</span></div>'+
+  '<div class="kv"><span class="kvk">Кто ещё там</span><span class="kvv">'+
+   (DB.people.filter(x=>x.Компания===p.Компания&&x.id!==id).map(x=>'<span class="lnk" onclick="openRec(\'people\',\''+x.id+'\')">'+esc(x.Имя)+'</span>').join(', ')||'больше никого не знаем')+'</span></div></div>';
+ h+='<div class="card"><div class="ch"><span class="ct">Что дальше</span></div>'+
+  '<div style="font-size:12.5px;line-height:1.6">'+esc(nextStep(p,tl))+'</div>'+
+  '<div style="margin-top:9px;display:flex;gap:6px;flex-wrap:wrap">'+
+  '<button class="btn btn-s btn-p" onclick="prepCall(\''+id+'\')">Собрать контекст</button>'+
+  '<button class="btn btn-s" onclick="moveStage(\''+id+'\',1)">Двинуть стадию</button></div></div>';
+ h+='</div></div>';
+ return h}
+function nextStep(p,tl){
+ const last=tl[tl.length-1];
+ if(p.Канал==='закрыт полностью')return 'Писать нельзя ни по одному каналу. Карточка остаётся в базе, чтобы случайно не попасть в следующую партию.';
+ if(!tl.length)return 'Первого касания не было. Попадёт в ближайшую партию, если у компании есть свежий повод.';
+ if(last.dir==='in')return 'Ответил последним — ход за нами. Черновик готов, лежит в очереди у оператора.';
+ return 'Последним писали мы. Следующее касание запланировано автоматически, если ответа не будет.'}
+function prepCall(id){
+ const p=row('people',id),c=row('companies',p.Компания)||{};
+ const tl=DB.timeline.filter(x=>x.who===id);
+ const ins=tl.filter(x=>x.dir==='in'&&x.kind!=='заметка');
+ const nts=tl.filter(x=>x.kind==='заметка');
+ S.iv.auto+=1;
+ go('data');openRec('people',id);
+ asstSay('<b>'+esc(p.Имя)+'</b> · '+esc(c.Компания||'')+', '+esc(c.Людей||'?')+' человек, '+esc(c.Отрасль||'')+'.<ul>'+
+  '<li>Касаний: '+tl.length+', из них ответов от него — '+ins.length+'</li>'+
+  '<li>Последнее: '+(tl.length?esc(tl[tl.length-1].when)+' · '+esc(tl[tl.length-1].kind):'не было')+'</li>'+
+  (ins.length?'<li>Его словами: «'+esc(ins[ins.length-1].b.slice(0,95))+'…»</li>':'')+
+  (nts.length?'<li>Ваша заметка: '+esc(nts[nts.length-1].b.slice(0,95))+'</li>':'')+
+  '<li>Повод, с которого начали: '+esc((DB.signals.find(x=>x.Компания===p.Компания)||{}).Событие||'не было')+'</li>'+
+  '</ul><b>Что спросить:</b><ul>'+
+  '<li>Сроки — к какой дате нужен человек</li>'+
+  '<li>Кто ещё участвует в решении, кроме него</li>'+
+  '<li>Что не устроило в прошлом подрядчике</li></ul>');
+ log('робот','auto','Контекст по <b>'+esc(p.Имя)+'</b> собран к встрече');
+ toast('Контекст в панели помощника')}
+function addNote(id){
+ openModal('<div class="mh">Заметка · '+esc(row('people',id).Имя)+'</div><div class="mb">'+
+  '<div class="flab">О чём</div><input class="finp" id="ntT" placeholder="После звонка">'+
+  '<div class="flab" style="margin-top:9px">Что важно помнить</div>'+
+  '<textarea class="finp" id="ntB" style="min-height:92px" placeholder="Решает он, но бюджет подписывает партнёр…"></textarea></div>'+
+  '<div class="mf"><button class="btn" onclick="closeModal()">Отмена</button>'+
+  '<button class="btn btn-p" onclick="saveNote(\''+id+'\')">Сохранить</button></div>')}
+function saveNote(id){
+ const t=document.getElementById('ntT').value||'Заметка',b=document.getElementById('ntB').value||'—';
+ DB.timeline.push({id:'tl'+Date.now()%9999,who:id,kind:'заметка',dir:'in',when:'только что',t,b});
+ closeModal();log('человек','human','Заметка по <b>'+esc(row('people',id).Имя)+'</b>');
+ hist('Заметка: '+t);render();toast('Записано')}
+function quickMail(id){
+ const p=row('people',id);
+ if(p.Канал==='закрыт полностью')return toast('Этому человеку писать нельзя');
+ openModal('<div class="mh">Письмо · '+esc(p.Имя)+'</div><div class="mb">'+
+  '<div class="flab">Тема</div><input class="finp" id="qmT" value="По поводу вашей вакансии">'+
+  '<div class="flab" style="margin-top:9px">Текст</div>'+
+  '<textarea class="finp" id="qmB" style="min-height:110px">'+esc(p.Имя.split(' ')[0])+', увидел, что у вас открыта позиция. Показать, кого нашли бы на этой неделе?</textarea>'+
+  '<div style="margin-top:9px;font-size:11.5px;color:var(--muted)">Уйдёт с прогретого ящика, проверка канала — перед отправкой.</div></div>'+
+  '<div class="mf"><button class="btn" onclick="closeModal()">Отмена</button>'+
+  '<button class="btn btn-p" onclick="sendMail(\''+id+'\')">Отправить</button></div>')}
+function sendMail(id){
+ const t=document.getElementById('qmT').value,b=document.getElementById('qmB').value;
+ DB.timeline.push({id:'tl'+Date.now()%9999,who:id,kind:'письмо',dir:'out',when:'только что',t,b});
+ closeModal();log('человек','human','Письмо <b>'+esc(row('people',id).Имя)+'</b> отправлено');
+ log('робот','auto','Канал проверен, ящик выдан, письмо ушло');
+ render();toast('Отправлено')}
 
 /* ═════ WORKFLOWS · конструктор BPMN 2.0 ═════ */
 const ICO={start:'<circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/>',
@@ -874,6 +1027,12 @@ function vTpl(id){
   '<button class="btn btn-s" onclick="validateTpl(\''+id+'\')">Проверить</button>'+
   '<button class="btn btn-s" onclick="cloneTpl(\''+id+'\')">Сохранить как копию</button>'+
   '<div class="sp"></div><span style="font-size:11.5px;color:var(--muted)">блоков: '+cnt(t.nodes)+' · правился '+esc(t.edited)+'</span></div>';
+ const used=(typeof CAMP!=='undefined')?CAMP.filter(c=>c.tpl===id):[];
+ h+='<div class="wfval '+(used.length?'bad':'ok')+'" style="margin:0 0 12px">'+
+  (used.length?'<b>Этот процесс сейчас работает в '+used.length+' кампании'+(used.length>1?'ях':'')+':</b> '+
+   used.map(c=>'<span class="lnk" onclick="openTab(\'camp:'+c.id+'\')">'+esc(c.name)+'</span>').join(', ')+
+   '. Любая правка ниже изменит то, как система обходится с '+used.reduce((a,c)=>a+c.left,0)+' людьми, которым ещё не писали. Уже отправленное не меняется.'
+   :'Процесс пока не применён ни в одной кампании — правки ни на кого не влияют.')+'</div>';
  h+='<div class="wf"><div class="pal">'+
   '<div class="palh">Добавить блок</div>'+
   palBtn(id,'task','Задача','<div style="width:17px;height:12px;border:1.5px solid var(--graphite);border-radius:3px"></div>')+
@@ -1142,6 +1301,9 @@ const ASST={
  start:{n:'Помощник при запуске',s:'проведёт по подключению',
   chips:['Зачем вам мои домены','Сколько это займёт','Что будет после настройки'],
   hello:'Пять шагов, и больше к настройке возвращаться не придётся. Спрашивайте по ходу.'},
+ out:{n:'Помощник по кампаниям',s:'следит за ходом рассылки',
+  chips:['Как идёт кампания','Какой текст работает','Кому сегодня уйдёт'],
+  hello:'Веду кампании по расписанию. Скажу, если текст перестал работать или ящиков не хватает.'},
  channel:{n:'Помощник по каналу',s:'следит за доставляемостью',
   chips:['Почему 71, а не 94','Какой ящик подводит','Когда сгорит домен'],
   hello:'Замеряю доставляемость каждые шесть часов по seed-адресам. Вижу проблему раньше, чем придут жалобы.'},
@@ -1234,6 +1396,12 @@ function askAsst(q){
   if(s.includes('дубл'))return asstSay('Полных дублей не нашёл. Есть один человек, у которого два адреса в разных компаниях — это смена работы, а не дубль.');
   if(s.includes('работает')&&s.includes('уже'))return asstSay('Работает всё, что видно: таблицы с поиском и правкой, конструктор процессов с добавлением и удалением блоков, сборка пространства, четыре отображения, решения по вопросам.');
   if(s.includes('чего пока нет'))return asstSay('Нет настоящей базы — данные лежат в файле. Нет отправки писем. Нет входа по паролю. Всё остальное можно трогать.');
+  if(s.includes('как идёт')||s.includes('как кампан')){const c=CAMP.find(x=>x.state==='идёт');
+   return asstSay(c?'<b>'+esc(c.name)+'</b>: ушло '+c.sent+', открыли '+c.opened+', ответили '+c.replied+
+   '. В очереди ещё '+c.left+'. Отвечают в основном компании 5–15 человек — если сузить список, ответов станет примерно вдвое больше.':'Идущих кампаний нет.')}
+  if(s.includes('какой текст'))return asstSay('Из двух касаний лучше работает первое — то, что начинается с конкретного повода («увидел вакансию…»): 14% ответов против 6% у общего. Второе касание держится только на том, что приходит в тот же тред.');
+  if(s.includes('кому сегодня'))return asstSay('Сегодня уйдёт '+DB.timeline.filter(x=>x.dir==='out').length+' касаний с трёх здоровых ящиков. Запас лимита — '+
+   DB.senders.filter(x=>x.Состояние==='здоров').reduce((a,x)=>a+(x.Лимит-x.Сегодня),0)+'. В окно 09:00–17:00 по времени адресата укладываемся.');
   if(s.includes('зачем')&&s.includes('домен'))return asstSay('Домены нужны не нам, а вашим письмам. С основного домена компании холодную рассылку слать нельзя — сгорит он, а не двойник. Мы заводим домены-двойники, держим DKIM, SPF и DMARC, греем ящики и меняем почерневшие. Вам в это вникать не нужно — это и есть та работа, которую мы забираем.');
   if(s.includes('сколько')&&(s.includes('займ')||s.includes('ждать')))return asstSay('Почта — три недели прогрева, раньше отправлять нельзя, иначе домен чернеет. LinkedIn — две недели разгона лимитов. Ваших действий при этом ноль: подключили и забыли.');
   if(s.includes('после настройки'))return asstSay('Ничего. В этом и смысл: система идёт по процессу сама, а вас зовёт, только когда решение за вами. Сейчас это <b>'+S.iv.asked+'</b> раз в неделю против <b>'+S.iv.auto+'</b> решений, принятых без вас.');
@@ -1387,6 +1555,151 @@ function killQuestion(qid){
  asstSay('Понял. Больше не спрашиваю про это — решаю сам и просто пишу в журнал. Вопросов к вам стало на один класс меньше.');
  render();toast('Вопрос больше не придёт')}
 
+
+/* ═════ АУТРИЧ · кампании ═════ */
+let CAMP=[
+ {id:'c1',name:'Вакансии инженеров · Бостон',state:'идёт',tpl:'tpl1',list:'ds1',
+  sent:41,opened:17,replied:4,left:18,started:'11 сент.',
+  texts:[{s:'Ищете инженеров в {{компания}}?',b:'{{имя}}, увидел вакансию {{вакансия}} у вас на сайте.\n\nМы закрываем такие роли за 3–4 недели, работаем с командами до 30 человек.\n\nПоказать, кого нашли бы вам на этой неделе?'},
+         {s:'(в том же треде)',b:'{{имя}}, коротко: собрал четверых под вашу вакансию.\n\nОтправить список?'}]},
+ {id:'c2',name:'Свежие раунды · основатели',state:'черновик',tpl:'tpl1',list:'ds3',
+  sent:0,opened:0,replied:0,left:12,started:'—',
+  texts:[{s:'Поздравляю с раундом',b:'{{имя}}, поздравляю с раундом.\n\nПосле него обычно нанимают быстро — показать, кого можем привести?'}]},
+];
+let NC={step:0,name:'',list:null,tpl:null,subj:'',body:''};
+function vCamps(){
+ let h='<div class="ph"><div class="pk">Аутрич</div><div class="pt">Кампании</div>'+
+  '<div class="pd">Кампания — это список людей, процесс, по которому с ними работают, и тексты. Система идёт по ней сама; вы видите ход и вмешиваетесь, когда захотите.</div></div>';
+ h+='<div class="tool"><button class="btn btn-p" onclick="newCamp()">+ Новая кампания</button><div class="sp"></div>'+
+  '<span style="font-size:11.5px;color:var(--muted)">идёт '+CAMP.filter(c=>c.state==='идёт').length+' из '+CAMP.length+'</span></div>';
+ CAMP.forEach(c=>{
+  const pct=c.sent?Math.round(c.replied/c.sent*100):0;
+  h+='<div class="card" style="cursor:pointer" onclick="openTab(\'camp:'+c.id+'\')">'+
+   '<div class="ch"><span class="ct">'+esc(c.name)+'</span>'+tag(c.state)+'<div style="flex:1"></div>'+
+   '<span style="font-size:11.5px;color:var(--muted)">процесс: '+esc((tplById(c.tpl)||{}).name||'—')+'</span></div>'+
+   '<div class="g4">'+
+   '<div><div class="mk">Отправлено</div><div class="mono" style="font-size:17px;font-weight:700">'+c.sent+'</div></div>'+
+   '<div><div class="mk">Открыли</div><div class="mono" style="font-size:17px;font-weight:700">'+c.opened+'</div></div>'+
+   '<div><div class="mk">Ответили</div><div class="mono" style="font-size:17px;font-weight:700;color:var(--ok)">'+c.replied+'</div>'+
+   (c.sent?'<div class="ms">'+pct+'%</div>':'')+'</div>'+
+   '<div><div class="mk">Ещё в очереди</div><div class="mono" style="font-size:17px;font-weight:700">'+c.left+'</div></div></div></div>';
+ });
+ return h}
+function vCamp(id){
+ const c=CAMP.find(x=>x.id===id); if(!c)return '<div class="empty">Кампания не найдена</div>';
+ const t=tplById(c.tpl)||{name:'—',nodes:[]};
+ let h='<div class="ph"><div class="pk">Кампания</div><div class="pt">'+esc(c.name)+'</div>'+
+  '<div class="pd">Запущена '+esc(c.started)+' · процесс <span class="lnk" onclick="openTab(\'tpl:'+c.tpl+'\')">'+esc(t.name)+'</span>'+
+  ' · список <span class="lnk" onclick="go(\'space\')">'+esc((DATASETS.find(d=>d.id===c.list)||{}).n||'—')+'</span></div></div>';
+ h+='<div class="tool">'+
+  (c.state==='идёт'?'<button class="btn btn-s" onclick="campState(\''+id+'\',\'на паузе\')">Пауза</button>'
+   :'<button class="btn btn-s btn-p" onclick="campState(\''+id+'\',\'идёт\')">Запустить</button>')+
+  '<button class="btn btn-s" onclick="openTab(\'tpl:'+c.tpl+'\')">Изменить процесс</button>'+
+  '<button class="btn btn-s" onclick="campTest(\''+id+'\')">Проверить на себе</button>'+
+  '<div class="sp"></div>'+tag(c.state)+'</div>';
+ h+='<div class="g4" style="margin-bottom:13px">'+
+  '<div class="met"><div class="mk">Отправлено</div><div class="mv">'+c.sent+'</div><div class="ms">с 3 ящиков</div></div>'+
+  '<div class="met"><div class="mk">Открыли</div><div class="mv">'+c.opened+'</div><div class="ms">'+(c.sent?Math.round(c.opened/c.sent*100):0)+'%</div></div>'+
+  '<div class="met"><div class="mk">Ответили</div><div class="mv" style="color:var(--ok)">'+c.replied+'</div><div class="ms">'+(c.sent?Math.round(c.replied/c.sent*100):0)+'%</div></div>'+
+  '<div class="met"><div class="mk">Осталось</div><div class="mv">'+c.left+'</div><div class="ms">уйдут по расписанию</div></div></div>';
+ h+='<div class="card"><div class="ch"><span class="ct">Тексты касаний</span><div style="flex:1"></div>'+
+  '<span style="font-size:11px;color:var(--muted2)">меняются на ходу, уже ушедшие письма не переписываются</span></div>';
+ c.texts.forEach((x,i)=>{
+  h+='<div style="border-top:1px solid var(--line2);padding:10px 0">'+
+   '<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">'+
+   '<span class="tag t-sig">касание '+(i+1)+'</span><b style="font-size:12.5px">'+esc(x.s)+'</b>'+
+   '<button class="btn btn-s btn-g" style="margin-left:auto" onclick="editText(\''+id+'\','+i+')">Изменить</button></div>'+
+   '<div style="font-size:12.5px;line-height:1.55;color:#2C3444;white-space:pre-wrap">'+esc(x.b)+'</div></div>';
+ });
+ h+='<div style="border-top:1px solid var(--line2);padding-top:9px"><button class="btn btn-s" onclick="addText(\''+id+'\')">+ Ещё касание</button></div></div>';
+ h+='<div class="card"><div class="ch"><span class="ct">Кто в работе прямо сейчас</span></div>'+
+  '<table class="tbl" style="border:none"><thead><tr><th>Кто</th><th>Компания</th><th>Стадия</th><th>Последнее касание</th></tr></thead><tbody>'+
+  DB.people.filter(p=>!['Закрыт','Новые'].includes(p.Стадия)).slice(0,5).map(p=>{
+   const tl=DB.timeline.filter(x=>x.who===p.id);
+   return '<tr onclick="openRec(\'people\',\''+p.id+'\')"><td><b>'+esc(p.Имя)+'</b></td><td>'+esc(co(p.Компания))+'</td>'+
+   '<td>'+tag(p.Стадия)+'</td><td class="mono" style="font-size:11px">'+(tl.length?esc(tl[tl.length-1].when):'—')+'</td></tr>'}).join('')+
+  '</tbody></table></div>';
+ return h}
+function campState(id,st){const c=CAMP.find(x=>x.id===id);c.state=st;
+ log('человек','human','Кампания <b>'+esc(c.name)+'</b> — '+st);
+ hist('Кампания «'+c.name+'»: '+st);
+ if(st==='идёт')log('робот','auto','Очередь пересобрана, '+c.left+' касаний расставлены по окну 09:00–17:00');
+ render();toast('Кампания '+st)}
+function campTest(id){const c=CAMP.find(x=>x.id===id);
+ log('робот','auto','Тестовое письмо кампании <b>'+esc(c.name)+'</b> отправлено вам на почту');
+ asstSay('Отправил вам первое касание этой кампании — посмотрите, как оно выглядит в ящике. Заодно проверю, куда оно упало: во «Входящие» или в «Промоакции».');
+ toast('Проверьте свою почту')}
+function editText(id,i){const c=CAMP.find(x=>x.id===id),x=c.texts[i];
+ openModal('<div class="mh">Касание '+(i+1)+' · '+esc(c.name)+'</div><div class="mb">'+
+  '<div class="flab">Тема</div><input class="finp" id="txS" value="'+esc(x.s)+'">'+
+  '<div class="flab" style="margin-top:9px">Текст</div>'+
+  '<textarea class="finp" id="txB" style="min-height:130px">'+esc(x.b)+'</textarea>'+
+  '<div style="margin-top:8px;font-size:11.5px;color:var(--muted)">Подстановки: {{имя}}, {{компания}}, {{вакансия}}. Изменение подхватят те, кому ещё не писали — '+c.left+' человек.</div></div>'+
+  '<div class="mf"><button class="btn" onclick="closeModal()">Отмена</button>'+
+  '<button class="btn btn-p" onclick="saveText(\''+id+'\','+i+')">Сохранить</button></div>')}
+function saveText(id,i){const c=CAMP.find(x=>x.id===id);
+ c.texts[i]={s:document.getElementById('txS').value,b:document.getElementById('txB').value};
+ closeModal();log('человек','human','Текст касания '+(i+1)+' в <b>'+esc(c.name)+'</b> изменён');
+ hist('Изменён текст касания '+(i+1)+' в кампании «'+c.name+'»');
+ log('робот','auto','Новый текст подхватят '+c.left+' человек, которым ещё не писали');
+ render();toast('Сохранено — ушедшие письма не меняются')}
+function addText(id){const c=CAMP.find(x=>x.id===id);
+ c.texts.push({s:'Новое касание',b:'{{имя}}, '});editText(id,c.texts.length-1)}
+function newCamp(){NC={step:0,name:'',list:null,tpl:null,subj:'',body:''};openTab('newcamp')}
+function vNewCamp(){
+ const S4=['Кому','Как','Что пишем','Запуск'];
+ let h='<div class="ph"><div class="pk">Аутрич</div><div class="pt">Новая кампания</div>'+
+  '<div class="pd">Четыре шага. Каждый отвечает на один вопрос — кому пишем, по какому процессу, каким текстом и когда начинаем.</div></div>';
+ h+='<div class="step">'+S4.map((x,i)=>'<div class="stp '+(NC.step===i?'on':NC.step>i?'ok':'')+'">'+
+  '<span class="num">'+(NC.step>i?'✓':i+1)+'</span>'+x+'</div>').join('<div class="stpar"></div>')+'</div>';
+ if(NC.step===0){
+  h+='<div class="g3">'+DATASETS.map(d=>'<div class="rolecard'+(NC.list===d.id?' on':'')+'" onclick="NC.list=\''+d.id+'\';NC.step=1;render()">'+
+   '<div class="rn" style="font-size:13px">'+esc(d.n)+'</div><div class="rl mono" style="font-size:11px;margin-top:5px">'+esc(d.rule)+'</div>'+
+   '<div style="margin-top:9px;font-size:11px;color:var(--muted2)">сейчас подходит: '+d.n2()+' человек</div></div>').join('')+'</div>';
+ }
+ else if(NC.step===1){
+  h+='<div class="g3">'+TPL.map(t=>'<div class="rolecard'+(NC.tpl===t.id?' on':'')+'" onclick="NC.tpl=\''+t.id+'\';NC.step=2;render()">'+
+   '<div class="rn" style="font-size:13px">'+esc(t.name)+'</div><div class="rl" style="margin-top:5px">'+esc(t.desc)+'</div>'+
+   '<div style="margin-top:9px;font-size:11px;color:var(--muted2)">'+cnt(t.nodes)+' шагов · человек появляется '+
+   (function(){let n=0;const f=ns=>ns.forEach(x=>{if(x.who==="human")n++;if(x.branch)f(x.branch)});f(t.nodes);return n})()+' раз</div>'+
+   '<button class="btn btn-s" style="margin-top:9px" onclick="event.stopPropagation();openTab(\'tpl:'+t.id+'\')">Посмотреть схему</button></div>').join('')+'</div>'+
+   '<div style="margin-top:11px"><button class="btn btn-g btn-s" onclick="NC.step=0;render()">← назад</button></div>';
+ }
+ else if(NC.step===2){
+  h+='<div class="card" style="max-width:660px"><div class="ch"><span class="ct">Первое касание</span></div>'+
+   '<div class="flab">Тема</div><input class="finp" id="ncS" value="'+esc(NC.subj||'Ищете инженеров в {{компания}}?')+'">'+
+   '<div class="flab" style="margin-top:9px">Текст</div>'+
+   '<textarea class="finp" id="ncB" style="min-height:120px">'+esc(NC.body||'{{имя}}, увидел вакансию у вас на сайте.\n\nМы закрываем такие роли за 3–4 недели. Показать, кого нашли бы на этой неделе?')+'</textarea>'+
+   '<div style="margin-top:9px;font-size:11.5px;color:var(--muted)">Остальные касания добавите после запуска — их тексты видны в карточке кампании.</div>'+
+   '<div style="margin-top:12px;display:flex;gap:7px"><button class="btn btn-g btn-s" onclick="NC.step=1;render()">← назад</button>'+
+   '<button class="btn btn-p" onclick="NC.subj=document.getElementById(\'ncS\').value;NC.body=document.getElementById(\'ncB\').value;NC.step=3;render()">Дальше</button></div></div>';
+ }
+ else{
+  const d=DATASETS.find(x=>x.id===NC.list)||{},t=tplById(NC.tpl)||{};
+  h+='<div class="card" style="max-width:660px"><div class="ch"><span class="tag t-ok">проверка</span><span class="ct">Всё сходится</span></div>'+
+   '<div class="kv"><span class="kvk">Кому</span><span class="kvv">'+esc(d.n||'')+' · '+(d.n2?d.n2():0)+' человек</span></div>'+
+   '<div class="kv"><span class="kvk">По какому процессу</span><span class="kvv">'+esc(t.name||'')+'</span></div>'+
+   '<div class="kv"><span class="kvk">Первое касание</span><span class="kvv">'+esc(NC.subj)+'</span></div>'+
+   '<div class="kv"><span class="kvk">С каких ящиков</span><span class="kvv">3 здоровых, запас на сегодня — '+
+    DB.senders.filter(x=>x.Состояние==='здоров').reduce((a,x)=>a+(x.Лимит-x.Сегодня),0)+' касаний</span></div>'+
+   '<div class="kv"><span class="kvk">Окно отправки</span><span class="kvv">09:00–17:00 по времени адресата</span></div>'+
+   '<div class="wfval ok" style="margin-top:11px">Проверка канала перед каждой отправкой включена. Отписавшиеся и те, кому уже писали, отсеются сами.</div>'+
+   '<div style="margin-top:12px;display:flex;gap:7px"><button class="btn btn-g btn-s" onclick="NC.step=2;render()">← назад</button>'+
+   '<button class="btn btn-p" onclick="startCamp()">Запустить кампанию</button>'+
+   '<button class="btn" onclick="startCamp(1)">Сохранить черновиком</button></div></div>';
+ }
+ return h}
+function startCamp(draft){
+ const d=DATASETS.find(x=>x.id===NC.list)||{};
+ const c={id:'c'+(CAMP.length+1),name:d.n||'Новая кампания',state:draft?'черновик':'идёт',tpl:NC.tpl,list:NC.list,
+  sent:0,opened:0,replied:0,left:d.n2?d.n2():0,started:draft?'—':'сегодня',
+  texts:[{s:NC.subj,b:NC.body}]};
+ CAMP.push(c);
+ log('человек','human','Кампания <b>'+esc(c.name)+'</b> '+(draft?'сохранена черновиком':'запущена'));
+ hist('Создана кампания «'+c.name+'»');
+ if(!draft){S.iv.auto+=4;log('робот','auto','Отобрал '+c.left+' человек, проверил каналы, расставил '+c.left+' касаний по окну')}
+ closeTab('newcamp');openTab('camp:'+c.id);toast(draft?'Сохранено':'Пошла работать')}
+
 /* ═════ ПРО ПРОТОТИП ═════ */
 function vAbout(){
  return '<div class="ph"><div class="pk">Прототип</div><div class="pt">Живая система, а не картинка</div>'+
@@ -1403,6 +1716,8 @@ function vAbout(){
  '<div style="font-size:12.5px;color:var(--muted);line-height:1.55">Пространство собирается из трёх шагов: роль → процесс → данные. Роль решает, какие отображения доступны и о чём спрашивает робот. Один и тот же набор данных смотрится воронкой, доской, списком или таблицей.</div></div></div>'+
  '<div class="card"><div class="ch"><span class="ct">Что нажимается прямо сейчас</span></div>'+
  '<div style="font-size:12.5px;line-height:1.95">'+
+ '· <b>Аутрич → Новая кампания</b> — четыре шага: кому, по какому процессу, каким текстом, запуск. Тексты правятся на ходу, ушедшие письма не переписываются<br>'+
+ '· <b>Карточка человека</b> — вся переписка, встречи и заметки в одной ленте; кнопка «подготовить к звонку» собирает контекст перед встречей<br>'+
  '· <b>Старт</b> — путь от входа до первого запуска: роль, почта, LinkedIn, правило отбора. Пять шагов, и больше к настройке не возвращаются<br>'+
  '· <b>Канал → Доставляемость</b> — ваши собственные числа по ящикам: сколько во «Входящие», сколько в спам. Этого не показывает ни один инструмент на рынке<br>'+
  '· <b>Канал → Счёт</b> — пять поставщиков против одного счёта, с реальными суммами<br>'+
@@ -1425,7 +1740,7 @@ function renderContent(){
  const id=S.active,P=document.getElementById('pad');
  if(!id){P.innerHTML='<div class="empty"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/></svg><div>Вкладок нет. Откройте что-нибудь слева или нажмите ⌘K.</div></div>';return}
  const[t,a]=[id.split(':')[0],id.split(':').slice(1).join(':')];
- const F={tbl:vTable,rec:vRec,tpl:vTpl,spaces:vSpaces,ws:vWs,about:vAbout,start:vStart,channel:vChannel,bill:vBill}[t];
+ const F={tbl:vTable,rec:vRec,tpl:vTpl,spaces:vSpaces,ws:vWs,about:vAbout,start:vStart,channel:vChannel,bill:vBill,camps:vCamps,camp:vCamp,newcamp:vNewCamp}[t];
  P.innerHTML=F?F(a):'<div class="empty">Пусто</div>';
 }
 function renderBot(){
@@ -1471,7 +1786,11 @@ function CMDS(){const c=[
  TPL.forEach(t=>c.push({k:'процесс',t:t.name,h:cnt(t.nodes)+' блоков',go:()=>openTab('tpl:'+t.id)}));
  Object.entries(ROLES).forEach(([k,r])=>c.push({k:'роль',t:'Войти как '+r.n,h:r.who,go:()=>{S.pick.role=k;S.spaceStep=2;go('space');openTab('spaces')}}));
  c.push({k:'раздел',t:'Начало — подключение',h:'путь от регистрации',go:()=>go('start')});
+ c.push({k:'раздел',t:'Аутрич — кампании',h:'рассылки и тексты',go:()=>go('out')});
+ c.push({k:'действие',t:'Новая кампания',h:'четыре шага',go:()=>newCamp()});
+ CAMP.forEach(c=>d_push(c));
  c.push({k:'раздел',t:'Канал — доставляемость',h:'ваши числа',go:()=>openTab('channel')});
+ function d_push(x){c.push({k:'кампания',t:x.name,h:x.state,go:()=>openTab('camp:'+x.id)})}
  c.push({k:'раздел',t:'Счёт — один вместо пяти',h:'',go:()=>openTab('bill')});
  c.push({k:'действие',t:'Сколько раз система вас спросила',h:'',go:()=>openModal(ivModal())});
  c.push({k:'действие',t:'Проверить полноту данных',h:'',go:()=>checkGaps()});
