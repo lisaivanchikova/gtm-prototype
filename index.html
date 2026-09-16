@@ -339,7 +339,10 @@ svg{stroke-linecap:round;stroke-linejoin:round}
  </div>
 
  <div id="act">
-  <button class="ai on" data-v="data" onclick="go('data')" title="Data — сырые данные">
+  <button class="ai on" data-v="start" onclick="go('start')" title="Начало — подключение и первый запуск">
+   <svg viewBox="0 0 24 24"><path d="M12 3v10M8 7l4-4 4 4"/><path d="M4 14v5a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5"/></svg>
+   <span>Старт</span></button>
+  <button class="ai" data-v="data" onclick="go('data')" title="Data — сырые данные">
    <svg viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6"/><path d="M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg>
    <span>Data</span></button>
   <button class="ai" data-v="flows" onclick="go('flows')" title="Workflows — конструктор процессов">
@@ -348,6 +351,9 @@ svg{stroke-linecap:round;stroke-linejoin:round}
   <button class="ai" data-v="space" onclick="go('space')" title="Workspaces — рабочие пространства">
    <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M9 20V9"/></svg>
    <span>Spaces</span><span class="bdg" id="spBadge">3</span></button>
+  <button class="ai" data-v="channel" onclick="go('channel')" title="Канал — доставляемость и счёт">
+   <svg viewBox="0 0 24 24"><path d="M3 13h4l2.5-7 4 14 2.5-7H21"/></svg>
+   <span>Канал</span></button>
   <div class="aisp"></div>
   <button class="ai" data-v="about" onclick="go('about')" title="Про прототип">
    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>
@@ -394,7 +400,8 @@ svg{stroke-linecap:round;stroke-linejoin:round}
   <div class="st" onclick="go('data')"><span class="sdot" style="background:#5BD1A0"></span>Данные <b id="stRows">—</b></div>
   <div class="st" onclick="go('flows')">Шаблонов процессов <b id="stTpl">—</b></div>
   <div class="st" onclick="go('space')">Ждут решения <b id="stQ">—</b></div>
-  <div class="st">Роботы работают <b id="stBots">4</b></div>
+  <div class="st" onclick="openModal(ivModal())" title="Сколько раз система справилась сама и сколько раз позвала вас">
+   <span class="sdot" style="background:#5BD1A0"></span>Сама <b id="stAuto">118</b> · спросила <b id="stAsk">6</b></div>
   <div class="stsp"></div>
   <div class="st" id="stRole" onclick="go('space')">Роль не выбрана</div>
   <div class="st" onclick="go('about')">Демо-данные</div>
@@ -574,7 +581,9 @@ let HITL=[
 ];
 
 /* ═════ СОСТОЯНИЕ ═════ */
-let S={view:'data',tabs:['tbl:companies'],active:'tbl:companies',sel:null,bot:'log',log:[],hist:[],
+let S={view:'start',tabs:['start'],active:'start',sel:null,bot:'log',log:[],hist:[],
+ onb:{step:0,email:false,li:false,data:false,done:false},
+ iv:{auto:118,asked:6,killed:[],week:[14,11,9,6]},
  role:null,space:null,spaceStep:1,pick:{role:null,tpl:null,data:null},
  wfSel:null,wfRun:{},wfBusy:false,tblSort:{},tblQ:{},flagGaps:false,
  answered:[],asst:[],side:true,asstOpen:true,disp:'funnel',crdSel:null,drafts:{},sentBots:4};
@@ -596,7 +605,7 @@ function toast(m){const t=document.getElementById('toast');t.textContent=m;t.cla
  clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),2200)}
 
 /* ═════ НАВИГАЦИЯ ═════ */
-const HOME={data:'tbl:companies',flows:'tpl:tpl1',space:'spaces',about:'about'};
+const HOME={start:'start',data:'tbl:companies',flows:'tpl:tpl1',space:'spaces',channel:'channel',about:'about'};
 function go(v){S.view=v;document.querySelectorAll('.ai').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
  const h=HOME[v];if(h){if(!S.tabs.includes(h))S.tabs.push(h);S.active=h}
  renderAsst();render()}
@@ -604,6 +613,8 @@ function openTab(id){if(!S.tabs.includes(id))S.tabs.push(id);S.active=id;
  const v=viewOf(id);if(v&&v!==S.view){S.view=v;document.querySelectorAll('.ai').forEach(b=>b.classList.toggle('on',b.dataset.v===v));renderAsst()}
  render()}
 function viewOf(id){const t=id.split(':')[0];
+ if(t==='start')return 'start';
+ if(t==='channel'||t==='bill')return 'channel';
  if(['tbl','rec'].includes(t))return 'data';
  if(['tpl','newtpl'].includes(t))return 'flows';
  if(['spaces','ws'].includes(t))return 'space';
@@ -661,6 +672,22 @@ function renderSide(){
   }
   h+='<div class="snote">'+(S.space?'Роль <b>'+ROLES[S.space.role].n+'</b> определяет, какие отображения доступны и какие вопросы задаёт робот. <span class="lnk" onclick="resetSpace()">сменить роль</span>':'Пространство = роль + шаблон процесса + набор данных. 90% времени человек проводит здесь.')+'</div>';
  }
+ else if(S.view==='start'){
+  document.getElementById('sideT').textContent='Начало';
+  h='<div class="sgrp"><div class="sgh">Подключение</div><div class="sgi">'+
+   ONB.map((x,i)=>'<div class="si'+(S.onb.step===i?' on':'')+'" onclick="S.onb.step='+i+';render()">'+
+    '<span class="d" style="background:'+(S.onb.step>i?'#0F7B5A':'#CAD5E4')+'"></span>'+
+    '<span class="tx">'+esc(x.k)+'</span></div>').join('')+'</div></div>'+
+   '<div class="snote">Настройка бывает один раз. Дальше система работает сама и зовёт вас, только когда решение за вами.</div>';
+ }
+ else if(S.view==='channel'){
+  document.getElementById('sideT').textContent='Канал';
+  h='<div class="sgrp"><div class="sgi">'+
+   '<div class="si'+(S.active==='channel'?' on':'')+'" onclick="openTab(\'channel\')"><span class="d"></span><span class="tx">Доставляемость</span></div>'+
+   '<div class="si'+(S.active==='bill'?' on':'')+'" onclick="openTab(\'bill\')"><span class="d"></span><span class="tx">Счёт</span></div>'+
+   '<div class="si'+(S.active==='tbl:senders'?' on':'')+'" onclick="openTab(\'tbl:senders\')"><span class="d"></span><span class="tx">Ящики и аккаунты</span><span class="n">'+DB.senders.length+'</span></div>'+
+   '</div></div><div class="snote">Ваша базовая линия по каналу. Платформы показывают свои средние — это ваши собственные числа.</div>';
+ }
  else{document.getElementById('sideT').textContent='Инфо';
   h='<div class="sgrp"><div class="sgi"><div class="si on" onclick="openTab(\'about\')"><span class="d"></span><span class="tx">Что это за прототип</span></div></div></div>';}
  B.innerHTML=h;
@@ -670,6 +697,9 @@ function renderSide(){
 function tabName(id){const[t,a]=id.split(':');
  if(t==='tbl')return['DB',TABLES[a].n];
  if(t==='rec')return['·',recName(a)];
+ if(t==='start')return['▶','Начало'];
+ if(t==='channel')return['CH','Канал'];
+ if(t==='bill')return['$','Счёт'];
  if(t==='tpl'){const x=tplById(a);return['WF',x?x.name:'Процесс']}
  if(t==='spaces')return['WS','Собрать пространство'];
  if(t==='ws')return['WS',S.space?S.space.name:'Пространство'];
@@ -1109,6 +1139,12 @@ const ASST={
   chips:['Что мне делать сейчас','Покажи узкое место','Сколько ждут решения'],
   hello:'Иду по процессу сам. Когда упрусь во что-то, где нужно ваше решение, — спрошу здесь.'},
  about:{n:'Помощник',s:'',chips:['Что уже работает','Чего пока нет'],hello:'Спрашивайте про прототип.'},
+ start:{n:'Помощник при запуске',s:'проведёт по подключению',
+  chips:['Зачем вам мои домены','Сколько это займёт','Что будет после настройки'],
+  hello:'Пять шагов, и больше к настройке возвращаться не придётся. Спрашивайте по ходу.'},
+ channel:{n:'Помощник по каналу',s:'следит за доставляемостью',
+  chips:['Почему 71, а не 94','Какой ящик подводит','Когда сгорит домен'],
+  hello:'Замеряю доставляемость каждые шесть часов по seed-адресам. Вижу проблему раньше, чем придут жалобы.'},
 };
 function asstReset(){S.asst=[];renderAsst()}
 function asstSay(html){S.asst.push({me:false,h:html});renderAsst();scrollAsst()}
@@ -1127,6 +1163,7 @@ function renderAsst(){
     '<div class="aq-t">'+esc(q.t)+'</div><div class="aq-why">'+esc(q.why)+'</div>'+
     '<div class="aq-t" style="margin-bottom:9px">'+q.ask+'</div><div class="aq-btns">'+
     q.opts.map(o=>'<button class="btn btn-s'+(o.k==='ok'?' btn-p':o.k==='no'?' btn-g':'')+'" onclick="answer(\''+q.id+'\',\''+o.do+'\',\''+esc(o.t)+'\')">'+esc(o.t)+'</button>').join('')+
+    '<button class="btn btn-s btn-g" style="border:1px dashed var(--line)" onclick="killQuestion(\''+q.id+'\')" title="Больше не спрашивать про это — решай сам">дальше решай сам</button>'+
     '</div></div>'});
  }
  B.innerHTML=h;
@@ -1197,13 +1234,166 @@ function askAsst(q){
   if(s.includes('дубл'))return asstSay('Полных дублей не нашёл. Есть один человек, у которого два адреса в разных компаниях — это смена работы, а не дубль.');
   if(s.includes('работает')&&s.includes('уже'))return asstSay('Работает всё, что видно: таблицы с поиском и правкой, конструктор процессов с добавлением и удалением блоков, сборка пространства, четыре отображения, решения по вопросам.');
   if(s.includes('чего пока нет'))return asstSay('Нет настоящей базы — данные лежат в файле. Нет отправки писем. Нет входа по паролю. Всё остальное можно трогать.');
+  if(s.includes('зачем')&&s.includes('домен'))return asstSay('Домены нужны не нам, а вашим письмам. С основного домена компании холодную рассылку слать нельзя — сгорит он, а не двойник. Мы заводим домены-двойники, держим DKIM, SPF и DMARC, греем ящики и меняем почерневшие. Вам в это вникать не нужно — это и есть та работа, которую мы забираем.');
+  if(s.includes('сколько')&&(s.includes('займ')||s.includes('ждать')))return asstSay('Почта — три недели прогрева, раньше отправлять нельзя, иначе домен чернеет. LinkedIn — две недели разгона лимитов. Ваших действий при этом ноль: подключили и забыли.');
+  if(s.includes('после настройки'))return asstSay('Ничего. В этом и смысл: система идёт по процессу сама, а вас зовёт, только когда решение за вами. Сейчас это <b>'+S.iv.asked+'</b> раз в неделю против <b>'+S.iv.auto+'</b> решений, принятых без вас.');
+  if(s.includes('71')||s.includes('94'))return asstSay('Разница не в текстах и не в списках — они одинаковые. Разница в провайдере отправки: через наш путь во «Входящие» доходит 71%, через тот, что использует клиент, — 94%. Это единственное объяснение, которое выдержало проверку. Тест на 200 адресах подтвердит или опровергнет за сутки.');
+  if(s.includes('ящик')&&(s.includes('подвод')||s.includes('какой')))return asstSay('Хуже всех hello@intwin-mail.com: 23% во «Входящие», 33% в спам. Он уже выведен из ротации. Следующий на очереди lisa@intwin-hq.com — 52%, но он ещё в прогреве, это нормально.');
+  if(s.includes('сгорит')||s.includes('почерне'))return asstSay('Средний срок жизни домена у вас — около 3,5 месяцев. Самым старым сейчас два месяца. Замену начну греть за три недели до конца, чтобы переход не разорвал треды.');
   asstSay('Так пока не умею. Попробуйте кнопки под строкой ввода — они рабочие.');
  },320)}
+
+
+/* ═════ СТАРТ · от регистрации до первого запуска ═════ */
+const ONB=[
+ {k:'Кто вы',d:'Роль определяет, что вы увидите и о чём вас будут спрашивать'},
+ {k:'Почта',d:'Домены, ящики, прогрев — это берём на себя мы'},
+ {k:'LinkedIn',d:'Аккаунты и их живучесть — тоже на нас'},
+ {k:'Кого ищем',d:'Признак компании и повод написать'},
+ {k:'Готово',d:'Дальше система идёт сама'},
+];
+function vStart(){
+ const o=S.onb;
+ let h='<div class="ph"><div class="pk">Начало</div><div class="pt">'+(o.done?'Система запущена':'Подключение за пять шагов')+'</div>'+
+  '<div class="pd">Это единственное место, где нужно что-то настраивать. После этого система работает сама и зовёт вас только тогда, когда не может решить без вас.</div></div>';
+ h+='<div class="step">'+ONB.map((x,i)=>stp2(i,x.k)).join('<div class="stpar"></div>')+'</div>';
+ const st=o.step;
+ if(st===0){
+  h+='<div class="rolegrid">'+Object.entries(ROLES).map(([k,r])=>
+   '<div class="rolecard'+(S.pick.role===k?' on':'')+'" onclick="onbRole(\''+k+'\')">'+
+   '<div class="ric"><svg viewBox="0 0 24 24"><path d="'+r.ic+'"/></svg></div>'+
+   '<div class="rn">'+esc(r.n)+'</div><div class="rw">'+esc(r.who)+'</div><div class="rl">'+esc(r.sees)+'</div></div>').join('')+'</div>';
+ }
+ else if(st===1||st===2){
+  const li=st===2;
+  h+='<div class="card" style="max-width:620px"><div class="ch"><span class="tag t-sig">шаг '+(st+1)+'</span>'+
+   '<span class="ct">'+(li?'Подключить LinkedIn':'Подключить почту')+'</span></div>'+
+   '<div style="font-size:12.5px;line-height:1.6;color:var(--muted);margin-bottom:11px">'+
+   (li?'Вы даёте профили, которыми хотите писать. Покупку аккаунтов, оформление, прогрев и дневные лимиты держим мы — вам не нужно про это помнить.'
+      :'Вы даёте домен, с которого можно писать. Двойники доменов, ящики, DNS, прогрев и замену сгоревших держим мы.')+'</div>'+
+   '<div class="kv"><span class="kvk">Сейчас у вас</span><span class="kvv">'+
+   (li?'3 аккаунта у akountify · $85 в месяц каждый':'25 доменов и 75 ящиков в InboxKit · $341 в месяц')+'</span></div>'+
+   '<div class="kv"><span class="kvk">Станет</span><span class="kvv"><b>один счёт и ноль вашего внимания</b></span></div>'+
+   '<div class="kv"><span class="kvk">Сколько ждать</span><span class="kvv">'+(li?'две недели прогрева, писать можно сразу после':'три недели прогрева, раньше отправлять нельзя')+'</span></div>'+
+   '<div style="margin-top:13px;display:flex;gap:7px">'+
+   '<button class="btn btn-p" onclick="onbConnect('+(li?'\'li\'':'\'email\'')+')">'+(li?(o.li?'Подключено ✓':'Подключить'):(o.email?'Подключено ✓':'Подключить'))+'</button>'+
+   '<button class="btn btn-g" onclick="onbNext()">Пропустить пока</button></div></div>';
+ }
+ else if(st===3){
+  h+='<div class="card" style="max-width:620px"><div class="ch"><span class="tag t-sig">шаг 4</span><span class="ct">Кого ищем</span></div>'+
+   '<div style="font-size:12.5px;color:var(--muted);line-height:1.6;margin-bottom:11px">Не список контактов, а правило. Люди будут попадать в работу сами, когда у их компании появится повод.</div>'+
+   '<div class="kv"><span class="kvk">Размер компании</span><span class="kvv"><select class="finp" style="margin:0;padding:5px 8px;width:auto"><option>2–30 человек</option><option>5–15 человек</option><option>любой</option></select></span></div>'+
+   '<div class="kv"><span class="kvk">Повод написать</span><span class="kvv"><select class="finp" style="margin:0;padding:5px 8px;width:auto"><option>открыли вакансию</option><option>подняли раунд</option><option>сменили работу</option></select></span></div>'+
+   '<div class="kv"><span class="kvk">Где</span><span class="kvv"><select class="finp" style="margin:0;padding:5px 8px;width:auto"><option>Бостон и Нью-Йорк</option><option>вся территория США</option></select></span></div>'+
+   '<div style="margin-top:13px"><button class="btn btn-p" onclick="onbData()">Найти таких</button></div></div>';
+ }
+ else{
+  h+='<div class="card" style="max-width:660px;border-color:var(--ok)"><div class="ch"><span class="tag t-ok">готово</span>'+
+   '<span class="ct">Дальше система идёт сама</span></div>'+
+   '<div style="font-size:12.5px;line-height:1.65;margin-bottom:12px">Подключено: '+
+   (o.email?'почта':'<span style="color:var(--muted2)">почта не подключена</span>')+' · '+
+   (o.li?'LinkedIn':'<span style="color:var(--muted2)">LinkedIn не подключён</span>')+
+   '. Правило отбора задано, первые '+DB.people.length+' человек уже в работе.</div>'+
+   '<div class="g3" style="margin-bottom:12px">'+
+   '<div class="met"><div class="mk">Ваших действий было</div><div class="mv">'+(o.email?1:0)+(o.li?1:0)+2+'</div><div class="ms">за всю настройку</div></div>'+
+   '<div class="met"><div class="mk">Дальше от вас нужно</div><div class="mv">0</div><div class="ms">пока не появится вопрос</div></div>'+
+   '<div class="met"><div class="mk">Поставщиков у вас</div><div class="mv">0</div><div class="ms">было пять</div></div></div>'+
+   '<div style="display:flex;gap:7px"><button class="btn btn-p" onclick="go(\'space\')">В рабочее пространство</button>'+
+   '<button class="btn" onclick="go(\'channel\')">Посмотреть канал</button></div></div>';
+ }
+ return h}
+function stp2(i,n){const cur=S.onb.step;
+ return '<div class="stp '+(cur===i?'on':cur>i?'ok':'')+'"><span class="num">'+(cur>i?'✓':i+1)+'</span>'+esc(n)+'</div>'}
+function onbRole(k){S.pick.role=k;S.role=k;S.onb.step=1;
+ log('человек','human','Роль при входе: <b>'+ROLES[k].n+'</b>');render()}
+function onbConnect(kind){
+ if(kind==='email'){S.onb.email=true;log('робот','auto','Почта подключена: 25 доменов и 75 ящиков переведены на нас, прогрев запущен')}
+ else{S.onb.li=true;log('робот','auto','LinkedIn подключён: 4 профиля под нашим управлением, разгон лимитов начат')}
+ S.iv.auto+=3;onbNext();toast('Подключено — дальше это наша забота')}
+function onbNext(){S.onb.step=Math.min(S.onb.step+1,4);if(S.onb.step===4)S.onb.done=true;render()}
+function onbData(){S.onb.data=true;S.onb.step=4;S.onb.done=true;S.iv.auto+=6;
+ log('робот','auto','Правило отбора сохранено, найдено '+DB.companies.length+' компаний и '+DB.people.length+' человек');
+ hist('Задано правило отбора при первом запуске');render();toast('Готово — система пошла работать')}
+
+/* ═════ КАНАЛ · базовая линия и счёт ═════ */
+function vChannel(){
+ const ok=DB.senders.filter(x=>x.Состояние==='здоров').length;
+ let h='<div class="ph"><div class="pk">Канал</div><div class="pt">Ваши собственные числа</div>'+
+  '<div class="pd">Не средние по рынку, а ваши: сколько дошло, с каких ящиков, с какой скоростью чернеют домены. Ни один инструмент на рынке этого не показывает — платформы дают свои агрегаты, а не вашу базовую линию.</div></div>';
+ h+='<div class="tool"><button class="btn btn-s btn-p" onclick="openTab(\'channel\')">Доставляемость</button>'+
+  '<button class="btn btn-s" onclick="openTab(\'bill\')">Счёт</button><div class="sp"></div>'+
+  '<span style="font-size:11.5px;color:var(--muted)">замер по seed-тестам, каждые 6 часов</span></div>';
+ h+='<div class="g4" style="margin-bottom:13px">'+
+  '<div class="met"><div class="mk">Дошло во «Входящие»</div><div class="mv">71%</div><div class="ms">у сервиса клиента — 94%</div></div>'+
+  '<div class="met"><div class="mk">Ящиков здоровы</div><div class="mv">'+ok+' / '+DB.senders.length+'</div><div class="ms">два в прогреве, один выведен</div></div>'+
+  '<div class="met"><div class="mk">Домен живёт</div><div class="mv">3,5</div><div class="ms">месяца до почернения</div></div>'+
+  '<div class="met"><div class="mk">Жалоб на спам</div><div class="mv">0,04%</div><div class="ms">порог провайдера 0,3%</div></div></div>';
+ h+='<div class="card"><div class="ch"><span class="ct">Куда попадают письма — по ящикам</span></div>'+
+  '<table class="tbl" style="border:none"><thead><tr><th>Ящик</th><th>Входящие</th><th>Промоакции</th><th>Спам</th><th>Вывод</th></tr></thead><tbody>'+
+  [['ivan@go-intwin.com',86,12,2,'здоров'],['ivan@intwin-team.com',81,15,4,'здоров'],
+   ['lisa@intwin-team.com',74,21,5,'наблюдаем'],['lisa@intwin-hq.com',52,39,9,'в прогреве'],
+   ['hello@intwin-mail.com',23,44,33,'выведен']].map(r=>
+   '<tr><td class="mono" style="font-size:11px">'+r[0]+'</td>'+
+   '<td class="mono">'+r[1]+'%</td><td class="mono">'+r[2]+'%</td><td class="mono">'+r[3]+'%</td>'+
+   '<td>'+tag(r[4]==='здоров'?'здоров':r[4]==='выведен'?'выведен':'прогрев')+'</td></tr>').join('')+
+  '</tbody></table>'+
+  '<div style="margin-top:9px;font-size:11.5px;color:var(--muted)">Это и есть то, что дважды просили вслух и ни разу не получили. Замер идёт по seed-адресам: система сама шлёт письма на подставные ящики и смотрит, куда они легли — до того, как придут жалобы.</div></div>';
+ return h}
+function vBill(){
+ let h='<div class="ph"><div class="pk">Канал · счёт</div><div class="pt">Один счёт вместо пяти</div>'+
+  '<div class="pd">Слева то, что вы платили сами разным поставщикам. Справа то, что платите нам. Разница не в сумме, а в том, что поставщиков у вас больше нет.</div></div>';
+ h+='<div class="g2"><div class="card"><div class="ch"><span class="tag t-neu">было</span><span class="ct">Пять поставщиков</span></div>'+
+  '<table class="tbl" style="border:none"><tbody>'+
+  [['InboxKit — домены и ящики','$341'],['LinkedIn-аккаунты','$260'],['Instantly — прогрев и отправка','$97'],
+   ['Unipile — доступ к LinkedIn','$56'],['Apollo — обогащение','по счёту']].map(r=>
+   '<tr><td>'+r[0]+'</td><td class="mono" style="text-align:right">'+r[1]+'</td></tr>').join('')+
+  '<tr><td><b>Итого в месяц</b></td><td class="mono" style="text-align:right"><b>≈$584</b></td></tr>'+
+  '</tbody></table>'+
+  '<div style="margin-top:9px;font-size:11.5px;color:var(--muted)">Плюс ваше время: выбрать, состыковать, оплатить пять раз, помнить, что с чем связано, и чинить, когда что-то отвалится.</div></div>'+
+  '<div class="card" style="border-color:var(--signal)"><div class="ch"><span class="tag t-sig">стало</span><span class="ct">Один счёт</span></div>'+
+  '<table class="tbl" style="border:none"><tbody>'+
+  '<tr><td>Канал целиком — почта, LinkedIn, прогрев, замена сгоревшего</td><td class="mono" style="text-align:right">один платёж</td></tr>'+
+  '<tr><td>Поставщиков, с которыми вы разговариваете</td><td class="mono" style="text-align:right"><b>0</b></td></tr>'+
+  '<tr><td>Ваших действий в месяц по инфраструктуре</td><td class="mono" style="text-align:right"><b>0</b></td></tr>'+
+  '</tbody></table>'+
+  '<div style="margin-top:9px;font-size:12.5px;line-height:1.55"><b>Вы перестаёте быть интегратором своего канала.</b><br>'+
+  '<span style="color:var(--muted)">Это не скидка за объём — это работа, которой у вас больше нет.</span></div></div></div>';
+ h+='<div class="card" style="margin-top:2px"><div class="ch"><span class="ct">Что под капотом — честно</span></div>'+
+  '<div style="font-size:12.5px;line-height:1.6;color:var(--muted)">Часть работы мы выполняем сами, часть покупаем. Прогрев почты — это доступ к сети доверенных ящиков: около ста аккаунтов переписываются между собой, и от этого растёт репутация. Своей такой сети нет ни у кого, кроме тех, кто ей занимается годами, — поэтому её мы арендуем. Вам это видно в одном месте и одним счётом; если что-то отвалится, отвечаем мы, а не поставщик.</div></div>';
+ return h}
+
+/* ═════ ВМЕШАТЕЛЬСТВА ═════ */
+function ivModal(){
+ const max=Math.max(...S.iv.week);
+ return '<div class="mh">Сколько раз система позвала вас</div><div class="mb">'+
+ '<div class="g2" style="margin-bottom:13px">'+
+ '<div class="met"><div class="mk">Справилась сама</div><div class="mv" style="color:var(--ok)">'+S.iv.auto+'</div><div class="ms">решений за неделю</div></div>'+
+ '<div class="met"><div class="mk">Спросила вас</div><div class="mv" style="color:var(--signal)">'+S.iv.asked+'</div><div class="ms">'+Math.round(S.iv.asked/(S.iv.auto+S.iv.asked)*100)+'% от всех решений</div></div></div>'+
+ '<div class="flab" style="margin-bottom:6px">Вопросов в неделю — динамика</div>'+
+ '<div style="display:flex;align-items:flex-end;gap:7px;height:66px;margin-bottom:11px">'+
+ S.iv.week.map((v,i)=>'<div style="flex:1;text-align:center">'+
+  '<div style="background:'+(i===S.iv.week.length-1?'var(--signal)':'var(--echo)')+';height:'+Math.round(v/max*50)+'px;border-radius:3px 3px 0 0"></div>'+
+  '<div class="mono" style="font-size:10px;color:var(--muted2);margin-top:3px">'+v+'</div></div>').join('')+'</div>'+
+ (S.iv.killed.length?'<div class="flab">Вы научили систему решать самой</div>'+
+  '<div style="font-size:12px;line-height:1.6;margin-top:5px">'+S.iv.killed.map(x=>'· '+esc(x)).join('<br>')+'</div>':
+  '<div style="font-size:12px;color:var(--muted);line-height:1.55">Под каждым вопросом есть кнопка «дальше решай сам». Она убирает не один вопрос, а весь его класс — и это число падает.</div>')+
+ '</div><div class="mf"><button class="btn" onclick="closeModal()">Закрыть</button></div>'}
+function killQuestion(qid){
+ const q=HITL.find(x=>x.id===qid);if(!q)return;
+ S.answered.push(qid);S.iv.killed.push(q.t);S.iv.asked=Math.max(0,S.iv.asked-1);S.iv.auto+=1;
+ S.iv.week=S.iv.week.slice(1).concat([Math.max(1,S.iv.week[S.iv.week.length-1]-1)]);
+ log('человек','human','<b>'+esc(q.t)+'</b> — дальше решать самой');
+ hist('Класс вопросов «'+q.t+'» передан системе');
+ asstSay('Понял. Больше не спрашиваю про это — решаю сам и просто пишу в журнал. Вопросов к вам стало на один класс меньше.');
+ render();toast('Вопрос больше не придёт')}
 
 /* ═════ ПРО ПРОТОТИП ═════ */
 function vAbout(){
  return '<div class="ph"><div class="pk">Прототип</div><div class="pt">Живая система, а не картинка</div>'+
  '<div class="pd">Каркас взят с VS Code: выдвигающееся меню слева, плитки-вкладки в центре, помощник справа, журнал снизу. Три больших раздела — Data, Workflows, Workspaces. Данные внутри выдуманные, но всё, что видно, нажимается и что-то делает.</div></div>'+
+ '<div class="card" style="border-color:var(--signal);margin-bottom:13px"><div class="ch"><span class="tag t-sig">принцип</span>'+
+ '<span class="ct">Минимум запросов к человеку — видно на экране</span></div>'+
+ '<div style="font-size:12.5px;line-height:1.6">В статус-строке всегда стоит счётчик: сколько решений система приняла сама и сколько раз позвала вас. Клик по нему открывает динамику по неделям. Под каждым вопросом робота есть кнопка <b>«дальше решай сам»</b> — она убирает не один вопрос, а весь его класс, и счётчик падает. Это и есть принцип не текстом, а в интерфейсе.</div></div>'+
  '<div class="g3" style="margin-bottom:13px">'+
  '<div class="card"><div class="ch"><span class="tag t-sig">Data</span><span class="ct">Сырые данные</span></div>'+
  '<div style="font-size:12.5px;color:var(--muted);line-height:1.55">Шесть таблиц. Заголовок сортирует, поиск ищет, запись открывается и правится, новая создаётся. Помощник проверяет полноту и подсвечивает дыры.</div></div>'+
@@ -1213,6 +1403,10 @@ function vAbout(){
  '<div style="font-size:12.5px;color:var(--muted);line-height:1.55">Пространство собирается из трёх шагов: роль → процесс → данные. Роль решает, какие отображения доступны и о чём спрашивает робот. Один и тот же набор данных смотрится воронкой, доской, списком или таблицей.</div></div></div>'+
  '<div class="card"><div class="ch"><span class="ct">Что нажимается прямо сейчас</span></div>'+
  '<div style="font-size:12.5px;line-height:1.95">'+
+ '· <b>Старт</b> — путь от входа до первого запуска: роль, почта, LinkedIn, правило отбора. Пять шагов, и больше к настройке не возвращаются<br>'+
+ '· <b>Канал → Доставляемость</b> — ваши собственные числа по ящикам: сколько во «Входящие», сколько в спам. Этого не показывает ни один инструмент на рынке<br>'+
+ '· <b>Канал → Счёт</b> — пять поставщиков против одного счёта, с реальными суммами<br>'+
+ '· <b>Счётчик внизу</b> — «сама · спросила»; клик открывает динамику<br>'+
  '· <b>⌘K</b> — палитра команд<br>'+
  '· <b>Data → Проверить полноту</b> — помощник находит записи без почты и должности и подсвечивает их жёлтым<br>'+
  '· <b>Data → клик по строке → Изменить</b> — правка сохраняется и попадает в историю изменений внизу<br>'+
@@ -1231,7 +1425,7 @@ function renderContent(){
  const id=S.active,P=document.getElementById('pad');
  if(!id){P.innerHTML='<div class="empty"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/></svg><div>Вкладок нет. Откройте что-нибудь слева или нажмите ⌘K.</div></div>';return}
  const[t,a]=[id.split(':')[0],id.split(':').slice(1).join(':')];
- const F={tbl:vTable,rec:vRec,tpl:vTpl,spaces:vSpaces,ws:vWs,about:vAbout}[t];
+ const F={tbl:vTable,rec:vRec,tpl:vTpl,spaces:vSpaces,ws:vWs,about:vAbout,start:vStart,channel:vChannel,bill:vBill}[t];
  P.innerHTML=F?F(a):'<div class="empty">Пусто</div>';
 }
 function renderBot(){
@@ -1257,6 +1451,8 @@ function renderStatus(){
  document.getElementById('stRows').textContent=Object.keys(TABLES).reduce((a,k)=>a+DB[k].length,0);
  document.getElementById('stTpl').textContent=TPL.length;
  document.getElementById('stQ').textContent=S.space?openQ().length:HITL.length-S.answered.length;
+ document.getElementById('stAuto').textContent=S.iv.auto;
+ document.getElementById('stAsk').textContent=S.iv.asked;
  document.getElementById('stRole').textContent=S.space?'Роль: '+ROLES[S.space.role].n+' · '+ROLES[S.space.role].who:'Роль не выбрана';
  document.getElementById('spBadge').textContent=S.space?openQ().length:HITL.length-S.answered.length;
  document.getElementById('whoBox').innerHTML=S.space?
@@ -1274,6 +1470,10 @@ function CMDS(){const c=[
  Object.entries(TABLES).forEach(([k,v])=>c.push({k:'таблица',t:v.n,h:DB[k].length+' записей',go:()=>openTab('tbl:'+k)}));
  TPL.forEach(t=>c.push({k:'процесс',t:t.name,h:cnt(t.nodes)+' блоков',go:()=>openTab('tpl:'+t.id)}));
  Object.entries(ROLES).forEach(([k,r])=>c.push({k:'роль',t:'Войти как '+r.n,h:r.who,go:()=>{S.pick.role=k;S.spaceStep=2;go('space');openTab('spaces')}}));
+ c.push({k:'раздел',t:'Начало — подключение',h:'путь от регистрации',go:()=>go('start')});
+ c.push({k:'раздел',t:'Канал — доставляемость',h:'ваши числа',go:()=>openTab('channel')});
+ c.push({k:'раздел',t:'Счёт — один вместо пяти',h:'',go:()=>openTab('bill')});
+ c.push({k:'действие',t:'Сколько раз система вас спросила',h:'',go:()=>openModal(ivModal())});
  c.push({k:'действие',t:'Проверить полноту данных',h:'',go:()=>checkGaps()});
  c.push({k:'действие',t:'Новый процесс',h:'с нуля',go:()=>newTpl()});
  c.push({k:'действие',t:'Прогнать текущий процесс',h:'',go:()=>{const id=S.active.split(':')[1];if(tplById(id))runTpl(id);else toast('Откройте процесс')}});
@@ -1304,7 +1504,7 @@ document.addEventListener('keydown',e=>{
 
 /* ═════ СТАРТ ═════ */
 log('система','sys','Прототип загружен. Данные демонстрационные, всё нажимается.');
-log('система','sys','Начните с <b>Workspaces</b> — выберите роль, и интерфейс подстроится под неё.');
+log('система','sys','Начните со <b>Старта</b> — подключение занимает пять шагов и бывает один раз.');
 render();renderBot();
 </script>
 </body>
