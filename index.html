@@ -2036,19 +2036,45 @@ DB.net=[
 ];
 
 /* ── слой модели. Прокси держит ключ у себя; без него — сборщик ── */
-const AI={ep:'/api/ask',live:null};
+const AI={ep:'/api/ask',live:null,err:null};
+function aiReason(code,detail){
+ const d=String(detail||'');
+ if(code===0)return['Страница открыта файлом или сервер не запущен','Демо должно открываться через <b>python3 serve.py</b> и адрес localhost:8800 — иначе запросу некуда идти.'];
+ if(code===503)return['Ключ не задан','Положите строку ANTHROPIC_API_KEY в файл <b>.env</b> рядом с serve.py и перезапустите сервер.'];
+ if(/credit balance/i.test(d))return['На счёте API нет средств','Ключ рабочий, но баланс нулевой. Подписка Claude и API — разные кошельки. Пополнить: <b>console.anthropic.com → Plans &amp; Billing</b>.'];
+ if(/authentication|invalid x-api-key/i.test(d))return['Ключ не принят','Проверьте, что в .env скопирован весь ключ целиком, без пробелов и переносов.'];
+ if(/rate_limit/i.test(d))return['Слишком часто','Лимит запросов. Подождите несколько секунд и повторите.'];
+ if(/not_found|model/i.test(d))return['Модель недоступна','Задайте другую в переменной DEMO_MODEL при запуске сервера.'];
+ if(code==='timeout')return['Модель не ответила вовремя','Запрос шёл дольше отведённого времени. Повторите.'];
+ return['Модель не ответила','Код '+code+(d?': '+esc(d.slice(0,160)):'')];
+}
 async function aiAsk(prompt,fallback,ms){
  try{
-  const ctl=new AbortController();const to=setTimeout(()=>ctl.abort(),ms||9000);
+  const ctl=new AbortController();
+  let timedOut=false;
+  const to=setTimeout(()=>{timedOut=true;ctl.abort()},ms||9000);
   const r=await fetch(AI.ep,{method:'POST',headers:{'content-type':'application/json'},
    body:JSON.stringify({prompt}),signal:ctl.signal});
   clearTimeout(to);
-  if(!r.ok)throw 0;
+  if(!r.ok){
+   let d='';try{d=JSON.stringify(await r.json())}catch(e){}
+   AI.live=false;AI.err=aiReason(r.status,d);return fallback;
+  }
   const j=await r.json();
   const t=(j.text||j.completion||'').trim();
-  if(!t)throw 0;
-  AI.live=true;return t;
- }catch(e){AI.live=false;return fallback}
+  if(!t){AI.live=false;AI.err=aiReason(r.status,'пустой ответ');return fallback}
+  AI.live=true;AI.err=null;return t;
+ }catch(e){
+  AI.live=false;
+  AI.err=aiReason(e&&e.name==='AbortError'?'timeout':0,'');
+  return fallback;
+ }
+}
+function aiBanner(){
+ if(AI.live)return '<div class="dlive on">живая модель отвечает</div>';
+ if(!AI.err)return '';
+ return '<div class="dwarn" style="margin-top:14px"><b>'+AI.err[0]+'.</b> '+AI.err[1]+
+  '<br><br>Демо продолжает работать на правилах — оно читает ваш текст, но не понимает его так же точно, как модель.</div>';
 }
 
 /* ── входы = карточки сегментов из 2-environment/clients/segments/.
@@ -2512,8 +2538,7 @@ async function dSubmitFree(skip){
    'и собранное место будет другим.<div class="dbtns" style="margin-top:10px">'+
    '<button class="dbtn" onclick="dSwitchSeg(\''+alt+'\')">Перейти на '+SEG[alt].code+'</button>'+
    '<button class="dbtn ghost" onclick="dNext()">Остаться на '+seg.code+'</button></div></div>'
-   :'<div class="dbtns"><button class="dbtn" onclick="dNext()">Дальше</button>'+
-    '<span class="dlive '+(AI.live?'on':'off')+'">'+(AI.live?'живая модель':'без модели: правила')+'</span></div>')+
+   :'<div class="dbtns"><button class="dbtn" onclick="dNext()">Дальше</button></div>'+aiBanner())+
   '</div>';
 }
 function dSwitchSeg(id){
