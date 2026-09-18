@@ -472,6 +472,18 @@ svg{stroke-linecap:round;stroke-linejoin:round}
 .dlive{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;padding:2px 9px;border-radius:12px}
 .dlive.on{background:#E3F2EC;color:var(--ok)}
 .dlive.off{background:var(--line2);color:var(--muted)}
+
+/* мастер кампании */
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chp{border:1px solid var(--line);background:#fff;border-radius:14px;padding:4px 10px;font-size:11.5px;
+ font-weight:600;color:var(--muted);transition:.1s;white-space:nowrap}
+.chp:hover{border-color:var(--echo);color:var(--graphite)}
+.chp.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.chk{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);cursor:pointer}
+.chk input{width:14px;height:14px;accent-color:var(--signal)}
+.stp{cursor:default}
+.step .stp.ok{cursor:pointer}
+input[type=range]{accent-color:var(--signal)}
 </style>
 </head>
 <body>
@@ -660,6 +672,142 @@ DB.meetings=[
  {id:'mt1',who:'pe12',when:'сегодня 16:30',t:'Обсудить первую вакансию',prep:true},
  {id:'mt2',who:'pe2',when:'четверг 15:00',t:'Условия и профили',prep:false},
 ];
+
+/* ═══ БАЗА НУЖНОГО РАЗМЕРА ═══════════════════════════════════════════════
+   Двенадцать человек выше написаны руками — у них есть история и переписка.
+   Ниже к ним досыпается база, чтобы фильтры и стоимость считались
+   по-настоящему. Генератор детерминированный: у всех одинаковые числа.     */
+(function(){
+ let seed=20260918;
+ const rnd=()=>{seed=(seed*1103515245+12345)&0x7fffffff;return seed/0x7fffffff};
+ const pick=a=>a[Math.floor(rnd()*a.length)];
+ const ST=['MA','NY','CA','TX','IL','WA','CO','NJ','PA','GA','FL','OH','MI','NC','AZ','MN','OR','VA','TN','MO'];
+ const CITY={MA:'Boston',NY:'New York',CA:'San Francisco',TX:'Austin',IL:'Chicago',WA:'Seattle',
+  CO:'Denver',NJ:'Newark',PA:'Philadelphia',GA:'Atlanta',FL:'Miami',OH:'Columbus',MI:'Milwaukee',
+  NC:'Raleigh',AZ:'Phoenix',MN:'Minneapolis',OR:'Portland',VA:'Richmond',TN:'Nashville',MO:'St. Louis'};
+ const IND=['Управляемые ИТ-услуги','Кибербезопасность','Инструменты разработчика','Промышленная автоматизация',
+  'Цифровое здравоохранение','Логистика','Данные','Финтех','Бухгалтерские услуги','Юридические услуги',
+  'Маркетинговое агентство','Производство','Страхование','Образование'];
+ const W1=['North','Kestrel','Vellum','Ardent','Solace','Halden','Pale','Cobalt','Granite','Meridian','Silver','Harbor',
+  'Iron','Cedar','Vantage','Summit','Lantern','Quarry','Beacon','Aster','Ridge','Copper','Bright','Falcon','Juniper','Slate'];
+ const W2=['wind','rel','um','ent','ace','den','Blue','Works','Labs','Systems','Group','Partners','Tech','Digital',
+  'Networks','Solutions','Analytics','Logistics','Data','Cloud'];
+ const F=['James','Maria','Daniel','Sofia','Michael','Elena','Robert','Priya','David','Anna','Thomas','Grace',
+  'Peter','Laura','Samuel','Nina','Andrew','Clara','Victor','Ruth','Oscar','Iris','Marcus','Dana','Theo','Ava',
+  'Ruben','Kirra','Jonas','Sam','Leo','Mira','Felix','Alma','Hugo','Nora','Emil','Vera','Otto','Lena'];
+ const L=['Whitfield','Bell','Kohl','Pereira','Lindqvist','Sato','Raman','Kohler','Marquez','Osei','Nolan','Lindgren',
+  'Bauer','Novak','Keller','Dubois','Ferrari','Larsen','Walsh','Ortega','Hahn','Meyer','Brandt','Fisher','Voss',
+  'Castillo','Nilsen','Bergman','Adeyemi','Costa','Huang','Petrov','Mwangi','Reyes','Okafor','Lindholm'];
+ const ROLE=['Founder','CEO','CTO','COO','Owner','Managing Partner','VP Engineering','Head of Operations',
+  'Director of IT','President','Head of People','VP Sales'];
+
+ const nCo=340;
+ for(let i=0;i<nCo;i++){
+  const st=pick(ST), ind=pick(IND);
+  const nm=pick(W1)+pick(W2)+(rnd()<0.18?' '+pick(['Group','Partners','Co']):'');
+  const dom=nm.toLowerCase().replace(/[^a-z]/g,'')+pick(['.com','.io','.net','.co']);
+  // у части компаний размера нет — это те самые, что сегодня выбрасываются молча
+  const size=rnd()<0.19?null:2+Math.floor(rnd()*rnd()*70);
+  DB.companies.push({id:'cg'+i,Компания:nm,Домен:dom,Отрасль:rnd()<0.06?null:ind,
+   Людей:size,Город:CITY[st]+', '+st,Штат:st,Годность:25+Math.floor(rnd()*72)});
+ }
+ // штат у написанных руками компаний
+ DB.companies.slice(0,7).forEach(c=>{const m=String(c.Город).match(/,\s*([A-Z]{2})$/);c.Штат=m?m[1]:'—'});
+
+ const nPe=2180;
+ for(let i=0;i<nPe;i++){
+  const co=DB.companies[7+Math.floor(rnd()*(DB.companies.length-7))];
+  const nm=pick(F)+' '+pick(L);
+  const hasMail=rnd()<0.71, hasLi=rnd()<0.83;
+  const r=rnd();
+  const consent=r<0.022?'закрыт полностью':r<0.041?'только почта':r<0.062?'только LinkedIn':'почта · LinkedIn';
+  DB.people.push({id:'pg'+i,Имя:nm,Роль:rnd()<0.05?null:pick(ROLE),Компания:co.id,
+   Почта:hasMail?nm.toLowerCase().replace(/[^a-z]/g,'.')+'@'+co.Домен:null,
+   LinkedIn:hasLi?'in/'+nm.toLowerCase().replace(/[^a-z]/g,''):null,
+   Стадия:'Новые',Канал:consent,
+   camps:rnd()<0.084?['c1']:[]});
+ }
+ DB.people.slice(0,12).forEach(p=>{if(!p.camps)p.camps=['c1']});
+})();
+
+/* ═══ ОТБОР ══════════════════════════════════════════════════════════════
+   Живые фильтры: считают по настоящей базе, а не показывают нарисованное.  */
+const FLT={states:[],inds:[],sizeMin:2,sizeMax:60,noSize:false,fitMin:40,exclCamp:[],onlyFresh:false};
+const coOf=id=>DB.companies.find(c=>c.id===id)||{};
+function allStates(){return [...new Set(DB.companies.map(c=>c.Штат).filter(x=>x&&/^[A-Z]{2}$/.test(x)))].sort()}
+function allInds(){return [...new Set(DB.companies.map(c=>c.Отрасль).filter(Boolean))].sort()}
+const freshCos=()=>new Set(DB.signals.map(s=>s.Компания));
+
+function selectPeople(f){
+ f=f||FLT;
+ const fresh=f.onlyFresh?freshCos():null;
+ return DB.people.filter(p=>{
+  const c=coOf(p.Компания);
+  if(f.states.length&&!f.states.includes(c.Штат))return false;
+  if(f.inds.length&&!f.inds.includes(c.Отрасль))return false;
+  if(c.Людей==null){if(!f.noSize)return false}
+  else if(c.Людей<f.sizeMin||c.Людей>f.sizeMax)return false;
+  if((c.Годность||0)<f.fitMin)return false;
+  if(fresh&&!fresh.has(p.Компания))return false;
+  return true;
+ });
+}
+
+/* ═══ ОТСЕВ · кого не тронем и почему ═══════════════════════════════════
+   Считается до запуска. У конкурентов это либо не делается,
+   либо делается молча — и это прямо критерий Люси.                        */
+function sieve(people,rule,exclCamp){
+ const out={pass:[],mail:0,li:0,drop:{}};
+ const add=(k,p)=>{(out.drop[k]=out.drop[k]||[]).push(p)};
+ const ex=exclCamp||[];
+ people.forEach(p=>{
+  const cons=String(p.Канал||'');
+  if(ex.length&&(p.camps||[]).some(x=>ex.includes(x)))
+   return add('Уже писали в выбранных кампаниях',p);
+  if(cons==='закрыт полностью')return add('Отписались или пожаловались',p);
+  const canMail=!!p.Почта&&cons!=='только LinkedIn';
+  const canLi=!!p.LinkedIn&&cons!=='только почта';
+  let ch=null;
+  if(rule==='mail')ch=canMail?'mail':null;
+  else if(rule==='li')ch=canLi?'li':null;
+  else if(rule==='both')ch=canMail?'mail':canLi?'li':null;
+  else ch=canMail?'mail':canLi?'li':null;
+  if(!ch){
+   if(!p.Почта&&!p.LinkedIn)return add('Нет ни почты, ни профиля',p);
+   if(rule==='mail')return add('Нет почты — а канал задан только почтой',p);
+   if(rule==='li')return add('Нет профиля — а канал задан только LinkedIn',p);
+   return add('Канал закрыт этим человеком',p);
+  }
+  out.pass.push(p);
+  if(ch==='mail')out.mail++;else out.li++;
+ });
+ return out;
+}
+
+/* ═══ АРИФМЕТИКА КАНАЛА ═════════════════════════════════════════════════
+   Ящик ≈45 писем в день, LinkedIn-аккаунт ≈20 касаний.
+   Почта — канал объёма, LinkedIn — канал точности. Это не симметрия.      */
+const CAP={mail:45,li:20,boxPrice:4.5,domPrice:15,perDomain:3,enrich:0.12};
+function capacity(){
+ const m=DB.senders.filter(s=>s.Канал==='Почта'&&s.Состояние==='здоров').length;
+ const l=DB.senders.filter(s=>s.Канал==='LinkedIn'&&s.Состояние!=='выведен').length;
+ return{boxes:m,accs:l,mailDay:m*CAP.mail,liDay:l*CAP.li};
+}
+function plan(mail,li,days,touches){
+ const c=capacity();
+ const needMail=Math.ceil(mail*touches/Math.max(1,days));
+ const needLi=Math.ceil(li*touches/Math.max(1,days));
+ const boxesNeed=Math.ceil(needMail/CAP.mail), accsNeed=Math.ceil(needLi/CAP.li);
+ const extraBoxes=Math.max(0,boxesNeed-c.boxes), extraAccs=Math.max(0,accsNeed-c.accs);
+ const daysReal=Math.max(
+  c.mailDay?Math.ceil(mail*touches/c.mailDay):0,
+  c.liDay?Math.ceil(li*touches/c.liDay):0);
+ const doms=Math.ceil(extraBoxes/CAP.perDomain);
+ return{...c,needMail,needLi,boxesNeed,accsNeed,extraBoxes,extraAccs,daysReal,
+  fits:extraBoxes===0&&extraAccs===0,
+  cost:Math.round(extraBoxes*CAP.boxPrice+doms*CAP.domPrice/12),doms};
+}
+
 const TABLES={
  companies:{n:'Компании',cols:['Компания','Домен','Отрасль','Людей','Город','Годность'],req:['Отрасль','Людей']},
  people:{n:'Люди',cols:['Имя','Роль','Компания','Почта','LinkedIn','Стадия','Канал'],req:['Роль','Почта','LinkedIn']},
@@ -1734,7 +1882,294 @@ let CAMP=[
   sent:0,opened:0,replied:0,left:12,started:'—',
   texts:[{s:'Поздравляю с раундом',b:'{{имя}}, поздравляю с раундом.\n\nПосле него обычно нанимают быстро — показать, кого можем привести?'}]},
 ];
-let NC={step:0,name:'',list:null,tpl:null,subj:'',body:''};
+/* ═══ МАСТЕР КАМПАНИИ · пять шагов ══════════════════════════════════════
+   Кому · Чем · Что · Как быстро · Что не уйдёт и почём.
+   Каждый шаг отвечает на вопрос, на котором у конкурентов теряют клиента. */
+const CH_RULES=[
+ {id:'auto',n:'Письмо, а если почты нет — LinkedIn',d:'Канал выбирается под человека. Одна кампания идёт разными путями.',rec:true},
+ {id:'mail',n:'Только почта',d:'Канал объёма. Те, у кого почты нет, в кампанию не попадут.'},
+ {id:'li',n:'Только LinkedIn',d:'Канал точности, а не объёма: 20 касаний в день на аккаунт.'},
+ {id:'both',n:'Оба канала одному человеку',d:'Два касания вместо одного. Быстрее выжигает и человека, и канал.',warn:true},
+];
+let NC={step:0,name:'',rule:'auto',days:14,win:'09:00–17:00',
+ f:{states:[],inds:[],sizeMin:2,sizeMax:60,noSize:false,fitMin:40,exclCamp:[],onlyFresh:false},
+ seq:[
+  {ch:'mail',wait:0,s:'Ищете инженеров в {{компания}}?',
+   b:'{{имя}}, увидел вакансию у вас на сайте.\n\nМы закрываем такие роли за 3–4 недели, работаем с командами до 30 человек.\n\nПоказать, кого нашли бы вам на этой неделе?'},
+  {ch:'mail',wait:3,s:'(в том же треде)',b:'{{имя}}, коротко: собрал четверых под вашу вакансию.\n\nОтправить список?'},
+ ],prev:null};
+
+function newCamp(){
+ NC={step:0,name:'',rule:'auto',days:14,win:'09:00–17:00',
+  f:{states:[],inds:[],sizeMin:2,sizeMax:60,noSize:false,fitMin:40,exclCamp:[],onlyFresh:false},
+  seq:[{ch:'mail',wait:0,s:'Ищете инженеров в {{компания}}?',
+    b:'{{имя}}, увидел вакансию у вас на сайте.\n\nМы закрываем такие роли за 3–4 недели.\n\nПоказать, кого нашли бы на этой неделе?'},
+   {ch:'mail',wait:3,s:'(в том же треде)',b:'{{имя}}, коротко: собрал четверых под вашу вакансию.\n\nОтправить список?'}],
+  prev:null};
+ openTab('newcamp');
+}
+const ncSel=()=>selectPeople(NC.f);
+const ncSieve=()=>sieve(ncSel(),NC.rule,NC.f.exclCamp);
+const ncTouch=()=>NC.seq.length;
+
+function ncSet(k,v){NC.f[k]=v;render()}
+function ncTog(k,v){const a=NC.f[k];const i=a.indexOf(v);i<0?a.push(v):a.splice(i,1);render()}
+function ncStep(i){NC.step=i;render()}
+function ncNum(k,v){const n=parseInt(v,10);if(!isNaN(n))NC.f[k]=n;render()}
+
+/* ── шаг 1 · кому ── */
+function ncWho(){
+ const sel=ncSel(), tot=DB.people.length;
+ const noSizeCo=DB.companies.filter(c=>c.Людей==null).length;
+ const noSizePe=DB.people.filter(p=>coOf(p.Компания).Людей==null).length;
+ let h='<div class="g2" style="grid-template-columns:1fr 300px;align-items:start">';
+ h+='<div>';
+
+ h+='<div class="card"><div class="ch"><span class="ct">Штат</span>'+
+  '<span style="font-size:11px;color:var(--muted2);margin-left:auto">выбором из списка, не поиском по буквам</span></div>'+
+  '<div class="chips">'+allStates().map(x=>'<button class="chp'+(NC.f.states.includes(x)?' on':'')+
+  '" onclick="ncTog(\'states\',\''+x+'\')">'+x+'</button>').join('')+'</div>'+
+  '<div class="pd" style="margin-top:8px">Раньше поиск шёл по подстроке: <b>«MI» ловил и Miami, и Milwaukee</b>. Здесь штат — это значение, а не текст.</div></div>';
+
+ h+='<div class="card"><div class="ch"><span class="ct">Отрасль</span></div>'+
+  '<div class="chips">'+allInds().map(x=>'<button class="chp'+(NC.f.inds.includes(x)?' on':'')+
+  '" onclick="ncTog(\'inds\',\''+esc(x)+'\')">'+esc(x)+'</button>').join('')+'</div></div>';
+
+ h+='<div class="card"><div class="ch"><span class="ct">Размер компании</span></div>'+
+  '<div style="display:flex;gap:9px;align-items:center;flex-wrap:wrap">'+
+  '<div class="fld"><label>от</label><input type="number" value="'+NC.f.sizeMin+'" style="width:56px" onchange="ncNum(\'sizeMin\',this.value)"></div>'+
+  '<div class="fld"><label>до</label><input type="number" value="'+NC.f.sizeMax+'" style="width:56px" onchange="ncNum(\'sizeMax\',this.value)"></div>'+
+  '<label class="chk"><input type="checkbox"'+(NC.f.noSize?' checked':'')+' onchange="NC.f.noSize=this.checked;render()">'+
+  ' включить компании без данных о размере</label></div>'+
+  '<div class="pd" style="margin-top:8px">В базе <b>'+noSizeCo+'</b> компаний без размера, это <b>'+noSizePe+
+  '</b> человек. Сегодня такие записи молча выбрасываются. Здесь решение принимаете вы, и оно видно.</div></div>';
+
+ h+='<div class="card"><div class="ch"><span class="ct">Годность и сигналы</span></div>'+
+  '<div style="display:flex;gap:9px;align-items:center;flex-wrap:wrap">'+
+  '<div class="fld"><label>годность не ниже</label><input type="number" value="'+NC.f.fitMin+'" style="width:56px" onchange="ncNum(\'fitMin\',this.value)"></div>'+
+  '<label class="chk"><input type="checkbox"'+(NC.f.onlyFresh?' checked':'')+' onchange="NC.f.onlyFresh=this.checked;render()">'+
+  ' только компании со свежим сигналом</label></div></div>';
+
+ h+='<div class="card"><div class="ch"><span class="ct">Исключить тех, кому уже писали</span></div>'+
+  '<div class="chips">'+CAMP.map(c=>'<button class="chp'+(NC.f.exclCamp.includes(c.id)?' on':'')+
+  '" onclick="ncTog(\'exclCamp\',\''+c.id+'\')">'+esc(c.name)+'</button>').join('')+'</div>'+
+  '<div class="pd" style="margin-top:8px">Они не пропадут молча — попадут в список отсева на последнем шаге, с причиной.</div></div>';
+
+ h+='</div>';
+
+ // правый столбец — счётчик пересчитывается на каждое действие
+ const sv=ncSieve();
+ h+='<div style="position:sticky;top:0">'+
+  '<div class="card" style="background:var(--ink);color:#fff;border-color:var(--ink)">'+
+  '<div style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;opacity:.65;font-weight:700">Подходит сейчас</div>'+
+  '<div style="font-size:34px;font-weight:800;letter-spacing:-.03em;line-height:1.05;margin:4px 0 2px">'+sel.length.toLocaleString('ru')+'</div>'+
+  '<div style="font-size:12px;opacity:.75">из '+tot.toLocaleString('ru')+' в базе</div>'+
+  '<div style="height:1px;background:rgba(255,255,255,.16);margin:12px 0"></div>'+
+  '<div class="kv"><span class="kvk" style="color:#A9BDF0">уйдёт письмом</span><span class="kvv">'+sv.mail+'</span></div>'+
+  '<div class="kv"><span class="kvk" style="color:#A9BDF0">уйдёт в LinkedIn</span><span class="kvv">'+sv.li+'</span></div>'+
+  '<div class="kv"><span class="kvk" style="color:#A9BDF0">отсеется</span><span class="kvv">'+(sel.length-sv.pass.length)+'</span></div>'+
+  '</div>'+
+  '<button class="btn btn-p" style="width:100%;justify-content:center;margin-top:9px" '+
+  (sel.length?'':'disabled ')+'onclick="ncStep(1)">Дальше — каким каналом</button>'+
+  '<div class="pd" style="margin-top:9px">Ниже — первые 8 человек из отбора, чтобы было видно, кого вы взяли.</div>'+
+  '<div class="card" style="margin-top:7px;padding:8px 10px">'+
+  (sel.slice(0,8).map(p=>'<div class="kv" style="padding:4px 0"><span class="kvv" style="font-size:11.5px">'+
+   esc(p.Имя)+'<br><span style="color:var(--muted2)">'+esc(coOf(p.Компания).Компания||'')+' · '+
+   esc(coOf(p.Компания).Штат||'')+'</span></span></div>').join('')||'<div class="pd">Никто не подходит</div>')+
+  '</div></div>';
+ return h+'</div>';
+}
+
+/* ── шаг 2 · чем ── */
+function ncHow(){
+ const sel=ncSel();
+ let h='<div class="pd" style="margin-bottom:12px;max-width:680px">Канал выбирается <b>под человека, а не под кампанию</b>. У Авы закрыт LinkedIn — уйдёт письмо. У Йонаса нет почты — уйдёт LinkedIn. Конкуренты требуют заводить под это две кампании.</div>';
+ h+='<div class="g2" style="grid-template-columns:1fr 300px;align-items:start"><div>';
+ h+=CH_RULES.map(r=>{
+  const sv=sieve(sel,r.id,NC.f.exclCamp);
+  return '<div class="rolecard'+(NC.rule===r.id?' on':'')+'" style="margin-bottom:9px" onclick="NC.rule=\''+r.id+'\';render()">'+
+   '<div style="display:flex;align-items:center;gap:8px"><div class="rn" style="font-size:13.5px">'+r.n+'</div>'+
+   (r.rec?'<span class="tag t-ok">по умолчанию</span>':'')+(r.warn?'<span class="tag t-warn">осторожно</span>':'')+'</div>'+
+   '<div class="rl" style="margin-top:5px">'+r.d+'</div>'+
+   '<div style="margin-top:8px;font-size:11.5px;color:var(--muted2)">дойдёт до <b style="color:var(--graphite)">'+
+   sv.pass.length+'</b> из '+sel.length+' · письмом '+sv.mail+' · LinkedIn '+sv.li+'</div></div>';
+ }).join('');
+ h+='</div>';
+ const c=capacity();
+ h+='<div><div class="card"><div class="ch"><span class="ct">Почему это не две галочки</span></div>'+
+  '<div class="kv"><span class="kvk">ящик почты</span><span class="kvv"><b>45</b> касаний в день</span></div>'+
+  '<div class="kv"><span class="kvk">аккаунт LinkedIn</span><span class="kvv"><b>20</b> касаний в день</span></div>'+
+  '<div class="kv"><span class="kvk">у вас сейчас</span><span class="kvv">'+c.boxes+' ящика · '+c.accs+' аккаунта</span></div>'+
+  '<div class="pd" style="margin-top:8px">Почта — канал объёма. LinkedIn — канал точности: официального входа в него нет ни у кого, и наказание прилетает аккаунту, а не кампании.</div></div>'+
+  '<div style="display:flex;gap:7px;margin-top:9px"><button class="btn btn-g btn-s" onclick="ncStep(0)">← назад</button>'+
+  '<button class="btn btn-p" onclick="ncStep(2)">Дальше — что пишем</button></div></div></div>';
+ return h;
+}
+
+/* ── шаг 3 · что ── */
+function ncWhat(){
+ const sel=ncSel();
+ if(!NC.prev)NC.prev=(sel[0]||DB.people[0]).id;
+ const per=DB.people.find(p=>p.id===NC.prev)||DB.people[0];
+ const co=coOf(per.Компания);
+ const fill=t=>String(t||'').replace(/\{\{имя\}\}/g,String(per.Имя).split(' ')[0])
+  .replace(/\{\{компания\}\}/g,co.Компания||'').replace(/\{\{вакансия\}\}/g,'Senior Engineer');
+ let h='<div class="pd" style="margin-bottom:12px;max-width:680px">Последовательность касаний. У письма есть тема, у LinkedIn — нет: это разные каналы, и тексты у них разные. Ответ останавливает цепочку сам.</div>';
+ h+='<div class="g2" style="grid-template-columns:1fr 330px;align-items:start"><div>';
+ NC.seq.forEach((x,i)=>{
+  h+='<div class="card"><div class="ch">'+
+   '<span class="tag '+(x.ch==='mail'?'t-sig':'t-vio')+'">'+(x.ch==='mail'?'письмо':'LinkedIn')+'</span>'+
+   '<span class="ct">Касание '+(i+1)+'</span>'+
+   (i?'<span style="font-size:11.5px;color:var(--muted)">через '+x.wait+' дн. после прошлого</span>':'')+
+   '<div style="flex:1"></div>'+
+   '<button class="btn btn-s btn-g" onclick="ncChan('+i+')">сменить канал</button>'+
+   (NC.seq.length>1?'<button class="btn btn-s btn-d" onclick="ncDel('+i+')">убрать</button>':'')+'</div>';
+  if(i)h+='<div class="fld" style="margin-bottom:8px;width:fit-content"><label>пауза, дней</label>'+
+   '<input type="number" value="'+x.wait+'" style="width:52px" onchange="NC.seq['+i+'].wait=parseInt(this.value,10)||0;render()"></div>';
+  if(x.ch==='mail')h+='<div class="flab">Тема</div><input class="finp" value="'+esc(x.s)+'" onchange="NC.seq['+i+'].s=this.value;render()">';
+  h+='<div class="flab" style="margin-top:8px">Текст</div>'+
+   '<textarea class="finp" style="min-height:96px" onchange="NC.seq['+i+'].b=this.value;render()">'+esc(x.b)+'</textarea>';
+  h+='</div>';
+ });
+ h+='<button class="btn" onclick="ncAdd()">+ Добавить касание</button>';
+ h+='</div>';
+ h+='<div style="position:sticky;top:0"><div class="card"><div class="ch"><span class="ct">Как это увидит человек</span></div>'+
+  '<div class="fld" style="margin-bottom:9px"><label>кто</label>'+
+  '<select onchange="NC.prev=this.value;render()">'+sel.slice(0,40).map(p=>'<option value="'+p.id+'"'+
+  (p.id===NC.prev?' selected':'')+'>'+esc(p.Имя)+'</option>').join('')+'</select></div>'+
+  NC.seq.map((x,i)=>'<div style="border-top:1px solid var(--line2);padding-top:9px;margin-top:9px">'+
+   '<div style="font-size:11px;color:var(--muted2);font-weight:700;text-transform:uppercase;letter-spacing:.05em">'+
+   (x.ch==='mail'?'письмо':'LinkedIn')+' · касание '+(i+1)+'</div>'+
+   (x.ch==='mail'?'<div style="font-weight:700;font-size:12.5px;margin-top:5px">'+esc(fill(x.s))+'</div>':'')+
+   '<div style="font-size:12px;color:var(--muted);margin-top:5px;white-space:pre-wrap">'+esc(fill(x.b))+'</div></div>').join('')+
+  '</div>'+
+  '<div style="display:flex;gap:7px;margin-top:9px"><button class="btn btn-g btn-s" onclick="ncStep(1)">← назад</button>'+
+  '<button class="btn btn-p" onclick="ncStep(3)">Дальше — как быстро</button></div></div></div>';
+ return h;
+}
+function ncAdd(){const l=NC.seq[NC.seq.length-1];
+ NC.seq.push({ch:l.ch==='mail'?'li':'mail',wait:l.ch==='mail'?7:4,s:'(в том же треде)',b:''});render()}
+function ncDel(i){NC.seq.splice(i,1);render()}
+function ncChan(i){const x=NC.seq[i];x.ch=x.ch==='mail'?'li':'mail';render()}
+
+/* ── шаг 4 · как быстро ── */
+function ncFast(){
+ const sv=ncSieve(), t=ncTouch(), pl=plan(sv.mail,sv.li,NC.days,t);
+ let h='<div class="pd" style="margin-bottom:12px;max-width:680px">Вы говорите <b>срок</b>, а не «сколько писем в день». Сколько безопасно — это не ваше решение: вы не можете его проверить, а последствия невосстановимы.</div>';
+ h+='<div class="g2" style="grid-template-columns:1fr 330px;align-items:start"><div>';
+ h+='<div class="card"><div class="ch"><span class="ct">За сколько дней пройти список</span></div>'+
+  '<div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">'+
+  '<input type="range" min="1" max="90" value="'+NC.days+'" style="flex:1;min-width:190px" oninput="NC.days=parseInt(this.value,10);render()">'+
+  '<div class="fld"><input type="number" value="'+NC.days+'" style="width:58px" onchange="NC.days=parseInt(this.value,10)||1;render()"><label>дней</label></div></div>'+
+  '<div class="kv" style="margin-top:9px"><span class="kvk">людей в работе</span><span class="kvv">'+sv.pass.length+'</span></div>'+
+  '<div class="kv"><span class="kvk">касаний на человека</span><span class="kvv">'+t+'</span></div>'+
+  '<div class="kv"><span class="kvk">всего касаний</span><span class="kvv"><b>'+(sv.pass.length*t).toLocaleString('ru')+'</b></span></div>'+
+  '<div class="kv"><span class="kvk">нужно в день</span><span class="kvv">'+pl.needMail+' письмом · '+pl.needLi+' в LinkedIn</span></div>'+
+  '</div>';
+ h+='<div class="card"><div class="ch"><span class="ct">Окно отправки</span></div>'+
+  '<div class="chips">'+['09:00–17:00','08:00–20:00','круглосуточно'].map(w=>'<button class="chp'+(NC.win===w?' on':'')+
+  '" onclick="NC.win=\''+w+'\';render()">'+w+'</button>').join('')+'</div>'+
+  '<div class="pd" style="margin-top:8px">По времени адресата. Круглосуточная отправка узнаётся фильтрами как машинная.</div></div>';
+ h+='</div>';
+ h+='<div style="position:sticky;top:0">'+(pl.fits
+  ?'<div class="card" style="border-color:#B8DCC9;background:#F4FBF7"><div class="ch"><span class="tag t-ok">сходится</span>'+
+   '<span class="ct">Пройдём за '+NC.days+' дн.</span></div>'+
+   '<div class="kv"><span class="kvk">ящиков нужно</span><span class="kvv">'+pl.boxesNeed+' из '+pl.boxes+'</span></div>'+
+   '<div class="kv"><span class="kvk">аккаунтов нужно</span><span class="kvv">'+pl.accsNeed+' из '+pl.accs+'</span></div>'+
+   '<div class="pd" style="margin-top:8px">Запас есть. Домены при таком темпе не деградируют быстрее обычного.</div></div>'
+  :'<div class="card" style="border-color:#E8C9C9;background:#FDF6F6"><div class="ch"><span class="tag t-stop">не сходится</span>'+
+   '<span class="ct">За '+NC.days+' дн. не выйдет</span></div>'+
+   '<div class="kv"><span class="kvk">на ваших ресурсах</span><span class="kvv"><b>'+pl.daysReal+' дн.</b></span></div>'+
+   (pl.extraBoxes?'<div class="kv"><span class="kvk">не хватает ящиков</span><span class="kvv"><b>'+pl.extraBoxes+'</b> ('+pl.doms+' доменов)</span></div>':'')+
+   (pl.extraAccs?'<div class="kv"><span class="kvk">не хватает аккаунтов LinkedIn</span><span class="kvv"><b>'+pl.extraAccs+'</b></span></div>':'')+
+   (pl.cost?'<div class="kv"><span class="kvk">докупить</span><span class="kvv">≈<b>$'+pl.cost+'</b>/мес, мощность через 21 день</span></div>':'')+
+   '<div class="pd" style="margin-top:8px">Это говорится <b>до</b> отправки, а не после того, как домены почернеют. Выбирайте: растянуть срок, сузить список или докупить.</div></div>')+
+  '<div style="display:flex;gap:7px;margin-top:9px"><button class="btn btn-g btn-s" onclick="ncStep(2)">← назад</button>'+
+  '<button class="btn btn-p" onclick="ncStep(4)">Дальше — проверка</button></div></div></div>';
+ return h;
+}
+
+/* ── шаг 5 · что не уйдёт и почём ── */
+function ncCheck(){
+ const sel=ncSel(), sv=ncSieve(), t=ncTouch(), pl=plan(sv.mail,sv.li,NC.days,t);
+ const needEnrich=sv.pass.filter(p=>!p.Почта).length;
+ const cost=Math.round(needEnrich*CAP.enrich);
+ let h='<div class="pd" style="margin-bottom:12px;max-width:700px">Последний экран перед запуском. Здесь видно <b>всё, что не уйдёт, и почему</b> — по именам, а не одной цифрой. И сколько это стоит: у конкурентов непрозрачные кредиты — первая причина, по которой кампанию сжимают или бросают до отправки.</div>';
+ h+='<div class="g2" style="grid-template-columns:1fr 330px;align-items:start"><div>';
+ h+='<div class="card"><div class="ch"><span class="ct">Кого мы не тронем</span>'+
+  '<span style="margin-left:auto;font-size:12px;color:var(--muted)">'+(sel.length-sv.pass.length)+' из '+sel.length+'</span></div>';
+ const ds=Object.entries(sv.drop).sort((a,b)=>b[1].length-a[1].length);
+ h+=ds.length?'<table class="tbl"><thead><tr><th>Причина</th><th>Сколько</th><th>Например</th></tr></thead><tbody>'+
+  ds.map(([k,v])=>'<tr><td>'+esc(k)+'</td><td><b>'+v.length+'</b></td><td style="color:var(--muted)">'+
+  esc(v.slice(0,2).map(p=>p.Имя).join(', '))+(v.length>2?' и ещё '+(v.length-2):'')+'</td></tr>').join('')+
+  '</tbody></table>':'<div class="pd">Никто не отсеивается — редкий случай.</div>';
+ h+='<div class="pd" style="margin-top:9px">Сегодня такие записи выбрасываются молча. Отписка при этом держится <b>на человеке</b>, а не на отправителе и не на кампании — у Attio она работает только для того же отправителя, у остальных привязана к рассылке.</div></div>';
+
+ h+='<div class="card"><div class="ch"><span class="ct">Сколько это стоит</span></div>'+
+  '<table class="tbl"><tbody>'+
+  '<tr><td>Обогащение контактов</td><td class="mono">'+needEnrich+' × $'+CAP.enrich+'</td><td><b>$'+cost+'</b></td></tr>'+
+  '<tr><td>Отправка</td><td class="mono">'+(sv.pass.length*t).toLocaleString('ru')+' касаний</td><td><b>$0</b></td></tr>'+
+  (pl.cost?'<tr><td>Докупить ящиков и доменов</td><td class="mono">'+pl.extraBoxes+' ящ. · '+pl.doms+' дом.</td><td><b>$'+pl.cost+'/мес</b></td></tr>':'')+
+  '</tbody></table>'+
+  '<div class="pd" style="margin-top:8px">Цифра видна <b>до</b> запуска и по шагам. Никаких кредитов, за которые непонятно, что списали.</div></div>';
+ h+='</div>';
+
+ h+='<div style="position:sticky;top:0"><div class="card"><div class="ch"><span class="ct">Итого</span></div>'+
+  '<div class="kv"><span class="kvk">отобрано</span><span class="kvv">'+sel.length+'</span></div>'+
+  '<div class="kv"><span class="kvk">пойдёт в работу</span><span class="kvv"><b>'+sv.pass.length+'</b></span></div>'+
+  '<div class="kv"><span class="kvk">письмом · LinkedIn</span><span class="kvv">'+sv.mail+' · '+sv.li+'</span></div>'+
+  '<div class="kv"><span class="kvk">касаний всего</span><span class="kvv">'+(sv.pass.length*t).toLocaleString('ru')+'</span></div>'+
+  '<div class="kv"><span class="kvk">срок</span><span class="kvv">'+(pl.fits?NC.days:pl.daysReal)+' дн.</span></div>'+
+  '<div class="kv"><span class="kvk">стоимость</span><span class="kvv"><b>$'+(cost+(pl.cost||0))+'</b></span></div>'+
+  '<div class="wfval ok" style="margin-top:10px">Проверка канала стоит <b>перед каждой отправкой</b>, а не один раз при постановке в очередь. Если человек отпишется завтра, третье касание до него не дойдёт.</div>'+
+  '</div>'+
+  '<div class="flab" style="margin-top:10px">Название кампании</div>'+
+  '<input class="finp" id="ncName" value="'+esc(NC.name||ncAutoName())+'">'+
+  '<div style="display:flex;gap:7px;margin-top:9px"><button class="btn btn-g btn-s" onclick="ncStep(3)">← назад</button>'+
+  '<button class="btn btn-p" onclick="startCamp()">Запустить</button>'+
+  '<button class="btn" onclick="startCamp(1)">В черновики</button></div></div></div>';
+ return h;
+}
+function ncAutoName(){
+ const f=NC.f;
+ const a=f.inds.length?f.inds[0]:'Все отрасли';
+ const b=f.states.length?f.states.slice(0,3).join(', ')+(f.states.length>3?'…':''):'вся страна';
+ return a+' · '+b;
+}
+
+/* ── оболочка мастера ── */
+function vNewCamp(){
+ const S5=['Кому','Чем','Что пишем','Как быстро','Проверка'];
+ let h='<div class="ph"><div class="pk">Аутрич</div><div class="pt">Новая кампания</div>'+
+  '<div class="pd">Пять шагов. Каждый отвечает на вопрос, на котором у конкурентов теряют клиента: кому, каким каналом, каким текстом, с какой скоростью и что из этого не уйдёт.</div></div>';
+ h+='<div class="step">'+S5.map((x,i)=>'<div class="stp '+(NC.step===i?'on':NC.step>i?'ok':'')+'" onclick="'+
+  (i<NC.step?'ncStep('+i+')':'')+'">'+'<span class="num">'+(NC.step>i?'✓':i+1)+'</span>'+x+'</div>').join('<div class="stpar"></div>')+'</div>';
+ h+=[ncWho,ncHow,ncWhat,ncFast,ncCheck][NC.step]();
+ return h;
+}
+
+function startCamp(draft){
+ const el=document.getElementById('ncName');
+ const sv=ncSieve(), t=ncTouch(), pl=plan(sv.mail,sv.li,NC.days,t);
+ const c={id:'c'+(CAMP.length+1),name:(el&&el.value)||ncAutoName(),state:draft?'черновик':'идёт',
+  tpl:'tpl1',list:null,f:JSON.parse(JSON.stringify(NC.f)),rule:NC.rule,seq:JSON.parse(JSON.stringify(NC.seq)),
+  people:sv.pass.map(p=>p.id),mail:sv.mail,li:sv.li,days:pl.fits?NC.days:pl.daysReal,win:NC.win,
+  sent:0,opened:0,replied:0,left:sv.pass.length,started:draft?'—':'сегодня',
+  drop:Object.fromEntries(Object.entries(sv.drop).map(([k,v])=>[k,v.length])),
+  texts:NC.seq.map(x=>({s:x.s,b:x.b}))};
+ CAMP.push(c);
+ if(!draft)sv.pass.forEach(p=>{p.camps=p.camps||[];p.camps.push(c.id)});
+ log('человек','human','Кампания <b>'+esc(c.name)+'</b> '+(draft?'сохранена черновиком':'запущена'));
+ hist('Создана кампания «'+c.name+'»');
+ if(!draft){
+  S.iv.auto+=6;
+  log('робот','auto','Отобрал '+sv.pass.length+', отсеял '+(Object.values(sv.drop).reduce((a,v)=>a+v.length,0))+
+   ' с причинами, развёл по каналам: '+sv.mail+' письмом, '+sv.li+' в LinkedIn');
+  log('робот','auto','Расставил '+(sv.pass.length*t).toLocaleString('ru')+' касаний на '+c.days+' дней в окно '+c.win);
+ }
+ closeTab('newcamp');openTab('camp:'+c.id);toast(draft?'Сохранено':'Пошла работать');
+}
+
 function vCamps(){
  let h='<div class="ph"><div class="pk">Аутрич</div><div class="pt">Кампании</div>'+
   '<div class="pd">Кампания — это список людей, процесс, по которому с ними работают, и тексты. Система идёт по ней сама; вы видите ход и вмешиваетесь, когда захотите.</div></div>';
@@ -1753,12 +2188,55 @@ function vCamps(){
    '<div><div class="mk">Ещё в очереди</div><div class="mono" style="font-size:17px;font-weight:700">'+c.left+'</div></div></div></div>';
  });
  return h}
+
+/* ═══ ПОКАЗАНИЯ · то, чего не даёт ни один игрок ══════════════════════════
+   Отчёт на собственных данных клиента, с разрезом по каждому ящику.
+   Живёт в той же кампании, а не во вкладке «Аналитика».                    */
+function campReport(c){
+ if(!c.people||c.state==='черновик')return '';
+ const box=DB.senders.filter(x=>x.Канал==='Почта');
+ const seed=c.id.split('').reduce((a,ch)=>a+ch.charCodeAt(0),0);
+ let n=seed;const r=()=>{n=(n*1103515245+12345)&0x7fffffff;return n/0x7fffffff};
+ const rows=box.map(b=>{
+  const base=b.Состояние==='выведен'?12:b.Состояние==='прогрев'?48:b.Репутация==='средняя'?77:90+Math.round(r()*6);
+  const sent=Math.round(c.mail/box.length*(b.Состояние==='выведен'?.2:1));
+  return {b,sent,deliv:base,land:Math.round(sent*base/100)};
+ });
+ const sent=rows.reduce((a,x)=>a+x.sent,0), land=rows.reduce((a,x)=>a+x.land,0);
+ const avg=sent?Math.round(land/sent*100):0;
+ const worst=rows.slice().sort((a,b)=>a.deliv-b.deliv)[0];
+ let h='<div class="card"><div class="ch"><span class="ct">Что дошло</span>'+
+  '<span class="tag t-sig">ваши данные</span><div style="flex:1"></div>'+
+  '<span style="font-size:11.5px;color:var(--muted)">обновлено только что</span></div>'+
+  '<div class="g4" style="margin-bottom:11px">'+
+  '<div class="met"><div class="mk">Ушло</div><div class="mv">'+sent.toLocaleString('ru')+'</div></div>'+
+  '<div class="met"><div class="mk">Дошло до входящих</div><div class="mv" style="color:'+(avg<80?'var(--stop)':'var(--ok)')+'">'+avg+'%</div></div>'+
+  '<div class="met"><div class="mk">Ответили</div><div class="mv">'+c.replied+'</div></div>'+
+  '<div class="met"><div class="mk">Не дошло</div><div class="mv" style="color:var(--stop)">'+(sent-land).toLocaleString('ru')+'</div></div></div>';
+ h+='<table class="tbl"><thead><tr><th>Ящик</th><th>Состояние</th><th>Ушло</th><th>Дошло</th><th></th></tr></thead><tbody>'+
+  rows.map(x=>'<tr onclick="openRec(\'senders\',\''+x.b.id+'\')"><td class="mono">'+esc(x.b.Адрес)+'</td>'+
+  '<td>'+tag(x.b.Состояние)+'</td><td class="mono">'+x.sent+'</td>'+
+  '<td class="mono"><b style="color:'+(x.deliv<60?'var(--stop)':x.deliv<85?'var(--warn)':'var(--ok)')+'">'+x.deliv+'%</b></td>'+
+  '<td style="width:38%"><div class="dbar" style="margin:0"><i class="'+(x.deliv<60?'b':'')+'" style="width:'+x.deliv+'%"></i></div></td></tr>').join('')+
+  '</tbody></table>';
+ h+='<div class="wfval '+(avg<80?'bad':'ok')+'" style="margin-top:10px">'+
+  (avg<80?'<b>Сводная цифра прячет причину.</b> Хуже всех <span class="mono">'+esc(worst.b.Адрес)+'</span> — '+worst.deliv+
+   '%. Правка текстов этого не лечит: дело в ящике, а не в словах.'
+   :'Все ящики в норме. Базовая линия для сравнения — эта кампания, а не средние по рынку.')+
+  '</div>';
+ if(c.drop&&Object.keys(c.drop).length){
+  h+='<div class="pd" style="margin-top:9px"><b>Не тронули при запуске:</b> '+
+   Object.entries(c.drop).map(([k,v])=>esc(k).toLowerCase()+' — '+v).join(' · ')+'.</div>';
+ }
+ return h+'</div>';
+}
 function vCamp(id){
  const c=CAMP.find(x=>x.id===id); if(!c)return '<div class="empty">Кампания не найдена</div>';
  const t=tplById(c.tpl)||{name:'—',nodes:[]};
  let h='<div class="ph"><div class="pk">Кампания</div><div class="pt">'+esc(c.name)+'</div>'+
   '<div class="pd">Запущена '+esc(c.started)+' · процесс <span class="lnk" onclick="openTab(\'tpl:'+c.tpl+'\')">'+esc(t.name)+'</span>'+
-  ' · список <span class="lnk" onclick="go(\'space\')">'+esc((DATASETS.find(d=>d.id===c.list)||{}).n||'—')+'</span></div></div>';
+  (c.people?' · <b>'+c.people.length.toLocaleString('ru')+'</b> человек: '+c.mail+' письмом, '+c.li+' в LinkedIn, срок '+c.days+' дн.':'')+
+  '</div></div>'+campReport(c);
  h+='<div class="tool">'+
   (c.state==='идёт'?'<button class="btn btn-s" onclick="campState(\''+id+'\',\'на паузе\')">Пауза</button>'
    :'<button class="btn btn-s btn-p" onclick="campState(\''+id+'\',\'идёт\')">Запустить</button>')+
@@ -1813,62 +2291,6 @@ function saveText(id,i){const c=CAMP.find(x=>x.id===id);
  render();toast('Сохранено — ушедшие письма не меняются')}
 function addText(id){const c=CAMP.find(x=>x.id===id);
  c.texts.push({s:'Новое касание',b:'{{имя}}, '});editText(id,c.texts.length-1)}
-function newCamp(){NC={step:0,name:'',list:null,tpl:null,subj:'',body:''};openTab('newcamp')}
-function vNewCamp(){
- const S4=['Кому','Как','Что пишем','Запуск'];
- let h='<div class="ph"><div class="pk">Аутрич</div><div class="pt">Новая кампания</div>'+
-  '<div class="pd">Четыре шага. Каждый отвечает на один вопрос — кому пишем, по какому процессу, каким текстом и когда начинаем.</div></div>';
- h+='<div class="step">'+S4.map((x,i)=>'<div class="stp '+(NC.step===i?'on':NC.step>i?'ok':'')+'">'+
-  '<span class="num">'+(NC.step>i?'✓':i+1)+'</span>'+x+'</div>').join('<div class="stpar"></div>')+'</div>';
- if(NC.step===0){
-  h+='<div class="g3">'+DATASETS.map(d=>'<div class="rolecard'+(NC.list===d.id?' on':'')+'" onclick="NC.list=\''+d.id+'\';NC.step=1;render()">'+
-   '<div class="rn" style="font-size:13px">'+esc(d.n)+'</div><div class="rl mono" style="font-size:11px;margin-top:5px">'+esc(d.rule)+'</div>'+
-   '<div style="margin-top:9px;font-size:11px;color:var(--muted2)">сейчас подходит: '+d.n2()+' человек</div></div>').join('')+'</div>';
- }
- else if(NC.step===1){
-  h+='<div class="g3">'+TPL.map(t=>'<div class="rolecard'+(NC.tpl===t.id?' on':'')+'" onclick="NC.tpl=\''+t.id+'\';NC.step=2;render()">'+
-   '<div class="rn" style="font-size:13px">'+esc(t.name)+'</div><div class="rl" style="margin-top:5px">'+esc(t.desc)+'</div>'+
-   '<div style="margin-top:9px;font-size:11px;color:var(--muted2)">'+cnt(t.nodes)+' шагов · человек появляется '+
-   (function(){let n=0;const f=ns=>ns.forEach(x=>{if(x.who==="human")n++;if(x.branch)f(x.branch)});f(t.nodes);return n})()+' раз</div>'+
-   '<button class="btn btn-s" style="margin-top:9px" onclick="event.stopPropagation();openTab(\'tpl:'+t.id+'\')">Посмотреть схему</button></div>').join('')+'</div>'+
-   '<div style="margin-top:11px"><button class="btn btn-g btn-s" onclick="NC.step=0;render()">← назад</button></div>';
- }
- else if(NC.step===2){
-  h+='<div class="card" style="max-width:660px"><div class="ch"><span class="ct">Первое касание</span></div>'+
-   '<div class="flab">Тема</div><input class="finp" id="ncS" value="'+esc(NC.subj||'Ищете инженеров в {{компания}}?')+'">'+
-   '<div class="flab" style="margin-top:9px">Текст</div>'+
-   '<textarea class="finp" id="ncB" style="min-height:120px">'+esc(NC.body||'{{имя}}, увидел вакансию у вас на сайте.\n\nМы закрываем такие роли за 3–4 недели. Показать, кого нашли бы на этой неделе?')+'</textarea>'+
-   '<div style="margin-top:9px;font-size:11.5px;color:var(--muted)">Остальные касания добавите после запуска — их тексты видны в карточке кампании.</div>'+
-   '<div style="margin-top:12px;display:flex;gap:7px"><button class="btn btn-g btn-s" onclick="NC.step=1;render()">← назад</button>'+
-   '<button class="btn btn-p" onclick="NC.subj=document.getElementById(\'ncS\').value;NC.body=document.getElementById(\'ncB\').value;NC.step=3;render()">Дальше</button></div></div>';
- }
- else{
-  const d=DATASETS.find(x=>x.id===NC.list)||{},t=tplById(NC.tpl)||{};
-  h+='<div class="card" style="max-width:660px"><div class="ch"><span class="tag t-ok">проверка</span><span class="ct">Всё сходится</span></div>'+
-   '<div class="kv"><span class="kvk">Кому</span><span class="kvv">'+esc(d.n||'')+' · '+(d.n2?d.n2():0)+' человек</span></div>'+
-   '<div class="kv"><span class="kvk">По какому процессу</span><span class="kvv">'+esc(t.name||'')+'</span></div>'+
-   '<div class="kv"><span class="kvk">Первое касание</span><span class="kvv">'+esc(NC.subj)+'</span></div>'+
-   '<div class="kv"><span class="kvk">С каких ящиков</span><span class="kvv">3 здоровых, запас на сегодня — '+
-    DB.senders.filter(x=>x.Состояние==='здоров').reduce((a,x)=>a+(x.Лимит-x.Сегодня),0)+' касаний</span></div>'+
-   '<div class="kv"><span class="kvk">Окно отправки</span><span class="kvv">09:00–17:00 по времени адресата</span></div>'+
-   '<div class="wfval ok" style="margin-top:11px">Проверка канала перед каждой отправкой включена. Отписавшиеся и те, кому уже писали, отсеются сами.</div>'+
-   '<div style="margin-top:12px;display:flex;gap:7px"><button class="btn btn-g btn-s" onclick="NC.step=2;render()">← назад</button>'+
-   '<button class="btn btn-p" onclick="startCamp()">Запустить кампанию</button>'+
-   '<button class="btn" onclick="startCamp(1)">Сохранить черновиком</button></div></div>';
- }
- return h}
-function startCamp(draft){
- const d=DATASETS.find(x=>x.id===NC.list)||{};
- const c={id:'c'+(CAMP.length+1),name:d.n||'Новая кампания',state:draft?'черновик':'идёт',tpl:NC.tpl,list:NC.list,
-  sent:0,opened:0,replied:0,left:d.n2?d.n2():0,started:draft?'—':'сегодня',
-  texts:[{s:NC.subj,b:NC.body}]};
- CAMP.push(c);
- log('человек','human','Кампания <b>'+esc(c.name)+'</b> '+(draft?'сохранена черновиком':'запущена'));
- hist('Создана кампания «'+c.name+'»');
- if(!draft){S.iv.auto+=4;log('робот','auto','Отобрал '+c.left+' человек, проверил каналы, расставил '+c.left+' касаний по окну')}
- closeTab('newcamp');openTab('camp:'+c.id);toast(draft?'Сохранено':'Пошла работать')}
-
-/* ═════ ПРО ПРОТОТИП ═════ */
 function vAbout(){
  return '<div class="ph"><div class="pk">Прототип</div><div class="pt">Живая система, а не картинка</div>'+
  '<div class="pd">Каркас взят с VS Code: выдвигающееся меню слева, плитки-вкладки в центре, помощник справа, журнал снизу. Три больших раздела — Data, Workflows, Workspaces. Данные внутри выдуманные, но всё, что видно, нажимается и что-то делает.</div></div>'+
