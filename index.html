@@ -572,7 +572,7 @@ input[type=range]{accent-color:var(--signal)}
  <div id="status">
   <div class="st" onclick="go('data')"><span class="sdot" style="background:#5BD1A0"></span>Данные <b id="stRows">—</b></div>
   <div class="st" onclick="go('flows')">Шаблонов процессов <b id="stTpl">—</b></div>
-  <div class="st" onclick="go('space')">Ждут решения <b id="stQ">—</b></div>
+  <div class="st" onclick="openTab('queue')">Ждут решения <b id="stQ">—</b></div>
   <div class="st" onclick="openModal(ivModal())" title="Сколько раз система справилась сама и сколько раз позвала вас">
    <span class="sdot" style="background:#5BD1A0"></span>Сама <b id="stAuto">118</b> · спросила <b id="stAsk">6</b></div>
   <div class="stsp"></div>
@@ -951,7 +951,7 @@ function viewOf(id){const t=id.split(':')[0];
  if(t==='channel'||t==='bill')return 'channel';
  if(['tbl','rec'].includes(t))return 'data';
  if(['tpl','newtpl'].includes(t))return 'flows';
- if(['spaces','ws'].includes(t))return 'space';
+ if(['spaces','ws','queue'].includes(t))return 'space';
  if(t==='about')return 'about';return null}
 function closeTab(id,e){e&&e.stopPropagation();S.tabs=S.tabs.filter(x=>x!==id);
  if(S.active===id)S.active=S.tabs[S.tabs.length-1]||null;render()}
@@ -1039,6 +1039,7 @@ function renderSide(){
 
 /* ═════ ВКЛАДКИ ═════ */
 function tabName(id){const[t,a]=id.split(':');
+ if(t==='queue')return['◷','Что требует вас'];
  if(t==='tbl')return['DB',TABLES[a].n];
  if(t==='rec')return['·',recName(a)];
  if(t==='start')return['▶','Начало'];
@@ -1178,6 +1179,143 @@ function saveEdit(key){const[t,id]=key.split('/');const r=row(t,id);const cfg=TA
 
 /* ═════ КАРТОЧКА ЧЕЛОВЕКА · то, что открывают перед звонком ═════ */
 const KI={'письмо':'✉','linkedin':'in','встреча':'☎','заметка':'✎'};
+/* ═══ СКВОЗНОЙ РЕЕСТР КАСАНИЙ ════════════════════════════════════════════
+   Касание принадлежит человеку, а не кампании и не отправителю.
+   Ни одна из 14 проверенных CRM и ни один из 7 объединителей так не умеют:
+   HubSpot ограничивает цепочку, Attio привязывает отписку к отправителю,
+   Salesforce штатно назначает цель в несколько cadences.                   */
+function ledger(id){
+ const out=[];
+ DB.timeline.filter(x=>x.who===id).forEach(x=>out.push({
+  when:x.when,ch:x.kind==='linkedin'?'LinkedIn':x.kind==='письмо'?'Почта':x.kind,
+  dir:x.dir,what:x.t,camp:null,from:null,res:x.dir==='in'?'ответ':'ушло'}));
+ DB.touches.filter(x=>x.Кому===id).forEach(x=>out.push({
+  when:x.Когда,ch:String(x.Что).includes('LinkedIn')?'LinkedIn':'Почта',dir:'out',
+  what:x.Что,camp:'c1',from:x.Ящик,res:x.Итог}));
+ const p=row('people',id)||{};
+ (p.camps||[]).forEach(cid=>{
+  const c=CAMP.find(x=>x.id===cid);
+  if(c&&c.state!=='черновик'&&!out.some(o=>o.camp===cid))
+   out.push({when:c.started,ch:p.Почта?'Почта':'LinkedIn',dir:'out',
+    what:'Поставлен в очередь кампании',camp:cid,from:null,res:'в очереди'});
+ });
+ return out;
+}
+function consentOf(id){
+ const p=row('people',id)||{};
+ const k=String(p.Канал||'');
+ if(k==='закрыт полностью')return{ok:false,t:'Закрыт полностью',
+  d:'Отписался или пожаловался. Запрет действует на <b>все каналы и всех отправителей</b>, а не на одну рассылку.'};
+ if(k==='только почта')return{ok:true,t:'Только почта',
+  d:'LinkedIn закрыт им самим. Следующее касание уйдёт письмом, даже если кампания задумана как LinkedIn.'};
+ if(k==='только LinkedIn')return{ok:true,t:'Только LinkedIn',
+  d:'Почта закрыта. Кампания сама переведёт его на другой канал.'};
+ return{ok:true,t:'Открыты оба канала',d:'Проверяется заново перед каждой отправкой, а не один раз при постановке в очередь.'};
+}
+function personLedger(id){
+ const L=ledger(id), c=consentOf(id);
+ let h='<div class="card"><div class="ch"><span class="ct">Сквозной реестр касаний</span>'+
+  '<span class="tag t-sig">нет ни у кого</span><div style="flex:1"></div>'+
+  '<span style="font-size:11.5px;color:var(--muted)">'+L.length+' записей</span></div>';
+ h+=L.length?'<table class="tbl"><thead><tr><th>Когда</th><th>Канал</th><th>Что</th><th>Кампания</th><th>С чего</th><th>Итог</th></tr></thead><tbody>'+
+  L.map(x=>'<tr><td class="mono">'+esc(x.when)+'</td>'+
+   '<td>'+(x.ch==='Почта'?'<span class="tag t-sig">почта</span>':x.ch==='LinkedIn'?'<span class="tag t-vio">LinkedIn</span>':'<span class="tag t-neu">'+esc(x.ch)+'</span>')+'</td>'+
+   '<td>'+esc(x.what)+'</td>'+
+   '<td>'+(x.camp?'<span class="lnk" onclick="openTab(\'camp:'+x.camp+'\')">'+esc((CAMP.find(c=>c.id===x.camp)||{}).name||x.camp)+'</span>':'<span style="color:var(--muted2)">—</span>')+'</td>'+
+   '<td class="mono" style="font-size:11px">'+esc(x.from?sndr(x.from):'—')+'</td>'+
+   '<td>'+esc(x.res)+'</td></tr>').join('')+'</tbody></table>'
+  :'<div class="pd">Ни одного касания.</div>';
+ h+='<div class="pd" style="margin-top:9px">Счёт идёт <b>по человеку</b>: сквозь каналы, кампании, отправителей и заказчиков. Поэтому «уже писали» и «отписался» работают везде сразу, а не внутри одной рассылки.</div></div>';
+ h+='<div class="card"><div class="ch"><span class="ct">Согласие</span>'+
+  (c.ok?'<span class="tag t-ok">'+esc(c.t)+'</span>':'<span class="tag t-stop">'+esc(c.t)+'</span>')+'</div>'+
+  '<div class="pd">'+c.d+'</div>'+
+  '<div style="display:flex;gap:7px;margin-top:9px">'+
+  (c.ok?'<button class="btn btn-s btn-d" onclick="setConsent(\''+id+'\',\'закрыт полностью\')">Закрыть все каналы</button>':
+   '<button class="btn btn-s" onclick="setConsent(\''+id+'\',\'почта · LinkedIn\')">Открыть снова</button>')+
+  '<button class="btn btn-s" onclick="simReply(\''+id+'\')">Пришёл ответ</button></div></div>';
+ return h;
+}
+function setConsent(id,v){
+ const p=row('people',id);p.Канал=v;
+ log('человек','human','Согласие изменено: <b>'+esc(p.Имя)+'</b> → '+esc(v));
+ hist('Согласие: '+p.Имя+' → '+v);
+ if(v==='закрыт полностью'){
+  const inC=CAMP.filter(c=>(c.people||[]).includes(id)&&c.state==='идёт');
+  if(inC.length)log('робот','auto','Вынул <b>'+esc(p.Имя)+'</b> из '+inC.length+
+   ' идущей кампании. Запрет распространён на все каналы и всех отправителей.');
+ }
+ render();
+}
+
+/* ═══ ОЧЕРЕДЬ · что сегодня требует человека ═════════════════════════════
+   Шаги 10 и 11 цепи. Ответ не экспортируется в CRM — он и так здесь.       */
+function queueItems(){
+ const q=[];
+ DB.replies.forEach(r=>{
+  if(S.drafts&&S.drafts[r.id]==='sent')return;
+  const p=row('people',r.От);if(!p)return;
+  q.push({k:'ответ',id:r.id,who:r.От,t:esc(p.Имя)+' ответил — '+esc(r.Разбор),
+   why:esc(r.Суть),when:r.Когда,
+   act:[{t:'Открыть карточку',f:"openRec('people','"+r.От+"')"},
+        {t:'Отправить черновик',f:"sendDraft('"+r.id+"')",p:1}]});
+ });
+ DB.meetings.forEach(m=>{
+  const p=row('people',m.who);if(!p)return;
+  q.push({k:'встреча',id:m.id,who:m.who,t:'Встреча с '+esc(p.Имя)+' — '+esc(m.when),
+   why:esc(m.t)+'. Контекст собирается за 15 минут до начала.',when:m.when,
+   act:[{t:'Подготовить к звонку',f:"prepCall('"+m.who+"')",p:1},
+        {t:'Открыть карточку',f:"openRec('people','"+m.who+"')"}]});
+ });
+ return q;
+}
+function vQueue(){
+ const q=queueItems();
+ let h='<div class="ph"><div class="pk">Работа</div><div class="pt">Что сегодня требует вас</div>'+
+  '<div class="pd">Всё остальное система делает сама. Сюда попадает только то, где нужно решение или действие от вашего имени — <b>'+
+  S.iv.asked+'</b> обращения против <b>'+S.iv.auto+'</b> сделанных без вас.</div></div>';
+ if(!q.length)return h+'<div class="empty">Очередь пуста. Иду по кампаниям дальше сама.</div>';
+ h+='<div class="g2" style="grid-template-columns:1fr 300px;align-items:start"><div>';
+ q.forEach(x=>{
+  h+='<div class="aq"><div class="aq-h">'+esc(x.k)+' · '+esc(x.when)+'</div>'+
+   '<div class="aq-t"><b>'+x.t+'</b></div><div class="aq-why">'+x.why+'</div>'+
+   '<div class="aq-btns">'+x.act.map(a=>'<button class="btn btn-s'+(a.p?' btn-p':'')+'" onclick="'+a.f+'">'+a.t+'</button>').join('')+
+   '</div></div>';
+ });
+ h+='</div><div><div class="card"><div class="ch"><span class="ct">Откуда это берётся</span></div>'+
+  '<div class="pd">Ответ пришёл в кампанию → система разобрала смысл → сменила стадию человека → положила сюда с готовым черновиком. '+
+  '<b>Экспорта из аутрича в CRM нет</b>, потому что это одно и то же место: касание принадлежит человеку.</div></div>'+
+  '<div class="card"><div class="ch"><span class="ct">Стадии сейчас</span></div>'+
+  ['Новые','Написали','Открыли','Ответили','Встреча','Сделка'].map(st=>'<div class="kv"><span class="kvk">'+st+'</span><span class="kvv">'+
+   DB.people.filter(p=>p.Стадия===st).length.toLocaleString('ru')+'</span></div>').join('')+
+  '</div></div></div>';
+ return h;
+}
+function sendDraft(rid){
+ S.drafts=S.drafts||{};S.drafts[rid]='sent';
+ const r=DB.replies.find(x=>x.id===rid);const p=r&&row('people',r.От);
+ if(p){p.Стадия='Встреча';
+  DB.timeline.push({id:'tl'+Date.now(),who:p.id,kind:'письмо',dir:'out',when:'только что',
+   t:'Ответ отправлен',b:String(r.Черновик||'').slice(0,160)});}
+ log('человек','human','Черновик отправлен: <b>'+esc(p?p.Имя:'')+'</b>');
+ hist('Отправлен ответ: '+(p?p.Имя:''));
+ S.iv.auto+=1;render();toast('Отправлено');
+}
+/* Ответ приходит в кампанию и сам двигает человека по стадиям.
+   Показываю это кнопкой, чтобы связку было видно, а не надо было верить. */
+function simReply(id){
+ const p=row('people',id);if(!p)return;
+ p.Стадия='Ответили';
+ DB.timeline.push({id:'tl'+Date.now(),who:id,kind:'письмо',dir:'in',when:'только что',
+  t:'Re: ваше письмо',b:'Интересно, но не в этом квартале. Напишите в январе.'});
+ if(!DB.replies.some(r=>r.От===id))DB.replies.push({id:'rp'+Date.now(),От:id,Разбор:'не сейчас',
+  Когда:'только что',Суть:'Интересно, но не в этом квартале. Напишите в январе.',
+  Черновик:p.Имя.split(' ')[0]+', понял — не буду мешать.\n\nПоставил напоминание на январь. Если сдвинется раньше, ответьте на это письмо.'});
+ log('робот','auto','Пришёл ответ от <b>'+esc(p.Имя)+'</b>. Разобрал как «не сейчас», сменил стадию, собрал черновик.');
+ S.iv.auto+=3;
+ hist('Ответ от '+p.Имя+' → стадия «Ответили»');
+ render();toast('Ответ разобран, стадия сменилась');
+}
+
 function vPerson(id){
  const p=row('people',id),c=row('companies',p.Компания)||{};
  const tl=DB.timeline.filter(x=>x.who===id);
@@ -1201,6 +1339,7 @@ function vPerson(id){
   '<div class="met"><div class="mk">Стадия</div><div class="mv" style="font-size:15px">'+esc(p.Стадия)+'</div>'+
   '<div class="ms">'+(p.Канал==='закрыт полностью'?'писать нельзя':esc(p.Канал))+'</div></div></div>';
 
+ h+=personLedger(id);
  h+='<div class="g2" style="align-items:start"><div>';
  h+='<div class="card" style="padding:0"><div class="ch" style="padding:11px 14px 8px;margin:0"><span class="ct">Что между вами было</span>'+
   '<div style="flex:1"></div><span style="font-size:11px;color:var(--muted2)">'+tl.length+' записей</span></div>';
@@ -2330,7 +2469,7 @@ function renderContent(){
  const id=S.active,P=document.getElementById('pad');
  if(!id){P.innerHTML='<div class="empty"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/></svg><div>Вкладок нет. Откройте что-нибудь слева или нажмите ⌘K.</div></div>';return}
  const[t,a]=[id.split(':')[0],id.split(':').slice(1).join(':')];
- const F={tbl:vTable,rec:vRec,tpl:vTpl,spaces:vSpaces,ws:vWs,about:vAbout,start:vStart,channel:vChannel,bill:vBill,camps:vCamps,camp:vCamp,newcamp:vNewCamp}[t];
+ const F={tbl:vTable,rec:vRec,tpl:vTpl,spaces:vSpaces,ws:vWs,about:vAbout,start:vStart,channel:vChannel,bill:vBill,camps:vCamps,camp:vCamp,newcamp:vNewCamp,queue:vQueue}[t];
  P.innerHTML=F?F(a):'<div class="empty">Пусто</div>';
 }
 function renderBot(){
@@ -2377,6 +2516,7 @@ function CMDS(){const c=[
  Object.entries(ROLES).forEach(([k,r])=>c.push({k:'роль',t:'Войти как '+r.n,h:r.who,go:()=>{S.pick.role=k;S.spaceStep=2;go('space');openTab('spaces')}}));
  c.push({k:'раздел',t:'Начало — подключение',h:'путь от регистрации',go:()=>go('start')});
  c.push({k:'раздел',t:'Аутрич — кампании',h:'рассылки и тексты',go:()=>go('out')});
+ c.push({k:'раздел',t:'Что требует вас',h:'очередь работы',go:()=>openTab('queue')});
  c.push({k:'действие',t:'Новая кампания',h:'четыре шага',go:()=>newCamp()});
  CAMP.forEach(c=>d_push(c));
  c.push({k:'раздел',t:'Канал — доставляемость',h:'ваши числа',go:()=>openTab('channel')});
@@ -3156,7 +3296,7 @@ const HB={
  touch:{t:'Кому уже писали',go:()=>openTab('tbl:touches'),b:()=>
   kv('касаний в базе',DB.touches.length)+kv('повторных','<b style="color:var(--ok)">0</b>')+
   '<div class="pd" style="margin-top:7px">Держится на человеке, а не на отправителе и не на кампании.</div>'},
- replies:{t:'Очередь ответов',go:()=>openTab('tbl:replies'),b:()=>
+ replies:{t:'Очередь ответов',go:()=>openTab('queue'),b:()=>
   kv('ждут решения',DB.replies.length)+'<div class="pd" style="margin-top:7px">Черновики готовы, отправка за вами.</div>'},
  domains:{t:'Домены и прогрев',go:()=>openTab('tbl:senders'),b:()=>
   kv('ящиков',DB.senders.length)+kv('в прогреве',DB.senders.filter(s=>s.Состояние==='прогрев').length)+
