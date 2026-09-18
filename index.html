@@ -448,6 +448,30 @@ svg{stroke-linecap:round;stroke-linejoin:round}
 .dskip{position:fixed;right:16px;bottom:14px;font-size:11.5px;color:var(--muted2);z-index:6}
 .dskip:hover{color:var(--signal)}
 
+
+/* карточки входа — по карточкам сегментов */
+.dsegs{display:grid;gap:11px;grid-template-columns:1fr 1fr}
+@media(max-width:820px){.dsegs{grid-template-columns:1fr}}
+.dseg{background:#fff;border:1.5px solid var(--line);border-radius:11px;padding:15px 16px;text-align:left;
+ display:flex;flex-direction:column;gap:7px;transition:.13s}
+.dseg:hover{border-color:var(--echo);transform:translateY(-2px);box-shadow:0 6px 20px rgba(19,26,84,.07)}
+.dseg.foc{border-color:var(--echo);background:linear-gradient(180deg,#FBFDFF,#fff)}
+.dseg.foc:hover{border-color:var(--signal)}
+.sgh{display:flex;align-items:center;gap:8px}
+.sgc{font-size:10.5px;font-weight:800;letter-spacing:.07em;color:var(--muted2);font-family:'JetBrains Mono',monospace}
+.sgv{font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:4px;background:var(--line2);color:var(--muted)}
+.sgv.f{background:#E3F2EC;color:var(--ok)}
+.sgn{font-weight:700;font-size:15px;letter-spacing:-.015em;line-height:1.28}
+.sgd{font-size:12.5px;color:var(--muted);line-height:1.5}
+.sgs{font-size:11.5px;color:var(--muted2);line-height:1.5;border-top:1px solid var(--line2);padding-top:7px}
+.sgs b{color:var(--muted);font-weight:700}
+.sgj{font-size:10.5px;color:var(--muted2);font-family:'JetBrains Mono',monospace}
+.dwarn{background:#FFFBF0;border:1px solid #F0E2C4;border-radius:9px;padding:12px 14px;font-size:12.5px;
+ line-height:1.55;color:var(--warn);margin-bottom:16px}
+.dwarn b{color:#6B5210}
+.dlive{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;padding:2px 9px;border-radius:12px}
+.dlive.on{background:#E3F2EC;color:var(--ok)}
+.dlive.off{background:var(--line2);color:var(--muted)}
 </style>
 </head>
 <body>
@@ -2027,14 +2051,17 @@ async function aiAsk(prompt,fallback,ms){
  }catch(e){AI.live=false;return fallback}
 }
 
-/* ── три входа. Сегмент, а не должность: A4 канона ── */
+/* ── входы = карточки сегментов из 2-environment/clients/segments/.
+   Признак причинный, вердикт как в репозитории, ничего не сглажено. ── */
 const SEG={
- agency:{id:'agency',n:'Веду кампании за других',
-  d:'Агентство: отправка идёт от имени заказчика, а имя — не ваше.',
+ agency:{id:'agency',code:'SEG-A',verdict:'фокус',
+  n:'Я веду кампании за чужим именем',
+  d:'Репутация канала отчуждаема: домены и аккаунты не принадлежат заказчику, но сожжённое имя — его.',
+  sign:'Инфраструктура обслуживает больше одного заказчика · себестоимость канала отдельной строкой P&L · заказчик требует отчёт, которого вы не можете дать из своих данных',
   m:'SEG-A · аутрич-агентство',who:'владелец агентства',
   pain:'Один и тот же человек может получить письмо от двух ваших заказчиков.',
-  nav:['start','out','data','flows','channel','space','about'],
-  home:'report',
+  jobs:'JOB-007 · JOB-001 · JOB-004',
+  nav:['start','out','data','flows','channel','space','about'],home:'report',
   blocks:[
    {id:'clients',n:'Заказчики',s:'у каждого свой канал и свой отчёт',on:true},
    {id:'deliver',n:'Что дошло по каждому ящику',s:'ваши числа, не средние по рынку',on:true},
@@ -2042,16 +2069,20 @@ const SEG={
    {id:'domains',n:'Домены и прогрев',s:'предупреждение до падения доставки',on:true},
    {id:'replies',n:'Очередь ответов',s:'что требует человека',on:false}],
   chips:['Что дошло за неделю','Есть пересечения между заказчиками','Какие домены чернеют'],
+  ex:'Например: «чтобы я мог показать каждому заказчику, что было с его каналом, не собирая это руками».',
   flow:{n:'Отчёт заказчику каждый понедельник',
    steps:[['ev','Понедельник, 08:00','auto'],['t','Собрать числа по каждому ящику','auto'],
     ['t','Сверить с прошлой неделей','auto'],['t','Собрать письмо заказчику','auto'],
     ['h','Вы смотрите и отправляете','human'],['ev','Отчёт ушёл','auto']]}},
- firm:{id:'firm',n:'Веду кампании себе',
-  d:'Фирма услуг: домен отправки — это имя вашей фирмы, второго такого нет.',
+
+ firm:{id:'firm',code:'SEG-B',verdict:'фокус · сузиться',
+  n:'Я веду кампании от имени своей фирмы',
+  d:'Репутация неотчуждаема: домен отправки — это имя фирмы, за $15 новое не покупается.',
+  sign:'Домен отправки узнаётся как ваш · рынок адресатов узкий и повторяется · бюджет на привлечение уже тратится · платит тот же, кто несёт последствия',
   m:'SEG-B · растущая фирма услуг',who:'владелец фирмы',
   pain:'Написать одному человеку дважды — значит сжечь его насовсем.',
-  nav:['start','out','data','flows','channel','space','about'],
-  home:'report',
+  jobs:'JOB-001 · JOB-004 · JOB-005 · JOB-007',
+  nav:['start','out','data','flows','channel','space','about'],home:'report',
   blocks:[
    {id:'deliver',n:'Что дошло',s:'ушло · доставлено · ответили · не дошло',on:true},
    {id:'touch',n:'Кому уже писали',s:'сквозь каналы, кампании и ящики',on:true},
@@ -2059,32 +2090,84 @@ const SEG={
    {id:'domains',n:'Домены и прогрев',s:'предупреждение до падения доставки',on:false},
    {id:'pipe',n:'Воронка',s:'кто на какой стадии',on:true}],
   chips:['Что дошло за неделю','Кому мы уже писали','Кто ждёт ответа'],
+  ex:'Например: «чтобы мы никогда не написали одному человеку дважды».',
   flow:{n:'Не писать дважды',
    steps:[['ev','Человек попал в новую кампанию','auto'],
     ['t','Проверить все каналы и всех отправителей','auto'],
     ['g','Писали раньше или он отписался?','auto'],
     ['t','Вынуть из кампании и записать причину','auto'],
     ['ev','Повторного касания не будет','auto']]}},
- founder:{id:'founder',n:'Держу отношения, а не кампании',
-  d:'Основатель: десять встреч в день, и надо помнить, кто все эти люди.',
-  m:'JOB-005 + JOB-012 · не рыночный сегмент, а путь для приёмки',who:'основатель',
-  pain:'Через десять минут созвон, а кто это и о чём говорили — вспоминать нечем.',
-  nav:['start','data','space','flows','about'],
-  home:'memory',
+
+ dealmaker:{id:'dealmaker',code:'SEG-D',verdict:'придержать · движок работу не выполняет',
+  n:'Я ищу компании на покупку, а не клиентов на продажу',
+  d:'Ищет компании, а не контакты, и работает от личного имени: репутация собственная и неотчуждаемая.',
+  sign:'Источник данных — справочники и карты, а не базы персон · сообщение «готовы ли продать», а не «забронируйте демо» · проверяет покупателя продавец, а не наоборот',
+  m:'SEG-D · дилмейкер на покупке',who:'дилмейкер',
+  pain:'Пока меня не добавили в переписку с брокерами, мне неважно, какой у меня домен.',
+  jobs:'JOB-003 — влиться в идущий процесс',
+  warn:'Это другой рынок, а не вариант нашего: три оси отличия из трёх лежат там, где продукт и определяется. Ключевую работу движок сегодня <b>не выполняет</b> — покажу и что есть, и чего нет.',
+  nav:['start','data','space','flows','about'],home:'targets',
   blocks:[
-   {id:'today',n:'Сегодня',s:'встречи и контекст к каждой',on:true},
-   {id:'people',n:'Люди',s:'кто это, когда общались, о чём',on:true},
-   {id:'ask',n:'Спросить своими словами',s:'кто из моих может помочь с…',on:true},
+   {id:'targets',n:'Компании-цели',s:'собраны из справочников и карт, а не из баз персон',on:true},
+   {id:'brokers',n:'Поток брокеров',s:'NDA → CIM → встреча, в одном окне',on:true},
    {id:'threads',n:'Вся переписка в одном окне',s:'почта, LinkedIn, телеграм',on:true},
-   {id:'deliver',n:'Что дошло по кампаниям',s:'это не ваша работа',on:false}],
-  chips:['Кто у меня сегодня','Кто может помочь поднять инвестиции в США','О чём мы говорили с Дэном'],
-  flow:{n:'Контекст перед звонком',
-   steps:[['ev','За 15 минут до встречи','auto'],
-    ['t','Поднять всю переписку с этим человеком','auto'],
-    ['t','Вытащить, о чём договорились в прошлый раз','auto'],
-    ['t','Проверить, не просил ли он чего-то','auto'],
-    ['t','Положить одной страницей в карточку','auto'],
-    ['ev','Вы открываете и всё уже там','auto']]}},
+   {id:'ask',n:'Спросить своими словами',s:'кто из моих может помочь с…',on:true},
+   {id:'pipe',n:'Стадии по сделкам',s:'где каждая цель',on:true}],
+  chips:['Кто из владельцев отвечал на «готовы продать»','Что сейчас у брокеров','Кто из моих знает этот рынок'],
+  ex:'Например: «мне нужно находить владельцев MSP в США, которые готовы продавать бизнес».',
+  flow:{n:'Влиться в идущий процесс',
+   steps:[['ev','Появилась новая цель или брокер','auto'],
+    ['t','Поднять всё, что о ней уже известно команде','auto'],
+    ['t','Собрать, на какой стадии разговор и кто его ведёт','auto'],
+    ['h','Вы читаете и входите в переписку','human'],
+    ['ev','Вошли, не отвлекая команду вопросами','auto']]}},
+
+ revops:{id:'revops',code:'SEG-C',verdict:'придержать · не сейчас',
+  n:'Я отвечаю за процесс продаж внутри компании',
+  d:'Репутация неотчуждаема, но платит работодатель: покупается предсказуемость счёта и защита от обвинения.',
+  sign:'Бюджет не личный · договор годовой · рядом существуют закупка и безопасность · цена входа выше $200/мес',
+  m:'SEG-C · RevOps внутри компании 51–200+',who:'RevOps',
+  pain:'Не хватает не функций, а аттестации, журнала действий и типового договора.',
+  jobs:'JOB-002 · JOB-007',
+  warn:'Вход придержан: CRM у вас уже оплачена, и аутрич отдают внутри неё ценой ноль. Мы умираем на третьей роли цепочки — там, где закупка и безопасность.',
+  nav:['start','data','flows','space','channel','about'],home:'report',
+  blocks:[
+   {id:'pipe',n:'Воронка',s:'от базы до сделки в одном месте',on:true},
+   {id:'deliver',n:'Что дошло',s:'ваши числа по каждому ящику',on:true},
+   {id:'audit',n:'Журнал действий',s:'кто, что и когда сделал — для проверки',on:true},
+   {id:'touch',n:'Кому уже писали',s:'сквозной учёт поверх кампаний',on:true},
+   {id:'replies',n:'Очередь ответов',s:'что требует человека',on:false}],
+  chips:['Что дошло за неделю','Покажи журнал действий','Где узкое место воронки'],
+  ex:'Например: «чтобы всё вели в одном месте и я мог показать аудитору, кто что отправил».',
+  flow:{n:'Журнал для проверки',
+   steps:[['ev','Любое действие в системе','auto'],
+    ['t','Записать: кто, что, когда, по какому правилу','auto'],
+    ['t','Связать с человеком и кампанией','auto'],
+    ['ev','Выгружается одним файлом','auto']]}},
+
+ recruiter:{id:'recruiter',code:'SEG-F',verdict:'придержать · кандидат на разворот',
+  n:'Я ищу людей, а не компании',
+  d:'Холодный поиск и аутрич кандидатов по параметрам плюс разбор входящего потока резюме.',
+  sign:'Ожидаемый результат другой: не «ответ от компании», а «согласие подходящего человека» · канал один — LinkedIn',
+  m:'SEG-F · бутик-рекрутер',who:'рекрутер',
+  pain:'Канал один, и он же самый хрупкий: официального входа в LinkedIn нет.',
+  jobs:'JOB-001 в другой постановке',
+  warn:'Единственный придержанный вход, по которому есть живой носитель и один разговор. Работа не разобрана ни по одному из восьми элементов — этого не хватит даже на формулировку.',
+  nav:['start','data','out','space','about'],home:'candidates',
+  blocks:[
+   {id:'candidates',n:'Кандидаты',s:'отобранные по параметрам, с историей касаний',on:true},
+   {id:'threads',n:'Переписка',s:'LinkedIn и почта в одном окне',on:true},
+   {id:'replies',n:'Очередь ответов',s:'кто согласился, кто отказал',on:true},
+   {id:'pipe',n:'Стадии по кандидатам',s:'от касания до согласия',on:true},
+   {id:'deliver',n:'Что дошло',s:'по каналу LinkedIn',on:false}],
+  chips:['Кто ответил согласием','Кому уже писали','Что с моим LinkedIn-аккаунтом'],
+  ex:'Например: «чтобы я не писала повторно тем, кому уже предлагала эту роль».',
+  flow:{n:'Не предлагать одну роль дважды',
+   steps:[['ev','Кандидат попал в новый поиск','auto'],
+    ['t','Проверить, предлагали ли ему эту роль раньше','auto'],
+    ['g','Уже предлагали?','auto'],
+    ['t','Убрать и показать, когда и кем','auto'],
+    ['ev','Повторного предложения не будет','auto']]}},
 };
 
 /* ── состояние демо ── */
@@ -2152,7 +2235,9 @@ function netCard(p,why){
 const TOOLS={
  agency:['Instantly','Smartlead','LinkedIn через сервис','Таблицы','CRM заказчика','Почта руками'],
  firm:['Почта','LinkedIn','HubSpot или Pipedrive','Apollo','Таблицы','Ничего, всё руками'],
- founder:['Почта','LinkedIn','Телеграм и WhatsApp','Notion','Заметки в телефоне','Календарь'],
+ dealmaker:['Почта','Google Maps и справочники','Таблицы','Notion','Переписка с брокерами','LinkedIn'],
+ revops:['HubSpot','Salesforce','Outreach или Salesloft','Apollo','Таблицы','Своя разработка'],
+ recruiter:['LinkedIn Premium','Sales Navigator','Почта','Таблицы','ATS','Ничего, всё руками'],
 };
 
 const DEMO={
@@ -2169,16 +2254,22 @@ cover:()=>'<div class="dhero"><div class="dh1">Движок, который де
  '<span class="dnote">минута · три вопроса · данные демонстрационные</span></div>',
 
 /* ─────── 1 · кто вы ─────── */
-role:()=>dHead('Вопрос 1 из 3','Что из этого ближе к вашей работе?',
- 'Не должность — <b>ситуация</b>. От неё зависит, что вы увидите первым, а чего не увидите вовсе.')+
- '<div class="dcards">'+Object.values(SEG).map(s=>
- '<button class="dcard" onclick="dPickSeg(\''+s.id+'\')"><div class="ct">'+s.n+'</div>'+
- '<div class="cd">'+s.d+'</div><div class="cm">'+s.pain+'</div></button>').join('')+'</div>'+
- '<div class="dnote">Третий вход — путь основателя. Это не рыночный сегмент: человеку, которому инструмент выдали, нечем подтвердить спрос. Он здесь для приёмки и для проверки принципа.</div>',
+role:()=>dHead('Вопрос 1 из 3','Что из этого — про вашу работу?',
+ 'Это не должности. Каждый вход — <b>сегмент из нашего разбора рынка</b>, и различаются они не размером и не отраслью, а тем, чья репутация горит и в каком порядке идут ваши критерии.')+
+ '<div class="dsegs">'+Object.values(SEG).map(g=>
+ '<button class="dseg'+(g.verdict.indexOf('фокус')===0?' foc':'')+'" onclick="dPickSeg(\''+g.id+'\')">'+
+ '<div class="sgh"><span class="sgc">'+g.code+'</span>'+
+ '<span class="sgv'+(g.verdict.indexOf('фокус')===0?' f':'')+'">'+esc(g.verdict)+'</span></div>'+
+ '<div class="sgn">'+esc(g.n)+'</div>'+
+ '<div class="sgd">'+esc(g.d)+'</div>'+
+ '<div class="sgs"><b>Как себя узнать:</b> '+esc(g.sign)+'</div>'+
+ '<div class="sgj">Работы: '+esc(g.jobs)+'</div></button>').join('')+'</div>'+
+ '<div class="dnote">Закрытых входов три — бизнес-брокер, владелец «живу с бизнеса» и владелец на выходе. Их здесь нет не потому, что они маленькие, а потому что движок их работу не выполняет.</div>',
 
 /* ─────── 2 · чем пользуетесь ─────── */
 tools:()=>dHead('Вопрос 2 из 3','Чем вы пользуетесь для этого сейчас?',
  'Можно отметить несколько. От ответа зависит, что подключать и что переносить.')+
+ (SEG[D.seg].warn?'<div class="dwarn"><b>Прежде чем идти дальше.</b> '+SEG[D.seg].warn+'</div>':'')+
  '<div class="dchips">'+TOOLS[D.seg].map(t=>
  '<button class="dchip'+(D.tools.includes(t)?' on':'')+'" onclick="dTool(\''+t+'\')">'+t+'</button>').join('')+'</div>'+
  '<div class="dbtns"><button class="dbtn" id="dT2" onclick="dNext()"'+(D.tools.length?'':' disabled')+'>Дальше</button></div>',
@@ -2209,27 +2300,38 @@ build:()=>dHead('Сборка','Собираю ваше место',
  '<div class="dbtns"><button class="dbtn" id="dB5" disabled onclick="dNext()">Посмотреть, что получилось</button></div>',
 
 /* ─────── 6 · первый результат ─────── */
-first:()=>SEG[D.seg].home==='memory'?DEMO.firstMemory():DEMO.firstReport(),
+first:()=>({targets:DEMO.firstTargets,candidates:DEMO.firstCandidates}[SEG[D.seg].home]||DEMO.firstReport)(),
 after_first:()=>dAuto(18),
 
-firstMemory:()=>dHead('Первый результат','Через десять минут у вас созвон',
- 'Вы ничего не нажимали. Карточка собралась сама, когда встреча подошла ближе.')+
- '<div class="dpanel">'+
- '<div style="display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap">'+
- '<div style="flex:1;min-width:250px"><div class="dh2">Дэн Кроуфорд</div>'+
- '<div class="dlead" style="margin-bottom:14px">Managing Partner · Hillcrest Capital · New York<br>'+
- '<b>Сегодня 16:30</b> — через десять минут · «Соинвест по MSP»</div></div>'+
- '<div class="dmetrics" style="margin:0;flex:1;min-width:300px;grid-template-columns:1fr 1fr">'+
- '<div class="dm"><div class="mv">6 мес</div><div class="ml">с последнего разговора</div></div>'+
- '<div class="dm"><div class="mv">14</div><div class="ml">касаний за два года</div></div></div></div>'+
- '<div class="dwhy"><b>О чём говорили в прошлый раз.</b> 11 марта, звонок 40 минут. Закрыл второй фонд на $200M. Обсуждали co-invest в сделке по MSP. <b>Просил показать модель, когда будет готова</b> — модель готова с июля, вы её не отправляли.</div>'+
- '<div class="dlist">'+
- '<div class="dli"><span class="dk">сама</span><div><b>Подняла всю переписку</b><span class="dsub">9 писем, 2 встречи, 3 сообщения в LinkedIn — в одном месте, без переключений</span></div></div>'+
- '<div class="dli"><span class="dk">сама</span><div><b>Нашла невыполненное обещание</b><span class="dsub">«пришлю модель» — сказано 11 марта, не сделано</span></div></div>'+
- '<div class="dli"><span class="dk">сама</span><div><b>Подтянула, кто ещё с ним связан</b><span class="dsub">Пол Виндхэм знакомил вас в 2024 — можно сослаться</span></div></div>'+
- '</div></div>'+
+firstTargets:()=>dHead('Первый результат','Сорок один владелец, который может быть готов говорить',
+ 'Вы ничего не нажимали. Список собран из справочников и карт — <b>не из баз персон</b>, потому что ваши цели это компании, а не контакты.')+
+ '<div class="dmetrics">'+
+ '<div class="dm"><div class="mv">41</div><div class="ml">компаний под тезис</div></div>'+
+ '<div class="dm"><div class="mv">29</div><div class="ml">владелец найден поимённо</div></div>'+
+ '<div class="dm good"><div class="mv">12</div><div class="ml">признак «может продавать»</div></div>'+
+ '<div class="dm"><div class="mv">7</div><div class="ml">уже в работе у брокера</div></div></div>'+
+ '<div class="dpanel"><div class="dh2" style="font-size:16px">По какому признаку отобраны</div>'+
+ '<div class="dlead" style="font-size:13px;margin-bottom:14px">Не по отрасли и не по размеру — по наблюдаемым событиям, которые обычно предшествуют разговору о продаже.</div>'+
+ dDone([
+  ['Владельцу за 55 и нет второго поколения в компании','по открытым профилям и упоминаниям',''],
+  ['Компания перестала нанимать','вакансий нет 14 месяцев при живом сайте и отзывах',''],
+  ['Сменился бухгалтер или юрист','смена советников часто идёт перед сделкой',''],
+  ['Уже висит у брокера','7 из 41 — по ним заходить надо не напрямую','']])+
+ '<div class="dwhy"><b>А теперь честно про то, чего здесь нет.</b> Ключевая работа этого входа — <b>влиться в идущий процесс</b>: чтобы вас добавили в переписку с брокерами и вы вошли, не отвлекая команду. <b>Движок её сегодня не выполняет.</b> Собрать список и написать — умеет. Дать вам контекст чужого разговора — пока нет. Это записано в разборе, и я не буду делать вид, что этого нет.</div></div>'+
  '<div class="dbtns"><button class="dbtn" onclick="dNext()">Дальше</button>'+
- '<span class="dnote">Две работы разом: вся переписка в одном окне и рутина, вынесенная из головы.</span></div>',
+ '<span class="dnote">Направление проверки здесь обратное: не вы проверяете продавца, а он вас.</span></div>',
+
+firstCandidates:()=>dHead('Первый результат','Кому из них уже предлагали эту роль',
+ 'Вы ничего не нажимали. Главное здесь не «кого нашли», а <b>кому не надо писать второй раз</b>.')+
+ '<div class="dmetrics">'+
+ '<div class="dm"><div class="mv">86</div><div class="ml">под параметры роли</div></div>'+
+ '<div class="dm bad"><div class="mv">19</div><div class="ml">уже предлагали раньше</div></div>'+
+ '<div class="dm good"><div class="mv">0</div><div class="ml">повторных предложений</div></div>'+
+ '<div class="dm"><div class="mv">5</div><div class="ml">отказались явно</div></div></div>'+
+ '<div class="dpanel"><div class="dwhy"><b>Что это значит.</b> Девятнадцати из восьмидесяти шести вы или коллега уже писали — по другой роли или по этой же полгода назад. Видно, кто именно писал и когда. Без этого они попали бы в поиск снова, и это самый быстрый способ испортить отношения с рынком, который у вас узкий и повторяющийся.</div>'+
+ '<div class="dwhy"><b>Чего здесь нет.</b> Работа рекрутера разобрана у нас <b>ни по одному из восьми элементов</b>: есть носитель и один разговор. Всё, что выше, — перенос логики с соседнего входа, а не знание о вашей работе.</div></div>'+
+ '<div class="dbtns"><button class="dbtn" onclick="dNext()">Дальше</button>'+
+ '<span class="dnote">Канал у вас один — LinkedIn, и официального входа в него нет ни у кого.</span></div>',
 
 firstReport:()=>dHead('Первый результат','Что стало с последней кампанией',
  'Вы ничего не нажимали. Это то, чего сегодня не даёт <b>ни один</b> из разобранных игроков: отчёт на ваших собственных данных, а не средние по рынку.')+
@@ -2282,13 +2384,13 @@ repeat:()=>dHead('Повтор','Вы делаете это третий раз'
 gate:()=>dHead('Обращение к вам','Один вопрос, который я не могу решить без вас',
  'За всё прохождение это шестое обращение. Всё остальное сделано без вас.')+
  '<div class="dgate"><div class="gh">'+
- (D.seg==='founder'?'Дэн просил модель полгода назад. Отправлять?':'Через 6 дней отправлять будет не с чего')+'</div>'+
- '<div class="gb">'+(D.seg==='founder'
- ?'<b>Почему спрашиваю.</b> Обещание найдено в переписке от 11 марта, модель готова с июля. Отправить её — <b>действие от вашего имени</b>, и такие я не делаю без вас никогда.<br><br>Черновик письма собран, файл приложен.'
+ (D.seg==='dealmaker'?'Владелец ответил «может быть». Писать второй раз?':'Через 6 дней отправлять будет не с чего')+'</div>'+
+ '<div class="gb">'+(D.seg==='dealmaker'
+ ?'<b>Почему спрашиваю.</b> Владелец Northline MSP ответил уклончиво, а не отказом. Второе касание по теме продажи бизнеса — <b>действие от вашего личного имени</b>, и репутация здесь ваша собственная. Такие я без вас не делаю.<br><br>Черновик собран с опорой на то, что он написал.'
  :'<b>Почему спрашиваю.</b> Три ящика в прогреве, один выведен после жалобы. На текущем темпе здоровых хватит на шесть дней. Сам починить не могу — <b>нужны деньги</b>.<br><br>Предлагаю два домена с прогревом: <b>$92/мес</b>, полная мощность через 21 день.')+
  '</div><div class="gf">'+
- (D.seg==='founder'
- ?'<button class="dgbtn p" onclick="dGate(\'ok\')">Показать черновик и отправить</button><button class="dgbtn" onclick="dGate(\'no\')">Не сейчас</button>'
+ (D.seg==='dealmaker'
+ ?'<button class="dgbtn p" onclick="dGate(\'ok\')">Показать черновик</button><button class="dgbtn" onclick="dGate(\'no\')">Не сейчас</button>'
  :'<button class="dgbtn p" onclick="dGate(\'ok\')">Купить два</button><button class="dgbtn" onclick="dGate(\'one\')">Купить один</button><button class="dgbtn" onclick="dGate(\'no\')">Не сейчас</button>')+
  '<button class="dgbtn" style="margin-left:auto;color:var(--muted)" onclick="dGate(\'kill\')">Дальше решай сам</button>'+
  '</div></div>'+
@@ -2308,9 +2410,7 @@ done:()=>dHead('Готово','Ваше место собрано',
  '<div class="dbtns"><button class="dbtn" onclick="dFinish()">Открыть рабочее место</button>'+
  '<button class="dbtn ghost" onclick="dRestart()">Пройти заново другим входом</button></div>',
 };
-SEG.agency.ex='Например: «чтобы я мог показать каждому заказчику, что было с его каналом, не собирая это руками».';
-SEG.firm.ex='Например: «чтобы мы никогда не написали одному человеку дважды».';
-SEG.founder.ex='Например: «чтобы я перед каждым звонком не вспоминал, кто это и о чём мы говорили».';
+
 
 /* ═════ ОБРАБОТЧИКИ АКТОВ ═════ */
 
@@ -2322,31 +2422,108 @@ function dTool(t){
  dRender();
 }
 
+/* ── распознавание работы по словам человека: работает и без модели ── */
+const GUESS=[
+ ['dealmaker',/прода(ть|ва|жа|ют|ются)|купить|покуп|приобрет|сделк|m&a|владельц|собственник|бизнес на прода|выход из бизнеса|roll.?up|msp/i],
+ ['recruiter',/кандидат|резюме|рекрут|наня|найм|ваканс|соискат|executive search|людей.*ищ|ищ.*людей/i],
+ ['agency',/заказчик|клиент(ов|ам|ы).*(веду|кампан)|за клиента|от имени клиента|агентств|white.?label/i],
+ ['revops',/журнал|аудит|безопасн|закупк|комплаенс|соответств|регламент|отдел продаж|команд(а|ы) продаж/i],
+ ['firm',/дважды|повторн|отписк|домен|доставля|сжеч|выгор|репутац/i],
+];
+function guessSeg(t){
+ for(const [id,re] of GUESS) if(re.test(t)) return id;
+ return null;
+}
+function applyPlan(pl){
+ if(!pl)return false;
+ let touched=false;
+ if(Array.isArray(pl.blocks)&&pl.blocks.length){
+  const want=pl.blocks.filter(x=>HB[x]);
+  if(want.length){
+   const known=Object.fromEntries(D.blocks.map(b=>[b.id,b]));
+   const out=want.map(id=>known[id]||{id,n:HB[id].t,s:'добавлено по вашему ответу',on:true});
+   out.forEach(b=>b.on=true);
+   D.blocks.forEach(b=>{if(!want.includes(b.id)){b.on=false;if(!out.find(x=>x.id===b.id))out.push(b)}});
+   D.blocks=out;touched=true;
+  }
+ }
+ if(pl.flow&&pl.flow.n&&Array.isArray(pl.flow.steps)&&pl.flow.steps.length){
+  SEG[D.seg].flow={n:String(pl.flow.n),steps:pl.flow.steps.filter(x=>Array.isArray(x)&&x.length>=2)
+   .map(x=>[x[0]==='ev'||x[0]==='g'||x[0]==='h'?x[0]:'t',String(x[1]),x[2]==='human'?'human':'auto'])};
+  touched=true;
+ }
+ if(Array.isArray(pl.chips)&&pl.chips.length){SEG[D.seg].chips=pl.chips.slice(0,3).map(String);touched=true}
+ return touched;
+}
+
 async function dSubmitFree(skip){
  const ta=document.getElementById('dFree');
  D.free=skip?'':(ta?ta.value.trim():'');
  dAsk();
  const out=document.getElementById('dFreeOut');
- const s=SEG[D.seg];
- if(!D.free){D.freeEcho='';dNext();return}
+ const seg=SEG[D.seg];
+ if(!D.free){dNext();return}
  out.innerHTML='<div style="margin-top:18px">'+dBubble('<span class="dtyping"><i></i><i></i><i></i></span>')+'</div>';
- const fb='Поняла так: вы '+s.who+', и главное для вас — '+
-  (s.id==='agency'?'чтобы заказчик видел, что происходит с его каналом, и чтобы два ваших заказчика не написали одному человеку'
-  :s.id==='firm'?'чтобы ни один человек не получил от вас письмо дважды и чтобы домен фирмы не сгорел'
-  :'не держать в голове, кто эти люди и о чём вы с ними говорили')+
-  '. Дальше собираю место вокруг этого, остальное убираю с глаз.';
- const txt=await aiAsk(
-  'Ты помощник внутри GTM-движка. Пользователь — '+s.who+' ('+s.m+'). '+
-  'Он пользуется: '+(D.tools.join(', ')||'ничем')+'. '+
-  'Своими словами он описал задачу так: "'+D.free+'". '+
-  'Ответь одним абзацем на русском, 2–3 предложения, начни со слов "Поняла так:". '+
-  'Перескажи его задачу точнее, чем он сам сформулировал, и скажи, что соберёшь вокруг неё. '+
-  'Без списков, без маркетинга, без обещаний цифр.',fb);
- out.innerHTML='<div style="margin-top:18px">'+dBubble(esc(txt).replace(/\n/g,'<br>'))+
-  '<div class="dbtns"><button class="dbtn" onclick="dNext()">Дальше</button>'+
-  (AI.live===false?'<span class="dnote">Живой слой модели не подключён — ответ собран правилами. Прокси включается отдельно.</span>':
-   '<span class="dnote">Ответ живой модели.</span>')+'</div></div>';
- D.freeEcho=txt;
+
+ const g=guessSeg(D.free);
+ const mismatch=g&&g!==D.seg;
+ const fb='Поняла так: «'+D.free+'». '+
+  (mismatch?'Но это описание другой работы — '+SEG[g].n.toLowerCase()+' ('+SEG[g].code+'). '+
+   'Вы выбрали вход '+seg.code+', а описали '+SEG[g].code+'.'
+   :'Собираю место вокруг этого, остальное убираю с глаз.');
+
+ const blockList=Object.keys(HB).map(k=>k+' — '+HB[k].t).join('; ');
+ const prompt=
+  'Ты помощник внутри GTM-движка. Пользователь проходит настройку.\n'+
+  'Он выбрал вход: '+seg.code+' — '+seg.n+' ('+seg.d+').\n'+
+  'Пользуется сейчас: '+(D.tools.join(', ')||'ничем')+'.\n'+
+  'Своими словами описал задачу так: "'+D.free+'"\n\n'+
+  'Доступные блоки рабочего места (id — название): '+blockList+'\n'+
+  'Доступные входы: '+Object.values(SEG).map(x=>x.id+' = '+x.code+' '+x.n).join('; ')+'\n\n'+
+  'Верни СТРОГО один JSON-объект без пояснений и без markdown-ограды:\n'+
+  '{"echo": "<2-3 предложения по-русски, начни со слов «Поняла так:»; перескажи его задачу точнее, чем он сам; '+
+  'если описанная работа не совпадает с выбранным входом — прямо скажи об этом>",'+
+  ' "segment": "<id входа, который на самом деле описан, или null>",'+
+  ' "blocks": ["<3-5 id блоков из списка выше, в порядке важности для его задачи>"],'+
+  ' "flow": {"n":"<название потока под его задачу>","steps":[["ev","<событие-старт>","auto"],["t","<шаг>","auto"],["h","<шаг, где нужен человек>","human"],["ev","<результат>","auto"]]},'+
+  ' "chips": ["<3 вопроса, которые он захочет задать помощнику>"]}\n'+
+  'Без маркетинга, без обещаний цифр. Только то, что следует из его слов.';
+
+ const raw=await aiAsk(prompt,'',14000);
+ let plan=null,echo=fb;
+ if(raw){
+  try{
+   const m=raw.match(/\{[\s\S]*\}/);
+   if(m){plan=JSON.parse(m[0]);if(plan.echo)echo=String(plan.echo)}
+  }catch(e){plan=null}
+ }
+ const applied=applyPlan(plan);
+ const alt=(plan&&plan.segment&&SEG[plan.segment]&&plan.segment!==D.seg)?plan.segment:(mismatch?g:null);
+
+ out.innerHTML='<div style="margin-top:18px">'+dBubble(esc(echo).replace(/\n/g,'<br>'))+
+  (applied?'<div class="dlist" style="margin-bottom:14px">'+
+   (plan.blocks?'<div class="dli"><span class="dk">сама</span><div><b>Переставила блоки под вашу задачу</b><span class="dsub">'+
+     esc(plan.blocks.filter(x=>HB[x]).map(x=>HB[x].t).join(' · '))+'</span></div></div>':'')+
+   (plan.flow&&plan.flow.n?'<div class="dli"><span class="dk">сама</span><div><b>Заготовила поток: '+esc(plan.flow.n)+
+     '</b><span class="dsub">предложу забрать его себе через пару шагов</span></div></div>':'')+
+   '</div>':'')+
+  (alt?'<div class="dwarn"><b>Похоже, вы выбрали не тот вход.</b> Описанная работа — это '+
+   SEG[alt].code+' · '+esc(SEG[alt].n)+'. Там другой источник данных и другой порядок критериев, '+
+   'и собранное место будет другим.<div class="dbtns" style="margin-top:10px">'+
+   '<button class="dbtn" onclick="dSwitchSeg(\''+alt+'\')">Перейти на '+SEG[alt].code+'</button>'+
+   '<button class="dbtn ghost" onclick="dNext()">Остаться на '+seg.code+'</button></div></div>'
+   :'<div class="dbtns"><button class="dbtn" onclick="dNext()">Дальше</button>'+
+    '<span class="dlive '+(AI.live?'on':'off')+'">'+(AI.live?'живая модель':'без модели: правила')+'</span></div>')+
+  '</div>';
+}
+function dSwitchSeg(id){
+ D.seg=id;D.blocks=SEG[id].blocks.map(b=>({...b}));D.tools=[];
+ toastD('Вход переключён на '+SEG[id].code);
+ dGo('tools');
+}
+function toastD(m){
+ const t=document.getElementById('toast');if(!t)return;
+ t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);
 }
 
 function dConnect(k){
@@ -2468,7 +2645,10 @@ function buildCFG(){
  why.push(['Поставила первый экран',s.home==='memory'?'сегодняшние встречи и контекст к каждой':'отчёт по последней кампании на ваших данных','']);
  why.push(['Завела сквозной учёт касаний','отписка и «уже писали» держатся на человеке, а не на отправителе и не на кампании','']);
  if(D.seg==='agency')why.push(['Добавила слой заказчиков','один человек в кампаниях двух ваших клиентов теперь виден. Этого нет ни у кого на рынке','']);
- if(D.seg==='founder')why.push(['Убрала кампании и рассылки','это не ваша работа — раздел скрыт, чтобы не мешал','']);
+ if(D.seg==='dealmaker')why.push(['Сменила источник данных','справочники и карты вместо баз персон — ваши цели это компании, а не контакты','']);
+ if(D.seg==='revops')why.push(['Включила журнал действий','кто, что и когда — то, чего вам не хватает вместо функций','']);
+ if(D.seg==='recruiter')why.push(['Переставила на людей','объект поиска — человек, а не компания; критерий успеха — его согласие','']);
+ if(s.warn)why.push(['Сказала честно, чего здесь нет',s.warn.replace(/<[^>]+>/g,''),'h']);
  return{seg:D.seg,nav:s.nav,home:s.home,blocks:D.blocks.map(b=>({...b})),chips:s.chips,
   label:s.n,who:s.who,mark:s.m,tools:D.tools.slice(),free:D.free,why:why};
 }
@@ -2493,16 +2673,17 @@ function applyCFG(){
   b.style.display=CFG.nav.includes(b.dataset.v)?'':'none';
  });
  S.iv.auto=D.auto;S.iv.asked=D.asked;
- S.role=CFG.seg==='firm'?'operator':'director';
+ S.role=(CFG.seg==='firm'||CFG.seg==='recruiter')?'operator':CFG.seg==='revops'?'engineer':'director';
  S.pick.role=S.role;
  ASST.start={n:'Помощник',s:CFG.who,chips:CFG.chips.slice(),
   hello:'Место собрано под вас. Спрашивайте своими словами — я отвечаю по вашей же базе, а не поиском по слову.'};
  const r=ROLES[S.role];
- if(r){r.chips=CFG.chips.slice();r.sees=CFG.seg==='founder'
-  ?'Люди и разговоры. Вопросы приходят только те, где нужно действие от вашего имени.'
-  :CFG.seg==='agency'
-  ?'Каналы заказчиков и что с ними стало. Вопросы — только про деньги и про пересечения между клиентами.'
-  :'Кампании и ответы. Вопросы — только там, где решение нельзя принять по правилу.'}
+ if(r){r.chips=CFG.chips.slice();r.sees={
+  dealmaker:'Цели и брокеры. Вопросы приходят только те, где нужно действие от вашего личного имени.',
+  agency:'Каналы заказчиков и что с ними стало. Вопросы — про деньги и про пересечения между клиентами.',
+  revops:'Процесс и журнал. Вопросы — там, где решение нельзя принять по записанному правилу.',
+  recruiter:'Кандидаты и их ответы. Вопросы — про повторные предложения и про состояние аккаунта.'
+ }[CFG.seg]||'Кампании и ответы. Вопросы — только там, где решение нельзя принять по правилу.'}
  S.onb={step:5,email:true,li:D.conn!=='mail',data:true,done:true};
  S.view='start';S.tabs=['start'];S.active='start';
 }
@@ -2540,6 +2721,18 @@ const HB={
  pipe:{t:'Воронка',go:()=>go('space'),b:()=>
   kv('в работе',DB.people.filter(p=>p.Стадия!=='Закрыт').length)+
   kv('встреч и сделок',DB.people.filter(p=>['Встреча','Сделка'].includes(p.Стадия)).length)},
+ targets:{t:'Компании-цели',go:()=>openTab('tbl:companies'),b:()=>
+  kv('под тезис',41)+kv('владелец найден',29)+kv('признак «может продавать»','<b style="color:var(--ok)">12</b>')+
+  '<div class="pd" style="margin-top:7px">Источник — справочники и карты, а не базы персон.</div>'},
+ brokers:{t:'Поток брокеров',go:()=>openTab('tbl:replies'),b:()=>
+  kv('сделок в потоке',7)+kv('ждут NDA',3)+kv('на стадии CIM',2)+
+  '<div class="pd" style="margin-top:7px">Переписка, документы и стадия в одном месте — вместо отдельной таблицы.</div>'},
+ audit:{t:'Журнал действий',go:()=>{S.bot='hist';render()},b:()=>
+  kv('записей за сегодня',S.hist.length||0)+kv('решений человека',S.answered.length)+
+  '<div class="pd" style="margin-top:7px">Кто, что, когда и по какому правилу. Выгружается одним файлом.</div>'},
+ candidates:{t:'Кандидаты',go:()=>openTab('tbl:people'),b:()=>
+  kv('под параметры',86)+kv('уже предлагали','<b style="color:var(--warn)">19</b>')+
+  kv('повторных','<b style="color:var(--ok)">0</b>')},
 };
 function kv(k,v){return '<div class="kv"><span class="kvk">'+k+'</span><span class="kvv">'+v+'</span></div>'}
 function hbGo(id){const x=HB[id];if(x)x.go()}
