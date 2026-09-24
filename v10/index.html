@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cold and Warm</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     ПРОТОТИП v10 · ДВЕ КНОПКИ
+
+     Всё деление продукта — Cold и Warm.
+
+     COLD  машина пишет массе. Спарсенные компании, сегменты, кампании,
+           почта и LinkedIn, домены, ящики. Сотни тысяч. Цена ошибки низкая.
+     WARM  человек говорит с людьми. Десятки. У каждого владелец и
+           следующий шаг. Цена ошибки — отношение, а не лид.
+
+     Граница механическая: Warm — тот, с кем был ДВУСТОРОННИЙ контакт.
+     Ответил или говорили живьём. Односторонний не считается.
+
+     Три двери в Warm: ответил · принесли снаружи (визитка) · взяли рукой
+     из очереди признаков жизни внутри Cold.
+
+     Обратного пути нет. Есть остывание — человек остаётся в Warm
+     с пометкой, что завис.
+
+     Токены — из bobroff-cap/ai-crm (apps/web/src/styles.css).
+     Левая панель убрана намеренно: она и была шумом.
+     Блоки пронумерованы.
+     ═══════════════════════════════════════════════════════════════════ -->
+
+<style>
+/* ╔═ БЛОК 0 · ТОКЕНЫ ═══════════════════════════════════════════════ */
+:root{
+  --ink:#17241f; --ink-2:#3a4843; --muted:#636d69; --faint:#7d8983;
+  --line:rgba(23,36,31,.08); --line-2:rgba(23,36,31,.14); --line-soft:#e9ece8;
+  --canvas:#f3f5f1; --surface:#ffffff; --tint:#f7f9f5;
+  --sage:#2f705c; --sage-dark:#245b4a; --sage-pale:#e5f0ea;
+  --blue:#3d6f9e; --blue-pale:#e9f1f8;
+  --gold:#8a5f1f; --gold-pale:#fbf2df;
+  --coral:#a94f40;
+  --shadow-lift:0 0 0 1px rgba(23,36,31,.06), 0 1px 2px rgba(23,36,31,.05), 0 6px 16px rgba(23,36,31,.05);
+  --shadow-ring:inset 0 0 0 1px var(--line-2);
+  --r:10px; --r-card:16px; --pill:999px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:Manrope,-apple-system,sans-serif;background:var(--canvas);color:var(--ink);
+  font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased
+}
+button{font:inherit;cursor:pointer;border:none;background:none;color:inherit}
+.mono{font-family:"DM Mono",monospace;font-size:13px}
+.wrap{max-width:880px;margin:0 auto;padding:0 28px}
+
+/* ╔═ БЛОК 1 · ШАПКА — почти пустая ════════════════════════════════ */
+.top{display:flex;align-items:center;justify-content:space-between;padding:22px 0 0}
+.brand{display:flex;align-items:center;gap:9px;font-weight:800;font-size:16px;letter-spacing:-.01em}
+.brand i{
+  width:22px;height:22px;border-radius:6px;background:var(--ink);color:#fff;
+  display:grid;place-items:center;font-size:11px;font-style:normal
+}
+.quiet{color:var(--faint);font-size:13px;padding:6px 10px;border-radius:var(--r)}
+.quiet:hover{background:var(--surface);color:var(--muted)}
+
+/* ╔═ БЛОК 2 · ДВЕ КНОПКИ — всё деление продукта ═══════════════════ */
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:30px 0 0}
+.big{
+  text-align:left;padding:22px 24px;border-radius:var(--r-card);
+  background:var(--surface);box-shadow:var(--shadow-ring);
+  transition:box-shadow .15s, background .15s
+}
+.big:hover{box-shadow:0 0 0 1px rgba(47,112,92,.28), 0 6px 18px rgba(23,36,31,.06)}
+.big.on{background:var(--ink);box-shadow:none}
+.big .lab{
+  font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--muted);
+  text-transform:uppercase
+}
+.big.on .lab{color:rgba(255,255,255,.55)}
+.big .n{font-size:36px;font-weight:800;letter-spacing:-.03em;line-height:1.15;margin-top:5px}
+.big.on .n{color:#fff}
+.big .d{font-size:13px;color:var(--muted);margin-top:3px}
+.big.on .d{color:rgba(255,255,255,.62)}
+
+/* ╔═ БЛОК 3 · ТРИ СТРОКИ — вся работа ═════════════════════════════ */
+.three{margin:14px 0 0;background:var(--surface);border-radius:var(--r-card);box-shadow:var(--shadow-ring);overflow:hidden}
+.tr{
+  display:flex;align-items:center;gap:12px;padding:13px 22px;
+  border-bottom:1px solid var(--line-soft);cursor:pointer;transition:background .12s
+}
+.tr:last-child{border-bottom:none}
+.tr:hover{background:var(--tint)}
+.tr .dot{width:7px;height:7px;min-width:7px;border-radius:50%;flex:0 0 7px}
+.tr .dot.d1{background:var(--sage)} .tr .dot.d2{background:var(--gold)} .tr .dot.d3{background:var(--blue)}
+.tr .t{flex:1;font-size:14px}
+.tr .t b{font-weight:700}
+.tr .go{color:var(--sage);font-size:13px;font-weight:600}
+
+/* ╔═ БЛОК 4 · СОДЕРЖИМОЕ ══════════════════════════════════════════ */
+.sec{margin-top:34px}
+.sech{display:flex;align-items:baseline;gap:10px;margin-bottom:12px}
+.sech h2{font-size:18px;font-weight:700;letter-spacing:-.01em}
+.sech .n{font-size:13px;color:var(--muted)}
+.sech .a{margin-left:auto}
+.card{background:var(--surface);border-radius:var(--r-card);box-shadow:var(--shadow-ring);overflow:hidden}
+.p{
+  display:flex;align-items:center;gap:14px;padding:15px 20px;
+  border-bottom:1px solid var(--line-soft)
+}
+.p:last-child{border-bottom:none}
+.p .av{
+  width:32px;height:32px;flex:none;border-radius:var(--pill);background:var(--tint);
+  color:var(--muted);display:grid;place-items:center;font-size:12px;font-weight:700;
+  box-shadow:var(--shadow-ring)
+}
+.p .av.w{background:var(--sage-pale);color:var(--sage-dark);box-shadow:none}
+.p .who{flex:1;min-width:0}
+.p .who b{font-weight:700;font-size:14px;display:block}
+.p .who span{font-size:12.5px;color:var(--muted)}
+.p .mid{flex:none;width:210px;font-size:13px;color:var(--ink-2)}
+.p .mid .lab{font-size:11.5px;color:var(--faint);font-weight:600}
+.p .end{flex:none;display:flex;gap:7px}
+.b{
+  height:34px;padding:0 13px;border-radius:var(--r);font-size:13px;font-weight:600;
+  background:var(--surface);box-shadow:var(--shadow-ring);white-space:nowrap
+}
+.b:hover{box-shadow:0 0 0 1px rgba(47,112,92,.3)}
+.b.pri{background:var(--sage);color:#fff;box-shadow:none}
+.b.pri:hover{background:var(--sage-dark)}
+.b.g{background:none;box-shadow:none;color:var(--faint);padding:0 8px}
+.b.g:hover{color:var(--ink-2);box-shadow:none}
+.tag{
+  display:inline-flex;align-items:center;height:22px;padding:0 9px;border-radius:var(--pill);
+  font-size:11.5px;font-weight:700;background:var(--tint);color:var(--muted);box-shadow:var(--shadow-ring)
+}
+.tag.s{background:var(--sage-pale);color:var(--sage-dark);box-shadow:none}
+.tag.g{background:var(--gold-pale);color:var(--gold);box-shadow:none}
+.tag.b{background:var(--blue-pale);color:var(--blue);box-shadow:none}
+.row2{display:flex;align-items:center;gap:12px;padding:13px 20px;border-bottom:1px solid var(--line-soft)}
+.row2:last-child{border-bottom:none}
+.row2 .k{flex:1;font-size:14px}
+.row2 .k span{color:var(--muted);font-size:12.5px;display:block}
+.row2 .v{font-size:13px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.bar{height:5px;width:64px;border-radius:var(--pill);background:var(--line-soft);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--sage)}
+.bar i.g{background:var(--gold)} .bar i.c{background:var(--coral)}
+.hint{font-size:13px;color:var(--muted);line-height:1.6;padding:14px 20px;background:var(--tint)}
+.fold{border:none;background:none;width:100%;text-align:left}
+.sub{font-size:13px;color:var(--muted);margin-top:-6px;margin-bottom:14px}
+.add{
+  display:flex;align-items:center;gap:12px;padding:16px 20px;background:var(--sage-pale);
+  border-radius:var(--r-card);margin-bottom:14px
+}
+.add .t{flex:1;font-size:13.5px;color:var(--sage-dark);line-height:1.5}
+.add .t b{font-weight:700;display:block;font-size:14px}
+.note{font-size:12.5px;color:var(--faint);margin-top:12px;line-height:1.6}
+.foot{padding:40px 0 70px}
+@media (max-width:720px){
+  .two{grid-template-columns:1fr}
+  .p{flex-wrap:wrap} .p .mid{width:100%;order:3}
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <!-- ╔═ БЛОК 1 · ШАПКА ════════════════════════════════════════════ -->
+  <div class="top">
+    <div class="brand"><i>L</i> Lusin</div>
+    <button class="quiet" onclick="alert('Settings, channels, segments — all of it lives behind this one button.')">Settings</button>
+  </div>
+
+  <!-- ╔═ БЛОК 2 · ДВЕ КНОПКИ ═══════════════════════════════════════ -->
+  <div class="two">
+    <button class="big on" id="bCold" onclick="pick('cold')">
+      <div class="lab">Cold</div>
+      <div class="n" id="nCold">184,203</div>
+      <div class="d">the machine is writing</div>
+    </button>
+    <button class="big" id="bWarm" onclick="pick('warm')">
+      <div class="lab">Warm</div>
+      <div class="n" id="nWarm">6</div>
+      <div class="d">you are talking</div>
+    </button>
+  </div>
+
+  <!-- ╔═ БЛОК 3 · ТРИ СТРОКИ ═══════════════════════════════════════ -->
+  <div class="three" id="three"></div>
+
+  <!-- ╔═ БЛОК 4 · СОДЕРЖИМОЕ ═══════════════════════════════════════ -->
+  <div id="body"></div>
+
+  <div class="foot"></div>
+</div>
+
+<script>
+/* ╔═ БЛОК 5 · ДАННЫЕ ═══════════════════════════════════════════════
+   Вымышлено. Ключевое поле каждого человека — door: как он попал в Warm.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* признаки жизни — мост внутри Cold */
+let ALIVE = [
+  { id:'a1', nm:'Sofia Marchetti', co:'Cobalt Systems', sig:'Opened five times in one evening · never replied', days:'2 days ago' },
+  { id:'a2', nm:'Ben Carrow', co:'Halyard Group', sig:'Looked at your LinkedIn twice after step 2', days:'yesterday' },
+  { id:'a3', nm:'Nadia Fields', co:'Portside IT', sig:'Their breach hit the state registry this morning', days:'today' }
+];
+
+/* тёплые — у каждого дверь, владелец и следующий шаг */
+let WARM = [
+  { id:'w1', nm:'Mark Reilly', co:'Anchor IT', door:'replied', doorT:'Replied 4 Sep',
+    next:'Call Wednesday 14:00', when:'in 2 days', owner:'Nicolas', stale:false },
+  { id:'w2', nm:'Dana Wu', co:'NorthBridge Systems', door:'replied', doorT:'Replied 6 Sep',
+    next:'Call Thursday 10:30', when:'in 3 days', owner:'Nicolas', stale:false },
+  { id:'w3', nm:'Owen Salazar', co:'Keystone Managed', door:'intro', doorT:'Mark forwarded him',
+    next:'Call Monday 16:00', when:'in 6 days', owner:'Nicolas', stale:false },
+  { id:'w4', nm:'Priya Raman', co:'Beacon Grid', door:'replied', doorT:'Asked about price 7 Sep',
+    next:'She is waiting on you', when:'17 days', owner:'Lisa', stale:true },
+  { id:'w5', nm:'David Okafor', co:'Meridian IT', door:'met', doorT:'Met at DAS NYC · 18 Sep',
+    next:'He said call in two weeks', when:'in 4 days', owner:'Nicolas', stale:false },
+  { id:'w6', nm:'Rachel Kim', co:'Tessellate', door:'intro', doorT:'Adam introduced · 20 Sep',
+    next:'No next step set', when:'4 days', owner:'—', stale:true }
+];
+
+const CAMPAIGNS = [
+  { nm:'Breach signal · Boston', state:'Running', n:'112 people', sent:'112 sent', rep:'5 replied', warm:'1 → warm' },
+  { nm:'Hiring signal · Boston', state:'Running', n:'88 people', sent:'88 sent', rep:'3 replied', warm:'1 → warm' },
+  { nm:'Compliance signal', state:'Paused', n:'44 people', sent:'44 sent', rep:'1 replied', warm:'1 → warm' }
+];
+
+const BOXES = [
+  ['nicolas@anchor-reach.com','Google', 97, 'sage'],
+  ['nicolas@anchor-signal.com','Google', 96, 'sage'],
+  ['lisa@anchor-reach.com','Google', 94, 'sage'],
+  ['lisa@anchor-signal.com','Google', 91, 'gold'],
+  ['team@anchor-grid.com','Microsoft', 88, 'gold'],
+  ['hello@anchor-grid.com','Microsoft', 62, 'coral']
+];
+
+/* ╔═ БЛОК 6 · СОСТОЯНИЕ ════════════════════════════════════════════ */
+let S = { side:'cold', openCamp:false, openChan:false, moved:6 };
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const doorTag = { replied:'s', met:'g', intro:'b' };
+const doorNm  = { replied:'replied', met:'met in person', intro:'introduced' };
+
+function pick(s){ S.side = s; render(); }
+
+/* ╔═ БЛОК 7 · ТРИ СТРОКИ ═══════════════════════════════════════════ */
+function vThree(){
+  const waiting = WARM.filter(w => w.stale).length;
+  return [
+    ['d1', '<b>' + S.moved + '</b> moved to warm this week', 'warm', 'see them'],
+    ['d2', '<b>' + ALIVE.length + '</b> showing signs of life', 'cold', 'look'],
+    ['d3', '<b>' + waiting + '</b> waiting on you', 'warm', 'open']
+  ].map(r =>
+    '<div class="tr" onclick="pick(\'' + r[2] + '\')">' +
+      '<span class="dot ' + r[0] + '"></span>' +
+      '<span class="t">' + r[1] + '</span>' +
+      '<span class="go">' + r[3] + ' →</span>' +
+    '</div>').join('');
+}
+
+/* ╔═ БЛОК 8 · COLD ═════════════════════════════════════════════════ */
+function vCold(){
+  let h = '';
+
+  /* мост: признаки жизни — единственное здесь, что требует человека */
+  h += '<div class="sec"><div class="sech"><h2>Showing signs of life</h2>' +
+       '<span class="n">' + ALIVE.length + ' of 184,203</span></div>' +
+       '<div class="sub">They did something but never answered. Too warm for a template, too cold to call warm.</div>' +
+       '<div class="card">' +
+       (ALIVE.length ? ALIVE.map(a =>
+         '<div class="p"><div class="av">' + esc(a.nm[0] + a.co[0]) + '</div>' +
+           '<div class="who"><b>' + esc(a.nm) + '</b><span>' + esc(a.co) + '</span></div>' +
+           '<div class="mid"><div class="lab">' + esc(a.days) + '</div>' + esc(a.sig) + '</div>' +
+           '<div class="end">' +
+             '<button class="b pri" onclick="toWarm(\'' + a.id + '\')">Write by hand</button>' +
+             '<button class="b g" onclick="leaveIt(\'' + a.id + '\')">Leave it</button>' +
+           '</div></div>').join('')
+        : '<div class="hint">Nobody is showing signs right now. The machine keeps going.</div>') +
+       '</div>' +
+       '<div class="note">Writing by hand moves the person to Warm and takes them out of every sequence. Leaving them keeps them in the machine.</div></div>';
+
+  /* кампании — свёрнуто, это внутренность */
+  h += '<div class="sec"><div class="sech"><h2>Campaigns</h2><span class="n">2 running · 1 paused</span>' +
+       '<span class="a"><button class="b g" onclick="S.openCamp=!S.openCamp;render()">' +
+       (S.openCamp ? 'hide' : 'show') + '</button></span></div>' +
+       (S.openCamp ? '<div class="card">' + CAMPAIGNS.map(c =>
+         '<div class="row2"><div class="k">' + esc(c.nm) + '<span>' + esc(c.n) + ' · ' + esc(c.sent) + ' · ' + esc(c.rep) + '</span></div>' +
+         '<div class="v">' + esc(c.warm) + '</div>' +
+         '<span class="tag ' + (c.state === 'Running' ? 's' : 'g') + '">' + esc(c.state) + '</span></div>').join('') +
+         '<div class="hint">A campaign never holds its own list — the audience is a saved segment. Change the segment, the campaign follows.</div></div>' : '') +
+       '</div>';
+
+  /* каналы — свёрнуто */
+  h += '<div class="sec"><div class="sech"><h2>Channels</h2><span class="n">3 domains · 6 mailboxes · 1 withdrawn</span>' +
+       '<span class="a"><button class="b g" onclick="S.openChan=!S.openChan;render()">' +
+       (S.openChan ? 'hide' : 'show') + '</button></span></div>' +
+       (S.openChan ? '<div class="card">' + BOXES.map(b =>
+         '<div class="row2"><div class="k mono">' + esc(b[0]) + '<span>' + esc(b[1]) + '</span></div>' +
+         '<div class="bar"><i class="' + (b[2] > 93 ? '' : b[2] > 80 ? 'g' : 'c') + '" style="width:' + b[2] + '%"></i></div>' +
+         '<div class="v">' + b[2] + '%</div></div>').join('') +
+         '<div class="hint">hello@anchor-grid.com fell to 62% and was pulled out of sending. Campaigns rerouted on their own. All three domains are registered to you.</div></div>' : '') +
+       '</div>';
+
+  h += '<div class="note" style="margin-top:26px">The only number that matters here is the first one: how many people left Cold for Warm this week. Opens and clicks are how the machine gets there, not what it is for.</div>';
+  return h;
+}
+
+/* ╔═ БЛОК 9 · WARM ═════════════════════════════════════════════════ */
+function vWarm(){
+  const live = WARM.filter(w => !w.stale);
+  const cold = WARM.filter(w => w.stale);
+
+  const person = w =>
+    '<div class="p"><div class="av w">' + esc(w.nm[0] + w.co[0]) + '</div>' +
+      '<div class="who"><b>' + esc(w.nm) + '</b><span>' + esc(w.co) + ' · ' + esc(w.owner) + '</span></div>' +
+      '<div class="mid"><div class="lab">' + esc(w.when) + '</div>' + esc(w.next) + '</div>' +
+      '<div class="end"><span class="tag ' + doorTag[w.door] + '">' + doorNm[w.door] + '</span>' +
+      '<button class="b">Open</button></div></div>';
+
+  let h = '';
+
+  h += '<div class="sec">' +
+    '<div class="add"><div class="t"><b>Add someone you met</b>' +
+    'Photograph a card, forward a message, say it out loud. Whoever comes in this way is warm from the first second — nobody writes to them by machine, ever.</div>' +
+    '<button class="b pri" onclick="addMet()">Add</button></div>';
+
+  h += '<div class="sech"><h2>Moving</h2><span class="n">' + live.length + ' with a next step</span></div>' +
+       '<div class="card">' + live.map(person).join('') + '</div></div>';
+
+  h += '<div class="sec"><div class="sech"><h2>Stuck</h2><span class="n">' + cold.length + ' with nothing scheduled</span></div>' +
+       '<div class="sub">Nobody has gone cold — that door only opens one way. These have simply stopped moving.</div>' +
+       '<div class="card">' + cold.map(person).join('') +
+       '<div class="hint">Priya asked about price seventeen days ago and never got an answer. Rachel came in through Adam and nobody picked her up.</div></div></div>';
+
+  h += '<div class="note" style="margin-top:26px">Three ways in: they answered, somebody met them, or you took them out of the signs-of-life queue by hand. ' +
+       'There is no way back — a person you have spoken to never returns to the machine.</div>';
+  return h;
+}
+
+/* ╔═ БЛОК 10 · ДЕЙСТВИЯ ════════════════════════════════════════════ */
+function toWarm(id){
+  const a = ALIVE.find(x => x.id === id);
+  ALIVE = ALIVE.filter(x => x.id !== id);
+  WARM.unshift({ id:'n' + id, nm:a.nm, co:a.co, door:'met', doorT:'Taken by hand',
+    next:'Draft open — write the first line', when:'now', owner:'Lisa', stale:false });
+  S.moved++;
+  S.side = 'warm';
+  render();
+}
+function leaveIt(id){ ALIVE = ALIVE.filter(x => x.id !== id); render(); }
+function addMet(){
+  WARM.unshift({ id:'m' + Date.now(), nm:'Ben Ortiz', co:'Halyard Group', door:'met',
+    doorT:'Card scanned', next:'Say what you talked about', when:'now', owner:'Nicolas', stale:false });
+  S.moved++;
+  render();
+}
+
+/* ╔═ БЛОК 11 · РЕНДЕР ══════════════════════════════════════════════ */
+function render(){
+  document.getElementById('bCold').classList.toggle('on', S.side === 'cold');
+  document.getElementById('bWarm').classList.toggle('on', S.side === 'warm');
+  document.getElementById('nCold').textContent = (184203 - S.moved + 6).toLocaleString('en-GB');
+  document.getElementById('nWarm').textContent = WARM.length;
+  document.getElementById('three').innerHTML = vThree();
+  document.getElementById('body').innerHTML = S.side === 'cold' ? vCold() : vWarm();
+}
+render();
+</script>
+</body>
+</html>
