@@ -173,6 +173,58 @@ button{font:inherit;cursor:pointer;border:none;background:none;color:inherit}
 }
 .prep:hover{background:var(--blue-soft)}
 
+/* ╔═ БЛОК 4б · ЛЮДИ ════════════════════════════════════════════════ */
+.people{margin-top:20px;display:none}
+.people.on{display:block}
+.pr{
+  display:flex;align-items:center;gap:12px;
+  padding:11px 18px;border-top:1px solid var(--line-soft);
+  cursor:pointer;transition:background .12s
+}
+.pr:hover{background:var(--line-soft)}
+.pr .av{
+  width:26px;height:26px;border-radius:50%;flex:none;
+  background:var(--line);color:var(--ink-2);
+  display:grid;place-items:center;font-size:11px;font-weight:600
+}
+.pr .pn{flex:1;min-width:0}
+.pr .pn b{font-weight:550;font-size:13.5px}
+.pr .pn span{color:var(--ink-3);font-size:12.5px}
+.pr .st{
+  flex:none;font-size:11.5px;padding:3px 9px;border-radius:999px;
+  background:var(--line-soft);color:var(--ink-2)
+}
+.st.s-встреча{background:var(--green-soft);color:var(--green)}
+.st.s-отказ{background:var(--line-soft);color:var(--ink-3)}
+.st.s-спрашивает-цену{background:var(--amber-soft);color:var(--amber)}
+.pr .tc{flex:none;font-size:12px;color:var(--ink-3);width:76px;text-align:right}
+
+/* ── лента касаний внутри карточки человека ── */
+.tl{margin-top:4px}
+.tr2{display:flex;gap:12px;padding:11px 0;border-bottom:1px solid var(--line-soft)}
+.tr2:last-child{border-bottom:none}
+.tr2 .dt{flex:none;width:52px;color:var(--ink-3);font-size:12.5px;padding-top:1px}
+.tr2 .bd{flex:1;min-width:0}
+.tr2 .hd{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.tr2 .hd b{font-weight:550;font-size:13.5px}
+.tag{
+  font-size:11px;padding:2px 7px;border-radius:var(--r-sm);
+  background:var(--line-soft);color:var(--ink-2)
+}
+.tag.t-ответ{background:var(--green-soft);color:var(--green)}
+.tag.t-встреча{background:var(--green-soft);color:var(--green)}
+.tag.t-робот{background:var(--blue-soft);color:var(--blue)}
+.tag.t-вопрос{background:var(--amber-soft);color:var(--amber)}
+.quote{
+  margin-top:7px;padding:10px 12px;background:var(--bg);
+  border:1px solid var(--line-soft);border-radius:var(--r-md);
+  font-size:13px;color:var(--ink-2);white-space:pre-wrap;line-height:1.6
+}
+.sig{
+  background:var(--blue-soft);border-radius:var(--r-md);
+  padding:10px 13px;font-size:13px;color:#2F3F9E;margin-bottom:4px
+}
+
 /* ╔═ БЛОК 5 · ТРЕБУЕТ ВАС — только то, что робот не решил сам ══════ */
 .hitl{margin-top:20px;display:none}
 .hitl.on{display:block}
@@ -311,6 +363,19 @@ button{font:inherit;cursor:pointer;border:none;background:none;color:inherit}
   </div>
 </div>
 
+<!-- ╔═ БЛОК 4б · ЛЮДИ — вся база одной строкой, разворачивается ═════ -->
+<div class="wrap">
+  <div class="people" id="people">
+    <div class="card">
+      <div class="card-h" onclick="togglePeople()" style="cursor:pointer">
+        <span class="card-t">Люди</span>
+        <span class="card-n" id="peopleN"></span>
+      </div>
+      <div id="peopleList" style="display:none"></div>
+    </div>
+  </div>
+</div>
+
 <!-- ╔═ БЛОК 5 · ТРЕБУЕТ ВАС ════════════════════════════════════════ -->
 <div class="wrap">
   <div class="hitl" id="hitl">
@@ -346,17 +411,100 @@ button{font:inherit;cursor:pointer;border:none;background:none;color:inherit}
    Всё вымышлено. Компании, люди и числа существуют только здесь.
    ═══════════════════════════════════════════════════════════════════ */
 
-const MEETINGS = [
-  { d:'Ср', h:'14:00', nm:'Mark Reilly',  co:'Anchor IT · Waltham, MA · 34 чел.',
-    why:'Ответил через 2 дня: «в декабре были проблемы, сейчас ищем помощь»' },
-  { d:'Чт', h:'10:30', nm:'Dana Wu',      co:'NorthBridge Systems · Quincy, MA · 41 чел.',
-    why:'Ответила на второе письмо, сама предложила время' },
-  { d:'Пн', h:'16:00', nm:'Owen Salazar', co:'Keystone Managed · Lowell, MA · 22 чел.',
-    why:'Пришёл по рекомендации — Mark переслал письмо ему' }
+/* Люди — единственный источник. Встречи это те, у кого есть meet.
+   У каждого: почему выбрали (сигнал), лента касаний, стадия. */
+const PEOPLE = [
+  { id:'p1', nm:'Mark Reilly', role:'владелец', co:'Anchor IT', place:'Waltham, MA · 34 чел.',
+    stage:'встреча', meet:{d:'Ср',h:'14:00'},
+    sig:'Утечка данных в реестре Массачусетса, декабрь 2025 · 1 900 записей',
+    why:'Ответил через 2 дня: «в декабре были проблемы, сейчас ищем помощь»',
+    touch:[
+      {t:'2 сен',  k:'письмо', ch:'почта',    s:'Про декабрьский инцидент',
+       b:'Mark, увидел вас в реестре Массачусетса — декабрь, 1 900 записей.\n\nМы разбираем такие истории у MSP вашего размера: не «поставить ещё один антивирус», а закрыть то, через что зашли.\n\nСтоит 15 минут?'},
+      {t:'2 сен',  k:'открыл', ch:'почта',    s:'Открыл письмо · 3 раза за вечер'},
+      {t:'4 сен',  k:'ответ',  ch:'почта',    s:'Ответил',
+       b:'В декабре действительно были проблемы. Сейчас ищем, кто поможет нормально закрыть. На следующей неделе смогу поговорить.'},
+      {t:'4 сен',  k:'робот',  ch:'система',  s:'Убрал из очереди — дальше писать не нужно'},
+      {t:'5 сен',  k:'встреча',ch:'календарь',s:'Среда 14:00 · приглашение принято'}
+    ]},
+  { id:'p2', nm:'Dana Wu', role:'технический директор', co:'NorthBridge Systems', place:'Quincy, MA · 41 чел.',
+    stage:'встреча', meet:{d:'Чт',h:'10:30'},
+    sig:'Ищут инженера по безопасности третий месяц · вакансия висит с июня',
+    why:'Ответила на второе письмо, сама предложила время',
+    touch:[
+      {t:'2 сен',  k:'письмо', ch:'почта',    s:'Про вакансию инженера',
+       b:'Dana, вакансия инженера по безопасности у вас висит с июня.\n\nОбычно это значит, что работа есть, а закрыть её некем. Мы такое закрываем без найма.\n\nПоговорим?'},
+      {t:'5 сен',  k:'письмо', ch:'почта',    s:'Второе касание',
+       b:'Dana, короткий вопрос вдогонку: вы ищете человека в штат или готовы отдать это наружу?'},
+      {t:'6 сен',  k:'ответ',  ch:'почта',    s:'Ответила',
+       b:'Скорее наружу. Четверг в 10:30 подойдёт?'},
+      {t:'6 сен',  k:'встреча',ch:'календарь',s:'Четверг 10:30 · приглашение принято'}
+    ]},
+  { id:'p3', nm:'Owen Salazar', role:'владелец', co:'Keystone Managed', place:'Lowell, MA · 22 чел.',
+    stage:'встреча', meet:{d:'Пн',h:'16:00'},
+    sig:'Пришёл сам — Mark Reilly переслал ему письмо',
+    why:'Пришёл по рекомендации — Mark переслал письмо ему',
+    touch:[
+      {t:'6 сен',  k:'ответ',  ch:'почта',    s:'Написал первым',
+       b:'Mark переслал мне ваше письмо. У нас похожая ситуация. Можно поговорить?'},
+      {t:'6 сен',  k:'робот',  ch:'система',  s:'Не писал ему раньше — он не был в списке'},
+      {t:'8 сен',  k:'встреча',ch:'календарь',s:'Понедельник 16:00 · приглашение принято'}
+    ]},
+  { id:'p4', nm:'Priya Raman', role:'операционный директор', co:'Beacon Grid', place:'Newton, MA · 29 чел.',
+    stage:'спрашивает цену',
+    sig:'Прошли аудит CMMC в августе · есть оборонные контракты',
+    touch:[
+      {t:'2 сен',  k:'письмо', ch:'почта',    s:'Про CMMC',
+       b:'Priya, вы прошли CMMC в августе. Поздравляю — это редко даётся с первого раза.\n\nВопрос в том, кто держит это дальше. Обычно на второй год всё рассыпается.'},
+      {t:'7 сен',  k:'ответ',  ch:'почта',    s:'Ответила',
+       b:'Интересно. Сколько это стоит?'},
+      {t:'7 сен',  k:'вопрос', ch:'система',  s:'Робот остановился: нет вашего ответа про цену'}
+    ]},
+  { id:'p5', nm:'Greg Tanaka', role:'владелец', co:'Fulcrum IT', place:'Brockton, MA · 25 чел.',
+    stage:'позже',
+    sig:'Сменили подрядчика по безопасности в июле',
+    touch:[
+      {t:'2 сен',  k:'письмо', ch:'почта',    s:'Первое касание'},
+      {t:'5 сен',  k:'письмо', ch:'почта',    s:'Второе касание'},
+      {t:'8 сен',  k:'ответ',  ch:'почта',    s:'Ответил',
+       b:'Не сейчас, вернитесь в марте.'}
+    ]},
+  { id:'p6', nm:'Alan Pierce', role:'владелец', co:'Redline Networks', place:'Salem, MA · 31 чел.',
+    stage:'отказ',
+    sig:'Утечка данных, октябрь 2025',
+    touch:[
+      {t:'2 сен',  k:'письмо', ch:'почта',    s:'Первое касание'},
+      {t:'3 сен',  k:'ответ',  ch:'почта',    s:'Ответил',
+       b:'Спасибо, у нас всё закрыто своими силами.'},
+      {t:'3 сен',  k:'робот',  ch:'система',  s:'Закрыл. Больше не пишем — ни в этой рассылке, ни в следующих'}
+    ]},
+  { id:'p7', nm:'Sofia Marchetti', role:'технический директор', co:'Cobalt Systems', place:'Peabody, MA · 38 чел.',
+    stage:'в работе',
+    sig:'Открыли вакансию сисадмина · растут',
+    touch:[
+      {t:'2 сен',  k:'письмо', ch:'почта',    s:'Первое касание'},
+      {t:'2 сен',  k:'открыл', ch:'почта',    s:'Открыла · не ответила'},
+      {t:'5 сен',  k:'письмо', ch:'почта',    s:'Второе касание'},
+      {t:'9 сен',  k:'ждёт',   ch:'система',  s:'Третье касание уйдёт 12 сентября'}
+    ]}
+];
+
+const MEETINGS = PEOPLE.filter(p => p.meet);
+
+/* Цепочка, которой пишут всем — четыре касания */
+const CHAIN = [
+  { n:1, day:'День 0',  ch:'почта',    s:'Про <сигнал>',
+    b:'Первое предложение всегда про конкретный факт про них: утечка в реестре, вакансия, аудит. Дальше два предложения про то, что мы с этим делаем. В конце — вопрос про 15 минут.' },
+  { n:2, day:'День 3',  ch:'почта',    s:'Короткий вопрос вдогонку',
+    b:'Одно предложение. Не повтор первого письма, а сужение: «в штат или наружу?», «сами держите или подрядчик?».' },
+  { n:3, day:'День 8',  ch:'LinkedIn', s:'Запрос в сеть без текста',
+    b:'Без сообщения. Просто появиться в поле зрения — часть людей после этого открывает старое письмо.' },
+  { n:4, day:'День 14', ch:'почта',    s:'Последнее',
+    b:'«Закрываю тему, если сейчас не время. Напишите слово — вернусь позже.» Даёт больше ответов, чем все предыдущие вместе.' }
 ];
 
 const QUESTIONS = [
-  { id:'q1',
+  { id:'q1', pid:'p4',
     txt:'<b>Priya Raman</b> из Beacon Grid спрашивает цену.',
     ctx:'Раньше про цену не спрашивали — у меня нет вашего ответа на этот случай.',
     acts:[
@@ -364,7 +512,7 @@ const QUESTIONS = [
       {t:'Сначала на звонке',    pri:false, say:'Записала. В следующий раз отвечу сама.'},
       {t:'Я напишу сам',         pri:false, say:'Открыла черновик.'}
     ]},
-  { id:'q2',
+  { id:'q2', pid:'p5',
     txt:'<b>Greg Tanaka</b> из Fulcrum ответил «не сейчас, вернитесь в марте».',
     ctx:'Могу поставить напоминание и написать сама, могу закрыть.',
     acts:[
@@ -391,7 +539,7 @@ const SCRIPT = [
   { t:900,  tx:'Нашла 340 компаний',      m:'из 2 218 в коридоре Бостон–Провиденс' },
   { t:1900, tx:'Отсеяла 96',              m:'закрылись, нет живой почты, уже писали раньше' },
   { t:2900, tx:'Нашла людей',             m:'244 владельца и технических директора' },
-  { t:3900, tx:'Написала',                m:'первое письмо ушло 244 · дальше три касания по расписанию' },
+  { t:3900, tx:'Написала',                m:'первое письмо ушло 244 · дальше три касания по расписанию', go:'openChain()' },
   { t:5200, tx:'Пришли ответы',           m:'9 ответили · 3 согласились на разговор' },
   { t:6400, tx:'Назначила встречи',       m:'3 встречи в календаре · приглашения отправлены' }
 ];
@@ -425,8 +573,11 @@ function run(){
       const last = (i === SCRIPT.length - 1);
       const el = document.createElement('div');
       el.className = 'step';
+      if (s.go){ el.style.cursor = 'pointer'; el.setAttribute('onclick', s.go); }
       el.innerHTML = '<span class="dot ' + (last ? 'done' : 'live') + '">' + (last ? '✓' : '') + '</span>' +
-                     '<span class="tx"><b>' + s.tx + '</b><div class="meta">' + s.m + '</div></span>';
+                     '<span class="tx"><b>' + s.tx + '</b>' +
+                     (s.go ? ' <span style="color:var(--blue);font-size:12.5px">· посмотреть</span>' : '') +
+                     '<div class="meta">' + s.m + '</div></span>';
       box.appendChild(el);
 
       auto += 6; document.getElementById('cAuto').textContent = auto;
@@ -448,12 +599,15 @@ function showResult(){
   document.getElementById('meetN').textContent = MEETINGS.length + ' на этой неделе';
   document.getElementById('meets').innerHTML = MEETINGS.map((m, i) =>
     '<div class="meet" style="animation-delay:' + (i * 90) + 'ms">' +
-      '<div class="when"><div class="d">' + m.d + '</div><div class="h">' + m.h + '</div></div>' +
-      '<div class="who"><div class="nm">' + m.nm + '</div><div class="co">' + m.co + '</div></div>' +
+      '<div class="when"><div class="d">' + m.meet.d + '</div><div class="h">' + m.meet.h + '</div></div>' +
+      '<div class="who" onclick="openPerson(\'' + m.id + '\')" style="cursor:pointer">' +
+        '<div class="nm">' + m.nm + '</div>' +
+        '<div class="co">' + m.co + ' · ' + m.place + '</div></div>' +
       '<div class="why">' + m.why + '</div>' +
-      '<button class="prep" onclick="prep(' + i + ')">подготовить</button>' +
+      '<button class="prep" onclick="prep(\'' + m.id + '\')">подготовить</button>' +
     '</div>').join('');
 
+  showPeopleBar();
   setTimeout(showQuestions, 700);
   R.scrollIntoView({behavior:'smooth', block:'nearest'});
 }
@@ -468,6 +622,7 @@ function showQuestions(){
     '<div class="q"><div class="txt">' + q.txt + '</div><div class="ctx">' + q.ctx + '</div><div class="acts">' +
     q.acts.map((a, i) => '<button class="b ' + (a.pri ? 'pri' : '') + '" onclick="answer(\'' + q.id + '\',' + i + ')">' + a.t + '</button>').join('') +
     '<button class="b ghost" onclick="answer(\'' + q.id + '\',-1)">дальше решай сам</button>' +
+    (q.pid ? '<button class="b ghost" onclick="openPerson(\'' + q.pid + '\')">вся переписка</button>' : '') +
     '</div></div>').join('');
 }
 
@@ -489,18 +644,90 @@ function answer(id, i){
 
 /* ╔═ БЛОК 10 · ДЕТАЛИ ПО ТРЕБОВАНИЮ ════════════════════════════════ */
 
-function prep(i){
-  const m = MEETINGS[i];
+/* ── карточка человека: сигнал, вся лента касаний, что дальше ── */
+function openPerson(id){
+  const p = PEOPLE.find(x => x.id === id);
+  const lenta = p.touch.map(t =>
+    '<div class="tr2"><div class="dt">' + t.t + '</div><div class="bd">' +
+      '<div class="hd"><b>' + t.s + '</b>' +
+      '<span class="tag t-' + t.k + '">' + t.k + '</span>' +
+      '<span class="tag">' + t.ch + '</span></div>' +
+      (t.b ? '<div class="quote">' + t.b + '</div>' : '') +
+    '</div></div>').join('');
+
+  openModal(p.nm + ' · ' + p.co,
+    '<div class="sig"><b>Почему выбрали:</b> ' + p.sig + '</div>' +
+    '<div class="kv"><span class="k">Должность</span><span class="v">' + p.role + '</span></div>' +
+    '<div class="kv"><span class="k">Где</span><span class="v">' + p.place + '</span></div>' +
+    '<div class="kv"><span class="k">Сейчас</span><span class="v">' + p.stage + '</span></div>' +
+    '<div style="margin-top:18px;font-weight:600">Всё, что было</div>' +
+    '<div style="color:var(--ink-3);font-size:12.5px;margin-bottom:4px">' +
+      p.touch.length + ' касаний · почта и LinkedIn в одной ленте, без разделения по кампаниям</div>' +
+    '<div class="tl">' + lenta + '</div>' +
+    (p.meet ? '<div style="margin-top:18px"><button class="b pri" onclick="prep(\'' + p.id + '\')">Подготовить к разговору</button></div>' : ''));
+}
+
+/* ── подготовка к звонку ── */
+function prep(id){
+  const m = PEOPLE.find(x => x.id === id);
+  const qs = {
+    p1:['Что именно случилось в декабре и кто разбирал?',
+        'Кто сейчас отвечает за безопасность — свои или подрядчик?',
+        'Что должно произойти, чтобы вы поменяли подход?'],
+    p2:['Почему вакансия висит четвёртый месяц — не находите или не решаетесь?',
+        'Что этот человек должен был бы делать в первый месяц?',
+        'Если отдавать наружу — что вы не отдали бы никогда?'],
+    p3:['Что вам Mark рассказал — и что из этого про вас?',
+        'У вас 22 человека: кто сегодня закрывает безопасность?',
+        'Что заставило вас написать самому?']
+  }[id] || [];
   openModal('Разговор с ' + m.nm,
-    '<div class="kv"><span class="k">Когда</span><span class="v">' + m.d + ', ' + m.h + '</span></div>' +
-    '<div class="kv"><span class="k">Компания</span><span class="v">' + m.co + '</span></div>' +
-    '<div class="kv"><span class="k">Как дошли</span><span class="v">4 касания за 11 дней</span></div>' +
-    '<div style="margin-top:16px"><b>Что он писал</b><div style="color:var(--ink-2);margin-top:6px">' + m.why + '</div></div>' +
+    '<div class="kv"><span class="k">Когда</span><span class="v">' + m.meet.d + ', ' + m.meet.h + '</span></div>' +
+    '<div class="kv"><span class="k">Компания</span><span class="v">' + m.co + ' · ' + m.place + '</span></div>' +
+    '<div class="kv"><span class="k">Как дошли</span><span class="v">' + m.touch.length + ' касаний</span></div>' +
+    '<div style="margin-top:16px"><b>Сигнал, по которому взяли</b>' +
+    '<div style="color:var(--ink-2);margin-top:6px">' + m.sig + '</div></div>' +
+    '<div style="margin-top:16px"><b>Что он писал</b>' +
+    '<div style="color:var(--ink-2);margin-top:6px">' + m.why + '</div></div>' +
     '<div style="margin-top:16px"><b>О чём спросить</b>' +
-    '<div style="color:var(--ink-2);margin-top:6px;line-height:1.75">' +
-    '1. Что именно случилось в декабре и кто разбирал?<br>' +
-    '2. Кто сейчас отвечает за безопасность — свои или подрядчик?<br>' +
-    '3. Что должно произойти, чтобы вы поменяли подход?</div></div>');
+    '<div style="color:var(--ink-2);margin-top:6px;line-height:1.85">' +
+    qs.map((q, i) => (i + 1) + '. ' + q).join('<br>') + '</div></div>' +
+    '<div style="margin-top:18px"><button class="b" onclick="openPerson(\'' + m.id + '\')">Вся переписка</button></div>');
+}
+
+/* ── строка «Люди»: вся база, сворачивается ── */
+function showPeopleBar(){
+  const P = document.getElementById('people');
+  P.classList.add('on');
+  const byStage = s => PEOPLE.filter(p => p.stage === s).length;
+  document.getElementById('peopleN').textContent =
+    '244 написано · 9 ответили · ' + byStage('встреча') + ' встречи';
+  document.getElementById('peopleList').innerHTML = PEOPLE.map(p =>
+    '<div class="pr" onclick="openPerson(\'' + p.id + '\')">' +
+      '<div class="av">' + p.nm[0] + '</div>' +
+      '<div class="pn"><b>' + p.nm + '</b> <span>· ' + p.co + '</span>' +
+        '<div style="color:var(--ink-3);font-size:12px">' + p.sig + '</div></div>' +
+      '<div class="st s-' + p.stage.replace(/ /g, '-') + '">' + p.stage + '</div>' +
+      '<div class="tc">' + p.touch.length + ' касаний</div>' +
+    '</div>').join('') +
+    '<div class="note">Показаны те, с кем что-то происходило. Остальные 237 идут по цепочке — заходить туда не нужно.</div>';
+}
+function togglePeople(){
+  const L = document.getElementById('peopleList');
+  L.style.display = L.style.display === 'none' ? 'block' : 'none';
+}
+
+/* ── цепочка писем: что уходит от вашего имени ── */
+function openChain(){
+  openModal('Что уходит от вашего имени',
+    '<div style="color:var(--ink-2);margin-bottom:14px">Четыре касания за две недели. Первое предложение у каждого своё — оно собирается из сигнала, по которому человека взяли.</div>' +
+    CHAIN.map(c =>
+      '<div class="tr2"><div class="dt">' + c.day + '</div><div class="bd">' +
+        '<div class="hd"><b>' + c.s + '</b><span class="tag">' + c.ch + '</span></div>' +
+        '<div class="quote">' + c.b + '</div>' +
+      '</div></div>').join('') +
+    '<div style="margin-top:16px;color:var(--ink-3);font-size:12.5px;line-height:1.6">' +
+    'Человек, который ответил, выпадает из цепочки сразу. Человек, который отказался, не получит писем и в следующих рассылках — запрет живёт на нём, а не на кампании.</div>');
 }
 
 function showWork(){
