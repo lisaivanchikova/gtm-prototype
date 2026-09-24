@@ -1,191 +1,193 @@
 <!doctype html>
-<html lang="ru">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lusin — как это работает</title>
+<title>Lusin — how it works</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root{
-  --slate:#31435B; --teal:#2E7780; --steel:#A9C5D6; --mist:#DCE5EC;
-  --ink:#151A1F; --gray:#C9D2DC; --paper:#FAF9F6;
-  --w:#fff;
+  --graphite:#14171F; --navy:#131A54; --signal:#0057FF;
+  --echo:#A9BDF0; --mist:#DCEBF8; --paper:#F7F9FC;
+  --line:#E3EAF3; --body:#3B4453; --quiet:#6E7A8C;
 }
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
 body{
-  font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-  color:var(--ink); background:var(--paper); -webkit-font-smoothing:antialiased;
+  font:400 15px/1.6 Manrope,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  color:var(--graphite); background:var(--paper); -webkit-font-smoothing:antialiased;
 }
-h1,h2,h3{margin:0; font-weight:600; letter-spacing:-.01em}
-h1{font-size:22px}
-h2{font-size:17px}
-h3{font-size:15px}
+h1,h2,h3{margin:0; font-weight:700; letter-spacing:-.02em; color:var(--navy)}
+h1{font-size:30px; line-height:1.2}
+h2{font-size:19px}
 p{margin:0}
 button{font:inherit; cursor:pointer; border:0; background:none; color:inherit}
-a{color:var(--teal)}
+a{color:var(--signal)}
+.mono{font-family:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  text-transform:uppercase; letter-spacing:.16em; font-size:10.5px; font-weight:500}
 
-/* ————— каркас ————— */
+/* ——— frame ——— */
 .app{display:flex; min-height:100vh}
-.side{
-  width:216px; flex:0 0 216px; background:var(--slate); color:var(--w);
-  display:flex; flex-direction:column; position:sticky; top:0; height:100vh;
-}
-.brand{padding:18px 18px 14px; border-bottom:1px solid rgba(255,255,255,.14)}
-.brand b{font-size:16px; letter-spacing:-.01em}
-.brand span{display:block; font-size:11.5px; opacity:.66; margin-top:3px}
-.navgroup{padding:14px 10px 4px}
-.navlabel{font-size:10.5px; text-transform:uppercase; letter-spacing:.08em; opacity:.5; padding:0 8px 6px}
-.nav{
-  display:flex; align-items:center; gap:9px; width:100%; text-align:left;
-  padding:8px 8px; border-radius:6px; font-size:14px; color:rgba(255,255,255,.82);
-}
-.nav:hover{background:rgba(255,255,255,.08); color:#fff}
-.nav.on{background:rgba(255,255,255,.15); color:#fff; font-weight:500}
-.nav .dot{width:6px; height:6px; border-radius:50%; background:var(--steel); flex:0 0 6px; opacity:.7}
-.nav.on .dot{background:var(--steel); opacity:1}
-.sidefoot{margin-top:auto; padding:14px 18px 18px; font-size:11.5px; opacity:.6; line-height:1.5}
+.side{width:232px; flex:0 0 232px; background:var(--graphite); color:#fff;
+  display:flex; flex-direction:column; position:sticky; top:0; height:100vh}
+.brand{padding:22px 20px 18px; border-bottom:1px solid rgba(169,189,240,.16)}
+.brand img{height:26px; display:block}
+.brand .prod{margin-top:12px; font-size:17px; font-weight:800; letter-spacing:-.02em}
+.brand .sub{color:var(--echo); margin-top:4px; opacity:.85}
+.navgroup{padding:16px 12px 4px}
+.navlabel{color:var(--echo); opacity:.6; padding:0 8px 8px}
+.nav{display:flex; align-items:center; gap:10px; width:100%; text-align:left;
+  padding:9px 9px; border-radius:7px; font-size:14px; font-weight:500; color:rgba(255,255,255,.78)}
+.nav:hover{background:rgba(169,189,240,.10); color:#fff}
+.nav.on{background:rgba(169,189,240,.16); color:#fff}
+.nav i{width:7px; height:7px; border-radius:50%; background:var(--echo); flex:0 0 7px; opacity:.5}
+.nav.on i{background:var(--signal); opacity:1; box-shadow:0 0 0 3px rgba(0,87,255,.22)}
+.sidefoot{margin-top:auto; padding:16px 20px 20px; color:var(--echo); opacity:.7;
+  font-size:12px; line-height:1.55}
 
-.main{flex:1; min-width:0; display:flex; flex-direction:column}
-.topbar{
-  display:flex; align-items:center; gap:14px; padding:14px 26px;
-  border-bottom:1px solid var(--mist); background:var(--w); position:sticky; top:0; z-index:20;
-}
-.askbtn{
-  flex:1; max-width:520px; text-align:left; border:1px solid var(--gray); border-radius:8px;
-  padding:8px 12px; font-size:13.5px; color:#6b7684; background:var(--paper);
-}
-.askbtn:hover{border-color:var(--steel); background:var(--w)}
-.askbtn kbd{float:right; font:11px/1 inherit; color:#8a95a3; border:1px solid var(--gray);
-  border-radius:4px; padding:3px 5px; background:var(--w)}
-.counter{display:flex; gap:0; align-items:stretch; border:1px solid var(--mist); border-radius:8px; overflow:hidden}
-.counter div{padding:6px 12px; text-align:center; background:var(--w)}
-.counter div+div{border-left:1px solid var(--mist)}
-.counter b{display:block; font-size:17px; line-height:1.1; color:var(--slate)}
-.counter.hl b{color:var(--teal)}
-.counter span{font-size:10.5px; color:#6b7684}
-.wrap{padding:26px; max-width:1060px}
+.main{flex:1; min-width:0}
+.topbar{display:flex; align-items:center; gap:16px; padding:14px 28px;
+  border-bottom:1px solid var(--line); background:#fff; position:sticky; top:0; z-index:20}
+.askbtn{flex:1; max-width:540px; text-align:left; border:1px solid var(--line); border-radius:8px;
+  padding:9px 13px; font-size:14px; color:var(--quiet); background:var(--paper)}
+.askbtn:hover{border-color:var(--echo); background:#fff}
+.askbtn kbd{float:right; font-family:"JetBrains Mono",monospace; font-size:10.5px;
+  color:var(--quiet); border:1px solid var(--line); border-radius:4px; padding:3px 6px; background:#fff}
+.counter{display:flex; border:1px solid var(--line); border-radius:8px; overflow:hidden; background:#fff}
+.counter div{padding:7px 15px; text-align:center}
+.counter div+div{border-left:1px solid var(--line)}
+.counter b{display:block; font-family:"JetBrains Mono",monospace; font-size:19px;
+  font-weight:500; line-height:1.1; color:var(--navy)}
+.counter .act b{color:var(--signal)}
+.counter span{color:var(--quiet); display:block; margin-top:2px}
+.wrap{padding:30px 28px 90px; max-width:1020px}
 
-/* ————— общие блоки ————— */
-.lead{color:#4b5765; font-size:14.5px; max-width:70ch; margin-top:6px}
-.sec{margin-top:30px}
-.sec>h2{display:flex; align-items:baseline; gap:10px}
-.sec>h2 em{font-style:normal; font-size:12.5px; color:#77828f; font-weight:400}
-.card{background:var(--w); border:1px solid var(--mist); border-radius:10px}
-.pad{padding:16px 18px}
-.rowline{border-top:1px solid var(--mist)}
-.muted{color:#6b7684}
-.tiny{font-size:12.5px}
-.mini{font-size:11.5px}
-.tag{display:inline-block; font-size:11px; padding:2px 7px; border-radius:20px; background:var(--mist); color:var(--slate)}
-.tag.warm{background:#E3EFF0; color:var(--teal)}
-.tag.cold{background:var(--mist); color:#5a6775}
-.tag.agent{background:var(--paper); border:1px solid var(--gray); color:#5a6775}
-.btn{border:1px solid var(--slate); background:var(--slate); color:#fff; padding:7px 14px; border-radius:7px; font-size:13.5px}
-.btn:hover{opacity:.9}
-.btn.ghost{background:var(--w); color:var(--slate)}
-.btn.ghost:hover{background:var(--paper)}
-.btn.quiet{border-color:var(--gray); background:var(--w); color:#5a6775; font-size:12.5px; padding:6px 11px}
-.btn.quiet:hover{border-color:var(--steel); color:var(--slate)}
+/* ——— pieces ——— */
+.lead{color:var(--body); font-size:15px; max-width:68ch; margin-top:10px}
+.sec{margin-top:34px}
+.sec>h2{display:flex; align-items:baseline; gap:12px; flex-wrap:wrap}
+.sec>h2 .n{color:var(--quiet); font-weight:400}
+.card{background:#fff; border:1px solid var(--line); border-radius:10px}
+.pad{padding:18px 20px}
+.muted{color:var(--quiet)}
+.tiny{font-size:13.5px}
+.tag{display:inline-block; font-family:"JetBrains Mono",monospace; font-size:9.5px;
+  text-transform:uppercase; letter-spacing:.14em; padding:4px 8px; border-radius:4px;
+  background:var(--mist); color:var(--navy)}
+.tag.warm{background:rgba(0,87,255,.10); color:var(--signal)}
+.tag.cold{background:#EEF2F7; color:var(--quiet)}
+.btn{background:var(--signal); color:#fff; padding:8px 16px; border-radius:7px;
+  font-size:14px; font-weight:600}
+.btn:hover{background:#0049D6}
+.btn.ghost{background:#fff; color:var(--navy); border:1px solid var(--line)}
+.btn.ghost:hover{border-color:var(--echo)}
+.btn.quiet{background:none; color:var(--quiet); border:1px solid var(--line);
+  font-size:13px; font-weight:500; padding:7px 12px}
+.btn.quiet:hover{color:var(--navy); border-color:var(--echo)}
 
-/* ————— решения ————— */
-.dec{display:flex; gap:14px; padding:16px 18px}
-.dec+.dec{border-top:1px solid var(--mist)}
-.dec .who{flex:0 0 40px}
-.av{width:40px; height:40px; border-radius:50%; background:var(--steel); color:var(--slate);
-  display:flex; align-items:center; justify-content:center; font-weight:600; font-size:14px}
-.av.lg{width:64px; height:64px; font-size:21px}
-.av.sm{width:26px; height:26px; font-size:10.5px}
-.dec .body{flex:1; min-width:0}
-.dec .q{font-weight:600; margin-bottom:3px}
-.dec .why{color:#4b5765; font-size:13.5px}
-.dec .ev{margin-top:9px; padding:9px 12px; background:var(--paper); border:1px solid var(--mist);
-  border-radius:7px; font-size:12.8px; color:#4b5765}
-.dec .ev b{color:var(--ink)}
-.acts{display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; align-items:center}
-.done{padding:14px 18px; color:var(--teal); font-size:13.5px}
+.av{width:42px; height:42px; border-radius:50%; background:var(--mist); color:var(--navy);
+  display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px; flex:0 0 42px}
+.av.lg{width:68px; height:68px; font-size:22px; flex:0 0 68px}
+.av.sm{width:26px; height:26px; font-size:10px; flex:0 0 26px}
 
-/* ————— лента ————— */
-.feed{display:flex; gap:12px; padding:11px 18px; align-items:flex-start}
-.feed+.feed{border-top:1px solid var(--mist)}
-.feed .t{flex:0 0 46px; color:#8a95a3; font-size:12px; padding-top:1px}
-.feed .x{flex:1; font-size:13.5px}
-.feed .x b{font-weight:600}
+/* decisions */
+.dec{display:flex; gap:16px; padding:18px 20px}
+.dec+.dec{border-top:1px solid var(--line)}
+.dec .b{flex:1; min-width:0}
+.dec .q{font-weight:700; color:var(--navy); margin-bottom:3px}
+.dec .why{color:var(--body); font-size:14px}
+.ev{margin-top:11px; padding:11px 13px; background:var(--paper); border:1px solid var(--line);
+  border-radius:7px; font-size:13.5px; color:var(--body)}
+.ev .src{display:block; margin-top:5px; color:var(--quiet)}
+.acts{display:flex; gap:8px; margin-top:13px; flex-wrap:wrap; align-items:center}
+.done{color:var(--signal); font-size:14px; font-weight:600; padding-top:4px}
 
-/* ————— карточка человека ————— */
-.phead{display:flex; gap:16px; align-items:flex-start; padding:18px}
-.phead .meta{flex:1}
-.pname{font-size:19px; font-weight:600}
-.state{margin-top:10px; padding:10px 13px; background:#E9F1F2; border:1px solid #CADEE0;
-  border-radius:8px; font-size:13px; color:#2b5f66}
-.track{padding:2px 0 8px}
-.tr{display:flex; gap:12px; padding:11px 18px; align-items:flex-start}
-.tr+.tr{border-top:1px solid var(--mist)}
-.tr .d{flex:0 0 58px; color:#8a95a3; font-size:12px}
-.tr .c{flex:0 0 96px}
-.tr .s{flex:1; font-size:13.5px}
-.tr .src{font-size:11.5px; color:#8a95a3; margin-top:2px}
-.nofields{padding:12px 18px; font-size:12.5px; color:#77828f; background:var(--paper); border-top:1px solid var(--mist)}
+/* feed */
+.fd{display:flex; gap:14px; padding:12px 20px; align-items:flex-start}
+.fd+.fd{border-top:1px solid var(--line)}
+.fd .t{flex:0 0 58px; color:var(--quiet)}
+.fd .x{flex:1; font-size:14px; color:var(--body)}
+.fd .x b{color:var(--navy); font-weight:600}
 
-/* ————— таблица ————— */
-table{width:100%; border-collapse:collapse; font-size:13.5px}
-th{text-align:left; font-weight:600; font-size:11.5px; text-transform:uppercase;
-  letter-spacing:.05em; color:#77828f; padding:9px 12px; border-bottom:1px solid var(--mist)}
-td{padding:10px 12px; border-bottom:1px solid var(--mist)}
+/* person */
+.phead{display:flex; gap:18px; padding:20px}
+.pname{font-size:21px; font-weight:700; color:var(--navy); letter-spacing:-.02em}
+.state{margin-top:12px; padding:13px 15px; background:rgba(0,87,255,.05);
+  border:1px solid rgba(0,87,255,.18); border-radius:8px; font-size:13.5px; color:var(--body)}
+.state b{color:var(--navy)}
+.tr{display:flex; gap:14px; padding:13px 20px; align-items:flex-start}
+.tr+.tr{border-top:1px solid var(--line)}
+.tr .d{flex:0 0 66px; color:var(--quiet); padding-top:3px}
+.tr .c{flex:0 0 104px; padding-top:1px}
+.tr .s{flex:1; font-size:14px; color:var(--body)}
+.tr .s b{color:var(--navy)}
+.tr .src{margin-top:3px; color:var(--quiet)}
+.nofields{padding:13px 20px; font-size:13.5px; color:var(--quiet);
+  background:var(--paper); border-top:1px solid var(--line); border-radius:0 0 10px 10px}
+
+/* table */
+table{width:100%; border-collapse:collapse; font-size:14px}
+th{text-align:left; padding:11px 14px; border-bottom:1px solid var(--line);
+  color:var(--quiet); font-weight:500}
+td{padding:12px 14px; border-bottom:1px solid var(--line); color:var(--body)}
 tr:last-child td{border-bottom:0}
-.sys{font-size:11px; color:#8a95a3}
+td:first-child{color:var(--navy); font-weight:600}
 
-/* ————— агенты ————— */
-.ag{padding:16px 18px}
-.ag+.ag{border-top:1px solid var(--mist)}
-.aghead{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap}
-.agname{font-weight:600}
-.agrule{display:grid; grid-template-columns:132px 1fr; gap:4px 14px; margin-top:11px; font-size:13.3px}
-.agrule dt{color:#77828f; font-size:12.3px; padding-top:1px}
-.agrule dd{margin:0; color:#37424f}
-.agrule dd.no{color:#8a5a5a}
-.ours{border-left:3px solid var(--teal)}
+/* agents */
+.ag{padding:18px 20px}
+.ag+.ag{border-top:1px solid var(--line)}
+.ag.ours{border-left:3px solid var(--signal)}
+.aghead{display:flex; align-items:baseline; gap:12px; flex-wrap:wrap}
+.agname{font-weight:700; color:var(--navy); font-size:15.5px}
+.rules{display:grid; grid-template-columns:104px 1fr; gap:6px 16px; margin-top:13px; font-size:14px}
+.rules dt{color:var(--quiet); padding-top:3px}
+.rules dd{margin:0; color:var(--body)}
 
-/* ————— спроси ————— */
-.veil{position:fixed; inset:0; background:rgba(21,26,31,.34); display:none; z-index:60}
+/* ask */
+.veil{position:fixed; inset:0; background:rgba(20,23,31,.42); display:none; z-index:60}
 .veil.on{display:block}
-.ask{position:fixed; left:50%; top:16vh; transform:translateX(-50%); width:min(620px,92vw);
-  background:var(--w); border-radius:12px; box-shadow:0 20px 50px rgba(21,26,31,.28); z-index:61; display:none}
+.ask{position:fixed; left:50%; top:15vh; transform:translateX(-50%); width:min(600px,92vw);
+  background:#fff; border-radius:12px; box-shadow:0 24px 60px rgba(20,23,31,.32); z-index:61; display:none}
 .ask.on{display:block}
-.ask input{width:100%; border:0; border-bottom:1px solid var(--mist); padding:17px 18px;
-  font:15.5px inherit; outline:none; border-radius:12px 12px 0 0}
-.chips{padding:12px 14px 14px; display:flex; gap:8px; flex-wrap:wrap}
-.chip{display:flex; align-items:center; gap:8px; border:1px solid var(--gray); background:var(--w);
-  border-radius:20px; padding:5px 12px 5px 6px; font-size:13px}
-.chip:hover{border-color:var(--teal); color:var(--teal)}
-.asknote{padding:0 18px 14px; font-size:12.2px; color:#8a95a3}
+.ask input{width:100%; border:0; border-bottom:1px solid var(--line); padding:18px 20px;
+  font:400 16px Manrope,sans-serif; outline:none; border-radius:12px 12px 0 0; color:var(--graphite)}
+.chips{padding:14px 16px; display:flex; gap:8px; flex-wrap:wrap}
+.chip{display:flex; align-items:center; gap:9px; border:1px solid var(--line); background:#fff;
+  border-radius:22px; padding:5px 14px 5px 6px; font-size:13.5px; color:var(--body)}
+.chip:hover{border-color:var(--signal); color:var(--signal)}
+.asknote{padding:0 20px 16px; font-size:13px; color:var(--quiet)}
 
-/* ————— сценарий ————— */
-.sc{position:fixed; right:18px; bottom:18px; width:330px; background:var(--w);
-  border:1px solid var(--gray); border-radius:11px; box-shadow:0 12px 30px rgba(21,26,31,.14); z-index:40}
-.sc .h{padding:12px 15px; border-bottom:1px solid var(--mist); display:flex; align-items:center; gap:8px}
-.sc .h b{font-size:13.5px; flex:1}
-.sc .steps{padding:6px 0 4px}
-.st{display:flex; gap:10px; padding:8px 15px; font-size:13px; color:#77828f; width:100%; text-align:left}
-.st b{flex:0 0 19px; height:19px; border-radius:50%; background:var(--mist); color:#5a6775;
-  font-size:11px; display:flex; align-items:center; justify-content:center; font-weight:600; margin-top:1px}
-.st.on{color:var(--ink)}
-.st.on b{background:var(--teal); color:#fff}
-.st.past b{background:var(--steel); color:var(--slate)}
-.st:hover{background:var(--paper)}
-.sc .f{padding:10px 15px 13px; border-top:1px solid var(--mist); display:flex; gap:8px; align-items:center}
-.sc .f .muted{flex:1; font-size:11.5px}
-.flash{animation:fl 1.4s ease-out}
-@keyframes fl{0%{background:#E9F1F2}100%{background:transparent}}
+/* scenario */
+.sc{position:fixed; right:20px; bottom:20px; width:340px; background:var(--graphite);
+  color:#fff; border-radius:11px; box-shadow:0 16px 40px rgba(20,23,31,.30); z-index:40}
+.sc .h{padding:13px 16px; border-bottom:1px solid rgba(169,189,240,.16); display:flex; align-items:center; gap:10px}
+.sc .h b{flex:1; font-size:14px; font-weight:700}
+.sc .h .btn.quiet{border-color:rgba(169,189,240,.3); color:var(--echo)}
+.sc .h .btn.quiet:hover{color:#fff; border-color:var(--echo)}
+.st{display:flex; gap:11px; padding:9px 16px; font-size:13.5px; width:100%; text-align:left;
+  color:rgba(255,255,255,.6)}
+.st b{flex:0 0 20px; height:20px; border-radius:50%; background:rgba(169,189,240,.18);
+  color:var(--echo); font-family:"JetBrains Mono",monospace; font-size:10px; font-weight:500;
+  display:flex; align-items:center; justify-content:center; margin-top:2px}
+.st.on{color:#fff}
+.st.on b{background:var(--signal); color:#fff}
+.st.past b{background:var(--echo); color:var(--graphite)}
+.st:hover{background:rgba(169,189,240,.08)}
+.sc .f{padding:12px 16px 14px; border-top:1px solid rgba(169,189,240,.16);
+  display:flex; gap:10px; align-items:center}
+.sc .f span{flex:1; font-size:12px; color:var(--echo); opacity:.85; line-height:1.4}
+.flash{animation:fl 1.6s ease-out}
+@keyframes fl{0%{background:rgba(0,87,255,.08)}100%{background:transparent}}
 
-@media (max-width:820px){
+@media (max-width:860px){
   .app{flex-direction:column}
-  .side{width:100%; flex:none; height:auto; position:static; flex-direction:row; flex-wrap:wrap; align-items:center}
-  .brand{border:0; padding:12px 16px}
-  .navgroup{padding:6px; display:flex; gap:4px; flex-wrap:wrap}
-  .navlabel{display:none}
+  .side{width:100%; flex:none; height:auto; position:static}
   .sidefoot{display:none}
-  .wrap{padding:18px}
-  .sc{left:12px; right:12px; width:auto; bottom:12px}
+  .wrap{padding:20px 18px 80px}
+  .sc{left:14px; right:14px; width:auto; bottom:14px}
+  h1{font-size:25px}
 }
 </style>
 </head>
@@ -193,26 +195,30 @@ tr:last-child td{border-bottom:0}
 
 <div class="app">
   <aside class="side">
-    <div class="brand"><b>Lusin</b><span>прототип · 24 сентября</span></div>
-    <div class="navgroup">
-      <div class="navlabel">Работа</div>
-      <button class="nav on" data-p="today"><i class="dot"></i>Сегодня</button>
-      <button class="nav" data-p="person"><i class="dot"></i>Карточка человека</button>
+    <div class="brand">
+      <img src="assets/intwin-lockup-light-1800.png" alt="Intwin">
+      <div class="prod">Lusin</div>
+      <div class="sub mono">Prototype · 24 Sep</div>
     </div>
     <div class="navgroup">
-      <div class="navlabel">Настройка · редко</div>
-      <button class="nav" data-p="data"><i class="dot"></i>Данные</button>
-      <button class="nav" data-p="agents"><i class="dot"></i>Кто что делает</button>
+      <div class="navlabel mono">Work</div>
+      <button class="nav on" data-p="today"><i></i>Today</button>
+      <button class="nav" data-p="person"><i></i>Person</button>
     </div>
-    <div class="sidefoot">Два экрана для работы,<br>два для настройки.<br>Больше ничего нет.</div>
+    <div class="navgroup">
+      <div class="navlabel mono">Setup · rarely</div>
+      <button class="nav" data-p="data"><i></i>Data</button>
+      <button class="nav" data-p="agents"><i></i>Who does what</button>
+    </div>
+    <div class="sidefoot">Two screens to work in,<br>two to set up.<br>There is nothing else.</div>
   </aside>
 
   <div class="main">
     <div class="topbar">
-      <button class="askbtn" onclick="openAsk()">Спросите или киньте визитку, фото, имя… <kbd>⌘K</kbd></button>
-      <div class="counter hl" id="cnt">
-        <div><b id="c1">14</b><span>сама</span></div>
-        <div><b id="c2">3</b><span>спросила</span></div>
+      <button class="askbtn" onclick="openAsk()">Ask, or drop a card, a photo, a name… <kbd>⌘K</kbd></button>
+      <div class="counter">
+        <div class="act"><b id="c1">14</b><span class="mono">Acted</span></div>
+        <div><b id="c2">3</b><span class="mono">Asked</span></div>
       </div>
     </div>
     <div class="wrap" id="page"></div>
@@ -221,355 +227,257 @@ tr:last-child td{border-bottom:0}
 
 <div class="veil" id="veil" onclick="closeAsk()"></div>
 <div class="ask" id="ask">
-  <input id="askin" placeholder="Кто это? О чём договаривались? Что дальше?" autocomplete="off">
+  <input id="askin" placeholder="Who is this? What did we agree? What happens next?" autocomplete="off">
   <div class="chips">
-    <button class="chip" onclick="pickPerson()"><span class="av sm">ДЖ</span>фото с конференции</button>
-    <button class="chip" onclick="pickPerson()"><span class="av sm" style="background:#DCE5EC">ВЗ</span>визитка, розовая</button>
-    <button class="chip" onclick="pickPerson()">«толстячок, Джоэль или Джоан»</button>
+    <button class="chip" onclick="pickPerson()"><span class="av sm">JR</span>photo from the conference</button>
+    <button class="chip" onclick="pickPerson()"><span class="av sm">BC</span>business card, pink one</button>
+    <button class="chip" onclick="pickPerson()">“heavy-set guy, Joel or Joan”</button>
   </div>
-  <div class="asknote">Имя вспоминать не нужно. Достаточно лица, визитки или обрывка фразы.</div>
+  <div class="asknote">You do not need to remember the name. A face, a card or half a phrase is enough.</div>
 </div>
 
-<div class="sc" id="sc">
-  <div class="h"><b>Сквозной путь</b><button class="btn quiet" onclick="resetAll()">Сначала</button></div>
-  <div class="steps" id="steps"></div>
-  <div class="f"><span class="muted" id="scnote"></span><button class="btn" id="scbtn" onclick="nextStep()">Дальше</button></div>
+<div class="sc">
+  <div class="h"><b>End-to-end path</b><button class="btn quiet" onclick="resetAll()">Restart</button></div>
+  <div id="steps"></div>
+  <div class="f"><span id="scnote"></span><button class="btn" id="scbtn" onclick="nextStep()">Next</button></div>
 </div>
 
 <script>
-/* ═══════════ состояние ═══════════ */
-const S = {
-  page:'today',
-  step:0,
-  self:14, asked:3,
-  cardAdded:false,      // визитка заведена
-  stopped:false,        // кампания остановлена
-  decisions:{d1:null,d2:null,d3:null},
-  feed:[]
-};
+const S={page:'today',step:0,self:14,asked:3,added:false,stopped:false,dec:{d1:null,d2:null,d3:null},feed:[]};
 
-const BASE_FEED = [
-  ['09:58','<b>Ведёт записи</b> — завела 3 контакта из вчерашней переписки, 1 отправила на проверку'],
-  ['09:41','<b>Двигает стадии</b> — Brightpath Legal: «Первый разговор» → «Назначена встреча»'],
-  ['09:20','<b>Следит за обещаниями</b> — 2 разговора заглохли с невыполненным шагом, задачи созданы'],
-  ['08:47','<b>Разбирает двойников</b> — D. Whitfield и Dana Whitfield похожи на одного человека, собрала доказательства'],
-  ['08:30','<b>Стережёт границу</b> — проверила 412 человек в холодных кампаниях, конфликтов не нашла'],
-  ['вчера','<b>Ведёт записи</b> — из встречи в 16:00 вынесла 2 договорённости и следующий шаг']
+const BASE=[
+ ['09:58','<b>Keeps records</b> — created 3 contacts from yesterday’s email, sent 1 for review'],
+ ['09:41','<b>Moves stages</b> — Brightpath Legal: “First conversation” → “Meeting booked”'],
+ ['09:20','<b>Watches commitments</b> — 2 conversations went quiet with a step still owed, tasks created'],
+ ['08:47','<b>Sorts out duplicates</b> — “D. Whitfield” and “Dana Whitfield” look like one person, evidence collected'],
+ ['08:30','<b>Guards the line</b> — checked 412 people in cold sequences, no conflicts found'],
+ ['yesterday','<b>Keeps records</b> — took 2 commitments and a next step out of the 16:00 meeting']
 ];
 
-const STEPS = [
-  ['Кинули визитку','Агент завёл запись и вернул сводку, пока вы ещё разговариваете'],
-  ['Агент остановил рассылку','По этому человеку шла холодная кампания. Он больше не холодный'],
-  ['«Кто этот толстячок?»','Через неделю вы не помните имени. Ищете по лицу'],
-  ['День на одном экране','Что сделано без вас и что требует решения']
+const STEPS=[
+ ['You dropped a business card','The agent created the record and handed back a summary while you were still talking'],
+ ['The agent stopped the sequence','A cold sequence was running against this person. He is no longer cold'],
+ ['“Who was that guy?”','A week later you do not recall the name. You search by face'],
+ ['The day on one screen','What was done without you, and what needs your decision']
 ];
 
-/* ═══════════ каркас ═══════════ */
-function go(p){ S.page=p; render(); }
+function go(p){S.page=p;render()}
 document.querySelectorAll('.nav').forEach(b=>b.onclick=()=>go(b.dataset.p));
 
 function render(){
-  document.querySelectorAll('.nav').forEach(b=>b.classList.toggle('on', b.dataset.p===S.page));
-  document.getElementById('c1').textContent = S.self;
-  document.getElementById('c2').textContent = S.asked;
-  document.getElementById('page').innerHTML = ({today:pgToday, person:pgPerson, data:pgData, agents:pgAgents})[S.page]();
-  renderSteps();
+  document.querySelectorAll('.nav').forEach(b=>b.classList.toggle('on',b.dataset.p===S.page));
+  c1.textContent=S.self; c2.textContent=S.asked;
+  page.innerHTML=({today:pgToday,person:pgPerson,data:pgData,agents:pgAgents})[S.page]();
+  steps.innerHTML=STEPS.map((s,i)=>`<button class="st ${i===S.step?'on':(i<S.step?'past':'')}" onclick="gotoStep(${i})"><b>${i<S.step?'✓':i+1}</b><span>${s[0]}</span></button>`).join('');
+  scnote.textContent=STEPS[Math.min(S.step,3)][1];
+  scbtn.textContent=S.step>=3?'Done':'Next';
   window.scrollTo(0,0);
 }
 
-function renderSteps(){
-  document.getElementById('steps').innerHTML = STEPS.map((s,i)=>
-    `<button class="st ${i===S.step?'on':(i<S.step?'past':'')}" onclick="gotoStep(${i})">
-      <b>${i<S.step?'✓':i+1}</b><span>${s[0]}</span></button>`).join('');
-  document.getElementById('scnote').textContent = STEPS[Math.min(S.step,3)][1];
-  document.getElementById('scbtn').textContent = S.step>=3 ? 'Готово' : 'Дальше';
-}
-
 function gotoStep(i){
-  S.step=i;
-  if(i>=1) S.cardAdded=true; else S.cardAdded=false;
-  if(i>=2) S.stopped=true; else S.stopped=false;
-  S.page = (i===3) ? 'today' : (i===0 ? 'today' : 'person');
-  if(i===0){ S.cardAdded=false; S.stopped=false; }
+  if(i===1&&!S.added) S.feed.unshift(['now','<b>Keeps records</b> — Joel Ramirez created from a business card, enriched, photo pulled in']);
+  if(i===2&&!S.stopped){S.feed.unshift(['now','<b>Guards the line</b> — cold sequence stopped for Joel Ramirez: he has turned warm']); S.self++;}
+  S.step=i; S.added=i>=1; S.stopped=i>=2;
+  S.page=(i===0||i===3)?'today':'person';
   render();
 }
-function nextStep(){ if(S.step<3) gotoStep(S.step+1); else gotoStep(0); }
-function resetAll(){
-  S.self=14; S.asked=3; S.decisions={d1:null,d2:null,d3:null}; S.feed=[];
-  gotoStep(0);
-}
+function nextStep(){gotoStep(S.step<3?S.step+1:0)}
+function resetAll(){S.self=14;S.asked=3;S.dec={d1:null,d2:null,d3:null};S.feed=[];gotoStep(0)}
 
-/* ═══════════ экран «Сегодня» ═══════════ */
 function pgToday(){
-  const open = ['d1','d2','d3'].filter(k=>!S.decisions[k]).length;
-  return `
-  <h1>Сегодня, четверг</h1>
-  <p class="lead">Это единственный рабочий экран. Сверху — что система сделала без вас,
-  ниже — то немногое, где нужно ваше решение. Заполнять здесь нечего: записи ведут агенты.</p>
+  const open=['d1','d2','d3'].filter(k=>!S.dec[k]).length;
+  return `<h1>Today, Thursday</h1>
+  <p class="lead">This is the only screen you work in. Above the line — what the system did without you.
+  Below — the few things that need your decision. There is nothing here to fill in: the records are kept by agents.</p>
 
-  ${S.step===0 ? `
-  <div class="sec">
-    <div class="card pad" style="border-color:var(--steel)">
-      <h2>Начните отсюда</h2>
-      <p class="tiny muted" style="margin-top:6px">Вы на конференции. Познакомились с человеком, он дал визитку.
-      Кидаете её в чат — и продолжаете разговаривать.</p>
-      <div class="acts"><button class="btn" onclick="gotoStep(1)">Кинуть визитку</button>
-      <span class="tiny muted">агент ответит за 8 секунд</span></div>
-    </div>
-  </div>` : ''}
+  ${S.step===0?`<div class="sec"><div class="card pad" style="border-color:rgba(0,87,255,.3)">
+    <h2>Start here</h2>
+    <p class="tiny muted" style="margin-top:8px">You are at a conference. Someone hands you a card.
+    You drop it into the chat and carry on talking.</p>
+    <div class="acts"><button class="btn" onclick="gotoStep(1)">Drop the card</button>
+    <span class="tiny muted">the agent answers in 8 seconds</span></div></div></div>`:''}
 
   <div class="sec">
-    <h2>Требует вашего решения <em>${open} из 3 · остальное система решила сама</em></h2>
-    <div class="card" style="margin-top:10px">
-      ${decCard('d1','ЭР','Элейн Родригес', 'Ответила «давайте после 15-го». Поставить напоминание на 16 октября?',
-        'Классифицировала ответ как «не сейчас». Такие вы обычно переносите на день после названной даты.',
-        'Из письма: <b>«интересно, но давайте вернёмся после 15-го»</b> · 3 октября, 11:42')}
-      ${decCard('d2','ДУ','Дана Уитфилд', 'Похоже, это тот же человек, что «D. Whitfield». Объединить записи?',
-        'Совпадает домен почты и компания, но имена написаны по-разному. Сама сливать не стала.',
-        'Две записи: <b>dana@corwinreed.com</b> (с сайта) и <b>d.whitfield@corwinreed.com</b> (из вашей переписки)')}
-      ${decCard('d3','МЧ','Майя Чен', 'Написать ей от вашего имени или подготовить черновик?',
-        'Она тёплая: ответила вам в августе. Значит, письмо уйдёт с вашего ящика и вашим именем.',
-        'Правило: <b>по тёплым всегда спрашиваю</b>. По холодным действую сама в рамках политики.')}
+    <h2>Needs your decision <span class="n">${open} of 3 · the rest was decided without you</span></h2>
+    <div class="card" style="margin-top:12px">
+      ${dec('d1','ER','Elaine Rodriguez','Replied “let’s come back to this after the 15th.” Set a reminder for 16 October?',
+        'Classified the reply as “not now.” You usually move these to the day after the date named.',
+        'From the email: <b>“interested, but let’s come back after the 15th”</b> · 3 October, 11:42')}
+      ${dec('d2','DW','Dana Whitfield','This looks like the same person as “D. Whitfield.” Merge the records?',
+        'Same email domain and company, but the names are written differently. Did not merge on its own.',
+        'Two records: <b>dana@corwinreed.com</b> (from the website) and <b>d.whitfield@corwinreed.com</b> (from your email)')}
+      ${dec('d3','MC','Maya Chen','Send on your behalf, or prepare a draft?',
+        'She is warm — she replied to you in August. That means the email goes from your mailbox under your name.',
+        'Rule: <b>always ask on warm people.</b> On cold ones the agent acts within policy.')}
     </div>
   </div>
 
   <div class="sec">
-    <h2>Сделано без вас <em>сегодня</em></h2>
-    <div class="card" style="margin-top:10px">
-      ${S.feed.map(f=>`<div class="feed flash"><div class="t">${f[0]}</div><div class="x">${f[1]}</div></div>`).join('')}
-      ${BASE_FEED.map(f=>`<div class="feed"><div class="t">${f[0]}</div><div class="x">${f[1]}</div></div>`).join('')}
+    <h2>Done without you <span class="n">today</span></h2>
+    <div class="card" style="margin-top:12px">
+      ${S.feed.map(f=>`<div class="fd flash"><div class="t mono">${f[0]}</div><div class="x">${f[1]}</div></div>`).join('')}
+      ${BASE.map(f=>`<div class="fd"><div class="t mono">${f[0]}</div><div class="x">${f[1]}</div></div>`).join('')}
     </div>
-    <p class="tiny muted" style="margin-top:9px">Каждая строка — действие, которое раньше делал человек руками.
-    Счётчик наверху показывает отношение «сама» к «спросила». Задача продукта — чтобы левое число росло, а правое падало.</p>
+    <p class="tiny muted" style="margin-top:11px">Every line is work a person used to do by hand. The counter at the top
+    is the ratio of <b>acted</b> to <b>asked</b>. The product’s promise is that the left number grows and the right one falls.</p>
   </div>`;
 }
 
-function decCard(id,ini,name,q,why,ev){
-  const v = S.decisions[id];
-  if(v) return `<div class="dec"><div class="who"><span class="av">${ini}</span></div>
-    <div class="body"><div class="q">${name}</div>
-    <div class="done">✓ ${v}</div></div></div>`;
-  return `<div class="dec">
-    <div class="who"><span class="av">${ini}</span></div>
-    <div class="body">
-      <div class="q">${name}</div>
-      <div class="why">${q}</div>
-      <div class="ev">${why}<br><span class="mini" style="color:#8a95a3">${ev}</span></div>
-      <div class="acts">
-        <button class="btn" onclick="decide('${id}','Да, сделано')">Да</button>
-        <button class="btn ghost" onclick="decide('${id}','Отклонено')">Нет</button>
-        <button class="btn quiet" onclick="decide('${id}','Поправлено и сделано')">Поправить</button>
-        <button class="btn quiet" onclick="trust('${id}')">Дальше решай сам</button>
-      </div>
+function dec(id,ini,name,q,why,ev){
+  const v=S.dec[id];
+  if(v) return `<div class="dec"><span class="av">${ini}</span><div class="b"><div class="q">${name}</div><div class="done">✓ ${v}</div></div></div>`;
+  return `<div class="dec"><span class="av">${ini}</span><div class="b">
+    <div class="q">${name}</div><div class="why">${q}</div>
+    <div class="ev">${why}<span class="src mono">${ev}</span></div>
+    <div class="acts">
+      <button class="btn" onclick="decide('${id}','Done')">Yes</button>
+      <button class="btn ghost" onclick="decide('${id}','Declined')">No</button>
+      <button class="btn quiet" onclick="decide('${id}','Corrected and done')">Correct it</button>
+      <button class="btn quiet" onclick="trust('${id}')">Decide these yourself from now on</button>
+    </div></div></div>`;
+}
+function decide(id,l){S.dec[id]=l;S.self++;S.asked=Math.max(0,S.asked-1);render()}
+function trust(id){S.dec[id]='Done — and this kind of question will not be asked again';S.self++;S.asked=Math.max(0,S.asked-1);
+  S.feed.unshift(['now','<b>Rule accepted</b> — the system no longer asks this class of question']);render()}
+
+function pgPerson(){
+  const stop=S.stopped?`<div class="tr" style="background:rgba(0,87,255,.04)">
+    <div class="d mono">today</div><div class="c"><span class="tag warm">The line</span></div>
+    <div class="s"><b>Cold sequence stopped.</b> He turned warm — you met in person.
+    <div class="src mono">Guards the line · email 3 of 6 never sent · cold mailboxes will not touch him again</div></div></div>`:'';
+  const add=S.added?`<div class="tr flash"><div class="d mono">today</div><div class="c"><span class="tag">Card</span></div>
+    <div class="s"><b>Met in person at the conference.</b> Record created from the card, filled in from public sources.
+    <div class="src mono">Keeps records · 8 seconds · photo pulled from LinkedIn</div></div></div>`:'';
+  return `<h1>Joel Ramirez</h1>
+  <p class="lead">A memory screen, not a form. There is nothing to fill in — everything visible here
+  was written by agents. A person comes here to remember and to decide.</p>
+
+  ${S.step===2?`<div class="sec"><div class="card pad" style="border-color:rgba(0,87,255,.3)">
+    <h2>You searched by face</h2>
+    <p class="tiny muted" style="margin-top:8px">You did not remember the name — only that he was
+    “a heavy-set guy, Joel or Joan.” That is enough: the search takes a photo, a card or half a phrase.</p></div></div>`:''}
+
+  <div class="sec"><div class="card">
+    <div class="phead"><span class="av lg">JR</span><div style="flex:1">
+      <div class="pname">Joel Ramirez</div>
+      <div class="tiny muted">Director of Operations · Harborline Partners · New York · 60 people</div>
+      <div class="state"><b>Warm since 24 September.</b> He turned warm because you met in person at a conference.
+      Before that he was cold: he entered the base as a match for the selection rule, with no interaction.
+      <br><span class="mono" style="display:block;margin-top:7px;color:var(--quiet);letter-spacing:.1em;text-transform:none;font-size:11.5px">
+      The line between cold and warm is the fact of two-way contact. It decides which mailbox sends and whether the system asks first.</span></div>
+    </div></div>
+    <div style="border-top:1px solid var(--line)">
+      ${add}${stop}
+      <div class="tr"><div class="d mono">18 Sep</div><div class="c"><span class="tag cold">Cold</span></div>
+        <div class="s">Email 2 of 6 — opened, no reply
+        <div class="src mono">sequence “MSP · New York · 25–100 staff” · mailbox outreach-3</div></div></div>
+      <div class="tr"><div class="d mono">11 Sep</div><div class="c"><span class="tag cold">Cold</span></div>
+        <div class="s">Email 1 of 6 — delivered
+        <div class="src mono">sequence “MSP · New York · 25–100 staff” · mailbox outreach-3</div></div></div>
+      <div class="tr"><div class="d mono">9 Sep</div><div class="c"><span class="tag">Signal</span></div>
+        <div class="s">The company is hiring a systems administrator
+        <div class="src mono">evidence source: job posting on the company site, published 4 September</div></div></div>
+      <div class="tr"><div class="d mono">2 Sep</div><div class="c"><span class="tag">Created</span></div>
+        <div class="s">Matched the selection rule: professional services, 25–100 staff, no internal IT lead
+        <div class="src mono">Keeps records · checked against public data</div></div></div>
+    </div>
+    <div class="nofields">Not one field for manual entry. Agents keep the records; a person only corrects them
+    when the system has asked.</div>
+  </div></div>
+
+  <div class="sec"><h2>What happens next</h2>
+    <div class="card pad" style="margin-top:12px">
+      <p style="font-weight:700;color:var(--navy)">You agreed to send a service description by the end of the week.</p>
+      <p class="tiny muted" style="margin-top:6px">Taken out of the conversation at the conference. The deadline is Friday —
+      if there is no email by Thursday, the system will say so.</p>
+      <div class="acts"><button class="btn" onclick="alert('Not wired up in the prototype.\\n\\nIn the product: the agent drafts the email in your voice,\\nyou correct it and send.')">Prepare the email</button>
+      <button class="btn ghost" onclick="go('today')">Back to work</button></div>
     </div></div>`;
 }
 
-function decide(id,label){
-  S.decisions[id]=label;
-  S.self++; S.asked=Math.max(0,S.asked-1);
-  render();
-}
-function trust(id){
-  S.decisions[id]='Решено — и такие вопросы больше не задаю';
-  S.self+=1; S.asked=Math.max(0,S.asked-1);
-  S.feed.unshift(['сейчас','<b>Правило принято</b> — этот класс вопросов система больше не задаёт']);
-  render();
-}
-
-/* ═══════════ карточка человека ═══════════ */
-function pgPerson(){
-  const stopRow = S.stopped ? `
-    <div class="tr" style="background:#E9F1F2">
-      <div class="d">сегодня</div><div class="c"><span class="tag warm">граница</span></div>
-      <div class="s"><b>Холодная кампания остановлена.</b> Он стал тёплым — вы познакомились лично.
-        <div class="src">Стережёт границу · письмо 3 из 6 не ушло · холодные ящики больше его не трогают</div></div>
-    </div>` : '';
-  const addRow = S.cardAdded ? `
-    <div class="tr flash">
-      <div class="d">сегодня</div><div class="c"><span class="tag">визитка</span></div>
-      <div class="s"><b>Познакомились лично на конференции.</b> Запись заведена из визитки, данные дополнены из открытых источников.
-        <div class="src">Ведёт записи · 8 секунд · фото подтянуто из LinkedIn</div></div>
-    </div>` : '';
-
-  return `
-  <h1>Джоэль Рамирес</h1>
-  <p class="lead">Экран памяти, а не формы. Здесь нечего заполнять — всё, что видно,
-  положили агенты. Человек сюда приходит, чтобы вспомнить и решить.</p>
-
-  ${S.step===2 ? `<div class="sec"><div class="card pad" style="border-color:var(--steel)">
-    <h2>Вы искали по лицу</h2>
-    <p class="tiny muted" style="margin-top:6px">Имени вы не помнили — помнили, что «толстячок, Джоэль или Джоан».
-    Этого достаточно: система ищет по фотографии, визитке и обрывку фразы.</p></div></div>` : ''}
-
-  <div class="sec">
-    <div class="card">
-      <div class="phead">
-        <span class="av lg">ДР</span>
-        <div class="meta">
-          <div class="pname">Джоэль Рамирес</div>
-          <div class="tiny muted">Директор по операциям · Harborline Partners · Нью-Йорк · 60 человек</div>
-          <div class="state">
-            <b>Тёплый с 24 сентября.</b> Стал тёплым потому, что вы познакомились лично на конференции.
-            До этого был холодным: попал в базу как подходящий по правилу отбора, взаимодействия не было.
-            <br><span class="mini" style="opacity:.8">Граница между холодным и тёплым — факт двустороннего контакта.
-            От неё зависит, с какого ящика уходит письмо и спрашивает ли система разрешение.</span>
-          </div>
-        </div>
-      </div>
-      <div class="track rowline">
-        ${addRow}${stopRow}
-        <div class="tr"><div class="d">18 сент</div><div class="c"><span class="tag cold">холодное</span></div>
-          <div class="s">Письмо 2 из 6 — открыто, ответа нет
-            <div class="src">кампания «MSP · Нью-Йорк · 25–100 человек» · ящик outreach-3</div></div></div>
-        <div class="tr"><div class="d">11 сент</div><div class="c"><span class="tag cold">холодное</span></div>
-          <div class="s">Письмо 1 из 6 — доставлено
-            <div class="src">кампания «MSP · Нью-Йорк · 25–100 человек» · ящик outreach-3</div></div></div>
-        <div class="tr"><div class="d">9 сент</div><div class="c"><span class="tag">сигнал</span></div>
-          <div class="s">Компания ищет системного администратора
-            <div class="src">источник доказательства: вакансия на сайте компании, опубликована 4 сентября</div></div></div>
-        <div class="tr"><div class="d">2 сент</div><div class="c"><span class="tag">заведён</span></div>
-          <div class="s">Подошёл под правило отбора: профессиональные услуги, 25–100 человек, нет своего ИТ-директора
-            <div class="src">Ведёт записи · проверено по открытым данным</div></div></div>
-      </div>
-      <div class="nofields">Ни одного поля для ручного ввода. Записи ведут агенты — человек их только правит,
-      когда система сама спросила.</div>
-    </div>
-  </div>
-
-  <div class="sec">
-    <h2>Что дальше</h2>
-    <div class="card pad" style="margin-top:10px">
-      <p style="font-weight:600">Договорились, что вы пришлёте описание услуг до конца недели.</p>
-      <p class="tiny muted" style="margin-top:5px">Вынесено из разговора на конференции. Срок истекает в пятницу —
-      если к четвергу письма не будет, система напомнит.</p>
-      <div class="acts">
-        <button class="btn" onclick="alert('В прототипе черновик не открывается.\\n\\nВ продукте: агент готовит письмо вашим голосом,\\nвы правите и отправляете.')">Подготовить письмо</button>
-        <button class="btn ghost" onclick="go('today')">Вернуться к работе</button>
-      </div>
-    </div>
-  </div>`;
-}
-
-/* ═══════════ данные ═══════════ */
 function pgData(){
-  const rows = [
-    ['Джоэль Рамирес','Harborline Partners','тёплый','сегодня','лично'],
-    ['Майя Чен','Brightpath Legal','тёплый','12 авг','ответила'],
-    ['Дана Уитфилд','Corwin &amp; Reed','тёплый','5 сент','ответила'],
-    ['Элейн Родригес','Ashford Group','тёплый','3 окт','ответила'],
-    ['Маркус Холл','Delaney &amp; Sons','холодный','18 сент','—'],
-    ['Прия Наир','Westgate Advisors','холодный','21 сент','—']
-  ];
-  return `
-  <h1>Данные</h1>
-  <p class="lead">Экран архитектора, а не оператора. Открывается редко — проверить полноту
-  или поправить то, что агент отметил как неуверенное. Таблица, потому что для базы
-  ничего лучше таблицы не придумали.</p>
-  <div class="sec">
-    <div class="card" style="overflow:auto">
-      <table>
-        <thead><tr><th>Человек</th><th>Компания</th><th>Состояние</th><th>Последнее касание</th><th>Чем стал тёплым</th></tr></thead>
-        <tbody>${rows.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td>
-          <td><span class="tag ${r[2]==='тёплый'?'warm':'cold'}">${r[2]}</span></td>
-          <td>${r[3]}</td><td class="muted">${r[4]}</td></tr>`).join('')}</tbody>
-      </table>
-    </div>
-  </div>
-  <div class="sec">
-    <h2>Что человеку трогать нельзя</h2>
-    <div class="card pad" style="margin-top:10px">
-      <p class="tiny">У каждого поля своя политика. Описательное — агент заполняет сам.
-      Опознающее — только с подтверждением. Имеющее последствия — никогда автоматически.
-      Вычисляемое — человеку недоступно вовсе, иначе журналу касаний нет веры.</p>
-      <div class="agrule" style="margin-top:12px">
-        <dt>сам</dt><dd>должность, город, отрасль, фотография</dd>
-        <dt>с подтверждением</dt><dd>имя, почта, ссылка на профиль — это опознаёт человека</dd>
-        <dt class="sys">никогда сам</dt><dd class="no">телефон, «не писать», заметка — у этого есть последствия</dd>
-        <dt class="sys">только система</dt><dd class="muted">время касаний, состояние холодный/тёплый, кто из агентов что сделал</dd>
-      </div>
-    </div>
-  </div>`;
+  const R=[['Joel Ramirez','Harborline Partners','warm','today','met in person'],
+    ['Maya Chen','Brightpath Legal','warm','12 Aug','replied'],
+    ['Dana Whitfield','Corwin &amp; Reed','warm','5 Sep','replied'],
+    ['Elaine Rodriguez','Ashford Group','warm','3 Oct','replied'],
+    ['Marcus Hall','Delaney &amp; Sons','cold','18 Sep','—'],
+    ['Priya Nair','Westgate Advisors','cold','21 Sep','—']];
+  return `<h1>Data</h1>
+  <p class="lead">An architect’s screen, not an operator’s. Opened rarely — to check completeness,
+  or to correct what an agent flagged as uncertain. A table, because nothing better than a table
+  has been invented for a database.</p>
+  <div class="sec"><div class="card" style="overflow:auto">
+    <table><thead><tr><th class="mono">Person</th><th class="mono">Company</th><th class="mono">State</th>
+    <th class="mono">Last touch</th><th class="mono">What made them warm</th></tr></thead>
+    <tbody>${R.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td>
+      <td><span class="tag ${r[2]==='warm'?'warm':'cold'}">${r[2]}</span></td>
+      <td class="mono" style="font-size:12px">${r[3]}</td><td class="muted">${r[4]}</td></tr>`).join('')}</tbody></table>
+  </div></div>
+  <div class="sec"><h2>What a person may not touch</h2>
+    <div class="card pad" style="margin-top:12px">
+      <p class="tiny">Every field carries its own policy. Descriptive — the agent fills it itself.
+      Identifying — only with confirmation. Consequential — never automatically.
+      Computed — not editable at all, otherwise the touch ledger cannot be trusted.</p>
+      <div class="rules" style="margin-top:15px">
+        <dt class="mono">Itself</dt><dd>job title, city, industry, photo</dd>
+        <dt class="mono">With review</dt><dd>name, email, profile link — these identify the person</dd>
+        <dt class="mono">Never</dt><dd>phone, “do not contact”, notes — these carry consequences</dd>
+        <dt class="mono">System only</dt><dd>touch times, cold or warm state, which agent did what</dd>
+      </div></div></div>`;
 }
 
-/* ═══════════ агенты ═══════════ */
 function pgAgents(){
   const A=[
-    ['Ведёт записи','заводит и связывает записи из переписки, визиток и встреч',
-      'создаёт запись, дополняет из открытых источников, подтягивает фотографию',
-      'не пишет человеку и не трогает ничего, что имеет последствия',
-      'когда не уверен, что это один и тот же человек',false],
-    ['Следит за обещаниями','ловит заглохшие разговоры, в которых остался невыполненный шаг',
-      'находит договорённость в переписке, ставит задачу и готовит текст',
-      'не отправляет сам — только готовит',
-      'всегда, если человек тёплый: письмо уйдёт с вашего ящика',false],
-    ['Двигает стадии','держит воронку в соответствии с тем, что происходит на самом деле',
-      'переводит запись на следующую стадию по её описанию обычным языком',
-      'не закрывает сделку и не меняет сумму',
-      'когда события можно прочитать двумя способами',false],
-    ['Разбирает двойников','находит записи, которые, похоже, про одного человека',
-      'собирает доказательства и показывает расхождения',
-      'никогда не сливает записи молча по совпадению имени',
-      'всегда — склейка личности это решение человека',false],
-    ['Стережёт границу','следит, чтобы холодная машина не писала тому, кто уже стал тёплым',
-      'останавливает холодную кампанию в момент, когда человек ответил или вы познакомились лично',
-      'не решает за вас, что писать дальше',
-      'если кампанию остановить нельзя — например, письмо уже в очереди отправки',true]
-  ];
-  return `
-  <h1>Кто что делает</h1>
-  <p class="lead">Пять агентов. Ни один не пишет холодных писем — все пятеро заняты тем,
-  чтобы записи соответствовали действительности. Именно поэтому в продукте нет форм:
-  заполнять CRM руками в агентном мире бессмысленно.</p>
-  <div class="sec">
-    <div class="card">
-      ${A.map(a=>`<div class="ag ${a[5]?'ours':''}">
-        <div class="aghead"><span class="agname">${a[0]}</span>
-          <span class="tiny muted">${a[1]}</span>
-          ${a[5]?'<span class="tag warm">этого нет ни у кого</span>':''}</div>
-        <div class="agrule">
-          <dt>делает</dt><dd>${a[2]}</dd>
-          <dt>никогда</dt><dd class="no">${a[3]}</dd>
-          <dt>спрашивает</dt><dd>${a[4]}</dd>
-        </div></div>`).join('')}
-    </div>
-  </div>
-  <div class="sec">
-    <h2>Правило автономии</h2>
-    <div class="card pad" style="margin-top:10px">
-      <p class="tiny"><b>Холодный человек</b> — агент действует сам в рамках политики: чужой ещё не знает вас,
-      письмо уходит с расходного ящика, цена ошибки низкая.</p>
-      <p class="tiny" style="margin-top:7px"><b>Тёплый человек</b> — агент всегда спрашивает: письмо уйдёт
-      с вашего ящика и вашим именем, платите вы своей репутацией.</p>
-      <p class="tiny muted" style="margin-top:9px">Поэтому холодное и тёплое — не две вкладки в меню,
-      а правило, по которому система решает, действовать самой или спросить.</p>
-    </div>
-  </div>`;
+   ['Keeps records','creates and links records from email, business cards and meetings',
+    'creates the record, fills it in from public sources, pulls the photo',
+    'never writes to the person and never touches anything consequential',
+    'when it is not certain this is the same person',0],
+   ['Watches commitments','finds conversations that went quiet with a step still owed',
+    'locates the commitment in the thread, creates the task and drafts the text',
+    'never sends — it only prepares',
+    'always, if the person is warm: the email would go from your mailbox',0],
+   ['Moves stages','keeps the pipeline matching what is actually happening',
+    'moves a record on by the plain-language description of the stage',
+    'never closes a deal and never changes an amount',
+    'when the events can be read two ways',0],
+   ['Sorts out duplicates','finds records that look like the same person',
+    'collects the evidence and shows what disagrees',
+    'never merges records silently on a matching name',
+    'always — resolving an identity is a person’s decision',0],
+   ['Guards the line','keeps the cold machine away from anyone who has turned warm',
+    'stops the cold sequence the moment the person replies or you meet in person',
+    'never decides what to say next',
+    'if the sequence can no longer be stopped — an email already queued',1]];
+  return `<h1>Who does what</h1>
+  <p class="lead">Five agents. None of them writes cold email — all five keep the records matching reality.
+  That is why the product has no forms: filling in a CRM by hand makes no sense once agents are doing the writing.</p>
+  <div class="sec"><div class="card">
+    ${A.map(a=>`<div class="ag ${a[5]?'ours':''}">
+      <div class="aghead"><span class="agname">${a[0]}</span><span class="tiny muted">${a[1]}</span>
+      ${a[5]?'<span class="tag warm">Nobody else has this</span>':''}</div>
+      <div class="rules"><dt class="mono">Does</dt><dd>${a[2]}</dd>
+      <dt class="mono">Never</dt><dd>${a[3]}</dd>
+      <dt class="mono">Asks</dt><dd>${a[4]}</dd></div></div>`).join('')}
+  </div></div>
+  <div class="sec"><h2>The autonomy rule</h2>
+    <div class="card pad" style="margin-top:12px">
+      <p class="tiny"><b style="color:var(--navy)">Cold person</b> — the agent acts on its own within policy.
+      They do not know you yet, the email goes from a disposable mailbox, the cost of a mistake is low.</p>
+      <p class="tiny" style="margin-top:9px"><b style="color:var(--navy)">Warm person</b> — the agent always asks.
+      The email goes from your mailbox under your name; you pay with your reputation.</p>
+      <p class="tiny muted" style="margin-top:12px">This is why cold and warm are not two tabs in a menu.
+      They are the rule that decides whether the system acts or asks — and why the fifth agent exists:
+      a line needs someone watching it.</p>
+    </div></div>`;
 }
 
-/* ═══════════ спроси ═══════════ */
-function openAsk(){ document.getElementById('veil').classList.add('on');
-  document.getElementById('ask').classList.add('on'); document.getElementById('askin').focus(); }
-function closeAsk(){ document.getElementById('veil').classList.remove('on');
-  document.getElementById('ask').classList.remove('on'); document.getElementById('askin').value=''; }
-function pickPerson(){ closeAsk(); S.cardAdded=true; if(S.step<2) S.step=2; S.page='person'; render(); }
-document.getElementById('askin').addEventListener('keydown',e=>{ if(e.key==='Enter') pickPerson(); });
+function openAsk(){veil.classList.add('on');ask.classList.add('on');askin.focus()}
+function closeAsk(){veil.classList.remove('on');ask.classList.remove('on');askin.value=''}
+function pickPerson(){closeAsk();gotoStep(Math.max(S.step,2))}
+askin.addEventListener('keydown',e=>{if(e.key==='Enter')pickPerson()});
 document.addEventListener('keydown',e=>{
-  if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){ e.preventDefault(); openAsk(); }
-  if(e.key==='Escape') closeAsk();
-});
-
-/* ═══════════ сценарий ═══════════ */
-const _goto = gotoStep;
-gotoStep = function(i){
-  if(i===1 && !S.cardAdded){
-    S.feed.unshift(['сейчас','<b>Ведёт записи</b> — Джоэль Рамирес заведён из визитки, данные дополнены, фото подтянуто']);
-  }
-  if(i===2 && !S.stopped){
-    S.feed.unshift(['сейчас','<b>Стережёт границу</b> — по Джоэлю Рамиресу остановлена холодная кампания: он стал тёплым']);
-    S.self++;
-  }
-  _goto(i);
-};
+  if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){e.preventDefault();openAsk()}
+  if(e.key==='Escape')closeAsk()});
 
 render();
 </script>

@@ -1,13 +1,13 @@
-# Lusin — прототип
+# Lusin — prototype
 
-Кликабельный прототип объединённой системы: https://lisaivanchikova.github.io/gtm-prototype/
+Clickable prototype of the unified system: https://lisaivanchikova.github.io/gtm-prototype/
 
-Один файл `index.html`, без зависимостей. Демо-данные вымышленные.
+One `index.html`, no dependencies. Demo data is fictional. Intwin Tech brand.
 
-**Что показывает.** Сквозной путь из четырёх шагов — визитка с конференции,
-остановка холодной кампании, поиск человека по лицу, день на одном экране.
+**What it shows.** An end-to-end path in four steps — a business card at a conference,
+a cold sequence stopped, finding a person by face, the day on one screen.
 
-**Принцип.** Экран существует только там, где человек кладёт решение или забирает смысл.
-Данные кладут агенты. Форм для ручного ввода нет.
+**The rule.** A screen exists only where a person puts in a decision or takes out meaning.
+Records are written by agents. There are no data-entry forms.
 
-Пояснения к каждому экрану — в `bobroff-cap/gtm-engine` → `4-decisions/solutions/SOL-002`.
+Notes on every screen: `bobroff-cap/gtm-engine` → `4-decisions/solutions/SOL-002`.
