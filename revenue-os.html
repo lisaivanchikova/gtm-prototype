@@ -291,11 +291,23 @@ table.db td.num{font-family:var(--mono);text-align:right}
 .skins button+button{border-left:1px solid var(--border)}
 .skinstub{max-width:680px;margin:40px auto;display:flex;flex-direction:column;gap:10px}
 .skinstub h2{margin:0;font-size:20px}
+#mlmap{position:absolute;inset:0}
+.maplibregl-ctrl-attrib{font-size:8.5px;background:color-mix(in srgb,var(--editor) 80%,transparent)!important}
+.maplibregl-ctrl-attrib a{color:var(--fg3)}
+.mk{cursor:pointer;font-family:var(--mono);display:flex;align-items:center;justify-content:center;border-radius:50%;color:#fff;font-size:11px;font-weight:600;border:1.5px solid rgba(0,0,0,.35);box-shadow:0 1px 4px rgba(0,0,0,.35);white-space:nowrap}
+.mk.sq{border-radius:5px;padding:0 7px;height:20px;width:auto}
+.mk.hq{background:var(--agent);width:15px;height:15px;transform:rotate(45deg);border-radius:2px}
+.mkorg{position:relative;width:0;height:0}
+.mkorg .node{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer}
+.mkorg .node i{width:16px;height:16px;border-radius:50%;background:var(--fg3);border:1.5px solid var(--editor);display:block}
+.mkorg .node.miss i{background:var(--down)}
+.mkorg .node span{font-size:10px;color:var(--fg);background:color-mix(in srgb,var(--editor) 88%,transparent);border:1px solid var(--border);border-radius:9px;padding:0 6px;white-space:nowrap}
+.mkorg .ln{position:absolute;height:1px;background:var(--fg3);opacity:.7;transform-origin:0 50%}
 .mapsw{position:absolute;left:10px;top:10px;display:flex;border:1px solid var(--border);border-radius:13px;overflow:hidden;background:var(--editor)}
 .mapsw button{height:24px;padding:0 10px;font-size:11px;color:var(--fg3)}
 .mapsw button[aria-pressed="true"]{background:var(--selbg);color:var(--fg)}
 .mapsw button+button{border-left:1px solid var(--border)}
-.zbtn{position:absolute;right:10px;bottom:10px;display:flex;flex-direction:column;border:1px solid var(--border);border-radius:6px;overflow:hidden;background:var(--editor)}
+.zbtn{position:absolute;right:10px;bottom:28px;display:flex;flex-direction:column;border:1px solid var(--border);border-radius:6px;overflow:hidden;background:var(--editor)}
 .zbtn button{width:28px;height:26px;text-align:center;font-size:15px;color:var(--fg2)}
 .zbtn button+button{border-top:1px solid var(--border)}
 .hint{position:absolute;right:10px;top:10px;font-size:11px;color:var(--fg3);background:color-mix(in srgb,var(--editor) 90%,transparent);padding:3px 8px;border-radius:5px;border:1px solid var(--border)}
@@ -806,6 +818,8 @@ table.db td.num{font-family:var(--mono);text-align:right}
 <div id="tip" hidden></div>
 <div class="toast" id="toast" hidden></div>
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/5.6.1/maplibre-gl.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/5.6.1/maplibre-gl.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js"></script>
 <script>
@@ -1139,7 +1153,7 @@ function applyLayout(){
   const W=Math.max(640,innerWidth);
   const sb=Math.min(L.sbw||270,Math.max(170,W*0.24)), ag=Math.min(L.agw||340,Math.max(210,W*0.30));
   b.style.setProperty('--sbw',Math.round(sb)+'px');b.style.setProperty('--agw',Math.round(ag)+'px');if(L.pnh)c.style.setProperty('--pnh',L.pnh+'px');if(L.pnw)c.style.setProperty('--pnw',L.pnw+'px');
-  saveLayout();setTimeout(fitMap,0);
+  saveLayout();setTimeout(()=>{if(ML&&MLREADY)ML.resize();},60);
 }
 /* gutters: drag to resize, like VS Code sashes */
 document.querySelectorAll('.gutter').forEach(g=>{
@@ -1338,34 +1352,148 @@ function renderCrumbs(){const t=S.tabs.find(x=>x.id===S.tab)||S.tabs[0];let c=''
 
 /* =================== map view =================== */
 let MAPEL,svg,root,gStates,gBub,gClu,gAcc,gPer,gHQ,zoom,statesF,pathG;
+/* ============ Карта: MapLibre GL + OpenFreeMap ============
+   «Мы сделаем прям, чтобы земной шарик крутился, как в игре. Вот прям как в Google,
+   чтобы можно было кликнуть в город и прям посмотреть в Миннеаполисе конкретный офис
+   людей, и там прям человечки будут» (Николай, 25.09, 1:10:40).
+   Тайлы OpenFreeMap — бесплатно, без ключа, на данных OpenStreetMap.
+   Координаты точек восстанавливаем инверсией той же проекции, в которой их раскладывали. */
+let ML=null, MLREADY=false, MLM={bub:[],clu:[],org:[],hq:[]};
+const isLightTheme=()=>{const a=document.documentElement.dataset.theme;return a?a==='light':!matchMedia('(prefers-color-scheme: dark)').matches;};
+function cssv(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim()||'#888';}
+function llOf(a){if(!a.ll)a.ll=proj.invert([a.x,a.y]);return a.ll;}
+function kToZoom(k){return Math.max(2.4,Math.min(17,3.1+Math.log2(Math.max(1,k))*2.6));}
+function clearMarkers(kinds){(kinds||Object.keys(MLM)).forEach(k=>{(MLM[k]||[]).forEach(m=>m.remove());MLM[k]=[];});}
+function mkMarker(kind,lnglat,el,anchor){const m=new maplibregl.Marker({element:el,anchor:anchor||'center'}).setLngLat(lnglat).addTo(ML);MLM[kind].push(m);return m;}
+
 function buildMapView(){
   const v=$('mapwrap');
   v.innerHTML=`<div class="mapview" id="mapview">
     <div class="mapbox" id="mapbox">
-      <svg id="map" viewBox="0 0 975 610" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Карта США"></svg>
+      <div id="mlmap"></div>
       <div class="legend" id="legend"></div>
       <div class="tmap" id="tmap"></div>
       <div class="mapsw" id="mapsw" role="group" aria-label="Вид карты"></div>
       <div class="zbtn"><button id="zin" aria-label="Приблизить">+</button><button id="zout" aria-label="Отдалить">−</button></div>
     </div></div>`;
   MAPEL=$('mapview');
-  svg=d3.select('#map');root=svg.append('g');gStates=root.append('g');gBub=root.append('g');gClu=root.append('g');gAcc=root.append('g');gPer=root.append('g');gHQ=root.append('g');
   statesF=topojson.feature(TOPO,TOPO.objects.states).features.map(f=>(f.abbr=ABBR[f.properties.name],f));
   pathG=d3.geoPath();
-  gStates.selectAll('path').data(statesF).join('path').attr('class','state').attr('d',pathG)
-    .on('click',(ev,f)=>{if(S.level==='segment')zoomToFeature(f);})
-    .on('pointermove',(ev,f)=>tipShow(ev,stateTip(f))).on('pointerleave',tipHide);
-  zoom=d3.zoom().scaleExtent([1,20]).translateExtent([[-60,-20],[1030,630]]).on('zoom',ev=>{
-    root.attr('transform',ev.transform);S.K=ev.transform.k;
-    if(S.sel&&S.sel.type==='acc'&&ev.sourceEvent&&S.K<3)S.sel=null;
-    const lv=S.sel&&S.sel.type==='acc'?'people':S.K>=1.8?'accounts':'segment';
-    if(lv!==S.level){S.level=lv;setEnt({segment:'seg',accounts:'acc',people:'ppl'}[lv]);renderMap();renderCrumbs();renderPanel();}else scaleMarks();});
-  svg.call(zoom).on('dblclick.zoom',null);
-  svg.on('click',ev=>{if(ev.target===svg.node()&&S.sel){S.sel=null;renderAllButMap();renderMap();}});
-  $('zin').onclick=()=>svg.transition().duration(300).call(zoom.scaleBy,1.8);
-  $('zout').onclick=()=>svg.transition().duration(300).call(zoom.scaleBy,1/1.8);
+  ACC.forEach(llOf);
+  ML=new maplibregl.Map({container:'mlmap',
+    style:'https://tiles.openfreemap.org/styles/'+(isLightTheme()?'positron':'dark'),
+    center:[-98.5,39.5],zoom:3.1,minZoom:0.7,maxZoom:18,
+    attributionControl:{compact:true}});
+  ML.on('style.load',()=>{
+    try{ML.setProjection({type:'globe'});}catch(e){}
+    ML.addSource('accsrc',{type:'geojson',data:{type:'FeatureCollection',features:[]}});
+    ML.addLayer({id:'acc-dot',type:'circle',source:'accsrc',paint:{
+      'circle-radius':['interpolate',['linear'],['zoom'],3,2.4,6,3.8,10,6,14,8],
+      'circle-color':['get','col'],
+      'circle-stroke-width':1.1,'circle-stroke-color':isLightTheme()?'rgba(255,255,255,.8)':'rgba(0,0,0,.5)'}});
+    ML.addLayer({id:'acc-sel',type:'circle',source:'accsrc',filter:['==',['get','sel'],1],paint:{
+      'circle-radius':['interpolate',['linear'],['zoom'],3,6,10,12,14,16],
+      'circle-color':'rgba(0,0,0,0)','circle-stroke-width':2,'circle-stroke-color':cssv('--focus')}});
+    MLREADY=true;renderMap();});
+  ML.on('click','acc-dot',e=>{const id=e.features[0].properties.id;if(ACCBY[id])selectAcc(ACCBY[id]);});
+  ML.on('mouseenter','acc-dot',e=>{ML.getCanvas().style.cursor='pointer';
+    const a=ACCBY[e.features[0].properties.id];if(a)tipShow(e.originalEvent,accPhrase(a,S.t));});
+  ML.on('mouseleave','acc-dot',()=>{ML.getCanvas().style.cursor='';tipHide();});
+  ML.on('moveend',()=>{
+    const z=ML.getZoom();S.K=z;
+    if(S.sel&&S.sel.type==='acc'&&z<4.2){S.sel=null;}
+    const lv=S.sel&&S.sel.type==='acc'?'people':z>=4.2?'accounts':'segment';
+    if(lv!==S.level){S.level=lv;setEnt({segment:'seg',accounts:'acc',people:'ppl'}[lv]);renderMap();renderCrumbs();renderPanel();}
+    else renderMap();});
+  $('zin').onclick=()=>ML.zoomIn();
+  $('zout').onclick=()=>ML.zoomOut();
 }
-function fitMap(){}
+function zoomTo(x,y,k){if(!ML)return;const ll=proj.invert([x,y]);if(ll)ML.flyTo({center:ll,zoom:kToZoom(k),duration:900});}
+function zoomToFeature(f){if(!ML)return;const [[x0,y0],[x1,y1]]=pathG.bounds(f);
+  const p1=proj.invert([x0,y1]),p2=proj.invert([x1,y0]);
+  if(!p1||!p2){return;}
+  ML.fitBounds([[Math.min(p1[0],p2[0]),Math.min(p1[1],p2[1])],[Math.max(p1[0],p2[0]),Math.max(p1[1],p2[1])]],{padding:60,duration:900});}
+
+function renderMap(){ setTimeout(renderTreemap,0);
+  if(!ML||!MLREADY)return;
+  const t=S.t,seg=S.level==='segment',z=ML.getZoom();
+  const UP=cssv('--up'),DN=cssv('--down'),FL=cssv('--flat');
+  $('mapbox').classList.toggle('future',t>NOW);
+
+  /* --- юрлица точками на слое: их сотни, это работа карты, не DOM --- */
+  const vis=seg?[]:ACC.filter(a=>{const e=stateAt(a,t);if(!e||!inF(a))return false;
+    if(e.s>=7&&t-e.w>=3)return false;if(S.downOnly&&momentum(a,t)>=0)return false;return true;});
+  const clustered=!seg&&z<5.6&&!(S.sel&&S.sel.type==='acc');
+  const pts=clustered?[]:vis;
+  const src=ML.getSource('accsrc');
+  if(src)src.setData({type:'FeatureCollection',features:pts.map(a=>{const m=momentum(a,t);
+    return {type:'Feature',geometry:{type:'Point',coordinates:llOf(a)},
+      properties:{id:a.id,col:m>0?UP:m<0?DN:FL,sel:(S.sel&&S.sel.id===a.id)?1:0}};})});
+
+  clearMarkers();
+
+  /* --- уровень сегмента: пузырь на штат, размер = $ рынка, цвет = движение ARR --- */
+  if(seg){
+    const stats=statesF.map(f=>({f,s:stateStats(f.abbr),c:pathG.centroid(f)}))
+      .filter(x=>x.s.end>0&&Math.abs(x.s.d)>=.002&&isFinite(x.c[0]));
+    const rS=d3.scaleSqrt().domain([0,d3.max(stats,x=>x.s.v)||1]).range([0,30]);
+    stats.forEach(x=>{const ll=proj.invert(x.c);if(!ll)return;
+      const r=Math.max(16,rS(x.s.v)*1.6),el=document.createElement('div');
+      el.className='mk';el.style.width=el.style.height=r+'px';el.style.background=tradeCol(x.s.d);
+      el.style.fontSize=(r>34?11:9)+'px';
+      el.textContent=r>34?`${x.f.abbr} ${x.s.d>=0?'▲':'▼'}${Math.abs(x.s.d*100).toFixed(1).replace('.',',')}`:x.f.abbr;
+      el.title=stateTip(x.f);
+      el.onclick=()=>zoomToFeature(x.f);
+      mkMarker('bub',ll,el);});
+  }
+
+  /* --- уровень юрлиц издалека: кластеры по метро --- */
+  if(clustered){
+    d3.groups(vis,a=>a.mi).forEach(([mi,arr])=>{const m=METROS[mi];
+      const up=arr.filter(a=>momentum(a,t)>0).length,dn=arr.filter(a=>momentum(a,t)<0).length;
+      const bal=(up-dn)/arr.length,r=Math.max(22,16+Math.sqrt(arr.length)*4.2);
+      const el=document.createElement('div');el.className='mk';
+      el.style.width=el.style.height=r+'px';el.style.background=bal<0?DN:bal>0?UP:FL;
+      el.textContent=arr.length;
+      el.title=`${m[0]}, ${m[1]} · ${arr.length} юрлиц · ▲ ${up} движутся · ▼ ${dn} застряли или уходят`;
+      el.onclick=()=>ML.flyTo({center:[m[2],m[3]],zoom:8.2,duration:900});
+      mkMarker('clu',[m[2],m[3]],el);});
+  }
+
+  /* --- мы: такая же точка на карте --- */
+  const hq=document.createElement('div');hq.className='mk hq';
+  hq.title='Мы — такая же точка на карте: 3 человека, 5 агентов. Нажмите — орграмма';
+  hq.onclick=()=>{openTab('org','us','Мы · люди и агенты');selectAgent(null);};
+  mkMarker('hq',[-73.99,40.75],hq);
+
+  /* --- человечки вокруг выбранного юрлица --- */
+  const selA=S.sel&&S.sel.type==='acc'?ACCBY[S.sel.id]:null;
+  if(selA&&S.orgOpen){
+    const P=peopleOf(selA),miss=selA===BRIGHT?2:-1;
+    const box=document.createElement('div');box.className='mkorg';
+    const pos=[[0,-64],[-62,-30],[62,-30]];
+    pos.forEach(q=>{const ln=document.createElement('i');ln.className='ln';
+      const len=Math.hypot(q[0],q[1]+14),ang=Math.atan2(q[1]+14,q[0])*180/Math.PI;
+      ln.style.width=len+'px';ln.style.left='0px';ln.style.top='-14px';ln.style.transform=`rotate(${ang}deg)`;
+      box.appendChild(ln);});
+    P.forEach((p,i)=>{const n=document.createElement('div');
+      n.className='node'+(i===miss?' miss':'');
+      n.style.left=pos[i][0]+'px';n.style.top=pos[i][1]+'px';
+      n.innerHTML=`<span>${esc(p.nm.split(' ').slice(-1)[0])} · ${esc(p.role.split(' ')[0])}</span><i></i>`;
+      n.title=`${p.nm} — ${p.role}${i===miss?' · не хватает его согласия для подписи':''} → лог общения`;
+      n.onclick=ev=>{ev.stopPropagation();openRef('person:'+p.id);};
+      box.appendChild(n);});
+    mkMarker('org',llOf(selA),box);
+  }
+
+  $('legend').innerHTML=S.seg?`<span>ARR за 4 нед.</span><span class="grad"></span><span class="num">−4 % … +4 %</span><span>· размер = $ рынка сегмента</span><span><i style="background:var(--agent);border-radius:1px;transform:rotate(45deg)"></i>мы</span>`
+    :`<span><i style="background:var(--up)"></i>▲ движется</span><span><i style="background:var(--down)"></i>▼ застряло ≥ 8 дн или сигнал ухода</span><span><i style="background:var(--flat)"></i>■ ровно</span>${t>NOW?'<span>полупрозрачно — прогноз</span>':''}<span><i style="background:var(--agent);border-radius:1px;transform:rotate(45deg)"></i>мы</span>`;
+}
+function scaleMarks(){}
+function selectAcc(a){S.sel={type:'acc',id:a.id};S.sopAcc=a.id;S.orgOpen=true;S.level='people';
+  if(S.primary!=='map'||S.source){S.tab='map';renderEditor();}
+  if(ML&&MLREADY)ML.flyTo({center:llOf(a),zoom:Math.max(ML.getZoom(),13),duration:900});
+  setEnt('acc');renderAllButMap();renderMap();}
 function segMetrics(g){const sv=S.seg;S.seg=g.id;const a=formulaAt(S.t),b=formulaAt(Math.max(TMIN,S.t-WIN));S.seg=sv;
   return {mkt:a.N*g.acv,N:a.N,arr:a.end,d:b.end?a.end/b.end-1:0};}
 function renderTreemap(){
@@ -1373,7 +1501,7 @@ function renderTreemap(){
   const sw=$('mapsw');
   if(sw)sw.innerHTML=[['geo','география','где физически сидит офис и кто там работает'],['tree','доли рынка','площадь — $ рынка сегмента']]
     .map(([k,nm,why])=>`<button data-mapview="${k}" aria-pressed="${(S.mapView||'geo')===k}" data-tip="${esc(why)}">${nm}</button>`).join('');
-  box.classList.toggle('on',on);$('map').style.opacity=on?'0':'1';
+  box.classList.toggle('on',on);const mm=$('mlmap');if(mm)mm.style.opacity=on?'0':'1';
   const zb=document.querySelector('.zbtn');if(zb)zb.style.display=on?'none':'';
   const lg=$('legend');if(lg)lg.style.display=on?'none':'';
   if(!on){box.innerHTML='';return;}
@@ -1391,67 +1519,10 @@ function renderTreemap(){
       <span class="num">рынок ${usd(m.mkt)} · ${int(m.N)} юрлиц</span>
       <span class="d ${m.d>=0?'up':'down'}">ARR ${usd(m.arr)} ${m.d>=0?'▲':'▼'} ${Math.abs(m.d*100).toFixed(1)} %</span></button>`;}).join('')
     +`<div class="tmh">площадь — $ рынка сегмента · цвет — движение ARR за 4 недели · клик открывает географию внутри сегмента</div>`;}
-function zoomTo(x,y,k){svg.transition().duration(700).call(zoom.transform,d3.zoomIdentity.translate(487.5,305).scale(k).translate(-x,-y));}
-function zoomToFeature(f){const [[x0,y0],[x1,y1]]=pathG.bounds(f),k=Math.max(2.2,Math.min(9,.85/Math.max((x1-x0)/975,(y1-y0)/610)));zoomTo((x0+x1)/2,(y0+y1)/2,k);}
 function stateStats(ab){let n=0,v=0;for(const g of SEGS){if(S.seg&&g.id!==S.seg)continue;const c=(POP[ab]||0)*g.perM;n+=c;v+=c*g.acv;}
   const F=formulaAt(S.t,ab);return {n,v,d:F.start?F.end/F.start-1:0,end:F.end};}
 function stateTip(f){const s=stateStats(f.abbr);return `${f.properties.name} · ${int(s.n)} юрлиц · ${usd(s.v)} рынка · наш ARR ${usd(s.end)} ${s.d>=0?'▲':'▼'} ${Math.abs(s.d*100).toFixed(1)} % за 4 нед.`;}
 function tradeCol(d,span=.04){const m=Math.min(Math.abs(d)/span,1);const c=d<0?'var(--down)':'var(--up)';return `color-mix(in srgb, ${c} ${Math.round(18+m*82)}%, var(--land))`;}
-function renderMap(){ setTimeout(renderTreemap,0);
-  if(!svg)return;
-  const seg=S.level==='segment';
-  $('mapbox').classList.toggle('future',S.t>NOW);
-  gStates.selectAll('path').classed('hot',f=>!seg&&(f.abbr==='TX'||f.abbr==='FL')&&S.t>=36);
-  // segment level: bubble per state, size = $ market, colour = ARR change (Finviz / TradingView)
-  const stats=seg?statesF.map(f=>({f,s:stateStats(f.abbr),c:pathG.centroid(f)})).filter(x=>x.s.end>0&&Math.abs(x.s.d)>=.002&&isFinite(x.c[0])):[];
-  const rS=d3.scaleSqrt().domain([0,d3.max(stats,x=>x.s.v)||1]).range([0,26]);
-  const bb=gBub.selectAll('g').data(stats,x=>x.f.abbr).join(en=>{const g=en.append('g');g.append('circle').attr('class','bub');g.append('text').attr('class','bubt').attr('text-anchor','middle');return g;});
-  bb.attr('transform',x=>`translate(${x.c[0]},${x.c[1]})`);
-  bb.select('circle').attr('r',x=>Math.max(7,rS(x.s.v))).style('fill',x=>tradeCol(x.s.d)).on('click',(ev,x)=>zoomToFeature(x.f)).on('pointermove',(ev,x)=>tipShow(ev,stateTip(x.f))).on('pointerleave',tipHide);
-  bb.select('text').attr('dy','0.35em').attr('class',x=>'bubt'+(Math.abs(x.s.d)<.012?' o':'')).text(x=>Math.max(7,rS(x.s.v))>13?`${x.f.abbr} ${x.s.d>=0?'▲':'▼'} ${Math.abs(x.s.d*100).toFixed(1).replace('.',',')}`:x.f.abbr);
-  // accounts level: metro clusters (supercluster-style) until zoomed close
-  const vis=seg?[]:ACC.filter(a=>{const e=stateAt(a,S.t);if(!e||!inF(a))return false;if(e.s>=7&&S.t-e.w>=3)return false;if(S.downOnly&&momentum(a,S.t)>=0)return false;return true;});
-  const clustered=!seg&&S.K<4.5&&!(S.sel&&S.sel.type==='acc');
-  const clus=clustered?d3.groups(vis,a=>a.mi).map(([mi,arr])=>{const m=METROS[mi],[x,y]=proj([m[2],m[3]]);const up=arr.filter(a=>momentum(a,S.t)>0).length,dn=arr.filter(a=>momentum(a,S.t)<0).length;return {mi,x,y,n:arr.length,up,dn,m};}):[];
-  gClu.selectAll('g').data(clus,c=>c.mi).join(en=>{const g=en.append('g').attr('class','clu');g.append('circle');g.append('text').attr('text-anchor','middle').attr('dy','0.35em');return g;})
-    .each(function(c){const g=d3.select(this);const bal=(c.up-c.dn)/c.n;g.select('circle').attr('r',8+Math.sqrt(c.n)*2.4).style('fill',bal<0?'var(--down)':bal>0?'var(--up)':'var(--flat)');g.select('text').text(c.n);})
-    .on('click',(ev,c)=>{ev.stopPropagation();zoomTo(c.x,c.y,6.5);})
-    .on('pointermove',(ev,c)=>tipShow(ev,`${c.m[0]}, ${c.m[1]} · ${c.n} юрлиц · ▲ ${c.up} движутся · ▼ ${c.dn} застряли или уходят`)).on('pointerleave',tipHide);
-  const pts=clustered||seg?[]:vis;
-  const top=new Set(pts.slice().sort((x,y)=>y.acv-x.acv).slice(0,5).map(a=>a.id));pts.forEach(a=>a.top=top.has(a.id));
-  gAcc.selectAll('g.acc').data(pts,a=>a.id).join(en=>{const g=en.append('g').attr('class','acc');g.append('rect').attr('class','c');g.append('circle').attr('class','d');g.append('text');g.append('circle').attr('class','ring').attr('r',9);
-      g.attr('tabindex',0).attr('role','button').on('click',(ev,a)=>{ev.stopPropagation();selectAcc(a);}).on('keydown',(ev,a)=>{if(ev.key==='Enter')selectAcc(a);}).on('pointerenter',(ev,a)=>{a.hov=1;scaleMarks();}).on('pointermove',(ev,a)=>tipShow(ev,accPhrase(a,S.t))).on('pointerleave',(ev,a)=>{a.hov=0;scaleMarks();tipHide();});return g;})
-    .each(function(a){const g=d3.select(this),m=momentum(a,S.t),e=stateAt(a,S.t);g.classed('fc',S.t>NOW&&e.w>NOW);
-      g.attr('aria-label',accPhrase(a,S.t));g.select('circle.d').attr('r',4.5).style('fill',m>0?'var(--up)':m<0?'var(--down)':'var(--flat)');
-      g.select('.ring').style('display',S.sel&&S.sel.id===a.id?null:'none');
-      g.datum().label=`${a.tk} ${arrow(m)} ${STAGE[e.s]} ${usd(acvAt(a,S.t))}`;});
-  // person over the selected account; our HQ as one more point
-  const selA=S.sel&&S.sel.type==='acc'?ACCBY[S.sel.id]:null;
-  gPer.selectAll('g.person').data(selA?[selA]:[],a=>a.id).join(en=>{const g=en.append('g').attr('class','person');g.append('circle').attr('class','pr').attr('r',12).attr('cy',-26);g.append('circle').attr('class','pb').attr('r',4).attr('cy',-31);g.append('path').attr('class','pb').attr('d','M-7,-17 Q0,-29 7,-17 Z');
-      g.on('click',(ev,a)=>{ev.stopPropagation();S.orgOpen=!S.orgOpen;renderMap();}).on('pointermove',(ev,a)=>tipShow(ev,`Люди ${a.name}: ${peopleOf(a).map(p=>p.nm+' — '+p.role).join(' · ')} → нажмите: органиграмма`)).on('pointerleave',tipHide);return g;});
-  const orgData=selA&&S.orgOpen?peopleOf(selA).map((p,i)=>({p,a:selA,i})):[];
-  gPer.selectAll('g.org').data(orgData.length?[selA]:[],a=>a.id).join(en=>{const g=en.append('g').attr('class','org');return g;})
-    .each(function(a){const g=d3.select(this);g.selectAll('*').remove();const pos=[[0,-70],[-46,-34],[46,-34]];const miss=a===BRIGHT?2:-1;
-      pos.slice(1).forEach(q=>g.append('line').attr('class','orgl').attr('x1',0).attr('y1',-62).attr('x2',q[0]).attr('y2',q[1]-8));
-      g.append('line').attr('class','orgl').attr('x1',0).attr('y1',-38).attr('x2',0).attr('y2',-8);
-      peopleOf(a).forEach((p,i)=>{const n=g.append('g').attr('class','orgn'+(i===miss?' miss':'')).attr('transform',`translate(${pos[i][0]},${pos[i][1]})`).attr('tabindex',0).attr('role','button')
-        .on('click',ev=>{ev.stopPropagation();openRef('person:'+p.id);}).on('pointermove',ev=>tipShow(ev,`${p.nm} — ${p.role}${i===miss?' · не хватает его согласия для подписи':''} → лог общения`)).on('pointerleave',tipHide);
-        n.append('circle').attr('r',8);n.append('text').attr('y',-12).attr('text-anchor','middle').text(p.nm.replace(/^Dr\. /,'Dr. ').split(' ').slice(-1)[0]+' · '+p.role.split(' ')[0]);});});
-  gHQ.selectAll('g.hq').data([US]).join(en=>{const g=en.append('g').attr('class','hq');g.append('path').attr('d','M0,-9 L9,0 L0,9 L-9,0 Z');g.append('text').attr('x',13).attr('y',4).text('Bobroff (мы)');
-      g.on('click',ev=>{ev.stopPropagation();openTab('org','us','Мы · люди и агенты');selectAgent(null);}).on('pointermove',ev=>tipShow(ev,'Мы — такая же точка на карте: 3 человека, 5 агентов. Нажмите — орграмма')).on('pointerleave',tipHide);return g;});
-  scaleMarks();
-  $('legend').innerHTML=seg?`<span>ARR за 4 нед.</span><span class="grad"></span><span class="num">−4 % … +4 %</span><span>· размер = $ рынка сегмента</span><span><i style="background:var(--agent);border-radius:1px;transform:rotate(45deg)"></i>мы</span>`
-    :`<span><i style="background:var(--up)"></i>▲ движется</span><span><i style="background:var(--down)"></i>▼ застряло ≥ 8 дн или сигнал ухода</span><span><i style="background:var(--flat)"></i>■ ровно</span>${S.t>NOW?'<span>полупрозрачно — прогноз</span>':''}<span><i style="background:var(--agent);border-radius:1px;transform:rotate(45deg)"></i>мы</span>`;
-}
-function scaleMarks(){const k=S.K,s=(0.6+0.4*Math.min(k,8)/8)/k,chips=k>=9;
-  gClu.selectAll('g').attr('transform',c=>`translate(${c.x},${c.y}) scale(${1/k*Math.min(1.6,0.8+k*.12)})`);
-  gBub.selectAll('g').attr('transform',x=>`translate(${x.c[0]},${x.c[1]}) scale(${1/Math.sqrt(k)})`);
-  gAcc.selectAll('g.acc').attr('transform',a=>`translate(${a.x},${a.y}) scale(${s})`).each(function(a){const g=d3.select(this),t=g.select('text');
-    if(chips&&(a.top||(S.sel&&S.sel.id===a.id)||a.hov)){t.attr('x',9).attr('y',3.5).text(a.label).style('fill',null);const w=a.label.length*6.1+16;g.select('rect').attr('x',-7).attr('y',-8).attr('width',w).attr('height',16).attr('rx',8).style('display',null);}
-    else{t.text('');g.select('rect').style('display','none');}});
-  gPer.selectAll('g.person,g.org').attr('transform',a=>`translate(${a.x},${a.y}) scale(${s})`);
-  gHQ.selectAll('g.hq').attr('transform',`translate(${US.x},${US.y}) scale(${1/k*Math.min(1.5,.9+k*.08)})`);}
-function selectAcc(a){S.sel={type:'acc',id:a.id};S.sopAcc=a.id;S.orgOpen=true;S.level='people';if(S.primary!=='map'||S.source){S.tab='map';renderEditor();}zoomTo(a.x,a.y,Math.max(S.K,11));setEnt('acc');renderAllButMap();renderMap();}
 function selectAgent(id){S.sel=id?{type:'agent',id}:null;setEnt('ag');renderAllButMap();}
 function renderFormula(){
   const F=formulaAt(S.t),P=formulaAt(S.t-WIN),ap=S.t>NOW?'≈ ':'';
@@ -2269,7 +2340,7 @@ document.addEventListener('click',e=>{
   if(b.dataset.tab){S.tab=b.dataset.tab;renderEditor();return;}
   if(b.dataset.close){const i=S.tabs.findIndex(t=>t.id===b.dataset.close);S.tabs.splice(i,1);if(S.tab===b.dataset.close)S.tab=S.tabs[Math.max(0,i-1)].id;renderEditor();return;}
   if(b.dataset.clearsel){S.sel=null;renderAll();return;}
-  if(b.dataset.level){const l=b.dataset.level;if(l==='segment'){S.sel=null;svg.transition().duration(600).call(zoom.transform,d3.zoomIdentity);}else if(l==='accounts'){S.sel=null;zoomToFeature(statesF.find(f=>f.abbr==='TX'));}else selectAcc(BRIGHT);return;}
+  if(b.dataset.level){const l=b.dataset.level;if(l==='segment'){S.sel=null;if(ML)ML.flyTo({center:[-98.5,39.5],zoom:3.1,duration:800});}else if(l==='accounts'){S.sel=null;zoomToFeature(statesF.find(f=>f.abbr==='TX'));}else selectAcc(BRIGHT);return;}
   if(b.dataset.seg!==undefined){S.seg=b.dataset.seg||null;renderAll();return;}
   if(b.id==='fDown'){S.downOnly=!S.downOnly;renderAll();return;}
   if(b.dataset.knob){const [id,k]=b.dataset.knob.split(':');logAdd(id,`Ручка: ${KNOB[S.knob[id]]} → ${KNOB[+k]} (${$('profile').selectedOptions[0].text})`,['flat','правка']);S.knob[id]=+k;renderAll();return;}
