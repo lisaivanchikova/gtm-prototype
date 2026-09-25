@@ -62,20 +62,21 @@ q{quotes:"«" "»"}
 .lbtn svg{width:16px;height:16px}
 .profile{height:24px;font-size:12px;padding:0 6px;margin-left:6px;min-width:0;max-width:clamp(88px,17vw,200px)}
 
-.body{display:grid;grid-template-columns:48px var(--sbw,270px) 4px minmax(0,1fr) 4px var(--agw,340px);min-height:0}
+.body{display:grid;grid-template-columns:66px var(--sbw,270px) 4px minmax(0,1fr) 4px var(--agw,340px);min-height:0}
 @media (max-width:1100px){.body{--agw:300px}}
 .activity{grid-column:1;grid-row:1}.sidebar{grid-column:2;grid-row:1}.g1{grid-column:3;grid-row:1}.center{grid-column:4;grid-row:1}.g2{grid-column:5;grid-row:1}.agentbar{grid-column:6;grid-row:1}
 .fever{max-height:180px}
-.body.no-side{grid-template-columns:48px 0 0 minmax(0,1fr) 4px var(--agw,360px)}
-.body.no-agent{grid-template-columns:48px var(--sbw,270px) 4px minmax(0,1fr) 0 0}
-.body.no-side.no-agent{grid-template-columns:48px 0 0 minmax(0,1fr) 0 0}
+.body.no-side{grid-template-columns:66px 0 0 minmax(0,1fr) 4px var(--agw,360px)}
+.body.no-agent{grid-template-columns:66px var(--sbw,270px) 4px minmax(0,1fr) 0 0}
+.body.no-side.no-agent{grid-template-columns:66px 0 0 minmax(0,1fr) 0 0}
 .body.swap{direction:rtl}.body.swap>*{direction:ltr}
 .activity{background:var(--act);border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;padding-top:4px;gap:2px}
-.activity button{width:48px;height:44px;display:flex;align-items:center;justify-content:center;color:var(--fg3);border-left:2px solid transparent;position:relative}
+.activity button{width:66px;min-height:46px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:var(--fg3);border-left:2px solid transparent;position:relative;padding:5px 2px}
+.activity .cap{font-family:var(--mono);font-size:8.5px;letter-spacing:.02em;line-height:1;white-space:nowrap}
 .activity button:hover{color:var(--fg)}
 .activity button[aria-pressed="true"]{color:var(--fg);border-left-color:var(--accent)}
-.activity svg{width:22px;height:22px}
-.activity .badge{position:absolute;right:8px;bottom:8px;min-width:15px;height:15px;border-radius:8px;background:var(--accent);color:var(--on-accent);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;padding-inline:3px}
+.activity svg{width:19px;height:19px}
+.activity .badge{position:absolute;right:7px;top:4px;min-width:15px;height:15px;border-radius:8px;background:var(--accent);color:var(--on-accent);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;padding-inline:3px}
 .activity .sp{flex:1}
 .sidebar{background:var(--side);border-right:1px solid var(--border);display:flex;flex-direction:column;min-width:0;overflow:hidden}
 .no-side .sidebar,.no-side .g1{display:none}
@@ -121,6 +122,13 @@ q{quotes:"«" "»"}
 .sec.fold .sum{margin-left:auto;font-family:var(--ui);font-size:10px;font-weight:400;letter-spacing:0;text-transform:none;color:var(--fg3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:60%}
 .grp2{font-family:var(--mono);font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--fg3);padding:10px 12px 2px;border-top:1px solid var(--border);margin-top:6px}
 .grp2:first-child{border-top:0;margin-top:0}
+.pl{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:middle;flex:none}
+.pl.up{background:var(--up)}.pl.warn{background:var(--warn)}.pl.down{background:var(--down)}.pl.flat{background:var(--fg3)}
+.tri .owner{font-family:var(--mono);font-size:9px;letter-spacing:.06em;color:var(--fg3);border:1px solid var(--border);border-radius:9px;padding:1px 6px;margin-left:6px;white-space:nowrap}
+.tri .owner.me{color:var(--link);border-color:var(--link)}
+.tri.mine{box-shadow:inset 2px 0 0 var(--focus)}
+.sidebody .row.alarm{background:color-mix(in srgb,var(--down) 12%,transparent);box-shadow:inset 2px 0 0 var(--down)}
+.sidebody .row.alarm .nm{color:var(--fg)}
 /* выход в полную базу */
 .dbopen{display:flex;align-items:center;gap:8px;width:100%;text-align:left;padding:7px 12px;margin:2px 0 2px;font-size:12px;color:var(--link);border-top:1px dashed var(--border)}
 .dbopen:hover{background:var(--hover)}
@@ -165,6 +173,10 @@ table.db td.num{font-family:var(--mono);text-align:right}
 .scope b{color:var(--fg2);font-weight:600}
 .scope .sep{color:var(--border)}
 .scope .fchip{height:19px}
+.scope .picked{display:inline-flex;align-items:baseline;gap:6px;border:1px solid var(--link);border-radius:11px;padding:1px 9px}
+.scope .picked .lb2{font-family:var(--mono);font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--fg3)}
+.scope .picked .rl{font-size:10.5px;color:var(--fg3)}
+.scope .picked .num{font-family:var(--mono);font-size:11px;color:var(--link)}
 /* Верхний слой карты — не география. Работа №1 решается по сегменту (Core Job),
    а юрлица сегмента разбросаны по всем штатам. Площадь = $ рынка, цвет = движение ARR;
    география включается вторым разрезом внутри выбранного сегмента. */
@@ -273,6 +285,16 @@ table.db td.num{font-family:var(--mono);text-align:right}
 .legend{position:absolute;left:10px;bottom:10px;display:flex;flex-wrap:wrap;gap:4px 12px;align-items:center;font-size:11px;color:var(--fg2);background:color-mix(in srgb,var(--editor) 90%,transparent);border:1px solid var(--border);border-radius:6px;padding:5px 9px;max-width:calc(100% - 70px)}
 .legend i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:4px;vertical-align:-1px}
 .legend .grad{display:inline-block;width:90px;height:8px;border-radius:2px;background:linear-gradient(90deg,var(--down),color-mix(in srgb,var(--down) 35%,var(--land)),var(--land),color-mix(in srgb,var(--up) 35%,var(--land)),var(--up));vertical-align:-1px}
+.skins{display:inline-flex;flex:none;border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-right:8px}
+.skins button{height:22px;padding:0 8px;font-size:10.5px;color:var(--fg3);white-space:nowrap;flex:none}
+.skins button[aria-pressed="true"]{background:var(--selbg);color:var(--fg)}
+.skins button+button{border-left:1px solid var(--border)}
+.skinstub{max-width:680px;margin:40px auto;display:flex;flex-direction:column;gap:10px}
+.skinstub h2{margin:0;font-size:20px}
+.mapsw{position:absolute;left:10px;top:10px;display:flex;border:1px solid var(--border);border-radius:13px;overflow:hidden;background:var(--editor)}
+.mapsw button{height:24px;padding:0 10px;font-size:11px;color:var(--fg3)}
+.mapsw button[aria-pressed="true"]{background:var(--selbg);color:var(--fg)}
+.mapsw button+button{border-left:1px solid var(--border)}
 .zbtn{position:absolute;right:10px;bottom:10px;display:flex;flex-direction:column;border:1px solid var(--border);border-radius:6px;overflow:hidden;background:var(--editor)}
 .zbtn button{width:28px;height:26px;text-align:center;font-size:15px;color:var(--fg2)}
 .zbtn button+button{border-top:1px solid var(--border)}
@@ -464,7 +486,7 @@ table.db td.num{font-family:var(--mono);text-align:right}
   .activity,.sidebar,.g1,.center,.g2,.agentbar{grid-column:auto;grid-row:auto}
   body{overflow:auto}
   .app{height:auto;min-height:100%}
-  .body,.body.no-side,.body.no-agent{grid-template-columns:48px minmax(0,1fr);grid-auto-rows:auto}
+  .body,.body.no-side,.body.no-agent{grid-template-columns:66px minmax(0,1fr);grid-auto-rows:auto}
   .sidebar,.g1,.g2{display:none}
   .agentbar{grid-column:1/-1;border-left:0;border-top:1px solid var(--border);max-height:none}
   .center{grid-template-rows:520px 0 auto}
@@ -562,6 +584,8 @@ table.db td.num{font-family:var(--mono);text-align:right}
 .sfilt .fl span{font-size:11px;color:var(--fg3)}
 .sfilt select{width:100%}
 .sfilt .chips{display:flex;flex-wrap:wrap;gap:4px}
+.sfilt .fchk{display:flex;gap:8px;align-items:flex-start;font-size:12px;color:var(--fg2)}
+.sfilt .fchk i{display:block;font-style:normal;font-size:10.5px;color:var(--fg3)}
 .knobi{display:inline-flex;border:1px solid var(--border);border-radius:9px;overflow:hidden}
 .knobi button{font-size:11px;padding:0 6px;height:17px;color:var(--fg3)}
 .knobi button[aria-pressed="true"]{background:var(--fg);color:var(--editor)}
@@ -729,6 +753,7 @@ table.db td.num{font-family:var(--mono);text-align:right}
       <button class="lbtn" id="tAgent" aria-pressed="true" aria-label="Показать или скрыть агента" data-tip="Агент"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor"><rect x="1.5" y="2.5" width="13" height="11" rx="1.5"/><path d="M10.5 2.5v11"/></svg></button>
       <button class="lbtn" id="tPanelPos" aria-label="Ленты снизу или справа" data-tip="Ленты: снизу ↔ справа"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor"><rect x="1.5" y="2.5" width="13" height="11" rx="1.5"/><path d="M9.5 2.5v11M1.5 8h8"/></svg></button>
       <button class="lbtn" id="tSwap" aria-label="Поменять боковые панели местами" data-tip="Поменять панели местами"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor"><path d="M2 5h11l-3-3M14 11H3l3 3"/></svg></button>
+      <span class="skins" id="skins" role="group" aria-label="Скин отображения"></span>
       <select class="profile" id="profile" aria-label="Кто вошёл">
         <option value="owner">Николай · владелец выручки</option>
         <option value="liza">Лиза · операции, подпись</option>
@@ -933,7 +958,7 @@ const MEET=[{id:'mt1',acc:'a0',who:'Dr. Jonathan Moss',w:38,when:'чт 14:00',tt
             {id:'mt2',acc:'a1',who:'Tom Hale',w:38,when:'не назначена',ttl:'Разбор цены: $1 400 фрилансер против $3 170 с SLA',st:['warn','ждёт согласия']}];
 const S={t:NOW,seg:null,downOnly:false,sel:null,level:'segment',K:1,
   knob:{scout:2,qual:2,seller:2,pricer:1,service:1},profile:'owner',
-  side:'tree',ptab:'market',job:'',stF:'',stage:'',primary:'today',source:null,orgOpen:false,sopAcc:'a0',tabs:[{id:'today',kind:'today',title:'Сегодня'},{id:'map',kind:'map',title:'Карта'},{id:'sop',kind:'sop',title:'SOP'}],tab:'today',
+  side:'tree',ent:'seg',mapView:'geo',bn:0,sent:{},skin:'rev',ef:{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false},ptab:'market',job:'',stF:'',stage:'',primary:'today',source:null,orgOpen:false,sopAcc:'a0',tabs:[{id:'today',kind:'today',title:'Сегодня'},{id:'map',kind:'map',title:'Карта'},{id:'sop',kind:'sop',title:'SOP'}],tab:'today',
   facts:{},docs:{},tri:{},chat:[],layout:{side:true,panel:true,agent:true,panelRight:false,swap:false},sopEdit:false,sopFix:null,steps:JSON.parse(JSON.stringify(STEPS0)),fieldPol:{},hidden:{},dnc:{},knobW:{scout:1,qual:1,seller:1,pricer:1,service:1},rules:JSON.parse(JSON.stringify(RULES0))};
 try{const L=JSON.parse(localStorage.getItem('revos-layout-v3')||'null');if(L)Object.assign(S.layout,L);}catch(e){}
 if(window.innerWidth<1280&&!(()=>{try{return localStorage.getItem('revos-layout-v3')}catch(e){return null}})())S.layout.side=false;
@@ -978,7 +1003,7 @@ function peopleActs(a,t){const e=stateAt(a,t),P=peopleOf(a);if(!e)return[];const
 const SRC={
   sos:['TX SOS','#5c6b7a'],hhs:['HHS','#1c5cab'],indeed:['Indeed','#2557a7'],fed:['FedReg','#4a3aa7'],dbj:['DBJ','#b0413e'],ms:['MSFT','#00a4ef'],me:['Я','#8b8b8b'],
   docusign:['DocuSign','#d4a017'],pandadoc:['PandaDoc','#1baf7a'],quickbooks:['QuickBooks','#2ca01c'],rmm:['RMM','#6b7280'],crm:['CRM','#7a4fd6'],pdf:['PDF','#e34948'],
-  gmail:['Gmail','#d44638'],linkedin:['LinkedIn','#0a66c2'],aircall:['Aircall','#00b388'],teams:['Teams','#5b5fc7'],agent:['журнал агента','#7a4fd6']};
+  conf:['конференция','#8a6fd6'],gmail:['Gmail','#d44638'],linkedin:['LinkedIn','#0a66c2'],aircall:['Aircall','#00b388'],teams:['Teams','#5b5fc7'],agent:['журнал агента','#7a4fd6']};
 const MARKET=[
   {id:'m1',src:'sos',when:'2 ч',ttl:'214 новых юрлиц NAICS 6212 (стоматология) в DFW за сентябрь',seg:'cmp',st:'TX',hits:'Сегмент ×',facts:['214 регистраций 01–23.09','рост +18 % к августу'],url:'sos.state.tx.us'},
   {id:'m2',src:'hhs',when:'1 дн',ttl:'3 утечки медданных в стоматологиях Техаса за 30 дней — триггер HIPAA-аудита у соседей',seg:'cmp',st:'TX',hits:'Охват ×',facts:['3 инцидента в реестре OCR','затронуто 11 400 пациентов'],url:'ocrportal.hhs.gov'},
@@ -1017,6 +1042,17 @@ const pct=(v,d=1)=>(v*100).toFixed(d).replace('.',',')+'\u00a0%';
 const int=v=>Math.round(v).toLocaleString('ru-RU');
 const segBy=id=>SEGS.find(s=>s.id===id);
 const agBy=id=>AGENTS.find(a=>a.id===id);
+/* «Сигнал сегодня не является сигналом послезавтра… по формуле Шеннона сигнал — это
+   отклонение от нормы» (Николай, 25.09, 52:00). Факт перестаёт быть сигналом двумя путями:
+   человек сам отметил его общим местом, либо он подтверждён и с тех пор прошло 3 недели. */
+const COMMON_W=3;
+function isCommon(n){
+  if(S.common&&S.common[n.id])return true;
+  const f=S.facts[n.id];
+  if(!f||Object.values(f).includes('no')||f.all==='x')return false;
+  const age=(function(){const m=String(n.when||'').match(/(\d+)/);if(/нед/.test(String(n.when)))return +m[1];if(/дн/.test(String(n.when)))return (+m[1])/7;return 0;})();
+  return age>=COMMON_W;
+}
 const DN=['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
 function wkd(w){const d=new Date(2026,8,14+(w-NOW)*7),e=new Date(d);e.setDate(d.getDate()+6);return `${d.getDate()}${d.getMonth()!==e.getMonth()?' '+DN[d.getMonth()]:''}–${e.getDate()} ${DN[e.getMonth()]}`;}
 const ago=w=>{const d=(S.t-w)*7;return d<=0?'сейчас':d+' дн';};
@@ -1043,11 +1079,56 @@ const ICONS={
   sop:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="6" height="5" rx="1"/><rect x="15" y="4" width="6" height="5" rx="1"/><rect x="9" y="15" width="6" height="5" rx="1"/><path d="M6 9v3h12V9M12 12v3"/></svg>',
   mark:'<svg viewBox="60 362 905 300" fill="none"><circle cx="815.5" cy="511.5" r="125" stroke="currentColor" stroke-opacity=".3" stroke-width="50"/><circle cx="679.5" cy="511.5" r="125" stroke="currentColor" stroke-opacity=".6" stroke-width="50"/><circle cx="543.5" cy="511.5" r="125" stroke="currentColor" stroke-width="50"/><circle cx="209.5" cy="511.5" r="150" fill="currentColor"/></svg>',
   bot:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="4.5" y="8" width="15" height="11" rx="3.5"/><path d="M12 4.2v3.8M8.8 13h.01M15.2 13h.01M9.6 16.2h4.8"/></svg>',
-  account:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8.5" r="3.5"/><path d="M5 20c1-4 4-5.5 7-5.5s6 1.5 7 5.5"/></svg>'};
+  account:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8.5" r="3.5"/><path d="M5 20c1-4 4-5.5 7-5.5s6 1.5 7 5.5"/></svg>',
+  e_seg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 3.5 21 8l-9 4.5L3 8z"/><path d="M3 12.5 12 17l9-4.5M3 16.5 12 21l9-4.5"/></svg>',
+  e_acc:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="4" width="10" height="16" rx="1"/><path d="M14 10h6v10h-6M7 8h4M7 12h4M7 16h4M17 14h.01"/></svg>',
+  e_ppl:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="9" cy="8" r="3"/><path d="M3 19c.8-3.4 3.2-4.8 6-4.8s5.2 1.4 6 4.8"/><circle cx="17.5" cy="7" r="2.3"/><path d="M16 12.6c2.3-.3 4.3 1 5 4.4"/></svg>',
+  e_flow:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2.5" y="4" width="6" height="4.5" rx="1"/><rect x="15.5" y="4" width="6" height="4.5" rx="1"/><rect x="9" y="15.5" width="6" height="4.5" rx="1"/><path d="M5.5 8.5V12h13V8.5M12 12v3.5"/></svg>',
+  e_us:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3.5 10.5 12 4l8.5 6.5V20H3.5z"/><path d="M9.5 20v-5h5v5"/></svg>'};
+/* Шесть сущностей — единственное место выбора. Кнопка сверху, фильтры этой сущности
+   под ней, лента внизу идёт за ней же. Второго переключателя над лентой больше нет. */
+const ENTS=[
+  ['seg','Сегменты','e_seg','рынок: где деньги и какие факты про него ходят'],
+  ['acc','Юрлица','e_acc','компании и документы — язык, которым юрлицо говорит'],
+  ['ppl','Люди','e_ppl','кто что сказал словом и кому нужен ответ в срок'],
+  ['flow','Потоки','e_flow','связи людей друг с другом ради документа'],
+  ['ag','Агенты','bot','кто работает за нас, с какой свободой и где её край'],
+  ['us','Мы','e_us','наша организация — такая же точка на карте']];
+const ENTNM={seg:'Сегменты',acc:'Юрлица',ppl:'Люди',flow:'Потоки',ag:'Агенты',us:'Мы'};
+const ENTFEED={seg:'market',acc:'account',ppl:'people',flow:'account',ag:'agents',us:'agents'};
+function setEnt(k){if(!k||S.ent===k){S.ptab=S.mail?'channel':ENTFEED[S.ent];return;}S.ent=k;S.ptab=ENTFEED[k];S.mail=null;}
+function entBadge(k){
+  const t=S.t;
+  if(k==='acc')return ACC.filter(a=>momentum(a,t)<0&&inF(a)).length;
+  if(k==='ag')return AGENTS.filter(a=>a.state!=='active').length;
+  if(k==='us')return AGENTS.filter(a=>a.state==='paused'||a.state==='error').length;
+  if(k==='ppl')return feedItems('people').filter(x=>x.sig).length;
+  if(k==='seg')return MARKET.filter(n=>!S.facts[n.id]).length;
+  return 0;
+}
+/* «Можно отображение просто сверху поставить, сделать три скина… временно»
+   (Николай, 25.09, 1:27:25). Бэкенд и база CRM остаются как есть — меняется только экран. */
+const SKINS=[['rev','Revenue OS','единый экран: формула, карта, потоки, агенты'],
+             ['gtm','GTM','движок аутрича: ящики, прогрев, что дошло'],
+             ['crm','CRM','классические формы и карточки — сборка Левона']];
+function renderSkins(){
+  $('skins').innerHTML=SKINS.map(([k,nm,why])=>`<button data-skin="${k}" aria-pressed="${(S.skin||'rev')===k}" data-tip="${esc(nm+' · '+why)}">${nm}</button>`).join('');
+}
+function skinStub(){
+  const k=S.skin, m=SKINS.find(x=>x[0]===k);
+  const what={gtm:[['Ящики и домены','4 ящика, прогрев, суточные лимиты'],['Что дошло','доставки, отказы, отписки, жалобы'],['Кампании и шаблоны','по штатам и сегментам']],
+              crm:[['Карточка юрлица','поля, владелец, этап, суммы'],['Карточка человека','контакты, каналы, история'],['Сделки и задачи','классический канбан и формы ввода']]}[k]||[];
+  return `<div class="skinstub"><h2>Скин «${esc(m[1])}»</h2>
+    <div class="note">${esc(m[2])}. Скин временный: <b>данные и бэкенд те же</b> — меняется только экран. Эти разделы живут в сборке Левона и сюда пока не перенесены.</div>
+    <div class="facts">${what.map(([a,b])=>`<div class="fact"><div class="grow"><div>${esc(a)}</div><div class="note">${esc(b)}</div></div><span class="chip flat">в сборке Левона</span></div>`).join('')}</div>
+    <div class="btns"><button class="btn pri" data-skin="rev">Вернуться в Revenue OS</button>${k==='gtm'?`<button class="btn" data-do="openchannel">Открыть «что дошло» здесь</button>`:''}</div>
+    <div class="note">Цель — чтобы всё это со временем оказалось на одном экране: «мне бы хотелось, чтобы всё было в Люсине, в едином интерфейсе».</div></div>`;
+}
 function renderActivity(){
-  const items=[['tree','Дерево и фильтры'],['search','Поиск']];
-  const n=ACC.filter(a=>momentum(a,S.t)<0&&inF(a)).length;
-  $('activity').innerHTML=items.map(([k,t])=>`<button data-side="${k}" aria-pressed="${S.side===k&&S.layout.side}" aria-label="${t}" data-tip="${t}">${ICONS[k]}${k==='tree'?`<span class="badge">${n>99?'99+':n}</span>`:''}</button>`).join('')+`<span class="sp"></span><button data-side="profile" aria-label="Профиль" data-tip="Профиль: ${esc($('profile').selectedOptions[0].text)}">${ICONS.account}</button>`;
+  $('activity').innerHTML=ENTS.map(([k,nm,ic,why])=>{
+    const n=entBadge(k), on=S.ent===k&&S.layout.side;
+    return `<button data-ent="${k}" aria-pressed="${on}" aria-label="${esc(ENTNM[k])}" data-tip="${esc(ENTNM[k]+' · '+why)}">${ICONS[ic]}<span class="cap">${esc(ENTNM[k])}</span>${n?`<span class="badge">${n>99?'99+':n}</span>`:''}</button>`;}).join('')
+    +`<span class="sp"></span><button data-side="profile" aria-pressed="${S.side==='profile'}" aria-label="Профиль" data-tip="Профиль: ${esc($('profile').selectedOptions[0].text)}">${ICONS.account}<span class="cap">Профиль</span></button>`;
 }
 function applyLayout(){
   const b=$('body'),c=$('center'),L=S.layout;
@@ -1084,71 +1165,94 @@ $('tSwap').onclick=()=>{S.layout.swap=!S.layout.swap;applyLayout();};
 function attnList(seg){return ACC.filter(a=>a.seg===seg&&stateAt(a,S.t)).sort((x,y)=>(y.feat-x.feat)||(momentum(x,S.t)-momentum(y,S.t))).slice(0,6);}
 function accRow(a,ind=2){const m=momentum(a,S.t),e=stateAt(a,S.t);return `<button class="row ${S.sel&&S.sel.id===a.id?'on':''}" data-open="acc:${a.id}" style="padding-left:${ind*12}px"><span class="tw"></span>${av(a.name,a.hue,'sq')}<span class="nm" title="${esc(a.name)}">${esc(a.name)}</span><span class="rt"><span class="${mcls(m)}">${arrow(m)}</span> ${e?STAGE[e.s]:''}</span></button>`;}
 function renderSide(){
-  const T={tree:'Дерево',machine:'Машина',explorer:'Дерево',search:'Поиск',filters:'Фильтры',agents:'Агенты и люди',sop:'SOP · процессы',profile:'Профиль'};
-  $('sideTitle').textContent=T[S.side];let h='';
+  $('sideTitle').textContent=S.side==='tree'?(ENTNM[S.ent]||'Сегменты'):'Профиль';let h='';
   if(S.side==='tree'){
-    const t=S.t;
-    S.fold=S.fold||{flt:true};
-    const off=k=>!!S.fold[k];
-    const sec=(k,label,cnt,sum)=>`<div class="sec fold ${off(k)?'closed':''}" data-fold="${k}"><span class="tw">${off(k)?'▸':'▾'}</span>${label}${cnt!=null?`<span class="cnt2">${cnt}</span>`:''}${sum?`<span class="sum">${esc(sum)}</span>`:''}</div>`;
+    const ent=S.ent||'seg', tt=S.t;
+    S.ef=S.ef||{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false};
     const rule=x=>`<div class="subrule"><span>${x}</span></div>`;
+    const chips=(label,name,opts,cur)=>`<div class="fl"><span>${esc(label)}</span><div class="chips">`+
+      opts.map(([v,nm,tip])=>`<button class="fchip" data-ef="${name}:${v}" aria-pressed="${cur===v}"${tip?` data-tip="${esc(tip)}"`:''}>${esc(nm)}</button>`).join('')+`</div></div>`;
 
-    /* фильтры наверху: строкой видно, что включено, разворачивается по клику */
-    const fsum=[S.seg?segBy(S.seg).name:'все сегменты',S.stF||'все штаты',S.stage?STAGE[S.stage]:'вся воронка',S.downOnly?'только ▼':''].filter(Boolean).join(' · ');
-    h+=sec('flt','Фильтры',null,fsum);
-    if(!off('flt'))h+=filtersHTML();
-
-    /* срезы — сохранённые гипотезы */
-    const SL=(S.slices||(S.slices=SLICE0.slice()));
-    const cf=curF(), act=SL.find(x=>sameF(x.f,cf));
-    h+=sec('slc','Срезы',SL.length);
-    if(!off('slc')){
-      h+=rule('сохранённая область расчёта с именем и причиной · применяется в один клик');
-      h+=SL.map(x=>`<button class="row ${act&&act.id===x.id?'on':''}" data-slice="${x.id}" data-tip="${esc(x.why)}">
-        <span class="av sq">◧</span><span class="nm">${esc(x.nm)}</span><span class="rt"><span class="stg">${int(sliceCount(x.f))}</span></span></button>`).join('');
-      h+=`<button class="dbopen" data-do="slicesave" data-tip="Запомнить текущую область расчёта как срез">
-        <b>＋ сохранить текущую область</b> <i>${esc([S.seg?segBy(S.seg).name:'все сегменты',S.stF||'все штаты',S.stage?STAGE[S.stage]:'вся воронка',S.downOnly?'только ▼':''].filter(Boolean).join(' · '))}</i></button>`;
+    /* ---------- СЕГМЕНТЫ ---------- */
+    if(ent==='seg'){
+      h+=rule('рынок сверху. Выбранный сегмент пересчитывает формулу, карту и ленту');
+      h+=`<div class="sfilt">`
+        +chips('Сегмент','seg',[['','все']].concat(SEGS.map(g=>[g.id,g.abc+' · '+g.name,'Core Job: «'+g.job+'» · NAICS '+g.naics.join(', ')])),S.seg||'')
+        +`<div class="fl"><span>Job</span><select id="fJob">${JOBS.map(([k,x])=>`<option value="${k}" ${S.job===k?'selected':''}>${x}</option>`).join('')}</select></div>`
+        +`<label class="fchk"><input type="checkbox" id="fNew" ${S.ef.newonly?'checked':''}><span>только непроверенные факты<i>формула их ещё не считает</i></span></label>`
+        +`</div>`;
+      h+=`<div class="grp2">Сегменты · ${SEGS.length}</div>`;
+      h+=SEGS.map(g=>{const M=segMetrics(g);
+        return `<button class="row ${S.seg===g.id?'on':''}" data-seg="${g.id}" data-tip="${esc('Core Job: «'+g.job+'» · '+int(M.N)+' юрлиц · рынок '+usd(M.mkt))}">
+          <span class="av sq">${g.abc}</span><span class="nm">${esc(g.name)}</span>
+          <span class="rt"><span class="num">${usd(M.arr)}</span> <span class="${mcls(M.d)}">${arrow(M.d)}${pct(Math.abs(M.d))}</span></span></button>
+        <div class="mailrow"><span class="adr">рынок ${usd(M.mkt)} · ${int(M.N)} юрлиц</span></div>`;}).join('');
     }
-    h+=`<div class="grp2">Мир клиента</div>`;
-    /* ---- юрлица: в дереве только те, где нужен ход; вся база — таблицей ---- */
-    const MODES={attn:['ждут решения','застряли, уходят или спрашивают человека'],
-                 work:['в работе','от первого касания до подписи']};
-    const mode=S.treeMode==='work'?'work':'attn';
-    const allAcc=ACC.filter(a=>stateAt(a,t)&&inF(a));
-    const pick=a=>{const e=stateAt(a,t);if(!e)return false;if(mode==='work')return e.s>=1&&e.s<=4;return e.s<=6&&momentum(a,t)<0;};
-    const sel=allAcc.filter(pick).sort((x,y)=>(y.feat-x.feat)||(momentum(x,t)-momentum(y,t))||(y.acv-x.acv));
-    const shown=sel.slice(0,10);
-    h+=sec('acc','Юрлица',int(allAcc.length));
-    if(!off('acc')){
+
+    /* ---------- ЮРЛИЦА ---------- */
+    else if(ent==='acc'){
+      h+=rule('компания говорит документами. Лента внизу — её документы');
+      h+=filtersHTML();
+      const MODES={attn:['ждут решения','застряли, уходят или спрашивают человека'],
+                   work:['в работе','от первого касания до подписи']};
+      const mode=S.treeMode==='work'?'work':'attn';
+      const allAcc=ACC.filter(a=>stateAt(a,tt)&&inF(a));
+      const pick=a=>{const e=stateAt(a,tt);if(!e)return false;if(mode==='work')return e.s>=1&&e.s<=4;return e.s<=6&&momentum(a,tt)<0;};
+      const sel=allAcc.filter(pick).sort((x,y)=>(y.feat-x.feat)||(momentum(x,tt)-momentum(y,tt))||(y.acv-x.acv));
+      const shown=sel.slice(0,10);
+      h+=`<div class="grp2">Юрлица · ${int(allAcc.length)}</div>`;
       h+=`<div class="subrule"><span>показываю <b>${shown.length}</b> из ${int(sel.length)} · ${MODES[mode][1]}</span>
           <span class="pick">${Object.entries(MODES).map(([k,v])=>`<button data-treemode="${k}" aria-pressed="${mode===k}" data-tip="${esc(v[1])}">${v[0]}</button>`).join('')}</span></div>`;
-      h+=`<button class="row us" data-open="us" data-tip="Мы тоже юрлицо: наши люди и агенты"><span class="av sq bot">${ICONS.mark}</span><span class="nm">Bobroff MSP · мы</span><span class="rt">3 чел · 5 агентов</span></button>`;
-      h+=shown.map(a=>{const e=stateAt(a,t),m=momentum(a,t),d=e?daysIn(e,t):0;
-        const why=stuck(a,e,t)?`стоит ${d} дн`:churnSig(a,e,t)?'сигнал ухода':e&&e.s>=7?'закрыто':'';
+      h+=shown.map(a=>{const e=stateAt(a,tt),m=momentum(a,tt),d=e?daysIn(e,tt):0;
+        const why=stuck(a,e,tt)?`стоит ${d} дн`:churnSig(a,e,tt)?'сигнал ухода':e&&e.s>=7?'закрыто':'';
         return `<button class="row acc ${S.sel&&S.sel.id===a.id?'on':''}" data-open="acc:${a.id}" data-tip="${esc(a.name+' · '+a.city+', '+a.st+' · '+usd(a.acv)+'/год')}">
           <span class="av sq" style="background:${a.hue};border-color:${a.hue};color:#fff">${esc(a.tk.slice(0,2))}</span>
           <span class="nm">${esc(a.name)}</span>
           <span class="rt">${why?`<span class="why ${mcls(m)}">${why}</span>`:`<span class="stg">${e?STAGE[e.s]:'—'}</span>`}</span></button>`;}).join('');
       h+=`<button class="dbopen" data-open="db:acc"><b>Вся база — ${int(allAcc.length)} юрлиц</b> <i>таблицей с фильтрами ↗</i></button>`;
     }
-    /* ---- физлица ---- */
-    const RL={'решает':'последнее слово за ним','защищает внутри':'двигает сделку внутри компании','платит':'согласует бюджет и подписывает счёт'};
-    const ppl=shown.slice(0,4).flatMap(a=>peopleOf(a).map(p=>({...p,acc:a})));
-    h+=sec('ppl','Физлица',int(allAcc.length*3));
-    if(!off('ppl')){
-      h+=rule(`показываю <b>${ppl.length}</b> · люди из юрлиц выше · роль в сделке, а не должность`);
-      h+=ppl.map(p=>`<button class="row ${S.sel&&S.sel.id===p.id?'on':''}" data-open="person:${p.id}" data-tip="${esc(p.nm+' · '+p.title+' · '+p.acc.name)}">
-        ${av(p.nm,'var(--fg3)')}<span class="nm">${esc(p.nm)}</span>
-        <span class="rt"><span class="role" data-tip="${esc(RL[p.role]||p.role)}">${esc(p.role==='защищает внутри'?'защищает':p.role)}</span></span></button>`).join('');
+
+    /* ---------- ЛЮДИ ---------- */
+    else if(ent==='ppl'){
+      h+=rule('единица общения с человеком — его сообщение. Канал — только источник строки');
+      const SRCF=[['','все'],['gmail','почта'],['linkedin','LinkedIn'],['aircall','звонок'],['teams','встреча'],['quickbooks','счёт']];
+      const ROLEF=[['','все'],['решает','решает','последнее слово за ним'],['защищает внутри','защищает','двигает сделку внутри компании'],['платит','платит','согласует бюджет и подписывает счёт']];
+      h+=`<div class="sfilt">`+chips('Роль в сделке','role',ROLEF,S.ef.role)+chips('Канал','src',SRCF,S.ef.src)+`</div>`;
+      const allAcc=ACC.filter(a=>stateAt(a,tt)&&inF(a));
+      const base=allAcc.filter(a=>momentum(a,tt)<0).sort((x,y)=>(y.feat-x.feat)||(y.acv-x.acv)).slice(0,6);
+      let ppl=base.flatMap(a=>peopleOf(a).map(x=>({...x,acc:a})));
+      if(S.ef.role)ppl=ppl.filter(x=>x.role===S.ef.role);
+      h+=`<div class="grp2">Люди · ${int(allAcc.length*3)}</div>`;
+      h+=rule(`показываю <b>${ppl.length}</b> · люди из юрлиц, где ход за кем-то${S.ef.role?' · роль: '+esc(S.ef.role):''}`);
+      h+=ppl.map(x=>`<button class="row ${S.sel&&S.sel.id===x.id?'on':''}" data-open="person:${x.id}" data-tip="${esc(x.nm+' · '+x.title+' · '+x.acc.name)}">
+        ${av(x.nm,'var(--fg3)')}<span class="nm">${esc(x.nm)}</span>
+        <span class="rt"><span class="role">${esc(x.role==='защищает внутри'?'защищает':x.role)}</span></span></button>`).join('');
       h+=`<button class="dbopen" data-open="db:person"><b>Вся база — ${int(allAcc.length*3)} человек</b> <i>таблицей с фильтрами ↗</i></button>`;
     }
 
-    h+=`<div class="grp2">Мы</div>`;
-    /* ---- агенты ---- */
-    h+=sec('ag','Агенты',AGENTS.length);
-    if(!off('ag')){
-      h+=rule('сотрудники · у каждого свобода и край');
-      h+=AGENTS.map(a=>`<div class="agrow">
+    /* ---------- ПОТОКИ ---------- */
+    else if(ent==='flow'){
+      h+=rule('поток — связи людей друг с другом ради документа. Две дорожки: клиент и мы');
+      const PROC=[['sale','Продажа: интерес → продление'],['onb','Онбординг ≤ 7 дней'],['ren','Продление и расширение']];
+      h+=`<div class="sfilt">`+chips('Процесс','proc',PROC.map(x=>[x[0],x[1].split(':')[0]]),S.ef.proc||'sale')
+        +`<div class="fl"><span>Этап</span><select id="fStage"><option value="">все этапы</option>${[1,2,3,4,5,6,7,8].map(k=>`<option value="${k}" ${S.stage==k?'selected':''}>${STAGE[k]}</option>`).join('')}</select></div></div>`;
+      h+=`<div class="grp2">Процессы · ${PROC.length}</div>`;
+      h+=PROC.map(([k,nm])=>`<button class="row ${(S.ef.proc||'sale')===k?'on':''}" data-flow="${k}"><span class="av sq">⎇</span><span class="nm">${esc(nm)}</span></button>`).join('');
+      const opened=ACCBY[S.sopAcc];
+      h+=`<div class="grp2">Открыт на сделке</div>`;
+      h+=`<button class="row on" data-open="sop:${S.sopAcc}">${av(opened.name,opened.hue,'sq')}<span class="nm">${esc(opened.name)}</span><span class="rt"><span class="stg">${STAGE[(stateAt(opened,tt)||{s:1}).s]}</span></span></button>`;
+      h+=rule('чтобы открыть поток на другой сделке — выберите юрлицо и нажмите «Поток» в его карточке');
+    }
+
+    /* ---------- АГЕНТЫ ---------- */
+    else if(ent==='ag'){
+      h+=rule('агент = сотрудник: роль, лицо, журнал. За каждым стоит отвечающий человек');
+      const ST=[['','все'],['active','работает'],['awaiting','ждёт человека'],['paused','остановлен']];
+      h+=`<div class="sfilt">`+chips('Состояние','astate',ST,S.ef.astate)
+        +chips('Отвечает','owner',[['','все']].concat(OURS.filter(o=>AGENTS.some(a=>a.owner===o.id)).map(o=>[o.id,o.nm.split(' ')[0]])),S.ef.owner)+`</div>`;
+      let ags=AGENTS.filter(a=>(!S.ef.astate||a.state===S.ef.astate)&&(!S.ef.owner||a.owner===S.ef.owner));
+      h+=`<div class="grp2">Агенты · ${ags.length} из ${AGENTS.length}</div>`;
+      h+=ags.map(a=>`<div class="agrow">
         <button class="l1" data-open="agent:${a.id}" data-tip="${esc(a.title+' · отвечает '+OURS.find(o=>o.id===a.owner).nm.split(' ')[0]+' · никогда: '+STOPS[a.id][0])}">
           <span class="av bot ag ${ASTATE[a.state][0]}">${ICONS.bot}</span><span class="nm">${esc(a.nm)}</span>
           <span class="rt ${ASTATE[a.state][0]}">${ASTATE[a.state][1]}</span></button>
@@ -1156,49 +1260,32 @@ function renderSide(){
           <span class="cw" data-tip="Тёплому письмо уходит от вашего имени. Выше «с человеком» ручка не поднимается.">тёплые — <b>${KNOB[S.knobW[a.id]]}</b></span>
           ${STOPS[a.id][1]?`<span class="stops" data-tip="${esc('Стоп-правило сработало: '+STOPS[a.id][0])}">стоп ${STOPS[a.id][1]}×</span>`:''}</div></div>`).join('');
     }
-    /* Ящики и документы убраны из постоянного дерева: у них другая частота.
-       Ящик — фон, который объявляется событием («сегодня больше не отправим»),
-       документ — артефакт сделки, а не навигация по миру. Оба доступны отсюда одной строкой. */
-    const mbad=MAIL.filter(m=>m.lim&&m.sent>=m.lim).length, mwarm=MAIL.filter(m=>m.warm<100).length;
-    h+=`<button class="dbopen" data-do="openchannel" data-tip="Ящики, домены, прогрев и лимиты — лентой «Канал · что дошло»">
-      <b>Канал</b> <i>${MAIL.length} ящика · ${mbad?`<span class="down">${mbad} исчерпан</span> · `:''}${mwarm} в прогреве ↗</i></button>`;
-    h+=`<button class="dbopen" data-do="opendocs" data-tip="Документы принадлежат сделкам — открываются лентой «Юрлица · документы»">
-      <b>Документы</b> <i>${Object.keys(DOCS).length} · ждут хода ${Object.values(DOCS).filter(d=>d.status[0]==='warn'||d.status[0]==='down').length} ↗</i></button>`;
-  } else if(S.side==='machine'){
-    h+=`<div class="sec">▾ Мы · Bobroff MSP</div><button class="row" data-open="us" style="padding-left:12px"><span class="tw"></span><span class="av sq bot">B</span><span class="nm">Орграмма: люди и агенты</span></button>`;
-    h+=`<div class="sec" style="margin-top:4px">Люди</div>`+OURS.map(p=>`<div class="mrow"><div class="l1">${av(p.nm,'var(--human)')}<span class="nm">${esc(p.nm)}</span></div><div class="l2">${esc(p.title)}</div></div>`).join('');
-    h+=`<div class="sec" style="margin-top:4px">Агенты · ручка и стоп</div>`+AGENTS.map(a=>`<div class="mrow"><button class="l1" data-open="agent:${a.id}">${'<span class="av bot">'+a.ini+'</span>'}<span class="nm">${a.nm}</span><span class="rt ${ASTATE[a.state][0]}" style="font-size:11px">${ASTATE[a.state][1]}</span></button>
-      <div class="l2">${a.title} · отв. ${esc(OURS.find(o=>o.id===a.owner).nm.split(' ')[0])}</div>
-      <div class="mknob" role="group" aria-label="Ручка ${a.nm}">${KNOB.map((k,i)=>`<button data-knob="${a.id}:${i}" aria-pressed="${S.knob[a.id]===i}">${k}</button>`).join('')}</div>
-      <div class="stop">стоп: ${STOPS[a.id][0]}${STOPS[a.id][1]?` · <b>сработал ${STOPS[a.id][1]}×</b>`:''}</div></div>`).join('');
-    h+=`<div class="note" style="padding:8px 12px">Ручка — сколько свободы. Стоп — где её край. Подпись — только человек.</div>`;
-  } else if(S.side==='explorer'){
-    h+=`<div class="sec">▾ Сегменты · Core Jobs</div>`;
-    for(const g of SEGS){const F=(()=>{const s=S.seg;S.seg=g.id;const r=formulaAt(S.t);S.seg=s;return r;})();
-      h+=`<button class="row ${S.seg===g.id?'on':''}" data-open="seg:${g.id}" style="padding-left:12px"><span class="tw">▾</span><span class="av sq">${g.abc}</span><span class="nm">${g.name}</span><span class="rt">${usd(F.end)}</span></button>`;
-      h+=`<div class="row faint" style="padding-left:40px;font-size:11px"><span class="naics">${g.naics.join(' · ')}</span></div>`;
-      h+=attnList(g.id).map(a=>accRow(a,2)).join('');}
-    h+=`<div class="sec" style="margin-top:6px">▾ Мы · Bobroff MSP</div>`;
-    h+=`<button class="row" data-open="us" style="padding-left:12px"><span class="tw">▾</span><span class="av sq bot">B</span><span class="nm">Орграмма: люди и агенты</span></button>`;
-    h+=OURS.map(p=>`<button class="row" data-open="us" style="padding-left:24px"><span class="tw"></span>${av(p.nm,'var(--human)')}<span class="nm">${esc(p.nm)}</span><span class="rt">человек</span></button>`).join('');
-    h+=AGENTS.map(a=>`<button class="row ${S.sel&&S.sel.id===a.id?'on':''}" data-open="agent:${a.id}" style="padding-left:24px"><span class="tw"></span><span class="av bot">${a.ini}</span><span class="nm" title="отвечает ${esc(OURS.find(o=>o.id===a.owner).nm)}">${a.nm}</span><span class="rt ${ASTATE[a.state][0]}">${ASTATE[a.state][1]}</span></button>`).join('');
-  } else if(S.side==='search'){
-    h=`<div class="search"><input id="sideSearch" placeholder="Название, человек, штат…" value="${esc(S.q||'')}"></div><div id="sideRes"></div>`;
-  } else if(S.side==='filters'){
-    h=`<div class="filt"><div class="hdr">Сегмент по Core Job</div>`+SEGS.map(g=>`<label><input type="radio" name="fseg" value="${g.id}" ${S.seg===g.id?'checked':''}> ${g.name} <span class="naics">${g.abc}</span></label>`).join('')+`<label><input type="radio" name="fseg" value="" ${!S.seg?'checked':''}> все сегменты</label>
-      <div class="hdr" style="margin-top:8px">Движение</div><label><input type="checkbox" id="fdown" ${S.downOnly?'checked':''}> только ▼ (застряло или сигнал ухода)</label>
-      <div class="hdr" style="margin-top:8px">Неделя</div><div class="num">н${S.t} · ${wkd(S.t)}</div></div>`;
-  } else if(S.side==='agents'){
-    h=`<div class="sec">Люди</div>`+OURS.map(p=>`<button class="row" data-open="us" style="padding-left:12px">${av(p.nm,'var(--human)')}<span class="nm">${esc(p.nm)}</span><span class="rt">${esc(p.title.split(' · ')[0])}</span></button>`).join('')+
-      `<div class="sec" style="margin-top:6px">Агенты · отвечает человек</div>`+AGENTS.map(a=>`<button class="row ${S.sel&&S.sel.id===a.id?'on':''}" data-open="agent:${a.id}" style="padding-left:12px"><span class="av bot">${a.ini}</span><span class="nm">${a.nm} <span class="faint">· отв. ${esc(OURS.find(o=>o.id===a.owner).nm.split(" ")[0])}</span></span><span class="rt ${ASTATE[a.state][0]}">${ASTATE[a.state][1]}</span></button>`).join('');
-  } else if(S.side==='sop'){
-    h=`<div class="sec">Процессы</div>`+[['Продажа: интерес → продление','sop:a0'],['Онбординг ≤ 7 дней','sop:a1'],['Продление и расширение','sop:a1']].map(([n,k])=>`<button class="row" data-open="${k}" style="padding-left:12px"><span class="tw">⎇</span><span class="nm">${n}</span></button>`).join('')+
-      `<div class="note" style="padding:8px 14px">SOP показан как service blueprint: сверху клиент, снизу мы, посередине линия взаимодействия. Речь → документ → информация.</div>`;
+
+    /* ---------- МЫ ---------- */
+    else {
+      h+=rule('мы — такая же организация на карте. Под каждым человеком его агенты');
+      h+=`<button class="row us" data-open="us"><span class="av sq bot">${ICONS.mark}</span><span class="nm">Bobroff MSP</span><span class="rt">${OURS.length} чел · ${AGENTS.length} агентов</span></button>`;
+      h+=`<div class="grp2">Люди и их агенты</div>`;
+      for(const o of OURS){
+        const mine=AGENTS.filter(a=>a.owner===o.id);
+        const bad=mine.filter(a=>a.state==='paused'||a.state==='error');
+        h+=`<button class="row ${bad.length?'alarm':''}" data-open="us" data-tip="${esc(o.title)}">${av(o.nm,'var(--human)')}<span class="nm">${esc(o.nm)}</span>
+          <span class="rt">${bad.length?`<span class="why down">${bad.length} агент ${bad.length===1?'встал':'встали'}</span>`:`<span class="stg">${mine.length?mine.length+' агент'+(mine.length===1?'':mine.length<5?'а':'ов'):'без агентов'}</span>`}</span></button>`;
+        h+=mine.map(a=>`<button class="row ${a.state==='paused'||a.state==='error'?'alarm':''}" data-open="agent:${a.id}" style="padding-left:30px">
+          <span class="av bot ag ${ASTATE[a.state][0]}">${ICONS.bot}</span><span class="nm">${esc(a.nm)}</span>
+          <span class="rt ${ASTATE[a.state][0]}">${ASTATE[a.state][1]}</span></button>`).join('');
+      }
+      const mbad=MAIL.filter(m=>m.lim&&m.sent>=m.lim).length;
+      h+=`<div class="grp2">Наши ящики · ${MAIL.length}</div>`;
+      h+=rule('ящик — наш ресурс, а не сущность мира. Нажмите — лента покажет, что дошло');
+      h+=MAIL.map(m=>`<button class="row" data-mail="${m.id}"><span class="av sq">✉</span><span class="nm" title="${esc(m.adr)}">${esc(m.adr)}</span>
+        <span class="rt">${m.lim&&m.sent>=m.lim?'<span class="why down">исчерпан</span>':`<span class="stg">${m.sent}/${m.lim||'—'}</span>`}</span></button>`).join('');
+      if(mbad)h+=rule(`<b class="down">${mbad} ящик исчерпал суточную квоту</b> — часть писем сегодня не уйдёт`);
+    }
   } else {
     h=`<div class="filt"><div class="hdr">Кто вошёл</div><div>${esc($('profile').selectedOptions[0].text)}</div><div class="note">Агент справа подстраивает фокус, карточки и тревоги под Jobs этого человека. Смените профиль в верхней строке.</div></div>`;
   }
   $('side').innerHTML=h;
-  if(S.side==='search')renderSearch();
 }
 function allEntities(){
   return [...SEGS.map(g=>({k:'seg:'+g.id,t:g.name,ty:'сегмент · '+g.naics[0]})),
@@ -1206,21 +1293,26 @@ function allEntities(){
     ...Object.values(PEOPLE).map(p=>({k:'person:'+p.id,t:p.nm,ty:'человек · '+ACCBY[p.acc].name})),
     ...Object.entries(DOCS).map(([id,d])=>({k:'doc:'+id,t:d.kind+' · '+ACCBY[d.acc].name,ty:'документ'})),
     ...AGENTS.map(a=>({k:'agent:'+a.id,t:a.nm,ty:'агент'})),{k:'us',t:'Bobroff MSP (мы)',ty:'наша орграмма'}];}
-function renderSearch(){const q=(S.q||'').toLowerCase();const r=q?allEntities().filter(e=>(e.t+' '+e.ty).toLowerCase().includes(q)).slice(0,40):[];
-  $('sideRes').innerHTML=r.map(e=>`<button class="row" data-open="${e.k}" style="padding-left:12px"><span class="nm">${esc(e.t)}</span><span class="rt">${esc(e.ty.split(' · ')[0])}</span></button>`).join('')||`<div class="note" style="padding:8px 14px">${q?'Ничего не найдено':'Например: Brightline, Moss, Tampa, MSA'}</div>`;}
-
 /* =================== editor: tabs =================== */
 function openTab(kind,id,title){const tid=kind+':'+id;if(!S.tabs.some(t=>t.id===tid))S.tabs.push({id:tid,kind,ref:id,title});S.tab=tid;renderEditor();}
 function renderTabs(){
   const st=S.tabs.find(t=>t.id==='sop');if(st)st.title='SOP · '+ACCBY[S.sopAcc].name.split(' ')[0];
-  const ic={today:'◈',map:'◎',sop:'⎇',db:'▦',doc:'▤',msg:'☺',news:'◆',org:'⌂',agent:'◈'};
+  const ic={today:'◈',map:'◎',sop:'⎇',db:'▦',doc:'▤',msg:'☺',news:'◆',org:'⌂',agent:'◈',draft:'✉'};
   $('tabs').innerHTML=S.tabs.map(t=>`<div class="tabb" role="tab" aria-selected="${S.tab===t.id}"><button data-tab="${t.id}"><span class="ic">${ic[t.kind]}</span> ${esc(t.title)}</button>${t.id!=='map'&&t.id!=='sop'&&t.id!=='today'?`<button class="x" data-close="${t.id}" aria-label="Закрыть вкладку">×</button>`:''}</div>`).join('');
 }
-function renderSource(t){if(t.kind==='doc')return renderDoc(t.ref);if(t.kind==='msg')return renderMsg(t.ref);if(t.kind==='news')return renderNews(t.ref);if(t.kind==='org')return renderOrg();if(t.kind==='agent')return renderAgentTab(t.ref);return '';}
+function renderSource(t){if(t.kind==='draft')return renderDraft(t.ref);if(t.kind==='doc')return renderDoc(t.ref);if(t.kind==='msg')return renderMsg(t.ref);if(t.kind==='news')return renderNews(t.ref);if(t.kind==='org')return renderOrg();if(t.kind==='agent')return renderAgentTab(t.ref);return '';}
 function renderEditor(){
   const t=S.tabs.find(x=>x.id===S.tab)||S.tabs[0];
+  if((S.skin||'rev')!=='rev'){
+    renderTabs();$('groups').classList.remove('src');$('view2').innerHTML='';
+    if(!MAPEL)buildMapView();
+    $('mapwrap').style.display='none';$('sopview').style.display='none';$('dbview').style.display='none';
+    $('todayview').style.display='block';$('todayview').innerHTML=skinStub();
+    $('crumbs').innerHTML=`Скин <span class="faint">›</span> <b>${esc(SKINS.find(x=>x[0]===S.skin)[1])}</b> <span class="faint">· временный</span>`;
+    return;
+  }
   if(t.kind==='map'||t.kind==='sop'||t.kind==='db'||t.kind==='today'){S.primary=t.kind;S.source=null;if(t.kind==='db')S.dbKind=t.ref;
-    if(!S.ptabLock)S.ptab={today:'people',map:'market',sop:'people',db:S.dbKind==='person'?'people':'account'}[t.kind]||S.ptab;
+    setEnt({sop:'flow',db:S.dbKind==='person'?'ppl':'acc'}[t.kind]||S.ent);
   }else S.source=t.id;
   renderTabs();
   if(!MAPEL)buildMapView();
@@ -1228,6 +1320,7 @@ function renderEditor(){
   $('sopview').style.display=S.primary==='sop'?'':'none';
   $('dbview').style.display=S.primary==='db'?'block':'none';
   $('todayview').style.display=S.primary==='today'?'block':'none';
+  if(S.primary==='today')renderToday();
   if(S.primary==='sop')$('sopview').innerHTML=renderSOP(ACCBY[S.sopAcc]);
   else if(S.primary==='db')renderDB();
   else if(S.primary==='today')renderToday();
@@ -1240,7 +1333,7 @@ function renderCrumbs(){const t=S.tabs.find(x=>x.id===S.tab)||S.tabs[0];let c=''
   if(t.kind==='map'){c=[['segment','Сегменты'],['accounts','Юрлица'],['people','Люди']].map(([k,n])=>`<button class="crumb ${S.level===k?'on':''}" data-level="${k}">${n}</button>`).join('<span class="faint">›</span>')+(S.seg?` <span class="faint">·</span> ${segBy(S.seg).name}`:'')+(S.sel&&S.sel.type==='acc'?` <span class="faint">·</span> <b>${esc(ACCBY[S.sel.id].name)}</b>`:'');}
   else if(t.kind==='today')c=`Сегодня <span class="faint">·</span> <b>${esc($('profile').selectedOptions[0].text)}</b>`;
   else if(t.kind==='db')c=`База <span class="faint">›</span> <b>${t.ref==='acc'?'юрлица':'физлица'}</b> <span class="faint">·</span> ${S.seg?segBy(S.seg).name:'все сегменты'}`;
-  else c=`${{sop:'SOP',doc:'Документ',msg:'Профиль',news:'Новость',org:'Мы',agent:'Агент'}[t.kind]} <span>›</span> <b>${esc(t.title)}</b>`;
+  else c=`${{sop:'SOP',doc:'Документ',msg:'Профиль',news:'Новость',org:'Мы',agent:'Агент',draft:'Заготовка'}[t.kind]} <span>›</span> <b>${esc(t.title)}</b>`;
   $('crumbs').innerHTML=c;}
 
 /* =================== map view =================== */
@@ -1252,6 +1345,7 @@ function buildMapView(){
       <svg id="map" viewBox="0 0 975 610" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Карта США"></svg>
       <div class="legend" id="legend"></div>
       <div class="tmap" id="tmap"></div>
+      <div class="mapsw" id="mapsw" role="group" aria-label="Вид карты"></div>
       <div class="zbtn"><button id="zin" aria-label="Приблизить">+</button><button id="zout" aria-label="Отдалить">−</button></div>
     </div></div>`;
   MAPEL=$('mapview');
@@ -1265,7 +1359,7 @@ function buildMapView(){
     root.attr('transform',ev.transform);S.K=ev.transform.k;
     if(S.sel&&S.sel.type==='acc'&&ev.sourceEvent&&S.K<3)S.sel=null;
     const lv=S.sel&&S.sel.type==='acc'?'people':S.K>=1.8?'accounts':'segment';
-    if(lv!==S.level){S.level=lv;S.ptab={segment:'market',accounts:'account',people:'people'}[lv];renderMap();renderCrumbs();renderPanel();}else scaleMarks();});
+    if(lv!==S.level){S.level=lv;setEnt({segment:'seg',accounts:'acc',people:'ppl'}[lv]);renderMap();renderCrumbs();renderPanel();}else scaleMarks();});
   svg.call(zoom).on('dblclick.zoom',null);
   svg.on('click',ev=>{if(ev.target===svg.node()&&S.sel){S.sel=null;renderAllButMap();renderMap();}});
   $('zin').onclick=()=>svg.transition().duration(300).call(zoom.scaleBy,1.8);
@@ -1275,7 +1369,10 @@ function fitMap(){}
 function segMetrics(g){const sv=S.seg;S.seg=g.id;const a=formulaAt(S.t),b=formulaAt(Math.max(TMIN,S.t-WIN));S.seg=sv;
   return {mkt:a.N*g.acv,N:a.N,arr:a.end,d:b.end?a.end/b.end-1:0};}
 function renderTreemap(){
-  const box=$('tmap'),on=!S.seg&&S.level!=='people';
+  const box=$('tmap'),on=S.mapView==='tree'&&!S.seg&&S.level!=='people';
+  const sw=$('mapsw');
+  if(sw)sw.innerHTML=[['geo','география','где физически сидит офис и кто там работает'],['tree','доли рынка','площадь — $ рынка сегмента']]
+    .map(([k,nm,why])=>`<button data-mapview="${k}" aria-pressed="${(S.mapView||'geo')===k}" data-tip="${esc(why)}">${nm}</button>`).join('');
   box.classList.toggle('on',on);$('map').style.opacity=on?'0':'1';
   const zb=document.querySelector('.zbtn');if(zb)zb.style.display=on?'none':'';
   const lg=$('legend');if(lg)lg.style.display=on?'none':'';
@@ -1354,8 +1451,8 @@ function scaleMarks(){const k=S.K,s=(0.6+0.4*Math.min(k,8)/8)/k,chips=k>=9;
     else{t.text('');g.select('rect').style('display','none');}});
   gPer.selectAll('g.person,g.org').attr('transform',a=>`translate(${a.x},${a.y}) scale(${s})`);
   gHQ.selectAll('g.hq').attr('transform',`translate(${US.x},${US.y}) scale(${1/k*Math.min(1.5,.9+k*.08)})`);}
-function selectAcc(a){S.sel={type:'acc',id:a.id};S.sopAcc=a.id;S.orgOpen=false;S.level='people';if(S.primary!=='map'||S.source){S.tab='map';renderEditor();}zoomTo(a.x,a.y,Math.max(S.K,11));S.ptab='account';renderAllButMap();renderMap();}
-function selectAgent(id){S.sel=id?{type:'agent',id}:null;S.ptab='agents';renderAllButMap();}
+function selectAcc(a){S.sel={type:'acc',id:a.id};S.sopAcc=a.id;S.orgOpen=true;S.level='people';if(S.primary!=='map'||S.source){S.tab='map';renderEditor();}zoomTo(a.x,a.y,Math.max(S.K,11));setEnt('acc');renderAllButMap();renderMap();}
+function selectAgent(id){S.sel=id?{type:'agent',id}:null;setEnt('ag');renderAllButMap();}
 function renderFormula(){
   const F=formulaAt(S.t),P=formulaAt(S.t-WIN),ap=S.t>NOW?'≈ ':'';
   const cell=(n,v,d,cls)=>`<div class="fc ${cls||''}"><span class="fn">${n}</span><span class="fv">${ap}${v}</span><span class="fdd">${d||''}</span></div>`;
@@ -1373,7 +1470,25 @@ function renderFormula(){
        +cell('Conv',pct(F.conv),dd(F.conv-P.conv,'pp',.005),'lim')+X
        +cell('ACV',usd(F.acv),dd(P.acv?F.acv/P.acv-1:0,'%',.02)));
 }
+/* «А сколько конкретно вот этот человек внутри юрлица мне принёс?» (Николай, 25.09, 57:40).
+   Формула отвечает не только на сегмент и юрлицо, но и на выбранного человека:
+   деньги привязаны к сделке, а роль человека говорит, чем он на неё влияет. */
+function pickMoney(){
+  const s=S.sel; if(!s)return null;
+  if(s.type==='acc'){const a=ACCBY[s.id],e=stateAt(a,S.t);
+    return {nm:a.name,role:'юрлицо',sum:acvAt(a,S.t),
+      how:e&&isActive(e)?'приносит сейчас':e&&e.s>=7?'не принесло — закрыто':'в работе: '+STAGE[(e||{s:1}).s].toLowerCase()};}
+  if(s.type==='person'){const p=personById(s.id),a=ACCBY[p.acc],e=stateAt(a,S.t);
+    const R={'решает':'последнее слово по этой сделке','защищает внутри':'двигает эту сделку внутри компании','платит':'согласует бюджет этой сделки'}[p.role]||p.role;
+    return {nm:p.nm,role:p.role==='защищает внутри'?'защищает':p.role,sum:acvAt(a,S.t),
+      how:(e&&isActive(e)?'принёс':'ведёт')+' сделку '+a.name+' · '+R};}
+  if(s.type==='agent'){const g=agBy(s.id);
+    const mine=ACC.filter(a=>{const e=stateAt(a,S.t);return e&&g.owns.includes(e.s)&&inF(a);});
+    return {nm:g.nm,role:'агент',sum:mine.reduce((x,a)=>x+acvAt(a,S.t),0),how:`ведёт ${mine.length} сделок на этапах ${g.owns.map(x=>STAGE[x]).join(', ')}`};}
+  return null;
+}
 function renderScope(){
+  const PM=pickMoney();
   const parts=[S.seg?`<b>${esc(segBy(S.seg).name)}</b>`:'все сегменты',
     S.job?`<b>${esc((JOBS.find(j=>j[0]===S.job)||['','—'])[1])}</b>`:'все Jobs',
     S.stF?`<b>${esc(S.stF)}</b>`:'все штаты',
@@ -1382,6 +1497,7 @@ function renderScope(){
   const on=S.seg||S.job||S.stF||S.stage||S.downOnly;
   const _sl=(S.slices||[]).find(x=>sameF(x.f,curF()));
   $('scope').innerHTML=`<span class="lb">Область расчёта</span>${_sl?`<b>◧ ${esc(_sl.nm)}</b><span class="sep"> · </span>`:''}${parts.join('<span class="sep"> · </span>')}`
+    +(PM?`<span class="sep"> · </span><span class="picked" data-tip="${esc(PM.how)}"><span class="lb2">выбрано</span><b>${esc(PM.nm)}</b><span class="rl">${esc(PM.role)}</span><span class="num">${usd(PM.sum)}/год</span></span>`:'')
     +`<span style="flex:1"></span>`
     +`<button class="fchip" data-do="openfilters" data-tip="Изменить область: сегмент, Job, штат, этап">изменить</button>`
     +(on?`<button class="fchip" data-do="resetscope" data-tip="Вернуть всё">сбросить</button>`:'')
@@ -1469,6 +1585,27 @@ function fixPanel(){
   </div>`;
 }
 
+/* «Зелёный, зелёный, красный. Тогда становится понятно, что у нас нету бай-ина.
+   Мы тогда ищем человека, который может повлиять на Мэри в организации, добавляем его
+   сюда, через него влияем, разблокируем, двигаем по процессу дальше» (Николай, 25.09, 56:00). */
+function personLight(a,p,i){
+  if(a===BRIGHT){
+    if(p.role==='платит')return ['down','блокирует: «$38K — дорого». Без него подписи нет'];
+    if(p.role==='защищает внутри')return ['warn','молчит 9 дн — без неё решающий не решает'];
+    return ['up','двигает: требует цену'];
+  }
+  const acts=peopleActs(a,Math.min(S.t,NOW)),x=acts[i];
+  if(!x||!x.act)return ['flat','касаний не было'];
+  if(x.act==='молчание')return [x.days>=8?'down':'warn','молчит '+x.days+' дн'];
+  if(/дорого|цена/i.test(x.txt||''))return ['down','возражение по цене'];
+  return ['up','двигает: '+x.act];
+}
+function influencerFor(a){
+  const cands=ACC.filter(x=>x.id!==a.id&&x.mi===a.mi&&stateAt(x,S.t)).slice(0,1);
+  const via=cands[0];
+  return {nm:via?peopleOf(via)[0].nm:'Ref. партнёр',from:via?via.name:'партнёрская сеть',
+    why:via?'общий вендор и один метро — '+via.city:'через партнёрскую сеть'};
+}
 function renderSOP(a){
   const t=Math.min(S.t,NOW),e=stateAt(a,t)||{s:1},P=peopleOf(a),bright=a===BRIGHT,acts=peopleActs(a,t);
   const cur=e.s>=7?Math.max(1,(a.ev.filter(x=>x.s<7).pop()||{s:1}).s):Math.min(e.s,6);
@@ -1521,7 +1658,13 @@ function renderSOP(a){
         if(!y){const R=formulaAt(S.t).ret;return `<div class="yc"><div class="ynum"><span>база</span><b>Retention ${pct(R)}</b></div></div>`;}
         const bad=y.d<-.15;return `<div class="yc"><div class="ynum"><span>${int(y.inn)} → ${int(y.out)}</span><b class="${bad?'ybad':''}">${pct(y.r,0)}${bad?' ▼':''}</b></div><div class="ybar"><i style="width:${Math.min(100,y.r*100)}%;background:${bad?'var(--down)':'var(--up)'}"></i></div></div>`;}).join('')}
       <div class="pool">Клиент · ${esc(a.name)} <small>пул BPMN · их люди, речь</small></div>
-      ${lanes.map((ln,pi)=>`<div class="lh">${esc(P[pi].nm)}<small>${P[pi].role}</small></div>`+ln.map((x,i)=>`<div class="${cellCls(i)}">${x}</div>`).join('')).join('')}
+      ${lanes.map((ln,pi)=>{const L=personLight(a,P[pi],pi);
+        return `<div class="lh"><span class="pl ${L[0]}" data-tip="${esc(L[1])}"></span>${esc(P[pi].nm)}<small>${P[pi].role} · ${esc(L[1])}</small></div>`+ln.map((x,i)=>`<div class="${cellCls(i)}">${x}</div>`).join('');}).join('')}
+      ${(()=>{const bl=P.map((p,i)=>[p,personLight(a,p,i)]).filter(x=>x[1][0]==='down')[0];
+        if(!bl)return '';
+        const inf=(S.infl||{})[a.id];
+        if(!inf)return `<div class="lh">Кто влияет<small>никого не добавили</small></div><div style="grid-column:span ${N}"><button class="btn" data-influencer="${a.id}" data-tip="Агент найдёт, через кого можно влиять на этого человека">Найти, через кого влиять на ${esc(bl[0].nm)}</button> <span class="faint" style="font-size:11px">красный в дорожке — нет бай-ина. Ход: не давить напрямую, а зайти через того, кто на него влияет.</span></div>`;
+        return `<div class="lh"><span class="pl up"></span>${esc(inf.nm)}<small>добавлен вами · влияет на ${esc(bl[0].nm)}</small></div>`+ST.map((st,i)=>`<div class="${cellCls(i)}">${st.stage===4?card('client',inf.nm,av(inf.nm,'var(--fg3)'),'требование','знакомит с '+bl[0].nm+' · '+esc(inf.why),null):dash}</div>`).join('');})()}
       <div class="iface lab">Интерфейс<small class="faint" style="font-weight:400">встречи, письма, документы</small></div>${MF.map((m,i)=>`<div class="iface ${cellCls(i)}">${m?`<button class="mf ${m[2]||''}" ${m[1]?`data-open="person:${m[1]}"`:''} data-tip="Связь: как менялась — открыть лог общения">${m[0]}</button>`:''}</div>`).join('')}
       <div class="pool">Мы · Bobroff MSP <small>пул BPMN · агенты и люди</small></div>
       <div class="lh">Агенты<small>frontstage и backstage</small></div>${us0.map((x,i)=>`<div class="${cellCls(i)}">${x}</div>`).join('')}
@@ -1567,6 +1710,27 @@ function renderAgentTab(id){const g=agBy(id),own=OURS.find(o=>o.id===g.owner);co
     <div class="hdr">Стоп-правило — где её край</div><div class="paper">Никогда: ${STOPS[id][0]}.</div>
     ${g.state==='paused'?`<div class="btns"><button class="btn" data-tri="t-seller|resume|Вернуть">Вернуть в работу</button><span class="note">Остановлен стоп-краном. Решает ${esc(own.nm)}.</span></div>`:''}
     <div class="hdr">Журнал действий</div><div class="facts">${logs.map(l=>`<div class="fact"><div class="grow"><div>${esc(l.ttl)}</div><div class="note">н${l.w}</div></div><span class="chip ${l.st[0]}">${esc(l.st[1])}</span></div>`).join('')||'<div class="note">Записей нет.</div>'}</div></div>`;}
+function renderDraft(id){
+  const B=BNS().find(x=>x.id===id)||bnCur(), D=B.draft;
+  const per=personById(D.to)||{nm:'—',role:'—',title:''}, a=ACCBY[D.acc];
+  const sent=!!S.sent[id];
+  const L=BNS(), nxt=L[L.findIndex(x=>x.id===B.id)+1];
+  return `<div class="doc"><div class="doch"><span class="av bot big">${ICONS.bot}</span><div><h2>Заготовка агента · ${esc(D.ch)}</h2>
+    <div class="muted">кому: <b>${esc(per.nm)}</b> — ${esc(per.role==='защищает внутри'?'защищает':per.role)} · ${esc(a?a.name:'')}</div>
+    <div class="note">Агент написал сам и ждёт вашего «согласен». Отправка — только по кнопке человека.</div></div></div>
+    <div class="kv"><div><span>Почему именно сейчас</span><b>${esc(B.t)}</b></div><div><span>Двигает</span><b>${esc(B.m)}</b></div>
+      <div><span>Канал</span><b>${esc(D.ch)}</b></div><div><span>Состояние</span><b class="${sent?'up':'warn'}">${sent?'отправлено':'ждёт вашего решения'}</b></div></div>
+    <div class="hdr">Тема</div><div class="paper" style="font-weight:600">${esc(D.subj)}</div>
+    <div class="hdr">Текст</div>
+    <div class="paper" id="paper" contenteditable="false" style="white-space:pre-wrap">${esc(D.body)}</div>
+    <div class="btns">
+      <button class="btn pri" data-nextbn="${B.id}" ${sent?'disabled':''}>Согласен, отправить</button>
+      <button class="btn" data-edit="1">Переписать</button>
+      <button class="btn bad" data-nextbn="${B.id}|skip" ${sent?'disabled':''}>Не отправлять</button>
+    </div>
+    <div class="note">${sent
+      ? (nxt?`Отправлено (демо). Следующее узкое место: <b>${esc(nxt.t)}</b>.`:'Отправлено (демо). Узких мест с готовым ходом больше нет.')
+      : 'В демо сообщение не уходит. В живой системе уйдёт от вашего имени и запишется в журнал агента.'}</div></div>`;}
 function renderOrg(){
   const card=(p,cls)=>`<button class="orgcard" data-open="${p.kind==='human'?'us':'agent:'+p.id}">${p.kind==='human'?av(p.nm,'var(--human)','mid'):'<span class="av bot mid">'+ICONS.bot+'</span>'}<span class="grow"><b>${esc(p.nm)}</b><span class="r">${esc(p.title)}</span>${p.kind!=='human'?`<span class="r">${KNOB[S.knob[p.id]]} · отвечает ${esc(OURS.find(o=>o.id===p.owner).nm)}</span><span class="chip ${ASTATE[p.state][0]}">${ASTATE[p.state][1]}</span>`:''}</span></button>`;
   return `<div class="org"><div class="hdr">Мы · Bobroff MSP — такая же точка на карте. Агенты — участники наравне с людьми, но за каждым стоит отвечающий человек</div>
@@ -1578,7 +1742,10 @@ function renderOrg(){
 /* =================== panel: three feeds + agents log, one uniform item =================== */
 function feedItems(tab){
   const t=S.t,selA=S.sel&&S.sel.type==='acc'?ACCBY[S.sel.id]:null;
-  if(tab==='market'){return MARKET.filter(n=>!S.seg||n.seg===S.seg).map(n=>({src:n.src,ttl:n.ttl,mt:`<b class="due">влияет на ${n.hits}</b> · <b>${SRC[n.src][0]}</b> · ${n.url} · ${segBy(n.seg).name}${n.st?' · '+n.st:''}`,when:n.when,open:'news:'+n.id,av:`<span class="av sq">${segBy(n.seg).abc}</span>`,sig:!S.facts[n.id],status:S.facts[n.id]?Object.values(S.facts[n.id]).includes('no')?['down','есть опровержение']:['up','проверено']:null,acts:`<button class="ib ok" data-factall="${n.id}:ok" aria-label="Подтвердить">✓</button><button class="ib no" data-factall="${n.id}:no" aria-label="Опровергнуть">✕</button><button class="ib" data-factall="${n.id}:x" aria-label="Выкинуть">−</button><button class="ib" data-plus="${esc(n.ttl.slice(0,40))}" aria-label="Дописать свой факт">+</button>`,gone:S.facts[n.id]&&S.facts[n.id].all==='x'}));}
+  if(tab==='market'){return MARKET.concat(S.addedFacts||[]).filter(n=>(!S.seg||n.seg===S.seg)&&(!(S.ef&&S.ef.newonly)||!S.facts[n.id])).map(n=>({src:n.src,ttl:n.ttl,mt:`<b class="due">влияет на ${n.hits}</b> · <b>${SRC[n.src][0]}</b> · ${n.url} · ${segBy(n.seg).name}${n.st?' · '+n.st:''}`,when:n.when,open:'news:'+n.id,av:`<span class="av sq">${segBy(n.seg).abc}</span>`,sig:!S.facts[n.id]&&!isCommon(n),
+      status:isCommon(n)?['flat','общее место']:S.facts[n.id]?Object.values(S.facts[n.id]).includes('no')?['down','есть опровержение']:['up','проверено']:null,
+      acts:`<button class="ib ok" data-factall="${n.id}:ok" aria-label="Подтвердить">✓</button><button class="ib no" data-factall="${n.id}:no" aria-label="Опровергнуть">✕</button><button class="ib" data-factall="${n.id}:x" aria-label="Выкинуть">−</button><button class="ib" data-common="${n.id}" aria-label="Стало общим местом" data-tip="Сигнал — отклонение от нормы. Что все уже знают, сигналом быть перестаёт">≡</button><button class="ib" data-plus="${esc(n.ttl.slice(0,40))}" aria-label="Дописать свой факт">+</button>`,
+      gone:S.facts[n.id]&&S.facts[n.id].all==='x'}));}
   if(tab==='account'){
     let items=Object.entries(DOCS).filter(([id,d])=>(!selA||d.acc===selA.id)&&d.w<=Math.max(t,NOW)).map(([id,d])=>({src:d.src,ttl:`${ACCBY[d.acc].name}: ${d.ttl}`,mt:`<b>${SRC[d.src][0]}</b> · ${d.kind}<span class="act"> · ${d.act}</span>`,when:ago(d.w),open:'doc:'+id,av:av(ACCBY[d.acc].name,ACCBY[d.acc].hue,'sq'),sig:(S.docs[id]&&S.docs[id].us)?false:(d.status[0]==='down'||d.status[0]==='warn'),status:S.docs[id]&&S.docs[id].us?['up','подписан нами']:d.status,w:d.w}));
     if(!selA){const gen=ACC.filter(a=>!a.feat&&inF(a)&&momentum(a,t)<0).slice(0,14).map(a=>{const e=stateAt(a,t);const kind=e.s===3?['pandadoc',`Оферта ${usd(a.acv)} открыта, не подписана`,'обещание']:e.s===2?['pdf','Анкета квалификации заполнена, ответа нет','утверждение']:e.s===1?['crm','Первое касание без ответа','требование']:isActive(e)?['quickbooks',`Счёт просрочен ${a.payW?(t-a.payW)*7+5:5} дн`,'требование']:['crm',`Отказ: ${a.reason||'—'}`,'объявление'];return {src:kind[0],ttl:`${a.name}: ${kind[1]}`,mt:`<b>${SRC[kind[0]][0]}</b> · ${a.city}, ${a.st}<span class="act"> · ${kind[2]}</span>`,when:ago(e.w),open:'acc:'+a.id,av:av(a.name,a.hue,'sq'),sig:stuck(a,e,t),status:['down',stuck(a,e,t)?'молчит '+daysIn(e,t)+' дн':'▼'],w:e.w};});items=items.concat(gen);}
@@ -1591,8 +1758,18 @@ function feedItems(tab){
       out.push({src:sk,ttl:`${x.p.nm} — ${x.p.role==='защищает внутри'?'защищает':x.p.role} — ${x.txt}${x.act==='молчание'?' '+x.days+' дн':''}`,
         mt:`${R&&R[2]!=='задача не нужна'?`<b class="due">ответить: ${R[2]}</b> · `:''}<b>${SRC[sk][0]}</b> · ${a.name}<span class="act" data-tip="Речевой акт: что человек сделал словами"> · ${x.act}</span>`,
         when:x.days!=null?x.days+' дн':'',open:'person:'+x.p.id,av:av(x.p.nm,'var(--fg3)'),
+        role:x.p.role,
         sig:R?R[2]!=='задача не нужна':(x.act==='молчание'&&x.days>=8),
         status:R?[R[1],R[0]]:x.act==='молчание'&&x.days>=8?['down','молчит']:null});}}
+    const B=bnCur();
+    if(B&&B.draft&&!S.sent[B.id]){const per=personById(B.draft.to),ac=ACCBY[B.draft.acc];
+      if(per&&(!S.sel||S.sel.type!=='person'||S.sel.id===per.id))
+        out.unshift({src:B.draft.ch==='WhatsApp'?'linkedin':'gmail',
+          ttl:`${per.nm} — ${B.draft.ch}: агент написал заготовку — «${B.draft.subj}»`,
+          mt:`<b class="due">я готов отправить</b> · ${esc(ac?ac.name:'')} · снимает узкое место: ${esc(B.m)}`,
+          when:'сейчас',open:'draft:'+B.id,av:`<span class="av bot">${ICONS.bot}</span>`,sig:true,
+          role:per.role,status:['warn','ждёт вашего «согласен»'],
+          acts:`<button class="ib" data-open="draft:${B.id}" data-tip="Открыть заготовку в рабочей области">Открыть</button>`});}
     for(const m of MEET){if(S.sel&&S.sel.type==='person')break;if(m.w>Math.max(t,NOW))continue;
       out.unshift({src:'teams',ttl:`${m.who} — ${m.ttl}`,
         mt:`<b class="due">довести до разговора</b> · встреча · ${ACCBY[m.acc].name} · ${esc(m.when)}`,
@@ -1605,7 +1782,7 @@ function feedItems(tab){
       const m=MAILBY[d.mail],c=DCLASS[d.k],a=ACCBY[d.acc];
       return {src:'gmail',ttl:`${a?a.name:'—'} · ${d.who} — ${d.sub}`,
         mt:`<b>${esc(m.adr)}</b> · ${esc(m.kind)}`,
-        when:ago(d.w),open:a?'acc:'+d.acc:null,av:a?av(a.name,a.hue,'sq'):`<span class="av sq">✉</span>`,sig:d.k!=='ok',status:d.k==='ok'?null:[c[1],c[0]],w:d.w};});}
+        when:ago(d.w),open:a?'acc:'+d.acc:null,av:a?av(a.name,a.hue,'sq'):`<span class="av sq">✉</span>`,sig:d.k!=='ok',status:d.k==='ok'?null:[c[1],c[0]],w:d.w,mail:d.mail};});}
   if(tab==='agents'){const f=S.sel&&S.sel.type==='agent'?S.sel.id:null;return LOGS.concat(S.extraLogs||[]).filter(l=>(!f||l.ag===f)&&l.w<=Math.max(t,NOW)).sort((x,y)=>y.w-x.w).map(l=>({src:'agent',ttl:`${agBy(l.ag)?agBy(l.ag).nm:'Человек'}: ${l.ttl}`,mt:`отвечает <b>${esc(OURS.find(o=>o.id===(agBy(l.ag)||{owner:'h-nik'}).owner).nm)}</b> · ручка: ${agBy(l.ag)?KNOB[S.knob[l.ag]]:'—'}`,when:ago(l.w),open:'agent:'+l.ag,av:`<span class="av bot">${ICONS.bot}</span>`,sig:l.st[0]==='down'||l.st[0]==='warn',status:l.st}));}
 }
 /* Работа №1 кончается тем, что «список под тезис отобран». До сих пор этот список жил
@@ -1701,10 +1878,19 @@ const GLOSS={
   channel:'жалоба и отписка гасят человека во всех ящиках сразу',
   agents:'у каждой записи есть отвечающий человек — агент не отвечает сам за себя'};
 const ageD=it=>{const w=String(it.when||'');if(!w||/сейчас/.test(w))return 0;if(/\sч$/.test(w))return 0;const m=w.match(/(\d+)/);return m?+m[1]:999;};
+function entFilter(tab,rows){
+  const f=S.ef||{};
+  if(tab==='people'){
+    if(f.role)rows=rows.filter(x=>!x.role||x.role===f.role);
+    if(f.src)rows=rows.filter(x=>x.src===f.src);
+  }
+  if(tab==='channel'&&S.mail)rows=rows.filter(x=>!x.mail||x.mail===S.mail);
+  return rows;
+}
 function feedView(tab){
   const own=(S.own||[]).filter(o=>o.tab===tab).map(o=>({src:'me',ttl:o.txt,mt:`<b>моя заметка</b>${o.about?' · к «'+esc(o.about)+'»':''}`,when:'сейчас',open:o.ref,
     av:av('Я','var(--human)'),sig:true,status:['flat','от меня']}));
-  let all=own.concat((feedItems(tab)||[]).slice()).sort((a,b)=>ageD(a)-ageD(b));
+  let all=own.concat(entFilter(tab,(feedItems(tab)||[]).slice())).sort((a,b)=>ageD(a)-ageD(b));
   all.forEach(it=>{it.key=(it.open||'')+'#'+String(it.ttl).slice(0,60);
     it.need=needsHuman(it,tab);
     const m=S.marks&&S.marks[it.key];
@@ -1717,15 +1903,21 @@ function feedView(tab){
   return {rows:mode==='sig'?sig:all,all:all,sig:sig,mode:mode};
 }
 function renderPanel(){
-  const tabs=[['market','Рынок · информация'],['account','Юрлица · документы'],['people','Люди · речь'],['channel','Канал · что дошло'],['agents','Агенты · журнал']];
-  $('ptabs').innerHTML=`<span class="fname">Лента</span><span class="pick ent">`+tabs.map(([k,t])=>`<button data-ptab="${k}" aria-pressed="${S.ptab===k}" data-tip="${esc(t)}">${esc(t.split(' · ')[0])}<b>${feedItems(k).length}</b></button>`).join('')+`</span><span style="flex:1"></span><span class="dens" role="group" aria-label="Плотность ленты"><button data-dense="1" aria-pressed="${S.dense!==false}" aria-label="Плотно" data-tip="Плотно: одна строка на событие">≡</button><button data-dense="0" aria-pressed="${S.dense===false}" aria-label="Подробно" data-tip="Подробно: две строки на событие">☰</button></span>${S.sel?`<button class="ib" data-clearsel="1">снять выбор ×</button>`:''}`;
+  /* Сущность выбирается слева — второго переключателя здесь быть не должно.
+     Лента идёт за левой кнопкой: «это просто дублирование» (Николай, 25.09, 58:40). */
+  const FNAME={market:'Рынок · факты',account:'Юрлица · документы',people:'Люди · речь',channel:'Канал · что дошло',agents:'Агенты · журнал'};
+  const mb=S.mail?MAIL.find(m=>m.id===S.mail):null;
+  $('ptabs').innerHTML=`<span class="fname">${esc(FNAME[S.ptab]||'Лента')}</span>`
+    +(mb?`<span class="faint" style="font-size:11px">${esc(mb.adr)}</span><button class="ib" data-mailclear="1">все ящики ×</button>`:'')
+    +`<span style="flex:1"></span><span class="dens" role="group" aria-label="Плотность ленты"><button data-dense="1" aria-pressed="${S.dense!==false}" aria-label="Плотно" data-tip="Плотно: одна строка на событие">≡</button><button data-dense="0" aria-pressed="${S.dense===false}" aria-label="Подробно" data-tip="Подробно: две строки на событие">☰</button></span>${S.sel?`<button class="ib" data-clearsel="1">снять выбор ×</button>`:''}`;
   renderEcard();
   const V=feedView(S.ptab), items=V.rows;
   $('feed').classList.toggle('dense',S.dense!==false);
-  const head=`<div class="subrule"><span>показываю <b>${items.length}</b> из ${V.all.length} · ${FEEDWHY[S.ptab][V.mode==='sig'?0:1]}</span>
+  const nCom=S.ptab==='market'?MARKET.concat(S.addedFacts||[]).filter(n=>(!S.seg||n.seg===S.seg)&&isCommon(n)).length:0;
+  const head=`<div class="subrule"><span>показываю <b>${items.length}</b> из ${V.all.length} · ${FEEDWHY[S.ptab][V.mode==='sig'?0:1]}${nCom?` · <b>${nCom}</b> ушло в общее место`+`` :''}</span>
     <span class="pick"><button data-fmode="sig" aria-pressed="${V.mode==='sig'}" data-tip="Только строки, по которым нужен ход">требует хода</button><button data-fmode="all" aria-pressed="${V.mode==='all'}" data-tip="Весь срез целиком, без отбора">всё</button></span>
     ${GLOSS[S.ptab]?`<span class="gloss">${GLOSS[S.ptab]}</span>`:''}</div>`;
-  const add=S.ptab==='market'?`<div class="addfact"><input id="myFact" placeholder="Вписать свой факт или мысль о рынке…"><button class="btn" id="addFact">Добавить</button></div>`
+  const add=S.ptab==='market'?`<div class="addfact"><input id="myFact" placeholder="Вписать свой факт или мысль о рынке…"><button class="btn" id="addFact">Добавить</button><button class="btn" data-importfacts="1" data-tip="Занести пачкой то, что услышали на конференции: каждый факт с источником и без подтверждения">＋ факты с конференции</button></div>`
     :(S.noteFor?`<div class="addfact"><input id="myNote" placeholder="Дописать своё — заметка от вашего имени…" autofocus><button class="btn" id="addNote">Добавить</button><button class="ib" data-notecancel="1">×</button></div>`:'');
   const body=items.length
     ? (S.dense===false?items.map(it=>`<div class="fi ${it.gone?'gone':''}"><span class="lead">${it.av||srcIc(it.src)}</span><button class="main" data-open="${it.open}"><span class="ttl">${esc(it.ttl)}</span><span class="mt">${it.mt}</span></button>${it.status?`<span class="chip st ${it.status[0]}">${esc(it.status[1])}</span>`:'<span class="st"></span>'}<span class="when">${it.when}</span>${it.acts?`<span class="acts">${it.acts}</span>`:''}</div>`).join(''):denseRows(items))
@@ -1786,31 +1978,36 @@ function renderDB(){
     ${rows.length>page.length?`<button class="dbmore" data-dbmore="1">показать ещё ${int(Math.min(50,rows.length-page.length))} · осталось ${int(rows.length-page.length)}</button>`:''}`;}
 
 /* =================== «Сегодня»: очередь ходов в центре =================== */
+/* Модель мира у всех одна, работа разная: центр показывает ходы всей команды,
+   а сужает до «моего куска» только правая панель — «интерфейс от этого не поменяется»
+   (Николай, 25.09, 1:15:30). Раньше центр резался по роли — это откачено. */
+const WHOM={owner:'Николай',liza:'Лиза',sales:'Оператор продаж',legal:'Юрист'};
+function allTriage(){
+  return Object.keys(WHOM).flatMap(k=>triageFor(k).map(x=>({...x,own:k})));
+}
 function renderToday(){
-  const p=S.profile,f=focusFor(p),tri=triageFor(p);
-  const me={owner:'Николай',liza:'Лиза',sales:'Оператор продаж',legal:'Юрист'}[p];
-  const who={owner:'владелец выручки · работа — наращивать выручку',
-             liza:'операции и подпись · работа — подписать и запустить без сбоев',
-             sales:'оператор продаж · работа — довести оферты до подписи',
-             legal:'юрист · работа — не дать машине обязать компанию лишним'}[p];
+  const p=S.profile,f=focusFor('owner'),tri=allTriage();
+  const me=WHOM[p];
+  const who='ходы всей команды · ваш кусок подсвечен и вынесен наверх';
   const open=tri.filter(x=>!S.tri[x.id]);
-  const sorted=tri.slice().sort((a,b)=>(!!S.tri[a.id]-!!S.tri[b.id])||(URG[a.u||'soon']-URG[b.u||'soon']));
+  const mineN=open.filter(x=>x.own===p).length;
+  const sorted=tri.slice().sort((a,b)=>(!!S.tri[a.id]-!!S.tri[b.id])||((b.own===p)-(a.own===p))||(URG[a.u||'soon']-URG[b.u||'soon']));
   $('todayview').innerHTML=`<div class="tdwrap">
-    <div class="tdh"><h2>Сегодня · ${esc(me)}</h2><span class="who">${esc(who)}</span></div>
-    <div class="subrule" style="padding:0 0 4px"><span>показываю <b>${open.length}</b> ${open.length===1?'ход':'хода'} · их не решает агент: нужна ваша подпись, право или суждение</span></div>
+    <div class="tdh"><h2>Сегодня · вся команда</h2><span class="who">${esc(who)}</span></div>
+    <div class="subrule" style="padding:0 0 4px"><span>показываю <b>${open.length}</b> ${open.length===1?'ход':'хода'}, из них <b>${mineN}</b> ваш${mineN===1?'':'и'} · их не решает агент: нужна подпись, право или суждение</span></div>
 
     <div class="tdsec">Узкое место · одно за раз</div>
     <div class="focus"><span class="k">Теория ограничений</span><span class="t">${f.t}</span><span class="d">${f.d}</span>
-      ${p==='owner'||p==='sales'?fever():''}
+      ${fever()}
       <div class="btns">${f.btn.map(([t,k],i)=>`<button class="${i===0?'btn':'lnk'}" data-do="${k}">${t}</button>`).join('')}</div></div>
 
-    <div class="tdsec">Решить сейчас · ${open.length}</div>
-    ${open.length?`<div class="tdq">${sorted.map(x=>`<div class="tri ${x.u||'soon'} ${S.tri[x.id]?'done':''}">${x.u==='now'&&!S.tri[x.id]?`<span class="urg">решить сейчас${x.w?' · '+esc(x.w):''}</span>`:''}<span class="t">${x.t}</span><span class="s">${x.f?`<b class="fmem">двигает ${x.f}</b> · `:''}${x.s}${S.tri[x.id]?' · '+S.tri[x.id]:''}</span>${S.tri[x.id]?'':`<div class="btns">${x.a.map(([t,k],i)=>`<button class="${i===0?(x.u==='now'?'btn pri':'btn'):'lnk'}" data-tri="${x.id}|${k}|${t}">${t}</button>`).join('')}</div>`}</div>`).join('')}</div>`
+    <div class="tdsec">Решить сейчас · ${open.length} на команду</div>
+    ${open.length?`<div class="tdq">${sorted.map(x=>`<div class="tri ${x.u||'soon'} ${S.tri[x.id]?'done':''} ${x.own===p?'mine':''}">${x.u==='now'&&!S.tri[x.id]?`<span class="urg">решить сейчас${x.w?' · '+esc(x.w):''}</span>`:''}<span class="t">${x.t} <span class="owner ${x.own===p?'me':''}">${x.own===p?'ваш ход':esc(WHOM[x.own])}</span></span><span class="s">${x.f?`<b class="fmem">двигает ${x.f}</b> · `:''}${x.s}${S.tri[x.id]?' · '+S.tri[x.id]:''}</span>${S.tri[x.id]?'':`<div class="btns">${x.a.map(([t,k],i)=>`<button class="${i===0?(x.u==='now'?'btn pri':'btn'):'lnk'}" data-tri="${x.id}|${k}|${t}">${t}</button>`).join('')}</div>`}</div>`).join('')}</div>`
       :`<div class="tdempty">Ходов нет — агенты работают сами. Следующий прогон в пн 09:00. Пустую очередь не заполняем новостями.</div>`}
 
-    ${p==='owner'||p==='sales'?`<div class="tdsec">В риске · почему</div>
+    ${`<div class="tdsec">В риске · почему</div>
       <div class="subrule" style="padding:0 0 2px"><span>три из ${FEVER.length} цепочек, где буфер съеден быстрее, чем пройден путь</span></div>
-      ${FEVER.slice(0,3).map(r=>`<button class="risk" ${r.open?`data-open="${r.open}"`:'data-do="showtx"'}><b>${esc(r.nm)}</b><span>${esc(r.why)}</span></button>`).join('')}`:''}
+      ${FEVER.slice(0,3).map(r=>`<button class="risk" ${r.open?`data-open="${r.open}"`:'data-do="showtx"'}><b>${esc(r.nm)}</b><span>${esc(r.why)}</span></button>`).join('')}`}
   </div>`;}
 
 /* =================== agent: focus (ToC) + triage + chat, per profile =================== */
@@ -1851,11 +2048,45 @@ function fever(){const W=300,H=150,pl=28,pb=20,pw=W-pl-8,ph=H-pb-8,X=v=>pl+v*pw,
     if(i<2)h+=`<text class="lab" x="${X(f.x)+(i===0?9:-9)}" y="${Y(f.y)+4}" text-anchor="${i===0?'start':'end'}">${esc(f.nm)}</text>`;});
   return h+'</svg>';}
 function focusFor(p){const F=formulaAt(S.t),P=formulaAt(S.t-WIN);
-  if(p==='owner')return {t:'Ограничение системы: «интерес → подпись» в Price-first (TX, FL)',d:`Conv ${pct(P.conv)} → ${pct(F.conv)} за 4 недели. Причина выше по цепи: «Квалификация» пускает без отсева с н36. Одно ограничение за раз.`,btn:[['Показать на карте','showtx'],['Открыть SOP Brightline','open:sop:a0']]};
+  if(p==='owner'){const B=bnCur();const L=BNS();
+    return {t:B.t,d:B.d+` Узкое место ${(S.bn||0)+1} из ${L.length} — одно за раз.`,
+      btn:B.draft?[['Открыть заготовку','open:draft:'+B.id],['Показать на карте','showtx']]
+                 :[['Открыть SOP Brightline','open:sop:a0'],['Показать на карте','showtx']]};}
+  if(p==='__never')return {t:'Ограничение системы: «интерес → подпись» в Price-first (TX, FL)',d:`Conv ${pct(P.conv)} → ${pct(F.conv)} за 4 недели. Причина выше по цепи: «Квалификация» пускает без отсева с н36. Одно ограничение за раз.`,btn:[['Показать на карте','showtx'],['Открыть SOP Brightline','open:sop:a0']]};
   if(p==='liza')return {t:'MSA Brightline ждёт вашей подписи с понедельника',d:'Клиент тоже ещё не подписал: нужно согласие Tom Hale. Ваша подпись снимает половину буфера этой сделки.',btn:[['Открыть на подпись','open:doc:d-msa']]};
   if(p==='sales')return {t:'9 оферт в DFW молчат 8+ дней',d:'Самая дорогая — Brightline ($38K): ждёт согласия Tom Hale (платит). Снимите его возражение — остальные подождут.',btn:[['Открыть SOP Brightline','open:sop:a0'],['Показать DFW','showdfw']]};
   return {t:'Обещания агентов вне каталога',d:'Стоп «не обещает вне каталога» сработал 2× за неделю, самый опасный — интеграция с Dentrix. «Переписка» стоит.',btn:[['Открыть переписку Moss','open:msg:p-moss']]};}
 const URG={now:0,soon:1,fyi:2};
+
+/* ============ Цепочка узких мест с готовым ходом ============
+   «Он говорит: нас блокирует Мэри вот с этой сделкой, она нам сейчас даст больше всего
+   денег. Агент пишет сюда заготовку в ленте, говорит: я готов отправить вот это письмо.
+   Мы кликаем на это письмо, оно появляется в рабочем пространстве, мы его проверяем,
+   говорим: согласен, погнали. Всё. Он говорит: следующее узкое место…»
+   (Николай, 25.09, 1:06:30). Одно за раз, по теории ограничений. */
+function priceLead(){const a=ACC.filter(x=>x.seg==='price'&&stateAt(x,S.t)&&inF(x))[0]||ACC.find(x=>x.seg==='price');return a;}
+function BNS(){
+  const pl=priceLead(), plp=pl?peopleOf(pl):[];
+  return [
+  {id:'bn-hale',m:'ACV',money:38000,
+   t:'Подпись Brightline $38K держит Tom Hale — он платит',
+   d:'Самая дорогая открытая сделка. Dr. Moss не подпишет без его согласия, возражение — «$1 400 фрилансеру против $3 170 с SLA».',
+   draft:{to:'p-hale',ch:'почта',acc:'a0',
+     subj:'Re: 14 мест — что входит в $3 170 и чего нет у фрилансера',
+     body:'Tom, посчитал в лоб.\n\nФрилансер $1 400/мес — это время одного человека без замены и без обязательств по времени ответа.\nНаши $3 170/мес — это 24/7 с SLA 99,5 %, журнал доступа под HIPAA и готовый пакет к ноябрьскому аудиту.\n\nОдин несданный аудит стоит дороже разницы за год. Готов показать расчёт на 20 минут в четверг — или пришлю одной страницей, как удобнее.'}},
+  {id:'bn-reach',m:'Охват',money:0,
+   t:`Price-first: ${int(31787)} юрлиц, охват 0,2 % — почти не касаемся`,
+   d:'Самый большой сегмент по числу юрлиц и самый дешёвый вход. Собрал по первому: кто решает, кто платит, и где их нашли.',
+   draft:{to:plp[0]?plp[0].id:'p-moss',ch:'WhatsApp',acc:pl?pl.id:'a0',
+     subj:`WhatsApp · ${plp[0]?plp[0].nm:''} (решает) и ${plp[2]?plp[2].nm:''} (платит)`,
+     body:(plp[0]?plp[0].nm.split(' ')[0]:'')+', добрый день. Веду ИТ для клиник и офисов в вашем метро.\n\nОдин вопрос: если завтра ваш ИТ-подрядчик пропадёт на неделю — что встанет первым?\n\nЕсли встанет приём — покажу, как это закрывается за $3 170/мес с ответом за 15 минут. Если ничего — не отниму время.'}},
+  {id:'bn-qual',m:'Conv',money:0,
+   t:'«Квалификация» пускает Price-first без отсева с н36',
+   d:'Проверка «назван бюджет или порядок цены» выключена, ручка стоит на «сам». Оттуда и падение Conv.',
+   fix:true}];
+}
+function bnCur(){const L=BNS();return L[Math.min(S.bn||0,L.length-1)];}
+function bnDone(){const L=BNS();return (S.bn||0)>=L.length-1?null:L[(S.bn||0)+1];}
 function renderAgent(){
   const p=S.profile,f=focusFor(p),tri=triageFor(p);
   const who={owner:'работа — наращивать выручку',liza:'работа — подписать и запустить без сбоев',sales:'работа — довести оферты до подписи',legal:'работа — не дать машине обязать компанию лишним'}[p];
@@ -1869,14 +2100,51 @@ function renderAgent(){
     `)+S.chat.map(m=>m.u?`<div class="turn user"><div class="by">${av(me,'var(--human)')}${me}</div><div class="bodyt">${m.t}</div></div>`:turnA(m.t)).join('');
   const ctx=S.sel&&S.sel.type==='acc'?ACCBY[S.sel.id].name:S.sel&&S.sel.type==='person'?personById(S.sel.id).nm:S.sel&&S.sel.type==='agent'?agBy(S.sel.id).nm:({map:'Карта',sop:'SOP',today:'Сегодня',db:'База'}[S.primary]||'Сегодня');
   $('askCtx').innerHTML='📎 '+esc(S.source?S.tabs.find(x=>x.id===S.source).title:ctx);
-  $('sugg').innerHTML=`<button data-photo="1" data-tip="Помню лицо, но не помню, о чём говорили — скиньте фото или визитку">⧉ фото или визитка</button>`+['Почему упал Conv?','Кто должен подписать Brightline?','Что будет, если повернуть ручку?'].map(s=>`<button data-ask="${s}">${s}</button>`).join('');}
+  $('sugg').innerHTML=`<button data-photo="1" data-tip="Помню лицо, но не помню, о чём говорили — скиньте фото или визитку">⧉ фото или визитка</button>`+['Просимулируй сценарии выручки','Перепиши правило шага «Квалификация»','Почему упал Conv?','Кто должен подписать Brightline?'].map(s=>`<button data-ask="${s}">${s}</button>`).join('');}
 function answer(q){const F=formulaAt(S.t),P=formulaAt(S.t-WIN),l=q.toLowerCase();
   if(/conv|упал|конверс/.test(l))return `Conv ${pct(P.conv)} → ${pct(F.conv)}. С н36 «Поиск» тянет дешёвый канал в TX и FL, «Квалификация» пропускает Price-first без отсева, а их оферты молчат. Это ограничение системы: повернуть ручку «Квалификации» на «с человеком».`;
   if(/подпис|sign|msa/.test(l))return 'Со стороны клиента подписывает Dr. Moss, но он ждёт согласия Tom Hale (платит), у которого возражение по цене. С нашей стороны подписывает Лиза — у неё полномочие; ждёт с понедельника. Агент подписывать не может.';
   if(/ручк|повернут|прогноз/.test(l)){const s=S.knob.qual;S.knob.qual=1;const t=S.t;S.t=TMAX;const B=formulaAt(TMAX);S.knob.qual=2;const A=formulaAt(TMAX);S.knob.qual=s;S.t=t;return `Прогноз н42: Conv ${pct(A.conv)} → ${pct(B.conv)}, охват меньше, ARR почти тот же (${usd(A.end)} против ${usd(B.end)}). Проверим фактом на н42.`;}
   if(/brightline|moss|брайт/.test(l))return accPhrase(BRIGHT,S.t)+'. Узкое место — согласие Tom Hale. Черновик ответа ему готов в ленте «Люди».';
   return 'В демо я отвечаю про Conv, подписи, ручки агентов и Brightline. В живой системе — про любой объект модели мира: сегмент, юрлицо, человека, документ, агента.';}
-function ask(q){if(!q.trim())return;S.chat.push({u:1,t:esc(q)});S.chat.push({u:0,t:esc(answer(q))});renderAgent();}
+/* «Я ему пишу: переделай конструктор, перепиши вот этот воркфлоу… Он там быстренько
+   переписывает, я согласен — не согласен» и «агент, просимулируй, как мне выручку
+   повысить… сценарий 1 вот так, сценарий 2 вот так» (Николай, 25.09, 1:04:00 и 1:05:30). */
+function simScenarios(){
+  const t0=S.t,k0=S.knob.qual,s0=S.seg,r0=JSON.stringify(S.rules);
+  const at=()=>{S.t=TMAX;const F=formulaAt(TMAX);S.t=t0;return F;};
+  const base=at();
+  S.knob.qual=1;S.rules.qual.find(x=>x.id==='q2').on=true;const fix=at();
+  S.knob.qual=k0;S.rules=JSON.parse(r0);
+  S.seg='cmp';const cmp=at();
+  S.seg='price';const prc=at();
+  S.seg=s0;
+  return [
+    ['как есть, ничего не трогаем',base.end,base.conv,'Conv так и остаётся сломанной с н36'],
+    ['включить проверку цены и вернуть ручку «Квалификации»',fix.end,fix.conv,'охват падает вдвое, но воронка чистая'],
+    ['весь фокус в Compliance-first',cmp.end,cmp.conv,'вклад одного сегмента, не вся компания: дороже чек, дольше цикл'],
+    ['весь фокус в Price-first',prc.end,prc.conv,'вклад одного сегмента, не вся компания: много юрлиц, но там Conv и просела']];
+}
+function answerRich(q){
+  const l=q.toLowerCase();
+  if(/перепиш|воркфлоу|конструктор|правил|процесс|шаг/.test(l)){
+    return {raw:true,t:`Предлагаю правку шага «Квалификация»:<br>
+      • включить проверку <b>«назван бюджет или порядок цены»</b> (выключена с н36)<br>
+      • вернуть ручку <b>сам → с человеком</b><br>
+      <span class="faint">Это меняет поведение агента с этой минуты и попадёт в его журнал.</span>
+      <div class="btns" style="margin-top:6px"><button class="btn pri" data-tri="t-knob|knob|Утвердить">Согласен</button><button class="btn" data-tri="t-knob|no|Отклонить">Не согласен</button></div>`};
+  }
+  if(/симул|сценар|что будет|прогноз выручк|как повыс/.test(l)){
+    const S4=simScenarios();
+    return {raw:true,t:`Прогноз на н${TMAX} по четырём сценариям:<br>`+
+      S4.map(([nm,end,cv,why],i)=>`<div style="margin-top:4px">${i+1}. <b>${esc(nm)}</b> — ARR <span class="num">${usd(end)}</span>, Conv ${pct(cv)}<br><span class="faint">${esc(why)}</span></div>`).join('')+
+      `<div class="faint" style="margin-top:6px">Строки 1–2 — ARR всей компании, строки 3–4 — вклад одного сегмента. Считаю той же формулой, что наверху, на тех же выдуманных данных. Выбор — ваш.</div>`};
+  }
+  return null;
+}
+function ask(q){if(!q.trim())return;S.chat.push({u:1,t:esc(q)});
+  const rich=answerRich(q);
+  S.chat.push(rich?{u:0,t:rich.t}:{u:0,t:esc(answer(q))});renderAgent();}
 
 /* =================== status bar & palette =================== */
 function renderStatus(){const F=formulaAt(S.t),P=formulaAt(S.t-WIN),d=F.end/P.end-1,alarms=AGENTS.filter(a=>a.state==='paused').length;
@@ -1894,25 +2162,27 @@ document.addEventListener('keydown',e=>{if((e.metaKey||e.ctrlKey)&&e.key.toLower
 /* =================== routing =================== */
 function openRef(k){
   const [type,id,id2]=k.split(':');
+  if(type==='draft'){const B=BNS().find(x=>x.id===id)||bnCur();
+    openTab('draft',B.id,'Заготовка · '+(personById(B.draft.to)||{nm:''}).nm.split(' ').slice(-1)[0]);
+    setEnt('ppl');S.sel={type:'person',id:B.draft.to};renderAllButMap();return;}
   if(type==='acc'){selectAcc(ACCBY[id]);return;}
-  if(type==='seg'){S.seg=S.seg===id?null:id;S.ptab='market';S.sel=null;if(S.tab!=='map'){S.tab='map';renderEditor();}renderAll();return;}
-  if(type==='person'){const p=personById(id);S.sel={type:'person',id};S.ptab='people';openTab('msg',id,'Профиль · '+p.nm);renderAllButMap();return;}
-  if(type==='msg'){const p=personById(id);S.sel={type:'person',id};S.ptab='people';openTab('msg',id,'Профиль · '+p.nm);renderAllButMap();return;}
-  if(type==='doc'){S.ptab='account';S.sel={type:'acc',id:DOCS[id].acc};openTab('doc',id,DOCS[id].kind+' · '+ACCBY[DOCS[id].acc].name.split(' ')[0]);renderAllButMap();return;}
-  if(type==='news'){S.ptab='market';openTab('news',id,MARKET.find(n=>n.id===id).ttl.slice(0,28)+'…');renderAllButMap();return;}
+  if(type==='seg'){S.seg=S.seg===id?null:id;setEnt('seg');S.sel=null;if(S.tab!=='map'){S.tab='map';renderEditor();}renderAll();return;}
+  if(type==='person'){const p=personById(id);S.sel={type:'person',id};setEnt('ppl');openTab('msg',id,'Профиль · '+p.nm);renderAllButMap();return;}
+  if(type==='msg'){const p=personById(id);S.sel={type:'person',id};setEnt('ppl');openTab('msg',id,'Профиль · '+p.nm);renderAllButMap();return;}
+  if(type==='doc'){setEnt('acc');S.sel={type:'acc',id:DOCS[id].acc};openTab('doc',id,DOCS[id].kind+' · '+ACCBY[DOCS[id].acc].name.split(' ')[0]);renderAllButMap();return;}
+  if(type==='news'){setEnt('seg');openTab('news',id,MARKET.find(n=>n.id===id).ttl.slice(0,28)+'…');renderAllButMap();return;}
   if(type==='sop'){S.sopAcc=id;S.sel={type:'acc',id};S.tab='sop';renderEditor();renderAllButMap();return;}
-  if(type==='agent'){S.sel={type:'agent',id};S.ptab='agents';openTab('agent',id,'Агент · '+agBy(id).nm);renderAllButMap();return;}
-  if(type==='us'){openTab('org','us','Мы · люди и агенты');S.ptab='agents';S.sel=null;renderAllButMap();return;}
+  if(type==='agent'){S.sel={type:'agent',id};setEnt('ag');openTab('agent',id,'Агент · '+agBy(id).nm);renderAllButMap();return;}
+  if(type==='us'){openTab('org','us','Мы · люди и агенты');setEnt('us');S.sel=null;renderAllButMap();return;}
   if(type==='db'){S.dbKind=id;S.dbN=50;S.dbSort=null;openTab('db',id,'База · '+(id==='acc'?'юрлица':'физлица'));return;}
 }
 function logAdd(ag,ttl,st){(S.extraLogs=S.extraLogs||[]).push({ag,w:NOW,ttl,st});}
 document.addEventListener('click',e=>{
-  const b=e.target.closest('[data-open],[data-side],[data-tab],[data-close],[data-ptab],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-step],[data-plus],[data-newchat],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-knobw],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepmv],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-fmode],[data-fold],[data-dbsort],[data-dbmore],[data-dbkind],[data-slice],[data-mark],[data-note],[data-notecancel],#fDown,#addFact,#addNote,#play');
+  const b=e.target.closest('[data-open],[data-side],[data-tab],[data-close],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-step],[data-plus],[data-newchat],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-knobw],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepmv],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-mapview],[data-skin],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-fmode],[data-dbsort],[data-dbmore],[data-dbkind],[data-slice],[data-mark],[data-note],[data-notecancel],[data-ent],[data-ef],[data-flow],[data-mail],[data-common],[data-importfacts],[data-nextbn],[data-influencer],#fDown,#addFact,#addNote,#play');
   if(!b)return;
   if(b.dataset.pal)$('pal').hidden=true;
   if(b.dataset.dense!==undefined){S.dense=b.dataset.dense==='1';renderPanel();return;}
   if(b.dataset.fmode){S.fmode=b.dataset.fmode;renderPanel();return;}
-  if(b.dataset.fold){S.fold=S.fold||{};S.fold[b.dataset.fold]=!S.fold[b.dataset.fold];renderSide();return;}
   if(b.dataset.dbsort){const k=b.dataset.dbsort,cur=S.dbSort||{};S.dbSort={k,d:cur.k===k?-cur.d:(k==='acv'||k==='last'||k==='mv'?-1:1)};renderDB();return;}
   if(b.dataset.dbmore){S.dbN=(S.dbN||50)+50;renderDB();return;}
   if(b.dataset.slice){const x=(S.slices||[]).find(y=>y.id===b.dataset.slice);if(x){applyF(sameF(x.f,curF())?{}:x.f);renderAll();renderEditor();}return;}
@@ -1938,7 +2208,35 @@ document.addEventListener('click',e=>{
     const cur=S.steps[i].ag;S.steps[i].ag=opts[(opts.indexOf(cur)+1)%opts.length];
     if(!S.rules[S.steps[i].ag])S.rules[S.steps[i].ag]=[{id:'n1',t:'правило ещё не задано',on:false}];
     renderEditorLight();return;}
+  if(b.dataset.skin){S.skin=b.dataset.skin;renderSkins();renderEditor();return;}
   if(b.dataset.treemode){S.treeMode=b.dataset.treemode;renderSide();return;}
+  if(b.dataset.common){const id=b.dataset.common;S.common=S.common||{};S.common[id]=!S.common[id];
+    toast(S.common[id]?'Ушло в общее место — сигналом больше не считается.':'Вернули в сигналы.');renderPanel();return;}
+  if(b.dataset.importfacts){
+    if(S.addedFacts&&S.addedFacts.length){toast('Факты с этой конференции уже загружены.');return;}
+    const seg=S.seg||'cmp';
+    S.addedFacts=[
+      {id:'cf1',seg:seg,src:'conf',ttl:'ASCII Edge: 4 из 5 владельцев назвали страховщика, а не хакера, причиной купить ИТ',ttl2:'',when:'2 ч',url:'ASCII Edge 2026, зал B',hits:'Conv',facts:['со слов пяти владельцев']},
+      {id:'cf2',seg:seg,src:'conf',ttl:'ASCII Edge: два MSP подняли цену на 18 % и не потеряли ни одного клиента',when:'2 ч',url:'ASCII Edge 2026, кулуары',hits:'ACV',facts:['два независимых рассказа']},
+      {id:'cf3',seg:seg,src:'conf',ttl:'Брук: письма работают, если писать под конкретный штат, иначе уходят в спам',when:'3 ч',url:'разговор с Brooke',hits:'Охват',facts:['30 лет в обучении MSP']},
+      {id:'cf4',seg:seg,src:'conf',ttl:'Шон: продавать надо строчки P&L, а не технологии — иначе разговор не начинается',when:'3 ч',url:'разговор с Sean',hits:'Conv',facts:['сотни миллионов продаж']}];
+    logAdd('scout','С конференции ASCII Edge загружено 4 факта — ни один ещё не подтверждён',['warn','новые факты']);
+    toast('Загружено 4 факта с конференции. Ни один ещё не подтверждён — формула их не считает.');
+    renderAll();return;}
+  if(b.dataset.nextbn){const [id,skip]=b.dataset.nextbn.split('|');
+    const L=BNS(),i=L.findIndex(x=>x.id===id),B=L[i];
+    if(!skip){S.sent[id]=true;
+      logAdd('seller',`${B.draft.ch}: заготовка «${B.draft.subj}» одобрена человеком и отправлена`,['up','отправлено']);}
+    else logAdd('seller',`${B.draft.ch}: заготовка «${B.draft.subj}» отклонена человеком`,['down','отклонено']);
+    S.bn=Math.min(i+1,L.length-1);
+    const n=L[Math.min(i+1,L.length-1)];
+    toast(skip?`Не отправлено. Следующее узкое место: ${n.t}`:`Отправлено (демо). Следующее узкое место: ${n.t}`);
+    renderAll();renderEditorLight();const tb=S.tabs.find(x=>x.id==='draft:'+id);if(tb)renderEditor();return;}
+  if(b.dataset.influencer){const id=b.dataset.influencer,inf=influencerFor(ACCBY[id]);
+    S.infl=S.infl||{};S.infl[id]=inf;
+    logAdd('seller',`В поток ${ACCBY[id].name} добавлен ${inf.nm} (${inf.from}) — влияет на того, кто блокирует`,['up','правка потока']);
+    toast(`${inf.nm} добавлен в поток: ${inf.why}.`);renderAll();return;}
+  if(b.dataset.mapview){S.mapView=b.dataset.mapview;renderMap();return;}
   if(b.dataset.sopmode!==undefined){S.sopEdit=b.dataset.sopmode==='1';if(!S.sopEdit)S.sopFix=null;renderEditorLight();return;}
   if(b.dataset.rule){const [ag,rid]=b.dataset.rule.split(':');const r=S.rules[ag].find(x=>x.id===rid);r.on=!r.on;
     if(r.knob==='qual'){S.knob.qual=r.on?1:2;}
@@ -1962,12 +2260,17 @@ document.addEventListener('click',e=>{
     if(+k>1){toast('Тёплому агент не пишет сам: письмо уходит от вашего имени, платим репутацией.');return;}
     logAdd(id,`Тёплые: ${KNOB[S.knobW[id]]} → ${KNOB[+k]}`,['flat','правка']);S.knobW[id]=+k;renderAll();return;}
   if(b.dataset.step){S.t=Math.max(TMIN,Math.min(TMAX,S.t+ +b.dataset.step));renderAll();return;}
-  if(b.dataset.plus!==undefined){S.ptab='market';renderPanel();const i=$('myFact');i.value='к «'+b.dataset.plus+'…»: ';i.focus();return;}
+  if(b.dataset.plus!==undefined){setEnt('seg');renderPanel();const i=$('myFact');i.value='к «'+b.dataset.plus+'…»: ';i.focus();return;}
   if(b.dataset.open){openRef(b.dataset.open);return;}
+  if(b.dataset.ent){const k=b.dataset.ent;
+    if(S.ent===k&&S.layout.side){S.layout.side=false;}else{S.ent=k;S.side='tree';S.layout.side=true;S.ptab=ENTFEED[k];S.mail=null;}
+    applyLayout();renderActivity();renderSide();renderPanel();return;}
+  if(b.dataset.ef){const [k,v]=b.dataset.ef.split(':');S.ef[k]=S.ef[k]===v?'':v;renderSide();renderPanel();return;}
+  if(b.dataset.flow){S.ef.proc=b.dataset.flow;renderSide();return;}
+  if(b.dataset.mail){S.mail=b.dataset.mail;S.ptab='channel';renderSide();renderPanel();return;}
   if(b.dataset.side){if(S.side===b.dataset.side&&S.layout.side){S.layout.side=false;}else{S.side=b.dataset.side;S.layout.side=true;}applyLayout();renderActivity();renderSide();return;}
   if(b.dataset.tab){S.tab=b.dataset.tab;renderEditor();return;}
   if(b.dataset.close){const i=S.tabs.findIndex(t=>t.id===b.dataset.close);S.tabs.splice(i,1);if(S.tab===b.dataset.close)S.tab=S.tabs[Math.max(0,i-1)].id;renderEditor();return;}
-  if(b.dataset.ptab){S.ptab=b.dataset.ptab;S.ptabLock=true;renderPanel();return;}
   if(b.dataset.clearsel){S.sel=null;renderAll();return;}
   if(b.dataset.level){const l=b.dataset.level;if(l==='segment'){S.sel=null;svg.transition().duration(600).call(zoom.transform,d3.zoomIdentity);}else if(l==='accounts'){S.sel=null;zoomToFeature(statesF.find(f=>f.abbr==='TX'));}else selectAcc(BRIGHT);return;}
   if(b.dataset.seg!==undefined){S.seg=b.dataset.seg||null;renderAll();return;}
@@ -1979,7 +2282,7 @@ document.addEventListener('click',e=>{
     if(k.startsWith('fact:')){const [,nid,v]=k.split(':');S.facts[nid]={0:v,1:v};}
     if(k.startsWith('open:')){openRef(k.slice(5));return;}
     S.tri[id]=label.toLowerCase()==='отклонить'||label==='Оставить стоп'?'отклонено':'сделано: '+label.toLowerCase();renderAll();return;}
-  if(b.dataset.do){const k=b.dataset.do;if(k==='today'){S.tab='today';renderEditor();return;}if(k==='openfilters'){S.side='tree';S.layout.side=true;S.fold=S.fold||{};S.fold.flt=false;applyLayout();renderActivity();renderSide();return;}if(k==='openchannel'){S.ptab='channel';S.layout.panel=true;applyLayout();renderPanel();return;}if(k==='opendocs'){S.ptab='account';S.layout.panel=true;applyLayout();renderPanel();return;}if(k==='slicesave'){const f=curF();S.slices=S.slices||SLICE0.slice();if(S.slices.some(x=>sameF(x.f,f))){toast('Такой срез уже сохранён.');return;}const nm=[S.seg?segBy(S.seg).name:'все сегменты',S.stF||null,S.stage?STAGE[S.stage]:null,S.downOnly?'застряли':null].filter(Boolean).join(' · ');S.slices.push({id:'s'+Date.now(),nm:nm,why:'сохранено вами н'+S.t,f:f});renderSide();toast('Срез сохранён: '+nm);return;}if(k==='resetscope'){S.seg=null;S.job='';S.stF='';S.stage='';S.downOnly=false;renderAll();return;}if(k==='focuscard'){S.tab='today';renderEditor();const f=document.querySelector('#todayview .focus');f&&f.scrollIntoView({block:'nearest'});return;}if(false){S.layout.agent=true;applyLayout();const f=document.querySelector('.focus');f&&f.scrollIntoView({block:'nearest'});f&&f.animate([{outline:'2px solid var(--focus)'},{outline:'2px solid transparent'}],{duration:600});return;}if(k==='showtx'){S.seg='price';S.downOnly=true;if(S.tab!=='map'){S.tab='map';renderEditor();}S.sel=null;renderAll();zoomToFeature(statesF.find(f=>f.abbr==='TX'));return;}
+  if(b.dataset.do){const k=b.dataset.do;if(k==='today'){S.tab='today';renderEditor();return;}if(k==='openfilters'){S.side='tree';S.layout.side=true;applyLayout();renderActivity();renderSide();return;}if(k==='openchannel'){setEnt('us');S.ptab='channel';S.layout.panel=true;applyLayout();renderActivity();renderSide();renderPanel();return;}if(k==='opendocs'){setEnt('acc');S.layout.panel=true;applyLayout();renderActivity();renderSide();renderPanel();return;}if(k==='slicesave'){const f=curF();S.slices=S.slices||SLICE0.slice();if(S.slices.some(x=>sameF(x.f,f))){toast('Такой срез уже сохранён.');return;}const nm=[S.seg?segBy(S.seg).name:'все сегменты',S.stF||null,S.stage?STAGE[S.stage]:null,S.downOnly?'застряли':null].filter(Boolean).join(' · ');S.slices.push({id:'s'+Date.now(),nm:nm,why:'сохранено вами н'+S.t,f:f});renderSide();toast('Срез сохранён: '+nm);return;}if(k==='resetscope'){S.seg=null;S.job='';S.stF='';S.stage='';S.downOnly=false;renderAll();return;}if(k==='focuscard'){S.tab='today';renderEditor();const f=document.querySelector('#todayview .focus');f&&f.scrollIntoView({block:'nearest'});return;}if(false){S.layout.agent=true;applyLayout();const f=document.querySelector('.focus');f&&f.scrollIntoView({block:'nearest'});f&&f.animate([{outline:'2px solid var(--focus)'},{outline:'2px solid transparent'}],{duration:600});return;}if(k==='showtx'){S.seg='price';S.downOnly=true;if(S.tab!=='map'){S.tab='map';renderEditor();}S.sel=null;renderAll();zoomToFeature(statesF.find(f=>f.abbr==='TX'));return;}
     if(k==='showdfw'){S.seg=null;S.sel=null;if(S.tab!=='map'){S.tab='map';renderEditor();}renderAll();zoomTo(bx,by,7);return;}if(k.startsWith('open:'))openRef(k.slice(5));return;}
   if(b.dataset.fact){const [id,i,v]=b.dataset.fact.split(':');S.facts[id]=S.facts[id]||{};S.facts[id][i]=v;renderEditor();renderPanel();return;}
   if(b.dataset.factall){const [id,v]=b.dataset.factall.split(':');const n=MARKET.find(x=>x.id===id);S.facts[id]={all:v};n.facts.forEach((f,i)=>S.facts[id][i]=v);renderPanel();if(S.tab==='news:'+id)renderEditor();return;}
@@ -2010,12 +2313,12 @@ document.addEventListener('click',e=>{
 document.addEventListener('auxclick',e=>{const b=e.target.closest('[data-tab]');if(e.button===1&&b&&b.dataset.tab!=='map'&&b.dataset.tab!=='sop'){const x=document.querySelector(`[data-close="${b.dataset.tab}"]`);x&&x.click();}});
 document.addEventListener('input',e=>{
   if(e.target.id==='tr'){S.t=+e.target.value;renderAll();}
-  if(e.target.id==='sideSearch'){S.q=e.target.value;renderSearch();}
+
   if(e.target.id==='dbQ'){S.dbQ=e.target.value;S.dbN=50;const c=e.target.selectionStart;renderDB();const el=$('dbQ');if(el){el.focus();el.setSelectionRange(c,c);}}
   if(e.target.dataset&&e.target.dataset.rename){const [i,f]=e.target.dataset.rename.split(':');
     const v=e.target.textContent.replace(/\s+/g,' ').trim();if(v)S.steps[+i][f]=v;}
 });
-document.addEventListener('change',e=>{if(e.target.id==='fStage'){S.stage=e.target.value;renderAll();}if(e.target.id==='fJob'){S.job=e.target.value;renderAll();}if(e.target.id==='fSt'){S.stF=e.target.value;renderAll();if(S.stF&&S.tab==='map'){const f=statesF.find(x=>x.abbr===S.stF);f&&zoomToFeature(f);}}if(e.target.name==='fseg'){S.seg=e.target.value||null;renderAll();}if(e.target.id==='fdown'){S.downOnly=e.target.checked;renderAll();}});
+document.addEventListener('change',e=>{if(e.target.id==='fStage'){S.stage=e.target.value;renderAll();}if(e.target.id==='fJob'){S.job=e.target.value;renderAll();}if(e.target.id==='fSt'){S.stF=e.target.value;renderAll();if(S.stF&&S.tab==='map'){const f=statesF.find(x=>x.abbr===S.stF);f&&zoomToFeature(f);}}if(e.target.name==='fseg'){S.seg=e.target.value||null;renderAll();}if(e.target.id==='fdown'){S.downOnly=e.target.checked;renderAll();}if(e.target.id==='fNew'){S.ef.newonly=e.target.checked;renderAll();}});
 addEventListener('resize',()=>{applyLayout();});
 $('profile').addEventListener('change',e=>{S.profile=e.target.value;S.chat=[];renderAll();});
 $('askSend').onclick=()=>{const i=$('askIn');ask(i.value);i.value='';};
@@ -2035,7 +2338,7 @@ function renderEditorLight(){if(S.primary==='map')renderMap();else if(S.primary=
 
 applyLayout();
 if(S.layout.panelRight)document.querySelector('.g3').classList.remove('hgut');
-renderEditor();renderAll();
+renderSkins();renderEditor();renderAll();
 </script>
 
 </body></html>
