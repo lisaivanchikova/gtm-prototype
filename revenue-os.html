@@ -165,6 +165,18 @@ table.db td.num{font-family:var(--mono);text-align:right}
 .scope b{color:var(--fg2);font-weight:600}
 .scope .sep{color:var(--border)}
 .scope .fchip{height:19px}
+/* Верхний слой карты — не география. Работа №1 решается по сегменту (Core Job),
+   а юрлица сегмента разбросаны по всем штатам. Площадь = $ рынка, цвет = движение ARR;
+   география включается вторым разрезом внутри выбранного сегмента. */
+.tmap{position:absolute;inset:0;display:none;padding:10px;gap:6px}
+.tmap.on{display:block}
+.tmap .tm{position:absolute;border-radius:7px;border:1px solid var(--border);padding:11px 13px;display:flex;flex-direction:column;gap:3px;text-align:left;overflow:hidden;transition:filter 100ms linear}
+.tmap .tm:hover{filter:brightness(1.35)}
+.tmap .tm .nm{font-size:14px;font-weight:600;color:var(--fg)}
+.tmap .tm .job{font-size:11px;color:var(--fg2);opacity:.95;overflow:hidden;text-overflow:ellipsis}
+.tmap .tm .num{font-family:var(--mono);font-size:12px;color:var(--fg);margin-top:auto}
+.tmap .tm .d{font-family:var(--mono);font-size:11px}
+.tmap .tmh{position:absolute;left:10px;right:10px;bottom:-2px;font-size:10.5px;color:var(--fg3);text-align:center}
 .outscope{margin:6px 12px 0;padding:6px 9px;border:1px solid var(--warn);border-radius:5px;background:color-mix(in srgb,var(--warn) 8%,transparent);font-size:11.5px;color:var(--fg2)}
 .dbmore{display:block;width:100%;padding:10px;font-size:12px;color:var(--link);border-top:1px solid var(--border)}
 .dbmore:hover{background:var(--hover)}
@@ -383,6 +395,7 @@ table.db td.num{font-family:var(--mono);text-align:right}
 .fi .mt b.due{color:var(--link);font-weight:600}
 .fi .mt b.mk.up{color:var(--up)}
 .fi .mt b.mk.need{color:var(--warn)}
+.fmem{color:var(--link);font-weight:600}
 .fi .mt b.mk.no,.fi .mt b.mk.down{color:var(--down)}
 .fi .st{justify-self:start;margin-top:2px}
 .fi .when{text-align:right;margin-top:3px}
@@ -1085,6 +1098,17 @@ function renderSide(){
     h+=sec('flt','Фильтры',null,fsum);
     if(!off('flt'))h+=filtersHTML();
 
+    /* срезы — сохранённые гипотезы */
+    const SL=(S.slices||(S.slices=SLICE0.slice()));
+    const cf=curF(), act=SL.find(x=>sameF(x.f,cf));
+    h+=sec('slc','Срезы',SL.length);
+    if(!off('slc')){
+      h+=rule('сохранённая область расчёта с именем и причиной · применяется в один клик');
+      h+=SL.map(x=>`<button class="row ${act&&act.id===x.id?'on':''}" data-slice="${x.id}" data-tip="${esc(x.why)}">
+        <span class="av sq">◧</span><span class="nm">${esc(x.nm)}</span><span class="rt"><span class="stg">${int(sliceCount(x.f))}</span></span></button>`).join('');
+      h+=`<button class="dbopen" data-do="slicesave" data-tip="Запомнить текущую область расчёта как срез">
+        <b>＋ сохранить текущую область</b> <i>${esc([S.seg?segBy(S.seg).name:'все сегменты',S.stF||'все штаты',S.stage?STAGE[S.stage]:'вся воронка',S.downOnly?'только ▼':''].filter(Boolean).join(' · '))}</i></button>`;
+    }
     h+=`<div class="grp2">Мир клиента</div>`;
     /* ---- юрлица: в дереве только те, где нужен ход; вся база — таблицей ---- */
     const MODES={attn:['ждут решения','застряли, уходят или спрашивают человека'],
@@ -1227,6 +1251,7 @@ function buildMapView(){
     <div class="mapbox" id="mapbox">
       <svg id="map" viewBox="0 0 975 610" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Карта США"></svg>
       <div class="legend" id="legend"></div>
+      <div class="tmap" id="tmap"></div>
       <div class="zbtn"><button id="zin" aria-label="Приблизить">+</button><button id="zout" aria-label="Отдалить">−</button></div>
     </div></div>`;
   MAPEL=$('mapview');
@@ -1247,13 +1272,35 @@ function buildMapView(){
   $('zout').onclick=()=>svg.transition().duration(300).call(zoom.scaleBy,1/1.8);
 }
 function fitMap(){}
+function segMetrics(g){const sv=S.seg;S.seg=g.id;const a=formulaAt(S.t),b=formulaAt(Math.max(TMIN,S.t-WIN));S.seg=sv;
+  return {mkt:a.N*g.acv,N:a.N,arr:a.end,d:b.end?a.end/b.end-1:0};}
+function renderTreemap(){
+  const box=$('tmap'),on=!S.seg&&S.level!=='people';
+  box.classList.toggle('on',on);$('map').style.opacity=on?'0':'1';
+  const zb=document.querySelector('.zbtn');if(zb)zb.style.display=on?'none':'';
+  const lg=$('legend');if(lg)lg.style.display=on?'none':'';
+  if(!on){box.innerHTML='';return;}
+  const M=SEGS.map(g=>({g,...segMetrics(g)})).sort((x,y)=>y.mkt-x.mkt);
+  const tot=M.reduce((a,x)=>a+x.mkt,0)||1;
+  const W=100,H=100,gp=0.9;
+  const s1=M[0].mkt/tot, r=1-s1, s2=r?M[1].mkt/(M[1].mkt+M[2].mkt):0.5;
+  const R=[[0,0,s1*W,H],[s1*W,0,r*W,s2*H],[s1*W,s2*H,r*W,(1-s2)*H]];
+  box.innerHTML=M.map((m,i)=>{const [x,y,w,h]=R[i];
+    const col=m.d>=0?'var(--up)':'var(--down)';
+    return `<button class="tm" data-open="seg:${m.g.id}" style="left:calc(${x}% + ${gp}px);top:calc(${y}% + ${gp}px);width:calc(${w}% - ${gp*2}px);height:calc(${h}% - ${gp*2}px);background:color-mix(in srgb,${col} ${Math.min(26,6+Math.abs(m.d)*260)}%,var(--side))"
+      data-tip="${esc(m.g.name+' · Core Job: «'+m.g.job+'» · NAICS '+m.g.naics.join(', '))}">
+      <span class="nm">${esc(m.g.name)}</span>
+      <span class="job">${esc(m.g.job)}</span>
+      <span class="num">рынок ${usd(m.mkt)} · ${int(m.N)} юрлиц</span>
+      <span class="d ${m.d>=0?'up':'down'}">ARR ${usd(m.arr)} ${m.d>=0?'▲':'▼'} ${Math.abs(m.d*100).toFixed(1)} %</span></button>`;}).join('')
+    +`<div class="tmh">площадь — $ рынка сегмента · цвет — движение ARR за 4 недели · клик открывает географию внутри сегмента</div>`;}
 function zoomTo(x,y,k){svg.transition().duration(700).call(zoom.transform,d3.zoomIdentity.translate(487.5,305).scale(k).translate(-x,-y));}
 function zoomToFeature(f){const [[x0,y0],[x1,y1]]=pathG.bounds(f),k=Math.max(2.2,Math.min(9,.85/Math.max((x1-x0)/975,(y1-y0)/610)));zoomTo((x0+x1)/2,(y0+y1)/2,k);}
 function stateStats(ab){let n=0,v=0;for(const g of SEGS){if(S.seg&&g.id!==S.seg)continue;const c=(POP[ab]||0)*g.perM;n+=c;v+=c*g.acv;}
   const F=formulaAt(S.t,ab);return {n,v,d:F.start?F.end/F.start-1:0,end:F.end};}
 function stateTip(f){const s=stateStats(f.abbr);return `${f.properties.name} · ${int(s.n)} юрлиц · ${usd(s.v)} рынка · наш ARR ${usd(s.end)} ${s.d>=0?'▲':'▼'} ${Math.abs(s.d*100).toFixed(1)} % за 4 нед.`;}
 function tradeCol(d,span=.04){const m=Math.min(Math.abs(d)/span,1);const c=d<0?'var(--down)':'var(--up)';return `color-mix(in srgb, ${c} ${Math.round(18+m*82)}%, var(--land))`;}
-function renderMap(){
+function renderMap(){ setTimeout(renderTreemap,0);
   if(!svg)return;
   const seg=S.level==='segment';
   $('mapbox').classList.toggle('future',S.t>NOW);
@@ -1333,7 +1380,8 @@ function renderScope(){
     S.stage?`<b>${esc(STAGE[S.stage])}</b>`:'вся воронка',
     S.downOnly?'<b>только ▼</b>':''].filter(Boolean);
   const on=S.seg||S.job||S.stF||S.stage||S.downOnly;
-  $('scope').innerHTML=`<span class="lb">Область расчёта</span>${parts.join('<span class="sep"> · </span>')}`
+  const _sl=(S.slices||[]).find(x=>sameF(x.f,curF()));
+  $('scope').innerHTML=`<span class="lb">Область расчёта</span>${_sl?`<b>◧ ${esc(_sl.nm)}</b><span class="sep"> · </span>`:''}${parts.join('<span class="sep"> · </span>')}`
     +`<span style="flex:1"></span>`
     +`<button class="fchip" data-do="openfilters" data-tip="Изменить область: сегмент, Job, штат, этап">изменить</button>`
     +(on?`<button class="fchip" data-do="resetscope" data-tip="Вернуть всё">сбросить</button>`:'')
@@ -1560,6 +1608,19 @@ function feedItems(tab){
         when:ago(d.w),open:a?'acc:'+d.acc:null,av:a?av(a.name,a.hue,'sq'):`<span class="av sq">✉</span>`,sig:d.k!=='ok',status:d.k==='ok'?null:[c[1],c[0]],w:d.w};});}
   if(tab==='agents'){const f=S.sel&&S.sel.type==='agent'?S.sel.id:null;return LOGS.concat(S.extraLogs||[]).filter(l=>(!f||l.ag===f)&&l.w<=Math.max(t,NOW)).sort((x,y)=>y.w-x.w).map(l=>({src:'agent',ttl:`${agBy(l.ag)?agBy(l.ag).nm:'Человек'}: ${l.ttl}`,mt:`отвечает <b>${esc(OURS.find(o=>o.id===(agBy(l.ag)||{owner:'h-nik'}).owner).nm)}</b> · ручка: ${agBy(l.ag)?KNOB[S.knob[l.ag]]:'—'}`,when:ago(l.w),open:'agent:'+l.ag,av:`<span class="av bot">${ICONS.bot}</span>`,sig:l.st[0]==='down'||l.st[0]==='warn',status:l.st}));}
 }
+/* Работа №1 кончается тем, что «список под тезис отобран». До сих пор этот список жил
+   только как временное состояние фильтров и исчезал при перезагрузке. Срез — сохранённая
+   область расчёта с именем и причиной: у Coffee пустой экран предлагает готовые кампании,
+   то есть срез первичен, а не является побочным продуктом настройки. */
+const SLICE0=[
+  {id:'s-cmp',nm:'Compliance-first · TX',why:'самый дорогой чек, аудит HIPAA и CMMC',f:{seg:'cmp',stF:'TX'}},
+  {id:'s-price',nm:'Price-first · застряли',why:'где сейчас теряем Conv',f:{seg:'price',downOnly:true}},
+  {id:'s-sign',nm:'Ждут подписи',why:'ход за человеком, не за агентом',f:{stage:'4'}}];
+const FKEYS=['seg','job','stF','stage','downOnly'];
+function curF(){const o={};FKEYS.forEach(k=>{const v=S[k];if(v)o[k]=v;});return o;}
+function sameF(a,b){return FKEYS.every(k=>String(a[k]||'')===String(b[k]||''));}
+function applyF(f){FKEYS.forEach(k=>{S[k]=k==='downOnly'?!!f[k]:(f[k]||(k==='seg'?null:''));});}
+function sliceCount(f){const sv=curF();applyF(f);const n=ACC.filter(a=>stateAt(a,S.t)&&inF(a)&&!filtered(a)).length;applyF(sv);return n;}
 const FPOL=[['auto','авто','агент заполняет сам'],['sug','предложить','агент предлагает, человек подтверждает'],['off','выкл','агент не трогает это поле']];
 function fields(arr,scope){
   const hid=S.hidden[scope]||{};
@@ -1744,7 +1805,7 @@ function renderToday(){
       <div class="btns">${f.btn.map(([t,k],i)=>`<button class="${i===0?'btn':'lnk'}" data-do="${k}">${t}</button>`).join('')}</div></div>
 
     <div class="tdsec">Решить сейчас · ${open.length}</div>
-    ${open.length?`<div class="tdq">${sorted.map(x=>`<div class="tri ${x.u||'soon'} ${S.tri[x.id]?'done':''}">${x.u==='now'&&!S.tri[x.id]?`<span class="urg">решить сейчас${x.w?' · '+esc(x.w):''}</span>`:''}<span class="t">${x.t}</span><span class="s">${x.s}${S.tri[x.id]?' · '+S.tri[x.id]:''}</span>${S.tri[x.id]?'':`<div class="btns">${x.a.map(([t,k],i)=>`<button class="${i===0?(x.u==='now'?'btn pri':'btn'):'lnk'}" data-tri="${x.id}|${k}|${t}">${t}</button>`).join('')}</div>`}</div>`).join('')}</div>`
+    ${open.length?`<div class="tdq">${sorted.map(x=>`<div class="tri ${x.u||'soon'} ${S.tri[x.id]?'done':''}">${x.u==='now'&&!S.tri[x.id]?`<span class="urg">решить сейчас${x.w?' · '+esc(x.w):''}</span>`:''}<span class="t">${x.t}</span><span class="s">${x.f?`<b class="fmem">двигает ${x.f}</b> · `:''}${x.s}${S.tri[x.id]?' · '+S.tri[x.id]:''}</span>${S.tri[x.id]?'':`<div class="btns">${x.a.map(([t,k],i)=>`<button class="${i===0?(x.u==='now'?'btn pri':'btn'):'lnk'}" data-tri="${x.id}|${k}|${t}">${t}</button>`).join('')}</div>`}</div>`).join('')}</div>`
       :`<div class="tdempty">Ходов нет — агенты работают сами. Следующий прогон в пн 09:00. Пустую очередь не заполняем новостями.</div>`}
 
     ${p==='owner'||p==='sales'?`<div class="tdsec">В риске · почему</div>
@@ -1755,22 +1816,22 @@ function renderToday(){
 /* =================== agent: focus (ToC) + triage + chat, per profile =================== */
 function triageFor(p){
   if(p==='owner')return [
-    {id:'t-knob',u:'now',w:'6 недель как сломано',t:'Повернуть ручку «Квалификации»: сам → с человеком',s:'снимает ограничение системы · прогноз Conv н42 растёт',a:[['Утвердить','knob'],['Отклонить','no']]},
-    {id:'t-cmmc',u:'soon',t:'Факт рынка: CMMC Phase 2 приостановлена — снизить прогноз Compliance-first?',s:'Federal Register · влияет на Сегмент',a:[['Подтвердить','fact:m4:ok'],['Опровергнуть','fact:m4:no']]},
-    {id:'t-seller',u:'soon',t:'Вернуть «Переписку» после стоп-крана (CAN-SPAM)?',s:'стоп «не обещает вне каталога» сработал 2×',a:[['Вернуть','resume'],['Оставить стоп','no']]},
-    {id:'t-msa',u:'fyi',t:'MSA Brightline ждёт подписи Лизы с понедельника',s:'подписывает Лиза — у неё полномочие',a:[['Открыть','open:doc:d-msa']]}];
+    {id:'t-knob',f:'Conv',u:'now',w:'6 недель как сломано',t:'Повернуть ручку «Квалификации»: сам → с человеком',s:'снимает ограничение системы · прогноз Conv н42 растёт',a:[['Утвердить','knob'],['Отклонить','no']]},
+    {id:'t-cmmc',f:'Сегмент',u:'soon',t:'Факт рынка: CMMC Phase 2 приостановлена — снизить прогноз Compliance-first?',s:'Federal Register · влияет на Сегмент',a:[['Подтвердить','fact:m4:ok'],['Опровергнуть','fact:m4:no']]},
+    {id:'t-seller',f:'Охват',u:'soon',t:'Вернуть «Переписку» после стоп-крана (CAN-SPAM)?',s:'стоп «не обещает вне каталога» сработал 2×',a:[['Вернуть','resume'],['Оставить стоп','no']]},
+    {id:'t-msa',f:'ACV',u:'fyi',t:'MSA Brightline ждёт подписи Лизы с понедельника',s:'подписывает Лиза — у неё полномочие',a:[['Открыть','open:doc:d-msa']]}];
   if(p==='liza')return [
-    {id:'t-sign',u:'now',w:'ждёт вас с понедельника · 4 дн',t:'Подписать MSA Brightline Dental · $38K/год',s:'ждёт вас с понедельника · клиент тоже ещё не подписал',a:[['Открыть на подпись','open:doc:d-msa']]},
-    {id:'t-inv',u:'soon',t:'Hale & Ortiz CPA: счёт #1042 просрочен 12 дн',s:'клиент обещал оплатить на следующей неделе',a:[['Открыть счёт','open:doc:d-inv']]},
-    {id:'t-svc',u:'soon',t:'«Сервис»: 3 клиента без первой ценности > 14 дн',s:'ранний сигнал ухода',a:[['Показать','open:agent:service']]}];
+    {id:'t-sign',f:'ACV',u:'now',w:'ждёт вас с понедельника · 4 дн',t:'Подписать MSA Brightline Dental · $38K/год',s:'ждёт вас с понедельника · клиент тоже ещё не подписал',a:[['Открыть на подпись','open:doc:d-msa']]},
+    {id:'t-inv',f:'Retention',u:'soon',t:'Hale & Ortiz CPA: счёт #1042 просрочен 12 дн',s:'клиент обещал оплатить на следующей неделе',a:[['Открыть счёт','open:doc:d-inv']]},
+    {id:'t-svc',f:'Retention',u:'soon',t:'«Сервис»: 3 клиента без первой ценности > 14 дн',s:'ранний сигнал ухода',a:[['Показать','open:agent:service']]}];
   if(p==='sales')return [
-    {id:'t-diaz',u:'now',w:'молчит 9 дн',t:'Karen Diaz (Brightline) молчит 9 дн — черновик напоминания готов',s:'без неё Dr. Moss не решает',a:[['Открыть','open:msg:p-diaz']]},
-    {id:'t-hale',u:'soon',t:'Tom Hale: «$38K — дорого» — черновик ответа с расчётом',s:'снимает узкое место сделки',a:[['Открыть','open:msg:p-hale']]},
-    {id:'t-v2',u:'soon',t:'Оферта v2 Brightline со скидкой 8 % — одобрить?',s:'черновик агента «Оферта»',a:[['Открыть','open:doc:d-offer2']]}];
+    {id:'t-diaz',f:'Conv',u:'now',w:'молчит 9 дн',t:'Karen Diaz (Brightline) молчит 9 дн — черновик напоминания готов',s:'без неё Dr. Moss не решает',a:[['Открыть','open:msg:p-diaz']]},
+    {id:'t-hale',f:'Conv',u:'soon',t:'Tom Hale: «$38K — дорого» — черновик ответа с расчётом',s:'снимает узкое место сделки',a:[['Открыть','open:msg:p-hale']]},
+    {id:'t-v2',f:'ACV',u:'soon',t:'Оферта v2 Brightline со скидкой 8 % — одобрить?',s:'черновик агента «Оферта»',a:[['Открыть','open:doc:d-offer2']]}];
   return [
-    {id:'t-dentrix',u:'now',w:'агент стоит, пока вы не решите',t:'«Переписка» пообещала интеграцию с Dentrix — вне каталога',s:'стоп сработал · риск претензии',a:[['Открыть переписку','open:msg:p-moss']]},
-    {id:'t-clause',u:'soon',t:'В 14 офертах нет оговорки «not an offer until countersigned»',s:'E-SIGN / UETA: письмо может стать офертой',a:[['Добавить в шаблон','no']]},
-    {id:'t-msa7',u:'fyi',t:'MSA Brightline: проверить раздел 7 «Ответственность»',s:'до подписи Лизы',a:[['Открыть','open:doc:d-msa']]}];}
+    {id:'t-dentrix',f:'Retention',u:'now',w:'агент стоит, пока вы не решите',t:'«Переписка» пообещала интеграцию с Dentrix — вне каталога',s:'стоп сработал · риск претензии',a:[['Открыть переписку','open:msg:p-moss']]},
+    {id:'t-clause',f:'ACV',u:'soon',t:'В 14 офертах нет оговорки «not an offer until countersigned»',s:'E-SIGN / UETA: письмо может стать офертой',a:[['Добавить в шаблон','no']]},
+    {id:'t-msa7',f:'ACV',u:'fyi',t:'MSA Brightline: проверить раздел 7 «Ответственность»',s:'до подписи Лизы',a:[['Открыть','open:doc:d-msa']]}];}
 const FEVER=[
   {id:'pf',nm:'Price-first TX/FL',x:.40,y:.92,open:null,why:'Conv 36 → 12 %: «Квалификация» пускает без отсева'},
   {id:'br',nm:'Brightline $38K',x:.62,y:.78,open:'sop:a0',why:'подпись ждёт согласия Tom Hale (платит)'},
@@ -1846,7 +1907,7 @@ function openRef(k){
 }
 function logAdd(ag,ttl,st){(S.extraLogs=S.extraLogs||[]).push({ag,w:NOW,ttl,st});}
 document.addEventListener('click',e=>{
-  const b=e.target.closest('[data-open],[data-side],[data-tab],[data-close],[data-ptab],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-step],[data-plus],[data-newchat],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-knobw],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepmv],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-fmode],[data-fold],[data-dbsort],[data-dbmore],[data-dbkind],[data-mark],[data-note],[data-notecancel],#fDown,#addFact,#addNote,#play');
+  const b=e.target.closest('[data-open],[data-side],[data-tab],[data-close],[data-ptab],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-step],[data-plus],[data-newchat],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-knobw],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepmv],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-fmode],[data-fold],[data-dbsort],[data-dbmore],[data-dbkind],[data-slice],[data-mark],[data-note],[data-notecancel],#fDown,#addFact,#addNote,#play');
   if(!b)return;
   if(b.dataset.pal)$('pal').hidden=true;
   if(b.dataset.dense!==undefined){S.dense=b.dataset.dense==='1';renderPanel();return;}
@@ -1854,6 +1915,7 @@ document.addEventListener('click',e=>{
   if(b.dataset.fold){S.fold=S.fold||{};S.fold[b.dataset.fold]=!S.fold[b.dataset.fold];renderSide();return;}
   if(b.dataset.dbsort){const k=b.dataset.dbsort,cur=S.dbSort||{};S.dbSort={k,d:cur.k===k?-cur.d:(k==='acv'||k==='last'||k==='mv'?-1:1)};renderDB();return;}
   if(b.dataset.dbmore){S.dbN=(S.dbN||50)+50;renderDB();return;}
+  if(b.dataset.slice){const x=(S.slices||[]).find(y=>y.id===b.dataset.slice);if(x){applyF(sameF(x.f,curF())?{}:x.f);renderAll();renderEditor();}return;}
   if(b.dataset.mark){const [ref,v]=b.dataset.mark.split('|');S.marks=S.marks||{};S.marks[ref]=S.marks[ref]===v?null:v;renderPanel();return;}
   if(b.dataset.note){S.noteFor=b.dataset.note;renderPanel();const i=$('myNote');if(i)i.focus();return;}
   if(b.dataset.notecancel){S.noteFor=null;renderPanel();return;}
@@ -1917,7 +1979,7 @@ document.addEventListener('click',e=>{
     if(k.startsWith('fact:')){const [,nid,v]=k.split(':');S.facts[nid]={0:v,1:v};}
     if(k.startsWith('open:')){openRef(k.slice(5));return;}
     S.tri[id]=label.toLowerCase()==='отклонить'||label==='Оставить стоп'?'отклонено':'сделано: '+label.toLowerCase();renderAll();return;}
-  if(b.dataset.do){const k=b.dataset.do;if(k==='today'){S.tab='today';renderEditor();return;}if(k==='openfilters'){S.side='tree';S.layout.side=true;S.fold=S.fold||{};S.fold.flt=false;applyLayout();renderActivity();renderSide();return;}if(k==='openchannel'){S.ptab='channel';S.layout.panel=true;applyLayout();renderPanel();return;}if(k==='opendocs'){S.ptab='account';S.layout.panel=true;applyLayout();renderPanel();return;}if(k==='resetscope'){S.seg=null;S.job='';S.stF='';S.stage='';S.downOnly=false;renderAll();return;}if(k==='focuscard'){S.tab='today';renderEditor();const f=document.querySelector('#todayview .focus');f&&f.scrollIntoView({block:'nearest'});return;}if(false){S.layout.agent=true;applyLayout();const f=document.querySelector('.focus');f&&f.scrollIntoView({block:'nearest'});f&&f.animate([{outline:'2px solid var(--focus)'},{outline:'2px solid transparent'}],{duration:600});return;}if(k==='showtx'){S.seg='price';S.downOnly=true;if(S.tab!=='map'){S.tab='map';renderEditor();}S.sel=null;renderAll();zoomToFeature(statesF.find(f=>f.abbr==='TX'));return;}
+  if(b.dataset.do){const k=b.dataset.do;if(k==='today'){S.tab='today';renderEditor();return;}if(k==='openfilters'){S.side='tree';S.layout.side=true;S.fold=S.fold||{};S.fold.flt=false;applyLayout();renderActivity();renderSide();return;}if(k==='openchannel'){S.ptab='channel';S.layout.panel=true;applyLayout();renderPanel();return;}if(k==='opendocs'){S.ptab='account';S.layout.panel=true;applyLayout();renderPanel();return;}if(k==='slicesave'){const f=curF();S.slices=S.slices||SLICE0.slice();if(S.slices.some(x=>sameF(x.f,f))){toast('Такой срез уже сохранён.');return;}const nm=[S.seg?segBy(S.seg).name:'все сегменты',S.stF||null,S.stage?STAGE[S.stage]:null,S.downOnly?'застряли':null].filter(Boolean).join(' · ');S.slices.push({id:'s'+Date.now(),nm:nm,why:'сохранено вами н'+S.t,f:f});renderSide();toast('Срез сохранён: '+nm);return;}if(k==='resetscope'){S.seg=null;S.job='';S.stF='';S.stage='';S.downOnly=false;renderAll();return;}if(k==='focuscard'){S.tab='today';renderEditor();const f=document.querySelector('#todayview .focus');f&&f.scrollIntoView({block:'nearest'});return;}if(false){S.layout.agent=true;applyLayout();const f=document.querySelector('.focus');f&&f.scrollIntoView({block:'nearest'});f&&f.animate([{outline:'2px solid var(--focus)'},{outline:'2px solid transparent'}],{duration:600});return;}if(k==='showtx'){S.seg='price';S.downOnly=true;if(S.tab!=='map'){S.tab='map';renderEditor();}S.sel=null;renderAll();zoomToFeature(statesF.find(f=>f.abbr==='TX'));return;}
     if(k==='showdfw'){S.seg=null;S.sel=null;if(S.tab!=='map'){S.tab='map';renderEditor();}renderAll();zoomTo(bx,by,7);return;}if(k.startsWith('open:'))openRef(k.slice(5));return;}
   if(b.dataset.fact){const [id,i,v]=b.dataset.fact.split(':');S.facts[id]=S.facts[id]||{};S.facts[id][i]=v;renderEditor();renderPanel();return;}
   if(b.dataset.factall){const [id,v]=b.dataset.factall.split(':');const n=MARKET.find(x=>x.id===id);S.facts[id]={all:v};n.facts.forEach((f,i)=>S.facts[id][i]=v);renderPanel();if(S.tab==='news:'+id)renderEditor();return;}
