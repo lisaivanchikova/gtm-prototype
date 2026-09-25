@@ -1821,10 +1821,7 @@ function renderEcard(){
       ['Состояние',`<span class="${mcls(m)}">${arrow(m)} ${e?STAGE[e.s]:'—'}</span>`,'sys'],
       ['ACV',usd(a.acv),'own'],
       ['Сотрудников',a.emp,'enr'],
-      ['Город',esc(a.city)+', '+a.st,'enr'],
-      ['NAICS',esc(segBy(a.seg).naics[0]),'enr'],
-      ['Последнее касание',ago(e?e.w:S.t),'sys'],
-      ['Тикер',a.tk,'enr']],a.id)+
+      ['Последнее касание',ago(e?e.w:S.t),'sys']],a.id)+
       `<div class="hdr">Люди</div>`+peopleOf(a).map(p=>`<button class="row" data-open="person:${p.id}">${av(p.nm,'var(--fg3)')}<span class="nm">${esc(p.nm)}</span><span class="rt">${p.role}</span></button>`).join('')+`<button class="btn" data-open="sop:${a.id}">Открыть SOP сделки</button>`;}
   else if(sel&&sel.type==='person'){const p=personById(sel.id),a=ACCBY[p.acc];h=`<div class="top">${av(p.nm,'var(--fg3)','big')}<div><h3>${esc(p.nm)}</h3><div class="sub">${esc(p.title)} · ${esc(a.name)}</div></div></div>`+params([['Роль в сделке',p.role],['Канал',p.src]])+`<button class="btn" data-open="msg:${p.id}">Открыть переписку</button>`;}
   else if(sel&&sel.type==='agent'){const g=agBy(sel.id);h=`<div class="top"><span class="av bot big">${ICONS.bot}</span><div><h3>${g.nm}</h3><div class="sub">${g.title}</div></div></div>`+params([['Состояние',`<span class="${ASTATE[g.state][0]}">${ASTATE[g.state][1]}</span>`],['Ручка',KNOB[S.knob[g.id]]],['Отвечает',OURS.find(o=>o.id===g.owner).nm],['Ведёт стадии',g.owns.map(s=>STAGE[s]).join(', ')]])+
