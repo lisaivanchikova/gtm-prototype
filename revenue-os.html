@@ -141,8 +141,9 @@ q{quotes:"«" "»"}
 /* map view */
 .mapview{display:flex;flex-direction:column;height:100%;min-height:0}
 .formula{display:flex;flex-wrap:wrap;align-items:flex-start;gap:6px 13px;padding:6px 12px 7px;border-bottom:1px solid var(--border);flex:none}
-.fres{display:grid;grid-template-rows:14px 27px 14px;padding:20px 15px 0 0;border-right:1px solid var(--border)}
-.fres .fn{font-size:11px;color:var(--fg2)}
+.fres{display:grid;grid-template-rows:16px 18px 27px 14px;padding:0 15px 0 0;border-right:1px solid var(--border)}
+.fres .fn{grid-row:1;align-self:center}.fres .fv{grid-row:3}.fres .fdd{grid-row:4}
+.fres .fn{font-size:11px;font-weight:600;color:var(--fg)}
 .fres .fv{font-family:var(--mono);font-size:23px;font-weight:600;letter-spacing:-.02em;line-height:27px;white-space:nowrap}
 .fres .fdd{display:flex;align-items:baseline;gap:6px}
 .fres .vs{font-size:10px;color:var(--fg3)}
@@ -157,7 +158,8 @@ q{quotes:"«" "»"}
 .fc .fdd{line-height:13px}
 .fc.lim{box-shadow:inset 0 -2px 0 var(--accent)}
 .fc.lim .fn{color:var(--link)}
-.formula .d{font-family:var(--mono);font-size:10px;white-space:nowrap}
+.formula .d{font-family:var(--mono);font-size:10px;white-space:nowrap;letter-spacing:-.01em}
+.formula .d.flat{color:var(--fg3)}
 .fres .d{font-size:12px}
 .fo{font-family:var(--mono);color:var(--fg3);align-self:center;flex:none}
 .fo.x{font-size:13px;color:var(--fg3);opacity:.8;align-self:start;margin-top:14px;line-height:21px}
@@ -540,6 +542,33 @@ q{quotes:"«" "»"}
 .dens button{font-size:11px;padding:0 7px;height:20px;color:var(--fg3)}
 .dens button[aria-pressed="true"]{background:var(--hover);color:var(--fg)}
 .mark{height:16px;width:auto;flex:none;margin-right:2px}
+/* дерево: правило отбора видно, строки читаются */
+.subrule{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:2px 12px 6px;font-size:11px;color:var(--fg3);line-height:1.35}
+.subrule b{color:var(--fg2);font-weight:600}
+.pick{display:inline-flex;border:1px solid var(--border);border-radius:4px;overflow:hidden;flex:none}
+.pick button{font-size:10px;padding:0 6px;height:18px;color:var(--fg3);background:transparent;white-space:nowrap}
+.pick button[aria-pressed="true"]{background:var(--accent);color:var(--on-accent);font-weight:600}
+.sidebody .row{width:100%;display:flex;align-items:center;gap:7px;padding:3px 12px;min-height:24px;text-align:left}
+.sidebody .row .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px}
+.sidebody .row .rt{flex:none;display:inline-flex;align-items:baseline;gap:6px;font-size:11px;max-width:40%}
+.row .stg{color:var(--fg3);font-size:11px}
+.row .why{font-family:var(--mono);font-size:10px;white-space:nowrap}
+.row .why.down{color:var(--down)} .row .why.flat{color:var(--fg3)} .row .why.up{color:var(--up)}
+.row .role{border-bottom:1px dotted var(--fg3);color:var(--fg2);cursor:help}
+.row.us .nm{font-weight:600}
+.more{padding:3px 12px 6px;font-size:11px;color:var(--fg3)}
+.agrow{padding:4px 12px 6px;border-bottom:1px solid var(--border)}
+.agrow .l1{display:flex;align-items:center;gap:7px;width:100%;text-align:left}
+.agrow .l1 .nm{flex:1;min-width:0;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.agrow .l1 .rt{font-size:11px;flex:none}
+.agrow .agk{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding-left:26px;margin-top:3px}
+.agrow .cw{font-size:10px;color:var(--fg3);cursor:help}
+.agrow .stops{font-family:var(--mono);font-size:10px;color:var(--down);border:1px solid var(--down);border-radius:3px;padding:0 4px;cursor:help}
+.av.bot.ag{background:transparent;border:1px solid var(--agent);color:var(--agent);padding:2px}
+.av.bot.ag svg{width:100%;height:100%}
+.av.bot.ag.down{border-color:var(--down);color:var(--down)}
+.av.bot.ag.warn{border-color:var(--warn);color:var(--warn)}
+.av.sq.bot svg{width:14px;height:14px}
 .shops{display:inline-flex;gap:1px;margin-left:5px}
 .shops button{font-family:var(--ui);font-size:11px;line-height:1;width:16px;height:16px;border:1px solid var(--border);border-radius:3px;color:var(--fg3);background:var(--editor)}
 .shops button:hover:not(:disabled){border-color:var(--accent);color:var(--fg)}
@@ -919,6 +948,8 @@ const ICONS={
   filters:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 5h16l-6 7.5V19l-4 1v-7.5z"/></svg>',
   agents:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="8" width="14" height="11" rx="3"/><path d="M12 4v4M9 13h.01M15 13h.01M9.5 16h5"/></svg>',
   sop:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="6" height="5" rx="1"/><rect x="15" y="4" width="6" height="5" rx="1"/><rect x="9" y="15" width="6" height="5" rx="1"/><path d="M6 9v3h12V9M12 12v3"/></svg>',
+  mark:'<svg viewBox="60 362 905 300" fill="none"><circle cx="815.5" cy="511.5" r="125" stroke="currentColor" stroke-opacity=".3" stroke-width="50"/><circle cx="679.5" cy="511.5" r="125" stroke="currentColor" stroke-opacity=".6" stroke-width="50"/><circle cx="543.5" cy="511.5" r="125" stroke="currentColor" stroke-width="50"/><circle cx="209.5" cy="511.5" r="150" fill="currentColor"/></svg>',
+  bot:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="4.5" y="8" width="15" height="11" rx="3.5"/><path d="M12 4.2v3.8M8.8 13h.01M15.2 13h.01M9.6 16.2h4.8"/></svg>',
   account:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8.5" r="3.5"/><path d="M5 20c1-4 4-5.5 7-5.5s6 1.5 7 5.5"/></svg>'};
 function renderActivity(){
   const items=[['tree','Дерево и фильтры'],['search','Поиск']];
@@ -963,18 +994,53 @@ function renderSide(){
   const T={tree:'Дерево',machine:'Машина',explorer:'Дерево',search:'Поиск',filters:'Фильтры',agents:'Агенты и люди',sop:'SOP · процессы',profile:'Профиль'};
   $('sideTitle').textContent=T[S.side];let h='';
   if(S.side==='tree'){
-    const t=S.t,accs=ACC.filter(a=>stateAt(a,t)&&inF(a)).sort((x,y)=>(y.feat-x.feat)||(momentum(x,t)-momentum(y,t))||(y.acv-x.acv));
-    h+=`<div class="sec">▾ Юрлица<span class="cnt2">${accs.length+1}</span></div>`;
-    h+=`<button class="row" data-open="us" style="padding-left:12px"><span class="tw"></span><span class="av sq bot">B</span><span class="nm">Bobroff MSP · мы</span><span class="rt">3 чел. · 5 агентов</span></button>`;
-    h+=accs.slice(0,9).map(a=>accRow(a,1)).join('');
-    const ppl=[BRIGHT,HALE,...accs.filter(a=>!a.feat).slice(0,2)].filter(a=>inF(a)).flatMap(a=>peopleOf(a).map(p=>({...p,acc:a})));
-    h+=`<div class="sec" style="margin-top:4px">▾ Физлица<span class="cnt2">${ppl.length}</span></div>`+ppl.map(p=>`<button class="row ${S.sel&&S.sel.id===p.id?'on':''}" data-open="person:${p.id}" style="padding-left:12px"><span class="tw"></span>${av(p.nm,'var(--fg3)')}<span class="nm" title="${esc(p.nm+' · '+p.acc.name)}">${esc(p.nm)}</span><span class="rt">${p.role}</span></button>`).join('');
-    h+=`<div class="sec" style="margin-top:4px">▾ Агенты<span class="cnt2">${AGENTS.length}</span></div>`+AGENTS.map(a=>`<div class="mrow"><button class="l1" data-open="agent:${a.id}"><span class="av bot">${a.ini}</span><span class="nm">${a.nm}</span><span class="rt ${ASTATE[a.state][0]}" style="font-size:11px">${ASTATE[a.state][1]}</span></button>
-      <div style="display:flex;align-items:center;gap:6px;padding-left:23px"><span class="knobi" role="group" aria-label="Ручка ${a.nm}">${KNOB.map((k,i)=>`<button data-knob="${a.id}:${i}" aria-pressed="${S.knob[a.id]===i}">${k}</button>`).join('')}</span></div>
-      <div style="display:flex;align-items:center;gap:6px;padding-left:23px;margin-top:2px"><span class="cw">тёплые — <b>${KNOB[S.knobW[a.id]]}</b><span data-tip="Тёплому письмо уходит от вашего имени, платим репутацией. Выше «с человеком» ручка не поднимается." style="cursor:help">ⓘ</span></span></div>
-      <div class="stop">стоп: ${STOPS[a.id][0]}${STOPS[a.id][1]?` · <b>${STOPS[a.id][1]}×</b>`:''}</div></div>`).join('');
-    h+=`<div class="sec" style="margin-top:4px">▾ Ящики и домены<span class="cnt2">${MAIL.length}</span></div>`+MAIL.map(m=>`<div class="mailrow" data-tip="${esc(m.kind+' · домен '+m.dom+(m.lim?' · лимит '+m.lim+' писем в сутки, отправлено '+m.sent:' · без лимита: пишет только человек'))}"><span class="av sq">${m.kind[0]==='\u0442'?'\u0422':'\u0425'}</span><span class="adr">${esc(m.adr)}</span>${m.warm<100?`<span class="warmb"><i style="width:${m.warm}%"></i></span>`:''}<span class="lim">${m.lim?m.sent+'/'+m.lim:'—'}</span></div>`).join('')+`<div class="note" style="padding:6px 12px">Холодное уходит с расходных доменов, тёплое — с вашего имени. Отписка гасит человека во всех ящиках сразу.</div>`;
-    h+=`<div class="sec" style="margin-top:4px">▾ Документы<span class="cnt2">${Object.keys(DOCS).length}</span></div>`+Object.entries(DOCS).map(([id,d])=>`<button class="row" data-open="doc:${id}" style="padding-left:12px"><span class="tw"></span><span class="av sq">${esc(SRC[d.src][0].slice(0,2))}</span><span class="nm" title="${esc(d.ttl)}">${esc(d.kind)} · ${esc(ACCBY[d.acc].name.split(' ')[0])}</span><span class="rt"><span class="${d.status[0]}">●</span> ${esc(d.status[1])}</span></button>`).join('');
+    const t=S.t;
+    const MODES={attn:['где ждут решения','застряли, уходят или спрашивают человека'],
+                 work:['в работе','от первого касания до подписи'],
+                 all:['все','вся база целиком']};
+    const mode=S.treeMode||'attn';
+    const allAcc=ACC.filter(a=>stateAt(a,t)&&inF(a));
+    const pick=a=>{const e=stateAt(a,t);if(!e)return false;if(mode==='all')return true;if(mode==='work')return e.s>=1&&e.s<=4;return e.s<=6&&momentum(a,t)<0;};
+    const sel=allAcc.filter(pick).sort((x,y)=>(y.feat-x.feat)||(momentum(x,t)-momentum(y,t))||(y.acv-x.acv));
+    const shown=sel.slice(0,mode==='all'?40:10);
+    /* юрлица */
+    h+=`<div class="sec">▾ Юрлица<span class="cnt2">${int(allAcc.length)}</span></div>`;
+    h+=`<div class="subrule"><span>показываю <b>${shown.length}</b> из ${int(allAcc.length)} · ${MODES[mode][1]}</span>
+        <span class="pick">${Object.entries(MODES).map(([k,v])=>`<button data-treemode="${k}" aria-pressed="${mode===k}" data-tip="${esc(v[1])}">${v[0]}</button>`).join('')}</span></div>`;
+    h+=`<button class="row us" data-open="us" data-tip="Мы тоже юрлицо: наши люди и агенты"><span class="av sq bot">${ICONS.mark}</span><span class="nm">Bobroff MSP · мы</span><span class="rt">3 чел · 5 агентов</span></button>`;
+    h+=shown.map(a=>{const e=stateAt(a,t),m=momentum(a,t),d=e?daysIn(e,t):0;
+      const why=stuck(a,e,t)?`стоит ${d} дн`:churnSig(a,e,t)?'сигнал ухода':e&&e.s>=7?'закрыто':'';
+      return `<button class="row acc ${S.sel&&S.sel.id===a.id?'on':''}" data-open="acc:${a.id}" data-tip="${esc(a.name+' · '+a.city+', '+a.st+' · '+usd(a.acv)+'/год')}">
+        <span class="av sq" style="background:${a.hue};border-color:${a.hue};color:#fff">${esc(a.tk.slice(0,2))}</span>
+        <span class="nm">${esc(a.name)}</span>
+        <span class="rt">${why?`<span class="why ${mcls(m)}">${why}</span>`:`<span class="stg">${e?STAGE[e.s]:'—'}</span>`}</span></button>`;}).join('');
+    if(sel.length>shown.length)h+=`<div class="more">ещё ${int(sel.length-shown.length)} — уточните фильтром ниже</div>`;
+    /* физлица */
+    const RL={'решает':'последнее слово за ним','защищает внутри':'двигает сделку внутри компании','платит':'согласует бюджет и подписывает счёт'};
+    const ppl=shown.slice(0,4).flatMap(a=>peopleOf(a).map(p=>({...p,acc:a})));
+    h+=`<div class="sec" style="margin-top:6px">▾ Физлица<span class="cnt2">${int(ppl.length)}</span></div>`;
+    h+=`<div class="subrule"><span>люди из юрлиц выше · роль в сделке, а не должность</span></div>`;
+    h+=ppl.map(p=>`<button class="row ${S.sel&&S.sel.id===p.id?'on':''}" data-open="person:${p.id}" data-tip="${esc(p.nm+' · '+p.title+' · '+p.acc.name)}">
+      ${av(p.nm,'var(--fg3)')}<span class="nm">${esc(p.nm)}</span>
+      <span class="rt"><span class="role" data-tip="${esc(RL[p.role]||p.role)}">${esc(p.role==='защищает внутри'?'защищает':p.role)}</span></span></button>`).join('');
+    /* агенты */
+    h+=`<div class="sec" style="margin-top:6px">▾ Агенты<span class="cnt2">${AGENTS.length}</span></div>`;
+    h+=`<div class="subrule"><span>сотрудники · у каждого свобода и край</span></div>`;
+    h+=AGENTS.map(a=>`<div class="agrow">
+      <button class="l1" data-open="agent:${a.id}" data-tip="${esc(a.title+' · отвечает '+OURS.find(o=>o.id===a.owner).nm.split(' ')[0]+' · никогда: '+STOPS[a.id][0])}">
+        <span class="av bot ag ${ASTATE[a.state][0]}">${ICONS.bot}</span><span class="nm">${esc(a.nm)}</span>
+        <span class="rt ${ASTATE[a.state][0]}">${ASTATE[a.state][1]}</span></button>
+      <div class="agk"><span class="knobi" role="group" aria-label="Ручка ${a.nm}">${KNOB.map((k,i)=>`<button data-knob="${a.id}:${i}" aria-pressed="${S.knob[a.id]===i}" data-tip="холодные контакты: ${k}">${k}</button>`).join('')}</span>
+        <span class="cw" data-tip="Тёплому письмо уходит от вашего имени. Выше «с человеком» ручка не поднимается.">тёплые — <b>${KNOB[S.knobW[a.id]]}</b></span>
+        ${STOPS[a.id][1]?`<span class="stops" data-tip="${esc('Стоп-правило сработало: '+STOPS[a.id][0])}">стоп ${STOPS[a.id][1]}×</span>`:''}</div></div>`).join('');
+    /* ящики */
+    h+=`<div class="sec" style="margin-top:6px">▾ Ящики и домены<span class="cnt2">${MAIL.length}</span></div>`;
+    h+=`<div class="subrule"><span>холодное — с расходных доменов, тёплое — с вашего имени</span></div>`;
+    h+=MAIL.map(m=>`<div class="mailrow" data-tip="${esc(m.kind+' · домен '+m.dom+(m.lim?' · лимит '+m.lim+' писем в сутки, отправлено '+m.sent:' · без лимита: пишет только человек'))}"><span class="av sq">${m.kind[0]==='т'?'Т':'Х'}</span><span class="adr">${esc(m.adr)}</span>${m.warm<100?`<span class="warmb"><i style="width:${m.warm}%"></i></span>`:''}<span class="lim">${m.lim?m.sent+'/'+m.lim:'—'}</span></div>`).join('');
+    /* документы */
+    h+=`<div class="sec" style="margin-top:6px">▾ Документы<span class="cnt2">${Object.keys(DOCS).length}</span></div>`;
+    h+=`<div class="subrule"><span>язык юрлиц: обмен товар ↔ деньги</span></div>`;
+    h+=Object.entries(DOCS).map(([id,d])=>`<button class="row" data-open="doc:${id}" data-tip="${esc(d.ttl)}"><span class="av sq">${esc(SRC[d.src][0].slice(0,2))}</span><span class="nm">${esc(d.kind)} · ${esc(ACCBY[d.acc].name.split(' ')[0])}</span><span class="rt"><span class="${d.status[0]}">●</span> ${esc(d.status[1])}</span></button>`).join('');
     h+=filtersHTML();
   } else if(S.side==='machine'){
     h+=`<div class="sec">▾ Мы · Bobroff MSP</div><button class="row" data-open="us" style="padding-left:12px"><span class="tw"></span><span class="av sq bot">B</span><span class="nm">Орграмма: люди и агенты</span></button>`;
@@ -1521,7 +1587,7 @@ function openRef(k){
 }
 function logAdd(ag,ttl,st){(S.extraLogs=S.extraLogs||[]).push({ag,w:NOW,ttl,st});}
 document.addEventListener('click',e=>{
-  const b=e.target.closest('[data-open],[data-side],[data-tab],[data-close],[data-ptab],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-step],[data-plus],[data-newchat],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-knobw],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepmv],[data-stepreset],[data-setag],[data-brief],[data-fpol],[data-fhide],[data-fshow],[data-dnc],#fDown,#addFact,#play');
+  const b=e.target.closest('[data-open],[data-side],[data-tab],[data-close],[data-ptab],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-step],[data-plus],[data-newchat],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-knobw],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepmv],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-fpol],[data-fhide],[data-fshow],[data-dnc],#fDown,#addFact,#play');
   if(!b)return;
   if(b.dataset.pal)$('pal').hidden=true;
   if(b.dataset.dense!==undefined){S.dense=b.dataset.dense==='1';renderPanel();return;}
@@ -1539,6 +1605,7 @@ document.addEventListener('click',e=>{
     const cur=S.steps[i].ag;S.steps[i].ag=opts[(opts.indexOf(cur)+1)%opts.length];
     if(!S.rules[S.steps[i].ag])S.rules[S.steps[i].ag]=[{id:'n1',t:'правило ещё не задано',on:false}];
     renderEditorLight();return;}
+  if(b.dataset.treemode){S.treeMode=b.dataset.treemode;renderSide();return;}
   if(b.dataset.sopmode!==undefined){S.sopEdit=b.dataset.sopmode==='1';if(!S.sopEdit)S.sopFix=null;renderEditorLight();return;}
   if(b.dataset.rule){const [ag,rid]=b.dataset.rule.split(':');const r=S.rules[ag].find(x=>x.id===rid);r.on=!r.on;
     if(r.knob==='qual'){S.knob.qual=r.on?1:2;}
