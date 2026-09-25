@@ -47,17 +47,20 @@ q{quotes:"«" "»"}
 
 /* shell: VS Code workbench */
 .app{height:100%;display:grid;grid-template-rows:35px minmax(0,1fr) 22px}
-.titlebar{background:var(--title);border-bottom:1px solid var(--border);display:grid;grid-template-columns:1fr minmax(200px,560px) 1fr;align-items:center;padding-inline:10px;gap:10px}
-.brand{display:flex;align-items:center;gap:8px;font-weight:600;white-space:nowrap;overflow:hidden}
+.app>*{min-width:0}
+.alarmbar{min-width:0;overflow:hidden}
+.alarmbar .owner{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.titlebar{background:var(--title);border-bottom:1px solid var(--border);display:grid;grid-template-columns:minmax(0,1fr) minmax(120px,560px) minmax(0,1fr);align-items:center;padding-inline:10px;gap:10px;overflow:hidden}
+.brand{display:flex;align-items:center;gap:8px;font-weight:600;white-space:nowrap;overflow:hidden;min-width:0}
 .brand .ex{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--fg3);border:1px dashed var(--fg3);border-radius:3px;padding:0 5px}
 .cmd{display:flex;align-items:center;gap:8px;height:24px;border:1px solid var(--border);border-radius:6px;background:var(--input);padding-inline:10px;color:var(--fg2);font-size:12px;width:100%}
 .cmd kbd{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--fg3)}
-.tright{display:flex;justify-content:flex-end;align-items:center;gap:4px}
+.tright{display:flex;justify-content:flex-end;align-items:center;gap:4px;min-width:0;overflow:hidden}
 .lbtn{width:26px;height:24px;border-radius:5px;display:inline-flex;align-items:center;justify-content:center;color:var(--fg2)}
 .lbtn:hover{background:var(--hover)}
 .lbtn[aria-pressed="true"]{color:var(--fg)}
 .lbtn svg{width:16px;height:16px}
-.profile{height:24px;font-size:12px;padding:0 6px;margin-left:6px}
+.profile{height:24px;font-size:12px;padding:0 6px;margin-left:6px;min-width:0;max-width:clamp(88px,17vw,200px)}
 
 .body{display:grid;grid-template-columns:48px var(--sbw,270px) 4px minmax(0,1fr) 4px var(--agw,340px);min-height:0}
 @media (max-width:1100px){.body{--agw:300px}}
@@ -906,7 +909,10 @@ function applyLayout(){
   b.classList.toggle('no-side',!L.side);b.classList.toggle('no-agent',!L.agent);b.classList.toggle('swap',L.swap);
   c.classList.toggle('no-panel',!L.panel);c.classList.toggle('panel-right',L.panelRight);
   $('tSide').setAttribute('aria-pressed',L.side);$('tPanel').setAttribute('aria-pressed',L.panel);$('tAgent').setAttribute('aria-pressed',L.agent);
-  if(L.sbw)b.style.setProperty('--sbw',L.sbw+'px');if(L.agw)b.style.setProperty('--agw',L.agw+'px');if(L.pnh)c.style.setProperty('--pnh',L.pnh+'px');if(L.pnw)c.style.setProperty('--pnw',L.pnw+'px');
+  /* панели не должны съедать рабочее поле на узком экране: зажимаем показ, сохранённые значения не трогаем */
+  const W=Math.max(640,innerWidth);
+  const sb=Math.min(L.sbw||270,Math.max(170,W*0.24)), ag=Math.min(L.agw||340,Math.max(210,W*0.30));
+  b.style.setProperty('--sbw',Math.round(sb)+'px');b.style.setProperty('--agw',Math.round(ag)+'px');if(L.pnh)c.style.setProperty('--pnh',L.pnh+'px');if(L.pnw)c.style.setProperty('--pnw',L.pnw+'px');
   saveLayout();setTimeout(fitMap,0);
 }
 /* gutters: drag to resize, like VS Code sashes */
@@ -1578,6 +1584,7 @@ document.addEventListener('input',e=>{
     const v=e.target.textContent.replace(/\s+/g,' ').trim();if(v)S.steps[+i][f]=v;}
 });
 document.addEventListener('change',e=>{if(e.target.id==='fStage'){S.stage=e.target.value;renderAll();}if(e.target.id==='fJob'){S.job=e.target.value;renderAll();}if(e.target.id==='fSt'){S.stF=e.target.value;renderAll();if(S.stF&&S.tab==='map'){const f=statesF.find(x=>x.abbr===S.stF);f&&zoomToFeature(f);}}if(e.target.name==='fseg'){S.seg=e.target.value||null;renderAll();}if(e.target.id==='fdown'){S.downOnly=e.target.checked;renderAll();}});
+addEventListener('resize',()=>{applyLayout();});
 $('profile').addEventListener('change',e=>{S.profile=e.target.value;S.chat=[];renderAll();});
 $('askSend').onclick=()=>{const i=$('askIn');ask(i.value);i.value='';};
 $('agHide').onclick=()=>{S.layout.agent=false;applyLayout();};
