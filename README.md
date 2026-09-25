@@ -1,13 +1,23 @@
-# Lusin — prototype
+# Prototypes
 
-Clickable prototype of the unified system: https://lisaivanchikova.github.io/gtm-prototype/
+## Revenue OS — current
 
-One `index.html`, no dependencies. Demo data is fictional. Intwin Tech brand.
+https://lisaivanchikova.github.io/gtm-prototype/revenue-os.html
 
-**What it shows.** An end-to-end path in four steps — a business card at a conference,
-a cold sequence stopped, finding a person by face, the day on one screen.
+Autonomous revenue system: the ARR formula on top, a zoomable map of the world
+(segment → legal entity → people), one feed form for every entity, a time slider,
+the deal SOP as a BPMN collaboration, agents with an autonomy knob and a stop rule,
+and an algedonic stop-lever that halts an agent without waiting for anyone to look
+at a screen.
 
-**The rule.** A screen exists only where a person puts in a decision or takes out meaning.
-Records are written by agents. There are no data-entry forms.
+Built on the owner's own prototype of 25 September 2026. Added on top: an editable
+step rule on the SOP with step yield and defect analysis, a separate knob for warm
+contacts, sending infrastructure (mailboxes, domains, daily limits), and photo entry
+to the agent.
 
-Notes on every screen: `bobroff-cap/gtm-engine` → `4-decisions/solutions/SOL-002`.
+One file, no dependencies. All data is fictional.
+
+## Earlier — superseded
+
+https://lisaivanchikova.github.io/gtm-prototype/ — the first shape of the unified
+system, kept for history. Replaced by Revenue OS.
