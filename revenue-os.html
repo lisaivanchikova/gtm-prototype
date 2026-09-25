@@ -1,37 +1,37 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html><html data-theme="dark"><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <title>Revenue OS</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap">
 <style>
 /* Tokens follow VS Code "Light Modern" / "Dark Modern"; up/down follow TradingView */
 :root{
-  --title:#f8f8f8; --act:#f8f8f8; --side:#f8f8f8; --editor:#ffffff; --panel:#f8f8f8; --tab:#f8f8f8; --tab-on:#ffffff;
-  --border:#e5e5e5; --fg:#3b3b3b; --fg2:#616161; --fg3:#8b8b8b; --accent:#005fb8; --accent-soft:#e6eef8; --on-accent:#fff;
-  --hover:#f2f2f2; --selbg:#e8e8e8; --focus:#bf8803; --input:#ffffff;
-  --land:#eceef1; --land-stroke:#ffffff; --water:#ffffff;
-  --up:#089981; --down:#f23645; --flat:#787b86; --warn:#b26b00; --agent:#7a4fd6; --human:#005fb8;
-  --st1:#9ec5f4; --st2:#5598e7; --st3:#1c5cab; --st4:#4a3aa7; --st5:#1baf7a;
+  --title:#EEF2F9; --act:#EEF2F9; --side:#F2F5FB; --editor:#F7F9FC; --panel:#F2F5FB; --tab:#EEF2F9; --tab-on:#F7F9FC;
+  --border:#D7E0EE; --fg:#14171F; --fg2:#4A5468; --fg3:#7C879C; --accent:#0057FF; --accent-soft:#DCEBF8; --on-accent:#F7F9FC;
+  --link:#131A54; --echo1:#A9BDF0; --echo2:#DCEBF8; --hover:#E8EEF8; --selbg:#DCEBF8; --focus:#0057FF; --input:#FFFFFF;
+  --land:#E3E9F3; --land-stroke:#F7F9FC; --water:#F7F9FC;
+  --up:#0A8A5F; --down:#C62B3C; --flat:#7C879C; --warn:#9A6B00; --agent:#0057FF; --human:#131A54;
+  --st1:#DCEBF8; --st2:#A9BDF0; --st3:#4C86FF; --st4:#0057FF; --st5:#131A54;
   --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
-  --ui:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,Roboto,sans-serif;
+  --ui:"Manrope",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,Roboto,sans-serif;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   color-scheme:dark;
-  --title:#181818; --act:#181818; --side:#181818; --editor:#1f1f1f; --panel:#181818; --tab:#181818; --tab-on:#1f1f1f;
-  --border:#2b2b2b; --fg:#cccccc; --fg2:#9d9d9d; --fg3:#6e7681; --accent:#0078d4; --accent-soft:#04395e; --on-accent:#fff;
-  --hover:#2a2d2e; --selbg:#37373d; --focus:#cca700; --input:#313131;
-  --land:#2a2f36; --land-stroke:#1f1f1f; --water:#1f1f1f;
-  --up:#22ab94; --down:#f7525f; --flat:#868993; --warn:#e2a04a; --agent:#a887f0; --human:#4daafc;
-  --st1:#1c5cab; --st2:#3987e5; --st3:#9ec5f4; --st4:#9085e9; --st5:#199e70;
+  --title:#101319; --act:#101319; --side:#14171F; --editor:#181C26; --panel:#14171F; --tab:#14171F; --tab-on:#181C26;
+  --border:#262C3A; --fg:#EAF2FB; --fg2:#9FAABF; --fg3:#69748C; --accent:#0057FF; --accent-soft:#131A54; --on-accent:#F7F9FC;
+  --link:#A9BDF0; --echo1:#667292; --echo2:#40464F; --hover:#1C212D; --selbg:#232A3B; --focus:#0057FF; --input:#161A24;
+  --land:#2A3140; --land-stroke:#14171F; --water:#101319;
+  --up:#3DD8A4; --down:#FF6B7A; --flat:#69748C; --warn:#E8B14C; --agent:#0057FF; --human:#EAF2FB;
+  --st1:#232A3B; --st2:#40507A; --st3:#A9BDF0; --st4:#0057FF; --st5:#3DD8A4;
 }}
 :root[data-theme="dark"]{
   color-scheme:dark;
-  --title:#181818; --act:#181818; --side:#181818; --editor:#1f1f1f; --panel:#181818; --tab:#181818; --tab-on:#1f1f1f;
-  --border:#2b2b2b; --fg:#cccccc; --fg2:#9d9d9d; --fg3:#6e7681; --accent:#0078d4; --accent-soft:#04395e; --on-accent:#fff;
-  --hover:#2a2d2e; --selbg:#37373d; --focus:#cca700; --input:#313131;
-  --land:#2a2f36; --land-stroke:#1f1f1f; --water:#1f1f1f;
-  --up:#22ab94; --down:#f7525f; --flat:#868993; --warn:#e2a04a; --agent:#a887f0; --human:#4daafc;
-  --st1:#1c5cab; --st2:#3987e5; --st3:#9ec5f4; --st4:#9085e9; --st5:#199e70;
+  --title:#101319; --act:#101319; --side:#14171F; --editor:#181C26; --panel:#14171F; --tab:#14171F; --tab-on:#181C26;
+  --border:#262C3A; --fg:#EAF2FB; --fg2:#9FAABF; --fg3:#69748C; --accent:#0057FF; --accent-soft:#131A54; --on-accent:#F7F9FC;
+  --link:#A9BDF0; --echo1:#667292; --echo2:#40464F; --hover:#1C212D; --selbg:#232A3B; --focus:#0057FF; --input:#161A24;
+  --land:#2A3140; --land-stroke:#14171F; --water:#101319;
+  --up:#3DD8A4; --down:#FF6B7A; --flat:#69748C; --warn:#E8B14C; --agent:#0057FF; --human:#EAF2FB;
+  --st1:#232A3B; --st2:#40507A; --st3:#A9BDF0; --st4:#0057FF; --st5:#3DD8A4;
 }
 *{box-sizing:border-box}
 html,body{height:100%}
@@ -42,14 +42,14 @@ input,select,textarea{font:inherit;color:var(--fg);background:var(--input);borde
 .num{font-family:var(--mono);font-variant-numeric:tabular-nums}
 .up{color:var(--up)} .down{color:var(--down)} .flat{color:var(--flat)}
 .muted{color:var(--fg2)} .faint{color:var(--fg3)}
-.hdr{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--fg2)}
+.hdr{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.15em;text-transform:uppercase;color:var(--fg2)}
 q{quotes:"«" "»"}
 
 /* shell: VS Code workbench */
 .app{height:100%;display:grid;grid-template-rows:35px minmax(0,1fr) 22px}
 .titlebar{background:var(--title);border-bottom:1px solid var(--border);display:grid;grid-template-columns:1fr minmax(200px,560px) 1fr;align-items:center;padding-inline:10px;gap:10px}
 .brand{display:flex;align-items:center;gap:8px;font-weight:600;white-space:nowrap;overflow:hidden}
-.brand .ex{font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--fg3);border:1px dashed var(--fg3);border-radius:3px;padding:0 5px}
+.brand .ex{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--fg3);border:1px dashed var(--fg3);border-radius:3px;padding:0 5px}
 .cmd{display:flex;align-items:center;gap:8px;height:24px;border:1px solid var(--border);border-radius:6px;background:var(--input);padding-inline:10px;color:var(--fg2);font-size:12px;width:100%}
 .cmd kbd{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--fg3)}
 .tright{display:flex;justify-content:flex-end;align-items:center;gap:4px}
@@ -86,7 +86,7 @@ q{quotes:"«" "»"}
 .hgut{cursor:row-resize}
 
 /* tree */
-.sec{display:flex;align-items:center;gap:4px;height:22px;padding-inline:6px;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--fg)}
+.sec{display:flex;align-items:center;gap:4px;height:22px;padding-inline:6px;font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.15em;text-transform:uppercase;color:var(--fg)}
 .row{display:flex;align-items:center;gap:6px;height:22px;padding-right:8px;white-space:nowrap;overflow:hidden;width:100%;font-size:13px}
 .row{transition:background-color 80ms linear}
 .row:hover{background:var(--hover)}
@@ -101,7 +101,7 @@ q{quotes:"«" "»"}
 .row .nm{overflow:hidden;text-overflow:ellipsis;flex:1}
 .row .rt{font-family:var(--mono);font-size:11px;color:var(--fg3)}
 .av{flex:none;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;font-size:9px;font-weight:600;color:var(--fg2);background:transparent;border:1px solid var(--border);width:16px;height:16px}
-.av.hum{background:var(--human);border-color:var(--human);color:#fff}
+.av.hum{background:var(--human);border-color:var(--human);color:var(--title)}
 .av.sq{border-radius:4px}
 .av.bot{border-radius:5px;background:var(--agent);border-color:var(--agent);color:#fff}
 .av.big{width:40px;height:40px;font-size:14px}
@@ -195,8 +195,8 @@ q{quotes:"«" "»"}
 .bpc:nth-child(7n){border-right:0}
 .bpc.lane{background:var(--side);font-size:12px;font-weight:600;justify-content:center}
 .bpc.lane small{font-weight:400;color:var(--fg3);font-size:11px}
-.bpc.colh{min-height:34px;background:var(--side);font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--fg2);justify-content:center}
-.bpc.colh.now{color:var(--accent)}
+.bpc.colh{min-height:34px;background:var(--side);font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.15em;text-transform:uppercase;color:var(--fg2);justify-content:center}
+.bpc.colh.now{color:var(--link)}
 .bpc.now{background:color-mix(in srgb,var(--accent) 5%,transparent)}
 .bpc.line{min-height:0;padding:2px 8px;font-size:11px;color:var(--fg3);background:var(--side);grid-column:1/-1}
 .bpc.line.int{border-bottom:1px solid var(--fg2);color:var(--fg2)}
@@ -267,7 +267,7 @@ q{quotes:"«" "»"}
 .panel{background:var(--panel);border-top:1px solid var(--border);display:flex;flex-direction:column;min-height:0;min-width:0}
 .panel-right .panel{border-top:0;border-left:1px solid var(--border)}
 .ptabs{display:flex;align-items:center;gap:2px;height:35px;padding-inline:8px;flex:none;overflow-x:auto}
-.ptab{height:35px;padding:0 10px;font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--fg3);border-bottom:1px solid transparent;display:flex;align-items:center;gap:6px;white-space:nowrap}
+.ptab{height:35px;padding:0 10px;font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--fg3);border-bottom:1px solid transparent;display:flex;align-items:center;gap:6px;white-space:nowrap}
 .ptab[aria-selected="true"]{color:var(--fg);border-bottom-color:var(--fg)}
 .ptab .cnt{font-family:var(--mono);font-size:11px;background:var(--hover);border-radius:8px;padding:0 5px}
 .pbody{flex:1;min-height:0;display:grid;grid-template-columns:260px minmax(0,1fr);gap:0}
@@ -308,7 +308,7 @@ q{quotes:"«" "»"}
 .agbody{flex:1;overflow:auto;display:flex;flex-direction:column;gap:10px;padding:4px 12px 12px}
 .who{display:flex;gap:8px;align-items:center;font-size:12px;color:var(--fg2)}
 .focus{border:1px solid var(--focus);border-radius:8px;padding:10px 11px;display:flex;flex-direction:column;gap:6px;background:color-mix(in srgb,var(--focus) 5%,var(--editor))}
-.focus .k{font-size:11px;font-weight:600;color:var(--focus)}
+.focus .k{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--link)}
 .focus .t{font-size:13px;font-weight:600}
 .focus .d{font-size:12px;color:var(--fg2)}
 .tri{border:1px solid var(--border);border-radius:8px;padding:9px 10px;display:flex;flex-direction:column;gap:6px;background:var(--editor)}
@@ -400,7 +400,7 @@ q{quotes:"«" "»"}
 .pgrid .lh{background:var(--side);font-size:12px;justify-content:center}
 .pgrid .lh small{color:var(--fg3);font-size:11px}
 .pgrid .sh{min-height:0;background:var(--side);font-size:11px;font-weight:600;color:var(--fg2);justify-content:center}
-.pgrid .sh.now{color:var(--accent)}
+.pgrid .sh.now{color:var(--link)}
 .pgrid .now{background:color-mix(in srgb,var(--accent) 5%,transparent)}
 .pgrid .iface{min-height:44px;justify-content:center;align-items:flex-start;background:repeating-linear-gradient(90deg,transparent 0 8px,color-mix(in srgb,var(--fg3) 12%,transparent) 8px 9px)}
 .pgrid .iface.lab{background:var(--side);font-size:12px;font-weight:600;align-items:stretch}
@@ -510,13 +510,37 @@ q{quotes:"«" "»"}
 .feed.dense .fi .acts{top:2px;bottom:auto;background:var(--panel);padding-left:6px}
 .feed.dense .addfact{padding:4px 12px}
 .feed.dense .addfact input,.feed.dense .addfact .btn{height:22px;font-size:12px}
-.feed .day{position:sticky;top:0;z-index:1;background:var(--panel);font-size:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--fg3);padding:3px 12px;border-bottom:1px solid var(--border)}
+.feed .day{position:sticky;top:0;z-index:1;background:var(--panel);font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.15em;text-transform:uppercase;color:var(--fg3);padding:3px 12px;border-bottom:1px solid var(--border)}
 .ptabs .ptab{flex:none}
 .dens{flex:none;display:inline-flex;border:1px solid var(--border);border-radius:4px;overflow:hidden;margin-right:6px}
 .dens button{font-size:11px;padding:0 7px;height:20px;color:var(--fg3)}
 .dens button[aria-pressed="true"]{background:var(--hover);color:var(--fg)}
+.mark{height:16px;width:auto;flex:none;margin-right:2px}
+.shops{display:inline-flex;gap:1px;margin-left:5px}
+.shops button{font-family:var(--ui);font-size:11px;line-height:1;width:16px;height:16px;border:1px solid var(--border);border-radius:3px;color:var(--fg3);background:var(--editor)}
+.shops button:hover:not(:disabled){border-color:var(--accent);color:var(--fg)}
+.shops button:disabled{opacity:.3}
+.flds{display:flex;flex-direction:column;gap:0}
+.fld{display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid var(--border);font-size:12px}
+.fld .fk{color:var(--fg3);flex:1;min-width:0}
+.fld b{font-weight:600;color:var(--fg);text-align:right}
+.fops{display:inline-flex;gap:3px;align-items:center;flex:none}
+.fpol{font-family:var(--mono);font-size:9px;letter-spacing:.08em;padding:1px 5px;border:1px solid var(--border);border-radius:3px;color:var(--fg3);background:var(--editor)}
+.fpol:hover{border-color:var(--accent);color:var(--fg)}
+.fpol.sys{border-style:dashed;cursor:default}
+.fpol.on{background:var(--down);border-color:var(--down);color:#fff}
+.fhide{font-size:11px;width:16px;height:16px;border:1px solid transparent;border-radius:3px;color:var(--fg3)}
+.fhide:hover{border-color:var(--border);color:var(--down)}
+.fshow{align-self:flex-start;font-size:11px;color:var(--link);padding:4px 0}
+.fld.dnc{border-bottom:0;margin-top:2px}
+.rcl{font-family:var(--mono);font-size:10px;letter-spacing:.08em;padding:0 4px;border:1px solid currentColor;border-radius:3px}
+.rcl.up{color:var(--up)}.rcl.down{color:var(--down)}.rcl.warn{color:var(--warn)}.rcl.flat{color:var(--fg3)}
+.shname{border-bottom:1px dashed var(--fg3);outline:none;padding:0 1px}
+.shname:focus{border-bottom-color:var(--accent);background:var(--hover)}
 /* ===== ДОБАВЛЕНО: правка SOP, КПД шага, разбор сбоя, ящики ===== */
-.sopbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:12px;color:var(--fg2)}
+.sopbar{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--fg2)}
+.sopbar>span:nth-of-type(2){flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pgrid .sh{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-direction:row;flex-wrap:wrap;gap:0 4px}
 .modesw{display:inline-flex;border:1px solid var(--border);border-radius:5px;overflow:hidden}
 .modesw button{font-size:11px;padding:0 10px;height:22px;color:var(--fg3)}
 .modesw button[aria-pressed="true"]{background:var(--fg);color:var(--editor);font-weight:600}
@@ -552,7 +576,7 @@ q{quotes:"«" "»"}
 
 <div class="app" id="app">
   <header class="titlebar">
-    <div class="brand"><span>Revenue OS</span><span class="ex">демо · данные выдуманы</span></div>
+    <div class="brand"><svg class="mark" viewBox="60 362 905 300" role="img" aria-label="Intwin"><circle cx="815.5" cy="511.5" r="125" fill="var(--title)" stroke="var(--echo2)" stroke-width="50"/><circle cx="679.5" cy="511.5" r="125" fill="var(--title)" stroke="var(--echo1)" stroke-width="50"/><circle cx="543.5" cy="511.5" r="125" fill="var(--title)" stroke="#0057FF" stroke-width="50"/><circle cx="209.5" cy="511.5" r="150" fill="var(--fg)"/></svg><span>Revenue OS</span><span class="ex">демо · данные выдуманы</span></div>
     <div class="cmdw"><button class="cmd" id="openPal"><span>⌕</span><span>Найти юрлицо, человека, документ, агента…</span><kbd>⌘K</kbd></button></div>
     <div class="tright">
       <button class="lbtn" id="tSide" aria-pressed="true" aria-label="Показать или скрыть левую панель" data-tip="Левая панель"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor"><rect x="1.5" y="2.5" width="13" height="11" rx="1.5"/><path d="M5.5 2.5v11"/></svg></button>
@@ -708,17 +732,63 @@ const RULES0={
          {id:'o3',t:'оговорка «not an offer until countersigned»',on:false,why:'юрист просил добавить в шаблон'}],
  service:[{id:'v1',t:'первая ценность ≤ 7 дней',on:true},
           {id:'v2',t:'не отключать за неоплату сам',on:true,lock:'деньги'}]};
-const STEPAG=['scout','qual','pricer','sign','service','service'];
+const STEPS0=[
+ {id:'s1',a:'интерес',b:'находка',stage:1,ag:'scout'},
+ {id:'s2',a:'запрос',b:'квалификация',stage:2,ag:'qual'},
+ {id:'s3',a:'согласование',b:'оферта',stage:3,ag:'pricer'},
+ {id:'s4',a:'подпись',b:'MSA',stage:4,ag:'sign'},
+ {id:'s5',a:'сервис',b:'SLA и счёт',stage:5,ag:'service'},
+ {id:'s6',a:'продление',b:'продление',stage:6,ag:'service'}];
 const MAIL=[
  {id:'m-cold1',adr:'outreach@bobroff-msp.io',dom:'bobroff-msp.io',kind:'холодный',warm:100,sent:22,lim:25,st:['up','в работе']},
  {id:'m-cold2',adr:'hello@bobroffmsp.net',dom:'bobroffmsp.net',kind:'холодный',warm:100,sent:25,lim:25,st:['flat','лимит выбран']},
  {id:'m-cold3',adr:'team@getbobroff.com',dom:'getbobroff.com',kind:'холодный',warm:64,sent:6,lim:12,st:['warn','прогрев 64 %']},
  {id:'m-warm',adr:'nicolas@bobroffmsp.com',dom:'bobroffmsp.com',kind:'тёплый · ваше имя',warm:100,sent:3,lim:0,st:['up','только с человеком']}];
 const MAILBY=Object.fromEntries(MAIL.map(m=>[m.id,m]));
+/* ===== ДОБАВЛЕНО: JOB-007 что дошло · JOB-008 класс ответа · JOB-009 до разговора ===== */
+const DCLASS={ok:['доставлено','up'],soft:['отказ · ящик переполнен','warn'],hard:['отказ · адреса нет','down'],
+  block:['не доставлено · домен в списке','down'],optout:['отписка','warn'],spam:['жалоба на спам','down']};
+const RCLASS={
+  interested:['запрос предложения','up','срочно · 4 ч'],
+  price:['возражение по цене','warn','1 дн'],
+  churn:['расторжение','down','немедленно · владельцу'],
+  promise:['обещание оплаты','flat','проверить в срок'],
+  good:['отзыв в плюс','up','задача не нужна'],
+  later:['отложить','flat','напомнить через 30 дн'],
+  wrong:['не тот человек','warn','передать · 1 дн'],
+  leftjob:['ушёл из компании','flat','обновить карточку'],
+  optout:['отписка','down','немедленно · гасит все касания'],
+  auto:['автоответ','flat','задача не нужна'],
+  no:['вежливый отказ','down','закрыть']};
+const DELIV=(()=>{
+  const seq=['ok','ok','ok','soft','ok','ok','hard','ok','ok','ok','ok','block','ok','ok','soft','ok','ok','spam','ok','ok','ok','hard','ok','ok'];
+  const pool=ACC.filter(a=>a.ev&&a.ev[0].w<=NOW&&!a.feat).slice(0,24);
+  const out=pool.map((a,i)=>{const m=MAIL[i%3],p=peopleOf(a)[0];
+    return {id:'dl'+i,acc:a.id,who:p.nm,mail:m.id,k:seq[i%seq.length],w:NOW-(i%4),
+            sub:['«HIPAA-ready ИТ для 14 рабочих мест»','«ваш ИТ-подрядчик сменился?»','«аудит в ноябре — успеем?»','«счёт за ИТ ниже на 30 %»'][i%4]};});
+  out.unshift({id:'dl-moss',acc:'a0',who:'Dr. Jonathan Moss',mail:'m-cold1',k:'optout',w:37,sub:'follow-up №4 после отписки 22.09'});
+  return out;})();
+function replyClass(txt,act){
+  const q=(txt||'').toLowerCase();
+  if(/отпис|unsubscribe|remove me/.test(q))return 'optout';
+  if(/расторг|отказываемся от договора|cancel/.test(q))return 'churn';
+  if(/дорого|expensive|снизить счёт/.test(q))return 'price';
+  if(/оплатим|заплатим|pay next/.test(q))return 'promise';
+  if(/спокойн|спасибо|smoothly|стало лучше/.test(q))return 'good';
+  if(/январ|позже|вернёмся|later/.test(q))return 'later';
+  if(/не я|не ко мне|передал/.test(q))return 'wrong';
+  if(/ушёл|no longer|left the company/.test(q))return 'leftjob';
+  if(/out of office|автоответ/.test(q))return 'auto';
+  if(/не интересно|не нужно|not interested/.test(q))return 'no';
+  if(/цену|прайс|сколько стоит|quote/.test(q))return 'interested';
+  if(act==='требование')return 'interested';
+  return null;}
+const MEET=[{id:'mt1',acc:'a0',who:'Dr. Jonathan Moss',w:38,when:'чт 14:00',ttl:'Демо HIPAA-панели · 30 мин',st:['up','в календаре']},
+            {id:'mt2',acc:'a1',who:'Tom Hale',w:38,when:'не назначена',ttl:'Разбор цены: $1 400 фрилансер против $3 170 с SLA',st:['warn','ждёт согласия']}];
 const S={t:NOW,seg:null,downOnly:false,sel:null,level:'segment',K:1,
   knob:{scout:2,qual:2,seller:2,pricer:1,service:1},profile:'owner',
   side:'tree',ptab:'market',job:'',stF:'',stage:'',primary:'map',source:null,orgOpen:false,sopAcc:'a0',tabs:[{id:'map',kind:'map',title:'Карта'},{id:'sop',kind:'sop',title:'SOP'}],tab:'map',
-  facts:{},docs:{},tri:{},chat:[],layout:{side:true,panel:true,agent:true,panelRight:false,swap:false},sopEdit:false,sopFix:null,knobW:{scout:1,qual:1,seller:1,pricer:1,service:1},rules:JSON.parse(JSON.stringify(RULES0))};
+  facts:{},docs:{},tri:{},chat:[],layout:{side:true,panel:true,agent:true,panelRight:false,swap:false},sopEdit:false,sopFix:null,steps:JSON.parse(JSON.stringify(STEPS0)),fieldPol:{},hidden:{},dnc:{},knobW:{scout:1,qual:1,seller:1,pricer:1,service:1},rules:JSON.parse(JSON.stringify(RULES0))};
 try{const L=JSON.parse(localStorage.getItem('revos-layout-v3')||'null');if(L)Object.assign(S.layout,L);}catch(e){}
 if(window.innerWidth<1280&&!(()=>{try{return localStorage.getItem('revos-layout-v3')}catch(e){return null}})())S.layout.side=false;
 S.layout.agent=true;
@@ -1064,7 +1134,9 @@ function filtersHTML(){
 /* =================== SOP: service blueprint =================== */
 /* ===== ДОБАВЛЕНО: КПД шага, сбой, разбор и правка правил ===== */
 function stepYield(i){
-  if(i>=4)return null;            /* шаги 5-6 — это база, там мера Retention, а не КПД */
+  const st=S.steps[i];if(!st||!st.stage)return null;   /* свой шаг: данных о нём ещё нет */
+  i=st.stage-1;
+  if(i>=4)return null;            /* стадии 5-6 — это база, там мера Retention, а не КПД */
   const at=t=>{let inn=0,out=0;const lo=t-WIN;
     for(const a of ACC){if(!inF(a)||filtered(a))continue;
       if(a.ev.some(e=>e.s===i+1&&e.w>lo&&e.w<=t))inn++;
@@ -1074,13 +1146,14 @@ function stepYield(i){
   return {inn:n.inn,out:n.out,r:n.r,d:n.r-p.r};
 }
 function defectAt(i){
-  if(i!==1)return null;
+  const st=S.steps[i];if(!st||st.stage!==2||st.ag!=='qual')return null;
   const r=S.rules.qual.find(x=>x.id==='q2');
   if(r.on)return null;
   return {ag:'qual',ttl:'пропускает Price-first без ответа о бюджете',cnt:2};
 }
 function stepRuleCell(i,cls){
-  const id=STEPAG[i];
+  const st=S.steps[i],id=st.ag;
+  if(!id)return `<div class="cw">${S.sopEdit?'<button class="lnk" data-setag="'+i+'">назначить, кто ведёт шаг →</button>':'<span class="faint">никто не ведёт</span>'}</div>`;
   if(id==='sign')return `<div class="cw">${av('Лиза','var(--human)')}<b>Лиза</b> · полномочие подписи</div><div class="cw">агент подписывать не может — это граница</div>`;
   const g=agBy(id);if(!g)return '<span class="faint">—</span>';
   const rs=S.rules[id]||[],def=defectAt(i);
@@ -1125,54 +1198,68 @@ function fixPanel(){
 function renderSOP(a){
   const t=Math.min(S.t,NOW),e=stateAt(a,t)||{s:1},P=peopleOf(a),bright=a===BRIGHT,acts=peopleActs(a,t);
   const cur=e.s>=7?Math.max(1,(a.ev.filter(x=>x.s<7).pop()||{s:1}).s):Math.min(e.s,6);
-  const COL=[['интерес','находка'],['запрос','квалификация'],['согласование','оферта'],['подпись','MSA'],['сервис','SLA и счёт'],['продление','продление']];
+  const ST=S.steps,N=ST.length;
   const card=(cls,who,whoAv,act,txt,open)=>`<button class="card ${cls}" title="${esc(who+': '+String(txt).replace(/<[^>]+>/g,''))}" ${open?`data-open="${open}"`:''}><span class="who">${whoAv}${esc(who)}</span>${act?`<span class="act">${act}</span>`:''}<span class="t">${txt}</span></button>`;
   const pv=p=>av(p.nm,'var(--fg3)'),bot=ini=>`<span class="av bot">${ini}</span>`,hum=n=>av(n,'var(--human)');
-  const past=i=>i+1<cur,now=i=>i+1===cur;
-  const dash='<span class="faint">—</span>';
-  // client lanes: one lane per person (decides / defends / pays)
-  let lanes=P.map((p,pi)=>COL.map((c,i)=>{
-    if(bright){const B=[[['отношение','«айтишник ушёл, в ноябре аудит»'],['требование','«пришлите цену на 14 мест»'],['требование','«сколько со скидкой?»'],null,['прогноз','первая ценность ≤ 7 дн'],['прогноз','продление через 36 мес.']],
-      [null,['утверждение','«нужно до аудита»'],['молчание','молчит 9 дн — без неё Dr. Moss не решает'],null,['прогноз','онбординг офиса'],null],
-      [null,null,['отношение','«$38K — дорого, фрилансер $1 400/мес»'],'MISS',null,null]][pi][i];
+  const now=i=>ST[i].stage===cur, past=i=>ST[i].stage&&ST[i].stage<cur;
+  const dash='<span class="faint">—</span>', empty='<span class="faint" style="font-size:11px">шаг свой — данных ещё нет</span>';
+  /* содержимое привязано к стадии, а не к номеру колонки: шаги можно переставлять */
+  const BR=[{1:['отношение','«айтишник ушёл, в ноябре аудит»'],2:['требование','«пришлите цену на 14 мест»'],3:['требование','«сколько со скидкой?»'],5:['прогноз','первая ценность ≤ 7 дн'],6:['прогноз','продление через 36 мес.']},
+            {2:['утверждение','«нужно до аудита»'],3:['молчание','молчит 9 дн — без неё Dr. Moss не решает'],5:['прогноз','онбординг офиса']},
+            {3:['отношение','«$38K — дорого, фрилансер $1 400/мес»'],4:'MISS'}];
+  let lanes=P.map((p,pi)=>ST.map((st,i)=>{
+    if(!st.stage)return empty;
+    if(bright){const B=(BR[pi]||{})[st.stage];
       if(B==='MISS')return card('miss','Не хватает',pv(p),'','согласия Tom Hale: без него Dr. Moss не подпишет','person:'+p.id);
       return B?card(B[0]==='прогноз'?'fc':'client',p.nm,pv(p),B[0],B[1],B[0]==='прогноз'?null:'person:'+p.id):dash;}
     const x=acts[pi];if(now(i)&&x&&x.act)return card('client',p.nm,pv(p),x.act,esc(x.txt+(x.act==='молчание'?' '+x.days+' дн':'')),'person:'+p.id);
     return past(i)?'<span class="faint">пройдено</span>':dash;}));
-  // message flows through the interface
-  const MF=bright?[['✉ письмо ↓↑','p-moss'],['☎ демо 30 мин ↕','p-moss'],['📄 оферта PandaDoc ↑ · открыта 3×','p-hale'],['✍ MSA DocuSign ↑ · ждёт 2 подписи','p-hale','miss'],['⎈ отчёт SLA ↑ · счёт ↑',null],['✉ встреча о продлении',null]]
-    :COL.map((c,i)=>i+1<=cur?[['✉ письмо','☎ звонок','📄 оферта','✍ MSA','⎈ SLA · счёт','✉ продление'][i],P[0].id]:null);
-  const us=[
-    COL.map((c,i)=>i===0?card('agentc','Поиск',bot('П'),'утверждение','первое касание: HIPAA-ready IT','agent:scout'):i===1?card('agentc','Квалификация',bot('К'),'запрос','4 вопроса → сегмент A','agent:qual'):i===2?card('agentc','Оферта',bot('О'),'обещание',bright?'v1 $38K · v2 −8 % ждёт человека':'оферта по каталогу','agent:pricer'):i===4?card('agentc','Сервис',bot('С'),'обещание','SLA 99,5 %, счёт ежемесячно','agent:service'):dash),
-    COL.map((c,i)=>i===1?card('agentc','Переписка',bot('Пе'),'утверждение',bright?'демо; пообещала Dentrix ⚠ стоп':'демо и follow-up','agent:seller'):i===3?card('humanc','Лиза',hum('Лиза'),'объявление','подпись MSA — только человек с полномочием','doc:d-msa'):i===5?card('humanc','Николай',hum('Николай'),'','встреча о продлении',null):i===2?card('humanc','Юрист',hum('Юрист'),'','оговорка «not an offer until countersigned»',null):dash)];
+  const MFB={1:['✉ письмо ↓↑','p-moss'],2:['☎ демо 30 мин ↕','p-moss'],3:['📄 оферта PandaDoc ↑ · открыта 3×','p-hale'],4:['✍ MSA DocuSign ↑ · ждёт 2 подписи','p-hale','miss'],5:['⎈ отчёт SLA ↑ · счёт ↑',null],6:['✉ встреча о продлении',null]};
+  const MFG={1:['✉ письмо'],2:['☎ звонок'],3:['📄 оферта'],4:['✍ MSA'],5:['⎈ SLA · счёт'],6:['✉ продление']};
+  const MF=ST.map(st=>!st.stage?null:bright?MFB[st.stage]:(st.stage<=cur?[MFG[st.stage][0],P[0].id]:null));
+  const AG1={1:['Поиск','П','утверждение','первое касание: HIPAA-ready IT','scout'],2:['Квалификация','К','запрос','4 вопроса → сегмент A','qual'],
+             3:['Оферта','О','обещание',bright?'v1 $38K · v2 −8 % ждёт человека':'оферта по каталогу','pricer'],5:['Сервис','С','обещание','SLA 99,5 %, счёт ежемесячно','service']};
+  const us0=ST.map((st,i)=>{if(!st.stage)return dash;const g=AG1[st.stage];return g?card('agentc',g[0],bot(g[1]),g[2],g[3],'agent:'+g[4]):dash;});
+  const us1=ST.map((st,i)=>{if(!st.stage)return dash;
+    if(st.stage===2)return card('agentc','Переписка',bot('Пе'),'утверждение',bright?'демо; пообещала Dentrix ⚠ стоп':'демо и follow-up','agent:seller');
+    if(st.stage===3)return card('humanc','Юрист',hum('Юрист'),'','оговорка «not an offer until countersigned»',null);
+    if(st.stage===4)return card('humanc','Лиза',hum('Лиза'),'объявление','подпись MSA — только человек с полномочием','doc:d-msa');
+    if(st.stage===6)return card('humanc','Николай',hum('Николай'),'','встреча о продлении',null);
+    return dash;});
   const cellCls=i=>now(i)?'now':'';
   const loopPos={1:0,2:0,3:1,4:2,5:3,6:3}[cur];
-  let h=`<div class="bpmn"><div class="bph"><h2>SOP сделки · ${esc(a.name)}</h2><span class="chip acc">${STAGE[e.s]}</span><span class="muted">${esc(a.city)}, ${a.st} · ${segBy(a.seg).name} · ${usd(a.acv)}</span></div>
+  const newN=ST.filter(x=>x.stage&&x.stage<=4).length, baseN=ST.filter(x=>x.stage&&x.stage>=5).length, freeN=N-newN-baseN;
+  const ops=i=>S.sopEdit?`<span class="shops"><button data-stepmv="${i}:-1" data-tip="Сдвинуть шаг влево" ${i===0?'disabled':''}>‹</button><button data-stepmv="${i}:1" data-tip="Сдвинуть шаг вправо" ${i===N-1?'disabled':''}>›</button><button data-stepadd="${i}" data-tip="Вставить свой шаг справа">＋</button><button data-stepdel="${i}" data-tip="Убрать шаг" ${N<=2?'disabled':''}>×</button></span>`:'';
+  const nm=(i,f)=>S.sopEdit?`<span class="shname" contenteditable="true" data-rename="${i}:${f}" spellcheck="false">${esc(ST[i][f])}</span>`:esc(ST[i][f]);
+  let h=`<style>.pgrid,.states{grid-template-columns:150px repeat(${N},minmax(160px,1fr))}.pgrid>div:nth-child(${N+1}n){border-right:0}</style>
+    <div class="bpmn"><div class="bph"><h2>SOP сделки · ${esc(a.name)}</h2><span class="chip acc">${STAGE[e.s]}</span><span class="muted">${esc(a.city)}, ${a.st} · ${segBy(a.seg).name} · ${usd(a.acv)}</span></div>
     <div class="loop"><span class="faint">петля действия (Winograd–Flores):</span>${['запрос','обещание','исполнение','принятие'].map((x,i)=>`<span class="s ${i===loopPos?'on':''}">${x}</span>`).join('→')}<span class="faint">· речевой акт = сообщение, после которого сменилось обязательство</span></div>
     <div class="sopbar">
       <span class="modesw"><button data-sopmode="0" aria-pressed="${!S.sopEdit}">Читать</button><button data-sopmode="1" aria-pressed="${S.sopEdit}">Править</button></span>
-      <span>${S.sopEdit?'Правьте правило шага в нижней дорожке: что агент проверяет, с какой свободой работает и где его край.':'Схема читается. Чтобы поменять логику агента на шаге — включите «Править».'}</span>
+      <span>${S.sopEdit?'Название шага правится прямо в шапке. ‹ › двигают шаг, ＋ вставляет свой, × убирает. Ниже — что агент проверяет на шаге, с какой свободой работает и где его край.':'Схема читается. Чтобы собрать или поправить процесс — включите «Править».'}</span>
+      ${S.sopEdit?`<button class="lnk" data-stepreset="1" data-tip="Вернуть шесть исходных шагов">сбросить процесс</button>`:''}
     </div>
     <div class="pgrid">
-      <div class="lh"><small>клиент ↑ · мы ↓</small></div>${COL.map((c,i)=>`<div class="sh ${now(i)?'now':''}">${c[0]} / ${c[1]}${now(i)?' · сейчас':''}</div>`).join('')}
-      <div class="yh">КПД шага<small style="display:block;color:var(--fg3);font-size:10px">вошло → прошло</small></div>${COL.map((c,i)=>{const y=stepYield(i);if(!y){const R=formulaAt(S.t).ret;return `<div class="yc"><div class="ynum"><span>база</span><b>Retention ${pct(R)}</b></div></div>`;}
+      <div class="lh"><small>клиент ↑ · мы ↓</small></div>${ST.map((st,i)=>`<div class="sh ${now(i)?'now':''}">${nm(i,'a')} / ${nm(i,'b')}${now(i)?' · сейчас':''}${ops(i)}</div>`).join('')}
+      <div class="yh">КПД шага<small style="display:block;color:var(--fg3);font-size:10px">вошло → прошло</small></div>${ST.map((st,i)=>{const y=stepYield(i);
+        if(!st.stage)return `<div class="yc"><span class="faint" style="font-size:11px">новый шаг</span></div>`;
+        if(!y){const R=formulaAt(S.t).ret;return `<div class="yc"><div class="ynum"><span>база</span><b>Retention ${pct(R)}</b></div></div>`;}
         const bad=y.d<-.15;return `<div class="yc"><div class="ynum"><span>${int(y.inn)} → ${int(y.out)}</span><b class="${bad?'ybad':''}">${pct(y.r,0)}${bad?' ▼':''}</b></div><div class="ybar"><i style="width:${Math.min(100,y.r*100)}%;background:${bad?'var(--down)':'var(--up)'}"></i></div></div>`;}).join('')}
       <div class="pool">Клиент · ${esc(a.name)} <small>пул BPMN · их люди, речь</small></div>
       ${lanes.map((ln,pi)=>`<div class="lh">${esc(P[pi].nm)}<small>${P[pi].role}</small></div>`+ln.map((x,i)=>`<div class="${cellCls(i)}">${x}</div>`).join('')).join('')}
       <div class="iface lab">Интерфейс<small class="faint" style="font-weight:400">встречи, письма, документы</small></div>${MF.map((m,i)=>`<div class="iface ${cellCls(i)}">${m?`<button class="mf ${m[2]||''}" ${m[1]?`data-open="person:${m[1]}"`:''} data-tip="Связь: как менялась — открыть лог общения">${m[0]}</button>`:''}</div>`).join('')}
       <div class="pool">Мы · Bobroff MSP <small>пул BPMN · агенты и люди</small></div>
-      <div class="lh">Агенты<small>frontstage и backstage</small></div>${us[0].map((x,i)=>`<div class="${cellCls(i)}">${x}</div>`).join('')}
-      <div class="lh">Люди и агенты<small>подпись — только человек</small></div>${us[1].map((x,i)=>`<div class="${cellCls(i)}">${x}</div>`).join('')}
-      <div class="lh">Правило шага<small>${S.sopEdit?'правится':'что проверяет агент'}</small></div>${COL.map((c,i)=>`<div class="${cellCls(i)}" style="gap:6px">${stepRuleCell(i)}</div>`).join('')}
+      <div class="lh">Агенты<small>frontstage и backstage</small></div>${us0.map((x,i)=>`<div class="${cellCls(i)}">${x}</div>`).join('')}
+      <div class="lh">Люди и агенты<small>подпись — только человек</small></div>${us1.map((x,i)=>`<div class="${cellCls(i)}">${x}</div>`).join('')}
+      <div class="lh">Правило шага<small>${S.sopEdit?'правится':'что проверяет агент'}</small></div>${ST.map((st,i)=>`<div class="${cellCls(i)}" style="gap:6px">${stepRuleCell(i)}</div>`).join('')}
     </div>
     ${fixPanel()}
-    <div class="states"><span class="faint" style="padding:0 8px">состояние юрлица</span>${COL.map((c,i)=>`<span style="text-align:center" class="${now(i)?'cur':''}">${STAGE[i+1]}${now(i)?' ●':''}</span>`).join('')}
-      <span></span><span class="br" style="grid-column:span 4">новые: Охват × Conv × ACV</span><span class="br" style="grid-column:span 2">база: Retention</span></div>
+    <div class="states"><span class="faint" style="padding:0 8px">состояние юрлица</span>${ST.map((st,i)=>`<span style="text-align:center" class="${now(i)?'cur':''}">${st.stage?STAGE[st.stage]:'свой шаг'}${now(i)?' ●':''}</span>`).join('')}
+      <span></span>${newN?`<span class="br" style="grid-column:span ${newN}">новые: Охват × Conv × ACV</span>`:''}${baseN?`<span class="br" style="grid-column:span ${baseN}">база: Retention</span>`:''}${freeN?`<span class="br" style="grid-column:span ${freeN}">свои шаги</span>`:''}</div>
     ${e.s===7?`<div class="note">✕ отказ: ${esc(a.reason||'—')}</div>`:''}
-    <div class="bnote"><span style="color:var(--focus);font-weight:600">Узкое место сделки:</span><span>${bright?'«подпись» ждёт согласия Tom Hale (платит). Ход: снять возражение по цене — $1 400/мес фрилансера против $3 170/мес с SLA и HIPAA.':stuck(a,e,S.t)?'стадия «'+STAGE[e.s]+'»: молчание '+daysIn(e,S.t)+' дн.':'нет — сделка движется.'}</span></div></div>`;
+    <div class="bnote"><span style="color:var(--link);font-weight:600">Узкое место сделки:</span><span>${bright?'«подпись» ждёт согласия Tom Hale (платит). Ход: снять возражение по цене — $1 400/мес фрилансера против $3 170/мес с SLA и HIPAA.':stuck(a,e,S.t)?'стадия «'+STAGE[e.s]+'»: молчание '+daysIn(e,S.t)+' дн.':'нет — сделка движется.'}</span></div></div>`;
   return h;
 }
-
 /* =================== documents, messages, news, org =================== */
 function renderDoc(id){const d=DOCS[id],a=ACCBY[d.acc],st=S.docs[id]||{};const P=peopleOf(a);
   const isMSA=d.kind==='MSA',canSign=S.profile==='liza';
@@ -1225,21 +1312,68 @@ function feedItems(tab){
     let src=selA?[selA]:[BRIGHT,HALE,...ACC.filter(a=>!a.feat&&inF(a)&&momentum(a,t)<0).slice(0,8)];
     const out=[];for(const a of src){for(const x of peopleActs(a,Math.min(t,NOW))){if(!x.act)continue;if(S.sel&&S.sel.type==='person'&&S.sel.id!==x.p.id)continue;
       const sk=x.p.src==='LinkedIn'?'linkedin':x.p.src==='Aircall'?'aircall':x.p.src==='Teams'?'teams':x.p.src==='QuickBooks'?'quickbooks':'gmail';
-      out.push({src:sk,ttl:`${x.p.nm} — ${x.p.role} — ${x.txt}${x.act==='молчание'?' '+x.days+' дн':''}`,mt:`<b>${SRC[sk][0]}</b> · ${a.name} · ${x.p.title} · <span class="act">${x.act}</span>`,when:x.days!=null?x.days+' дн':'',open:'person:'+x.p.id,status:x.act==='молчание'&&x.days>=8?['down','молчит']:x.act==='отношение'&&/дорого|расторг/.test(x.txt)?['down','риск']:['flat',x.act]});}}
+      const rc=replyClass(x.txt,x.act),R=rc?RCLASS[rc]:null;
+      out.push({src:sk,ttl:`${x.p.nm} — ${x.p.role} — ${x.txt}${x.act==='молчание'?' '+x.days+' дн':''}`,
+        mt:`<b>${SRC[sk][0]}</b> · ${a.name} · ${x.p.title} · <span class="act">${x.act}</span>${R?` · <span class="rcl ${R[1]}">класс ответа: ${R[0]}</span> · срок ${R[2]}`:''}`,
+        when:x.days!=null?x.days+' дн':'',open:'person:'+x.p.id,
+        status:R?[R[1],R[0]]:x.act==='молчание'&&x.days>=8?['down','молчит']:['flat',x.act]});}}
+    for(const m of MEET){if(S.sel&&S.sel.type==='person')break;if(m.w>Math.max(t,NOW))continue;
+      out.unshift({src:'teams',ttl:`${m.who} — ${m.ttl}`,
+        mt:`<b>встреча</b> · ${ACCBY[m.acc].name} · ${esc(m.when)} · <span class="rcl up">довести до разговора</span>`,
+        when:ago(m.w),open:'person:'+(m.acc==='a0'?'p-moss':'p-hale'),status:m.st,
+        acts:`<button class="ib" data-brief="${m.id}" data-tip="Собрать контекст к разговору">Briefing</button>`});}
     return out;}
+  if(tab==='channel'){
+    const selA=S.sel&&S.sel.type==='acc'?S.sel.id:null;
+    return DELIV.filter(d=>(!selA||d.acc===selA)&&d.w<=Math.max(t,NOW)).sort((x,y)=>y.w-x.w).map(d=>{
+      const m=MAILBY[d.mail],c=DCLASS[d.k],a=ACCBY[d.acc];
+      return {src:'gmail',ttl:`${a?a.name:'—'} · ${d.who} — ${d.sub}`,
+        mt:`<b>${esc(m.adr)}</b> · домен ${esc(m.dom)} · ${esc(m.kind)}`,
+        when:ago(d.w),open:a?'acc:'+d.acc:null,status:[c[1],c[0]],w:d.w};});}
   if(tab==='agents'){const f=S.sel&&S.sel.type==='agent'?S.sel.id:null;return LOGS.concat(S.extraLogs||[]).filter(l=>(!f||l.ag===f)&&l.w<=Math.max(t,NOW)).sort((x,y)=>y.w-x.w).map(l=>({src:'agent',ttl:`${agBy(l.ag)?agBy(l.ag).nm:'Человек'}: ${l.ttl}`,mt:`<b>журнал</b> · отвечает ${esc(OURS.find(o=>o.id===(agBy(l.ag)||{owner:'h-nik'}).owner).nm)} · ручка: ${agBy(l.ag)?KNOB[S.knob[l.ag]]:'—'}`,when:ago(l.w),open:'agent:'+l.ag,status:l.st}));}
 }
+const FPOL=[['auto','авто','агент заполняет сам'],['sug','предложить','агент предлагает, человек подтверждает'],['off','выкл','агент не трогает это поле']];
+function fields(arr,scope){
+  const hid=S.hidden[scope]||{};
+  const vis=arr.filter(([k])=>!hid[k]), n=arr.length-vis.length;
+  let h=`<div class="params flds">`+vis.map(([k,v,kind])=>{
+    const key=scope+':'+k, pol=S.fieldPol[key]||(kind==='sys'?'sys':'auto');
+    const P=kind==='sys'?null:FPOL.find(x=>x[0]===pol)||FPOL[0];
+    return `<div class="fld"><span class="fk">${esc(k)}</span><b>${v}</b>
+      <span class="fops">${kind==='sys'
+        ? `<span class="fpol sys" data-tip="Вычисляемое поле: человеку недоступно, иначе журналу нельзя верить">system only</span>`
+        : `<button class="fpol" data-fpol="${esc(key)}" data-tip="${esc(P[2])}">${P[1]}</button>`}
+        <button class="fhide" data-fhide="${esc(scope)}|${esc(k)}" data-tip="Скрыть поле из карточки">×</button></span></div>`;}).join('');
+  if(n)h+=`<button class="fshow" data-fshow="${esc(scope)}">скрыто ${n} — показать</button>`;
+  h+=`<div class="fld dnc"><span class="fk">Не писать этому юрлицу</span><button class="fpol ${S.dnc[scope]?'on':''}" data-dnc="${esc(scope)}" data-tip="Поле на карточке, а не отдельный список: запрет виден там, где принимают решение">${S.dnc[scope]?'включено':'выключено'}</button></div>`;
+  return h+`</div>`;}
 function renderEcard(){
   const t=S.t,sel=S.sel,tab=S.ptab;let h='';
   const params=arr=>`<div class="params">${arr.map(([k,v])=>`<div>${k}<b>${v}</b></div>`).join('')}</div>`;
   if(sel&&sel.type==='acc'){const a=ACCBY[sel.id],e=stateAt(a,t),m=momentum(a,t);
-    h=`<div class="top">${av(a.name,a.hue,'sq big')}<div><h3>${esc(a.name)}</h3><div class="sub">${a.city}, ${a.st} · ${segBy(a.seg).name} · NAICS ${segBy(a.seg).naics[0].split(' ')[0]}</div></div></div>`+params([['Состояние',`<span class="${mcls(m)}">${arrow(m)} ${e?STAGE[e.s]:'—'}</span>`],['ACV',usd(a.acv)],['Сотрудников',a.emp],['Тикер',a.tk]])+
+    h=`<div class="top">${av(a.name,a.hue,'sq big')}<div><h3>${esc(a.name)}</h3><div class="sub">${a.city}, ${a.st} · ${segBy(a.seg).name} · NAICS ${segBy(a.seg).naics[0].split(' ')[0]}</div></div></div>`+fields([
+      ['Состояние',`<span class="${mcls(m)}">${arrow(m)} ${e?STAGE[e.s]:'—'}</span>`,'sys'],
+      ['ACV',usd(a.acv),'own'],
+      ['Сотрудников',a.emp,'enr'],
+      ['Город',esc(a.city)+', '+a.st,'enr'],
+      ['NAICS',esc(segBy(a.seg).naics[0]),'enr'],
+      ['Последнее касание',ago(e?e.w:S.t),'sys'],
+      ['Тикер',a.tk,'enr']],a.id)+
       `<div class="hdr">Люди</div>`+peopleOf(a).map(p=>`<button class="row" data-open="person:${p.id}">${av(p.nm,'var(--fg3)')}<span class="nm">${esc(p.nm)}</span><span class="rt">${p.role}</span></button>`).join('')+`<button class="btn" data-open="sop:${a.id}">Открыть SOP сделки</button>`;}
   else if(sel&&sel.type==='person'){const p=personById(sel.id),a=ACCBY[p.acc];h=`<div class="top">${av(p.nm,'var(--fg3)','big')}<div><h3>${esc(p.nm)}</h3><div class="sub">${esc(p.title)} · ${esc(a.name)}</div></div></div>`+params([['Роль в сделке',p.role],['Канал',p.src]])+`<button class="btn" data-open="msg:${p.id}">Открыть переписку</button>`;}
   else if(sel&&sel.type==='agent'){const g=agBy(sel.id);h=`<div class="top"><span class="av bot big">AI</span><div><h3>${g.nm}</h3><div class="sub">${g.title}</div></div></div>`+params([['Состояние',`<span class="${ASTATE[g.state][0]}">${ASTATE[g.state][1]}</span>`],['Ручка',KNOB[S.knob[g.id]]],['Отвечает',OURS.find(o=>o.id===g.owner).nm],['Ведёт стадии',g.owns.map(s=>STAGE[s]).join(', ')]])+
       `<div class="hdr">Ручка: сколько можно без человека</div><div class="btns">${KNOB.map((k,i)=>`<button class="btn ${S.knob[g.id]===i?'pri':''}" data-knob="${g.id}:${i}">${k}</button>`).join('')}</div>`;}
   else if(tab==='market'){const g=S.seg?segBy(S.seg):null;h=`<div class="top"><span class="av sq big">${g?g.abc:'US'}</span><div><h3>${g?g.name:'Рынок США · все сегменты'}</h3><div class="sub">${g?'Core Job: «'+g.job+'»':'три сегмента по Core Jobs'}</div></div></div>`+params([['NAICS',g?g.naics.map(n=>n.split(' ')[0]).join(', '):'6212 · 5412 · 4841 · 8111'],['Юрлиц',int(formulaAt(t).N)],['Источников',6],['Не проверено',MARKET.filter(n=>!S.facts[n.id]).length]]);}
   else if(tab==='account'){const vis=ACC.filter(a=>stateAt(a,t)&&inF(a));h=`<div class="top"><span class="av sq big">⌂</span><div><h3>Юрлица${S.seg?' · '+segBy(S.seg).name:''}</h3><div class="sub">язык юрлиц — документы; обмен товар ↔ деньги</div></div></div>`+params([['В воронке',vis.filter(a=>{const e=stateAt(a,t);return e.s>=1&&e.s<=4;}).length],['В сервисе',vis.filter(a=>isActive(stateAt(a,t))).length],['▼ застряли',vis.filter(a=>momentum(a,t)<0).length],['Ждут подписи',vis.filter(a=>stateAt(a,t).s===4).length]]);}
+  else if(tab==='channel'){
+    const rows=DELIV.filter(d=>d.w<=Math.max(t,NOW));const n=rows.length;
+    const cnt=k=>rows.filter(d=>d.k===k).length;
+    const ok=cnt('ok'),bad=cnt('hard')+cnt('soft')+cnt('block'),out=cnt('optout'),spam=cnt('spam');
+    h=`<div class="top"><span class="av sq big">✉</span><div><h3>Канал · что дошло</h3><div class="sub">отправка за 4 недели по всем ящикам</div></div></div>`
+      +params([['Отправлено',int(n)],['Дошло',pct(n?ok/n:0,0)],['Отказов',int(bad)],['Отписок',int(out)],['Жалоб',int(spam)]])
+      +`<div class="hdr">По ящикам</div>`+MAIL.map(m=>{const r=rows.filter(d=>d.mail===m.id);const o2=r.filter(d=>d.k==='ok').length;
+        return `<div class="mailrow" style="padding-left:0"><span class="adr">${esc(m.adr)}</span>${m.warm<100?`<span class="warmb"><i style="width:${m.warm}%"></i></span>`:''}<span class="lim">${m.lim?m.sent+'/'+m.lim:'—'}</span><span class="chip ${r.length&&o2/r.length<.85?'down':'up'}">${r.length?pct(o2/r.length,0):'—'}</span></div>`;}).join('')
+      +`<div class="note">Жалоба и отписка гасят человека во всех ящиках сразу. Лимит — защита аккаунта, а не квота.</div>`;}
   else if(tab==='people'){h=`<div class="top"><span class="av big">☺</span><div><h3>Люди клиентов</h3><div class="sub">язык людей — речевые акты: требование, утверждение, обещание, объявление, отношение, молчание</div></div></div>`;}
   else {h=`<div class="top"><span class="av bot big">AI</span><div><h3>Машина</h3><div class="sub">5 агентов · 3 человека · у каждого агента отвечающий человек</div></div></div>`+params([['Работают',AGENTS.filter(a=>a.state==='active').length],['Ждут человека',AGENTS.filter(a=>a.state==='awaiting').length],['Остановлены',AGENTS.filter(a=>a.state==='paused').length],['Тревоги',AGENTS.filter(a=>a.state==='paused').length]]);}
   $('ecard').innerHTML=h;}
@@ -1250,7 +1384,7 @@ function denseRows(items){let last='',h='';
     h+=`<div class="fi ${it.gone?'gone':''}"><span>${srcIc(it.src)}</span><span class="when">${it.when||'—'}</span><button class="main" data-open="${it.open}" title="${tip}"><span class="ttl">${esc(it.ttl)}</span><span class="mt">${it.mt}</span></button><span class="chip st ${it.status[0]}">${esc(it.status[1])}</span>${it.acts?`<span class="acts">${it.acts}</span>`:''}</div>`;}
   return h;}
 function renderPanel(){
-  const tabs=[['market','Рынок · информация'],['account','Юрлица · документы'],['people','Люди · речь'],['agents','Агенты · журнал']];
+  const tabs=[['market','Рынок · информация'],['account','Юрлица · документы'],['people','Люди · речь'],['channel','Канал · что дошло'],['agents','Агенты · журнал']];
   $('ptabs').innerHTML=tabs.map(([k,t])=>`<button class="ptab" role="tab" data-ptab="${k}" aria-selected="${S.ptab===k}">${t}<span class="cnt">${feedItems(k).length}</span></button>`).join('')+`<span style="flex:1"></span><span class="dens" role="group" aria-label="Плотность ленты"><button data-dense="1" aria-pressed="${S.dense!==false}" aria-label="Плотно" data-tip="Плотно: одна строка на событие">≡</button><button data-dense="0" aria-pressed="${S.dense===false}" aria-label="Подробно" data-tip="Подробно: две строки на событие">☰</button></span>${S.sel?`<button class="ib" data-clearsel="1">снять выбор ×</button>`:''}`;
   renderEcard();
   const items=feedItems(S.ptab);
@@ -1286,7 +1420,7 @@ function fever(){const W=300,H=150,pl=28,pb=20,pw=W-pl-8,ph=H-pb-8,X=v=>pl+v*pw,
   const zone=(a,b,c)=>`<path d="M${X(0)},${Y(a)} L${X(1)},${Y(b)} L${X(1)},${Y(c)} L${X(0)},${Y(c===1?1:0)} Z"/>`;
   let h=`<svg class="fever" viewBox="0 0 ${W} ${H}" role="img" aria-label="Fever chart: буфер против пройденной цепи">
     <path d="M${X(0)},${Y(.33)} L${X(1)},${Y(.66)} L${X(1)},${Y(1)} L${X(0)},${Y(1)} Z" fill="color-mix(in srgb,var(--down) 14%,transparent)"/>
-    <path d="M${X(0)},${Y(.15)} L${X(1)},${Y(.33)} L${X(1)},${Y(.66)} L${X(0)},${Y(.33)} Z" fill="color-mix(in srgb,var(--focus) 16%,transparent)"/>
+    <path d="M${X(0)},${Y(.15)} L${X(1)},${Y(.33)} L${X(1)},${Y(.66)} L${X(0)},${Y(.33)} Z" fill="color-mix(in srgb,var(--warn) 18%,transparent)"/>
     <path d="M${X(0)},${Y(0)} L${X(1)},${Y(0)} L${X(1)},${Y(.33)} L${X(0)},${Y(.15)} Z" fill="color-mix(in srgb,var(--up) 14%,transparent)"/>
     <line x1="${X(0)}" y1="${Y(0)}" x2="${X(1)}" y2="${Y(0)}" stroke="var(--border)"/><line x1="${X(0)}" y1="${Y(0)}" x2="${X(0)}" y2="${Y(1)}" stroke="var(--border)"/>
     <text x="${X(0)}" y="${H-5}">0 %</text><text x="${X(1)}" y="${H-5}" text-anchor="end">цепь пройдена 100 %</text>
@@ -1350,12 +1484,24 @@ function openRef(k){
 }
 function logAdd(ag,ttl,st){(S.extraLogs=S.extraLogs||[]).push({ag,w:NOW,ttl,st});}
 document.addEventListener('click',e=>{
-  const b=e.target.closest('[data-open],[data-side],[data-tab],[data-close],[data-ptab],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-step],[data-plus],[data-newchat],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-knobw],[data-knobcycle],[data-photo],#fDown,#addFact,#play');
+  const b=e.target.closest('[data-open],[data-side],[data-tab],[data-close],[data-ptab],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-step],[data-plus],[data-newchat],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-knobw],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepmv],[data-stepreset],[data-setag],[data-brief],[data-fpol],[data-fhide],[data-fshow],[data-dnc],#fDown,#addFact,#play');
   if(!b)return;
   if(b.dataset.pal)$('pal').hidden=true;
   if(b.dataset.dense!==undefined){S.dense=b.dataset.dense==='1';renderPanel();return;}
   if(b.dataset.newchat){S.chat=[];renderAgent();return;}
   /* ===== ДОБАВЛЕНО: правка SOP ===== */
+  if(b.dataset.stepadd!==undefined){const i=+b.dataset.stepadd;
+    S.steps.splice(i+1,0,{id:'u'+Date.now(),a:'новый шаг',b:'что делаем',stage:null,ag:null});
+    toast('Шаг вставлен. Назовите его и назначьте, кто ведёт.');renderEditorLight();return;}
+  if(b.dataset.stepdel!==undefined){const i=+b.dataset.stepdel;if(S.steps.length<=2)return;
+    const st=S.steps[i];S.steps.splice(i,1);toast(`Шаг «${st.a}» убран из процесса.`);renderEditorLight();return;}
+  if(b.dataset.stepmv){const [i,d]=b.dataset.stepmv.split(':').map(Number);const j=i+d;
+    if(j<0||j>=S.steps.length)return;const x=S.steps[i];S.steps[i]=S.steps[j];S.steps[j]=x;renderEditorLight();return;}
+  if(b.dataset.stepreset){S.steps=JSON.parse(JSON.stringify(STEPS0));toast('Процесс возвращён к шести исходным шагам.');renderEditorLight();return;}
+  if(b.dataset.setag!==undefined){const i=+b.dataset.setag;const opts=[...AGENTS.map(g=>g.id),'sign'];
+    const cur=S.steps[i].ag;S.steps[i].ag=opts[(opts.indexOf(cur)+1)%opts.length];
+    if(!S.rules[S.steps[i].ag])S.rules[S.steps[i].ag]=[{id:'n1',t:'правило ещё не задано',on:false}];
+    renderEditorLight();return;}
   if(b.dataset.sopmode!==undefined){S.sopEdit=b.dataset.sopmode==='1';if(!S.sopEdit)S.sopFix=null;renderEditorLight();return;}
   if(b.dataset.rule){const [ag,rid]=b.dataset.rule.split(':');const r=S.rules[ag].find(x=>x.id===rid);r.on=!r.on;
     if(r.knob==='qual'){S.knob.qual=r.on?1:2;}
@@ -1405,6 +1551,17 @@ document.addEventListener('click',e=>{
   if(b.dataset.reject){logAdd('pricer','Черновик v2 возвращён агенту: скидка без обоснования',['down','возврат']);toast('Возвращено агенту.');renderAll();return;}
   if(b.dataset.send){toast('Демо: сообщение не отправлено. В живой системе уйдёт от вашего имени только по этой кнопке.');return;}
   if(b.dataset.edit){const p=$('paper');const on=p.getAttribute('contenteditable')==='true';p.setAttribute('contenteditable',on?'false':'true');b.textContent=on?'Редактировать':'Готово';return;}
+  if(b.dataset.fpol){const k=b.dataset.fpol,cur=S.fieldPol[k]||'auto';
+    const i=FPOL.findIndex(x=>x[0]===cur);S.fieldPol[k]=FPOL[(i+1)%FPOL.length][0];
+    toast(`Поле «${k.split(':')[1]}»: агент ${FPOL.find(x=>x[0]===S.fieldPol[k])[2].replace('агент ','')}.`);renderPanel();return;}
+  if(b.dataset.fhide){const [sc,k]=b.dataset.fhide.split('|');S.hidden[sc]=S.hidden[sc]||{};S.hidden[sc][k]=true;renderPanel();return;}
+  if(b.dataset.fshow){S.hidden[b.dataset.fshow]={};renderPanel();return;}
+  if(b.dataset.dnc){const sc=b.dataset.dnc;S.dnc[sc]=!S.dnc[sc];
+    toast(S.dnc[sc]?'Запрет включён: агенты не пишут этому юрлицу, холодные касания гаснут.':'Запрет снят.');renderPanel();return;}
+  if(b.dataset.brief){const m=MEET.find(x=>x.id===b.dataset.brief);const a=ACCBY[m.acc];const e=stateAt(a,S.t);
+    S.chat.push({u:1,t:esc('Собери контекст к разговору: '+m.who)});
+    S.chat.push({u:0,t:`<b>${esc(m.who)}</b> · ${esc(a.name)} · стадия «${STAGE[e?e.s:1]}» · ${usd(a.acv)}/год.<br><b>Зачем встреча:</b> ${esc(m.ttl)}.<br><b>Что он сказал последним:</b> ${m.id==='mt2'?'«$38K — это дорого, сейчас платим фрилансеру $1 400 в месяц» (звонок 6 мин, н37)':'«айтишник ушёл, в ноябре аудит» — и просил цену на 14 мест'}.<br><b>Три вопроса:</b> что именно должно работать к аудиту · кто ещё должен сказать «да» · что будет, если не успеть к ноябрю.`});
+    S.layout.agent=true;applyLayout();renderAgent();toast('Контекст собран в панели агента.');return;}
   if(b.dataset.photo){
     S.chat.push({u:1,t:'<span class="q">⧉ фото · мужчина за пятьдесят, плотного телосложения, бейдж «Hale &amp; Ortiz CPA»</span><br>Кто это, о чём говорили и на чём остановились?'});
     S.chat.push({u:0,t:'Это <b>Tom Hale</b>, внешний бухгалтер Brightline Dental LLC (Plano, TX). В сделке его роль — <b>платит</b>: без его согласия Dr. Moss не подпишет.<br>Последнее касание — звонок 6 минут на н37, источник Aircall: «$38K — это дорого, сейчас платим фрилансеру $1 400 в месяц».<br>На чём остановились: MSA на $38 тыс. ждёт подписи, и держит её именно это возражение — оно и есть узкое место сделки. Черновик ответа с расчётом $1 400 против $3 170 с SLA и HIPAA уже готов. Профиль открыт рядом.'});
@@ -1417,6 +1574,8 @@ document.addEventListener('auxclick',e=>{const b=e.target.closest('[data-tab]');
 document.addEventListener('input',e=>{
   if(e.target.id==='tr'){S.t=+e.target.value;renderAll();}
   if(e.target.id==='sideSearch'){S.q=e.target.value;renderSearch();}
+  if(e.target.dataset&&e.target.dataset.rename){const [i,f]=e.target.dataset.rename.split(':');
+    const v=e.target.textContent.replace(/\s+/g,' ').trim();if(v)S.steps[+i][f]=v;}
 });
 document.addEventListener('change',e=>{if(e.target.id==='fStage'){S.stage=e.target.value;renderAll();}if(e.target.id==='fJob'){S.job=e.target.value;renderAll();}if(e.target.id==='fSt'){S.stF=e.target.value;renderAll();if(S.stF&&S.tab==='map'){const f=statesF.find(x=>x.abbr===S.stF);f&&zoomToFeature(f);}}if(e.target.name==='fseg'){S.seg=e.target.value||null;renderAll();}if(e.target.id==='fdown'){S.downOnly=e.target.checked;renderAll();}});
 $('profile').addEventListener('change',e=>{S.profile=e.target.value;S.chat=[];renderAll();});
