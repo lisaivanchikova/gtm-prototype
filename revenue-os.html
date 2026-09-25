@@ -310,11 +310,20 @@ q{quotes:"«" "»"}
 .feed{overflow:auto;padding:2px 0}
 .fi{display:grid;grid-template-columns:20px minmax(0,1fr) 104px 56px;gap:3px 10px;padding:7px 12px;border-bottom:1px solid var(--border);align-items:start;width:100%;text-align:left;position:relative;transition:background-color 80ms linear}
 .fi:hover{background:var(--hover)}
+.fi .lead{display:flex;align-items:center;justify-content:center}
+.fi .av{width:20px;height:20px;font-size:9px;margin-top:1px}
+.fi .av.bot{padding:2px}
+.feed .subrule{padding:6px 12px;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:2;background:var(--panel)}
+.feed .subrule .gloss{flex-basis:100%;color:var(--fg3);opacity:.8;font-size:10.5px}
+.av.bot svg{width:11px;height:11px}
+.av.bot.big svg{width:22px;height:22px}
+.av.bot.mid svg{width:16px;height:16px}
 .fi .src{width:20px;height:20px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;color:var(--fg2);border:1px solid var(--border);margin-top:1px}
 .fi .main{display:flex;flex-direction:column;gap:2px;min-width:0}
 .fi .ttl{font-size:13px}
 .fi .mt{font-size:12px;color:var(--fg3);display:flex;flex-wrap:wrap;gap:3px 8px;align-items:center}
 .fi .mt b{color:var(--fg2);font-weight:500}
+.fi .mt b.due{color:var(--focus);font-weight:600}
 .fi .st{justify-self:start;margin-top:2px}
 .fi .when{text-align:right;margin-top:3px}
 .fi .acts{position:absolute;right:12px;bottom:6px;opacity:0;transition:opacity 80ms linear}
@@ -341,6 +350,12 @@ q{quotes:"«" "»"}
 .tri .t{font-size:13px}
 .tri .s{font-size:11px;color:var(--fg3)}
 .tri.done{opacity:.55}
+.tri.now{border-color:var(--focus);background:color-mix(in srgb,var(--focus) 7%,var(--editor))}
+.tri.now .t{font-size:14px;font-weight:600;line-height:1.3}
+.tri .urg{font-family:var(--mono);font-size:9.5px;font-weight:500;letter-spacing:.15em;text-transform:uppercase;color:var(--focus)}
+.tri.fyi{border-color:transparent;background:transparent;padding:4px 2px;gap:1px}
+.tri.fyi .t{font-size:12.5px;color:var(--fg2)}
+.tri.fyi .btns{margin-top:2px}
 .chat{display:flex;flex-direction:column;gap:8px}
 .cm{font-size:13px;padding:7px 9px;border-radius:8px;max-width:92%}
 .cm.u{align-self:flex-end;background:var(--accent-soft)}
@@ -447,6 +462,7 @@ q{quotes:"«" "»"}
 .fever text{font-family:var(--ui);font-size:10px;fill:var(--fg3)}
 .fever .pt{stroke:var(--editor);stroke-width:1.5;cursor:pointer}
 .fever .lab{fill:var(--fg);font-size:11px}
+.grp{margin-top:10px}
 .risk{display:flex;flex-direction:column;gap:2px;font-size:12px;padding:5px 0;border-top:1px solid var(--border)}
 .risk b{font-weight:600}
 .risk span{color:var(--fg2)}
@@ -525,14 +541,17 @@ q{quotes:"«" "»"}
 .turn .by .faint{overflow:hidden;text-overflow:ellipsis}
 
 /* v7: dense feed — one event per line (VS Code Problems / Bloomberg news) */
-.feed.dense .fi{grid-template-columns:18px 48px minmax(0,1fr) auto;height:24px;padding:0 12px;gap:0 8px;align-items:center;border-bottom:1px solid color-mix(in srgb,var(--border) 60%,transparent)}
+.feed.dense .fi{grid-template-columns:18px 48px minmax(0,1fr) minmax(0,auto);height:24px;padding:0 12px;gap:0 8px;align-items:center;border-bottom:1px solid color-mix(in srgb,var(--border) 60%,transparent)}
 .feed.dense .fi .src{width:16px;height:16px;font-size:8px;margin:0;border-radius:3px}
+.feed.dense .fi .av{width:16px;height:16px;font-size:8px;margin:0}
+.feed.dense .fi .st:empty{display:none}
 .feed.dense .fi .when{order:0;margin:0;text-align:left;font-size:11px;white-space:nowrap}
 .feed.dense .fi .main{flex-direction:row;align-items:baseline;gap:8px;min-width:0;overflow:hidden;white-space:nowrap}
 .feed.dense .fi .ttl{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;font-size:12.5px}
 .feed.dense .fi .mt{flex:1 1 0;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block;font-size:11px}
 .feed.dense .fi .mt .act{display:none}
-.feed.dense .fi .chip.st{height:16px;font-size:10px;margin:0;padding:0 5px}
+.feed.dense .fi .chip.st{height:16px;font-size:10px;margin:0;padding:0 5px;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block;line-height:16px}
+.feed.dense .fi .mt b{min-width:0;overflow:hidden;text-overflow:ellipsis}
 .feed.dense .fi .acts{top:2px;bottom:auto;background:var(--panel);padding-left:6px}
 .feed.dense .addfact{padding:4px 12px}
 .feed.dense .addfact input,.feed.dense .addfact .btn{height:22px;font-size:12px}
@@ -884,8 +903,8 @@ function peopleActs(a,t){const e=stateAt(a,t),P=peopleOf(a);if(!e)return[];const
 /* =================== feeds (uniform item: source · entity · phrase · status · actions) =================== */
 const SRC={
   sos:['TX SOS','#5c6b7a'],hhs:['HHS','#1c5cab'],indeed:['Indeed','#2557a7'],fed:['FedReg','#4a3aa7'],dbj:['DBJ','#b0413e'],ms:['MSFT','#00a4ef'],me:['Я','#8b8b8b'],
-  docusign:['DS','#d4a017'],pandadoc:['PD','#1baf7a'],quickbooks:['QB','#2ca01c'],rmm:['RMM','#6b7280'],crm:['CRM','#7a4fd6'],pdf:['PDF','#e34948'],
-  gmail:['Gm','#d44638'],linkedin:['in','#0a66c2'],aircall:['Ac','#00b388'],teams:['T','#5b5fc7'],agent:['AI','#7a4fd6']};
+  docusign:['DocuSign','#d4a017'],pandadoc:['PandaDoc','#1baf7a'],quickbooks:['QuickBooks','#2ca01c'],rmm:['RMM','#6b7280'],crm:['CRM','#7a4fd6'],pdf:['PDF','#e34948'],
+  gmail:['Gmail','#d44638'],linkedin:['LinkedIn','#0a66c2'],aircall:['Aircall','#00b388'],teams:['Teams','#5b5fc7'],agent:['журнал агента','#7a4fd6']};
 const MARKET=[
   {id:'m1',src:'sos',when:'2 ч',ttl:'214 новых юрлиц NAICS 6212 (стоматология) в DFW за сентябрь',seg:'cmp',st:'TX',hits:'Сегмент ×',facts:['214 регистраций 01–23.09','рост +18 % к августу'],url:'sos.state.tx.us'},
   {id:'m2',src:'hhs',when:'1 дн',ttl:'3 утечки медданных в стоматологиях Техаса за 30 дней — триггер HIPAA-аудита у соседей',seg:'cmp',st:'TX',hits:'Охват ×',facts:['3 инцидента в реестре OCR','затронуто 11 400 пациентов'],url:'ocrportal.hhs.gov'},
@@ -1381,7 +1400,7 @@ function renderDoc(id){const d=DOCS[id],a=ACCBY[d.acc],st=S.docs[id]||{};const P
 function renderMsg(pid){const p=personById(pid),a=ACCBY[p.acc],M=MSGS[pid]||peopleActs(a,S.t).filter(x=>x.p.id===pid).map(x=>({me:false,src:p.src.toLowerCase()==='gmail'?'gmail':p.src.toLowerCase()==='linkedin'?'linkedin':'aircall',act:x.act,txt:x.txt,w:S.t}));
   const draft=pid==='p-hale'?'Tom, you pay $1,400/mo for one freelancer today. Our $3,170/mo covers 24/7 monitoring, HIPAA audit prep and a 1-hour SLA. Can I show the side-by-side in 15 minutes?':pid==='p-diaz'?'Karen, quick one: is Dr. Moss waiting for anything from us before the audit prep?':'';
   return `<div class="doc"><div class="doch">${av(p.nm,'var(--fg3)','big')}<div><h2>${esc(p.nm)}</h2><div class="muted">${esc(p.title)} · ${esc(a.name)} · роль в сделке: <b>${p.role}</b></div><div class="note">источник: ${esc(p.src)} · <span class="faint">профиль LinkedIn открывается во внешнем окне (в демо недоступен)</span></div></div></div>
-    <div class="thread">${M.map(m=>`<div class="msg ${m.me?'me':''}">${m.me?'<span class="av bot mid">AI</span>':av(p.nm,'var(--fg3)','mid')}<div class="bub2"><div class="meta">${srcIc(m.src).replace('class="src"','class="av sq"')} ${m.me?'агент «'+agBy(m.agent).nm+'»':esc(p.nm)} · н${m.w}${m.act?` · <span class="act">${m.act}</span>`:''}</div><div>${esc(m.txt)}</div></div></div>`).join('')||'<div class="note">Переписки пока нет.</div>'}</div>
+    <div class="thread">${M.map(m=>`<div class="msg ${m.me?'me':''}">${m.me?'<span class="av bot mid">'+ICONS.bot+'</span>':av(p.nm,'var(--fg3)','mid')}<div class="bub2"><div class="meta">${srcIc(m.src).replace('class="src"','class="av sq"')} ${m.me?'агент «'+agBy(m.agent).nm+'»':esc(p.nm)} · н${m.w}${m.act?` · <span class="act">${m.act}</span>`:''}</div><div>${esc(m.txt)}</div></div></div>`).join('')||'<div class="note">Переписки пока нет.</div>'}</div>
     <div class="compose"><div class="hdr">Черновик агента</div><textarea id="draft" aria-label="Черновик">${esc(draft)}</textarea><div class="btns"><button class="btn pri" data-send="${pid}">Отправить от моего имени</button><span class="note">Отправка от лица человека — только по его кнопке. В демо сообщение не уходит.</span></div></div></div>`;}
 function renderNews(id){const n=MARKET.find(x=>x.id===id),st=S.facts[id]||{};
   return `<div class="doc"><div class="doch"><span class="av sq big">${SRC[n.src][0].slice(0,3)}</span><div><h2>${esc(n.ttl)}</h2><div class="muted">${SRC[n.src][0]} · ${n.url} · ${n.when} назад · сегмент ${segBy(n.seg).name}${n.st?' · '+n.st:''} · влияет на: <b>${n.hits}</b></div></div></div>
@@ -1396,7 +1415,7 @@ function renderAgentTab(id){const g=agBy(id),own=OURS.find(o=>o.id===g.owner);co
     ${g.state==='paused'?`<div class="btns"><button class="btn" data-tri="t-seller|resume|Вернуть">Вернуть в работу</button><span class="note">Остановлен стоп-краном. Решает ${esc(own.nm)}.</span></div>`:''}
     <div class="hdr">Журнал действий</div><div class="facts">${logs.map(l=>`<div class="fact"><div class="grow"><div>${esc(l.ttl)}</div><div class="note">н${l.w}</div></div><span class="chip ${l.st[0]}">${esc(l.st[1])}</span></div>`).join('')||'<div class="note">Записей нет.</div>'}</div></div>`;}
 function renderOrg(){
-  const card=(p,cls)=>`<button class="orgcard" data-open="${p.kind==='human'?'us':'agent:'+p.id}">${p.kind==='human'?av(p.nm,'var(--human)','mid'):'<span class="av bot mid">AI</span>'}<span class="grow"><b>${esc(p.nm)}</b><span class="r">${esc(p.title)}</span>${p.kind!=='human'?`<span class="r">${KNOB[S.knob[p.id]]} · отвечает ${esc(OURS.find(o=>o.id===p.owner).nm)}</span><span class="chip ${ASTATE[p.state][0]}">${ASTATE[p.state][1]}</span>`:''}</span></button>`;
+  const card=(p,cls)=>`<button class="orgcard" data-open="${p.kind==='human'?'us':'agent:'+p.id}">${p.kind==='human'?av(p.nm,'var(--human)','mid'):'<span class="av bot mid">'+ICONS.bot+'</span>'}<span class="grow"><b>${esc(p.nm)}</b><span class="r">${esc(p.title)}</span>${p.kind!=='human'?`<span class="r">${KNOB[S.knob[p.id]]} · отвечает ${esc(OURS.find(o=>o.id===p.owner).nm)}</span><span class="chip ${ASTATE[p.state][0]}">${ASTATE[p.state][1]}</span>`:''}</span></button>`;
   return `<div class="org"><div class="hdr">Мы · Bobroff MSP — такая же точка на карте. Агенты — участники наравне с людьми, но за каждым стоит отвечающий человек</div>
     <div class="orgrow">${card(OURS[0])}</div><div class="orgline"></div>
     <div class="orgrow">${OURS.slice(1).map(p=>card(p)).join('')}</div><div class="orgline"></div>
@@ -1406,24 +1425,25 @@ function renderOrg(){
 /* =================== panel: three feeds + agents log, one uniform item =================== */
 function feedItems(tab){
   const t=S.t,selA=S.sel&&S.sel.type==='acc'?ACCBY[S.sel.id]:null;
-  if(tab==='market'){return MARKET.filter(n=>!S.seg||n.seg===S.seg).map(n=>({src:n.src,ttl:n.ttl,mt:`<b>${SRC[n.src][0]}</b> · ${n.url} · ${segBy(n.seg).name}${n.st?' · '+n.st:''} · влияет на ${n.hits}`,when:n.when,open:'news:'+n.id,status:S.facts[n.id]?Object.values(S.facts[n.id]).includes('no')?['down','есть опровержение']:['up','проверено']:['flat','новый'],acts:`<button class="ib ok" data-factall="${n.id}:ok" aria-label="Подтвердить">✓</button><button class="ib no" data-factall="${n.id}:no" aria-label="Опровергнуть">✕</button><button class="ib" data-factall="${n.id}:x" aria-label="Выкинуть">−</button><button class="ib" data-plus="${esc(n.ttl.slice(0,40))}" aria-label="Дописать свой факт">+</button>`,gone:S.facts[n.id]&&S.facts[n.id].all==='x'}));}
+  if(tab==='market'){return MARKET.filter(n=>!S.seg||n.seg===S.seg).map(n=>({src:n.src,ttl:n.ttl,mt:`<b class="due">влияет на ${n.hits}</b> · <b>${SRC[n.src][0]}</b> · ${n.url} · ${segBy(n.seg).name}${n.st?' · '+n.st:''}`,when:n.when,open:'news:'+n.id,av:`<span class="av sq">${segBy(n.seg).abc}</span>`,sig:!S.facts[n.id],status:S.facts[n.id]?Object.values(S.facts[n.id]).includes('no')?['down','есть опровержение']:['up','проверено']:null,acts:`<button class="ib ok" data-factall="${n.id}:ok" aria-label="Подтвердить">✓</button><button class="ib no" data-factall="${n.id}:no" aria-label="Опровергнуть">✕</button><button class="ib" data-factall="${n.id}:x" aria-label="Выкинуть">−</button><button class="ib" data-plus="${esc(n.ttl.slice(0,40))}" aria-label="Дописать свой факт">+</button>`,gone:S.facts[n.id]&&S.facts[n.id].all==='x'}));}
   if(tab==='account'){
-    let items=Object.entries(DOCS).filter(([id,d])=>(!selA||d.acc===selA.id)&&d.w<=Math.max(t,NOW)).map(([id,d])=>({src:d.src,ttl:`${ACCBY[d.acc].name}: ${d.ttl}`,mt:`<b>${SRC[d.src][0]}</b> · ${d.kind} · акт: ${d.act}`,when:ago(d.w),open:'doc:'+id,status:S.docs[id]&&S.docs[id].us?['up','подписан нами']:d.status,w:d.w}));
-    if(!selA){const gen=ACC.filter(a=>!a.feat&&inF(a)&&momentum(a,t)<0).slice(0,14).map(a=>{const e=stateAt(a,t);const kind=e.s===3?['pandadoc',`Оферта ${usd(a.acv)} открыта, не подписана`,'обещание']:e.s===2?['pdf','Анкета квалификации заполнена, ответа нет','утверждение']:e.s===1?['crm','Первое касание без ответа','требование']:isActive(e)?['quickbooks',`Счёт просрочен ${a.payW?(t-a.payW)*7+5:5} дн`,'требование']:['crm',`Отказ: ${a.reason||'—'}`,'объявление'];return {src:kind[0],ttl:`${a.name}: ${kind[1]}`,mt:`<b>${SRC[kind[0]][0]}</b> · ${a.city}, ${a.st} · акт: ${kind[2]}`,when:ago(e.w),open:'acc:'+a.id,status:['down',stuck(a,e,t)?'молчит '+daysIn(e,t)+' дн':'▼'],w:e.w};});items=items.concat(gen);}
+    let items=Object.entries(DOCS).filter(([id,d])=>(!selA||d.acc===selA.id)&&d.w<=Math.max(t,NOW)).map(([id,d])=>({src:d.src,ttl:`${ACCBY[d.acc].name}: ${d.ttl}`,mt:`<b>${SRC[d.src][0]}</b> · ${d.kind}<span class="act"> · ${d.act}</span>`,when:ago(d.w),open:'doc:'+id,av:av(ACCBY[d.acc].name,ACCBY[d.acc].hue,'sq'),sig:(S.docs[id]&&S.docs[id].us)?false:(d.status[0]==='down'||d.status[0]==='warn'),status:S.docs[id]&&S.docs[id].us?['up','подписан нами']:d.status,w:d.w}));
+    if(!selA){const gen=ACC.filter(a=>!a.feat&&inF(a)&&momentum(a,t)<0).slice(0,14).map(a=>{const e=stateAt(a,t);const kind=e.s===3?['pandadoc',`Оферта ${usd(a.acv)} открыта, не подписана`,'обещание']:e.s===2?['pdf','Анкета квалификации заполнена, ответа нет','утверждение']:e.s===1?['crm','Первое касание без ответа','требование']:isActive(e)?['quickbooks',`Счёт просрочен ${a.payW?(t-a.payW)*7+5:5} дн`,'требование']:['crm',`Отказ: ${a.reason||'—'}`,'объявление'];return {src:kind[0],ttl:`${a.name}: ${kind[1]}`,mt:`<b>${SRC[kind[0]][0]}</b> · ${a.city}, ${a.st}<span class="act"> · ${kind[2]}</span>`,when:ago(e.w),open:'acc:'+a.id,av:av(a.name,a.hue,'sq'),sig:stuck(a,e,t),status:['down',stuck(a,e,t)?'молчит '+daysIn(e,t)+' дн':'▼'],w:e.w};});items=items.concat(gen);}
     return items.sort((x,y)=>y.w-x.w);}
   if(tab==='people'){
     let src=selA?[selA]:[BRIGHT,HALE,...ACC.filter(a=>!a.feat&&inF(a)&&momentum(a,t)<0).slice(0,8)];
     const out=[];for(const a of src){for(const x of peopleActs(a,Math.min(t,NOW))){if(!x.act)continue;if(S.sel&&S.sel.type==='person'&&S.sel.id!==x.p.id)continue;
       const sk=x.p.src==='LinkedIn'?'linkedin':x.p.src==='Aircall'?'aircall':x.p.src==='Teams'?'teams':x.p.src==='QuickBooks'?'quickbooks':'gmail';
       const rc=replyClass(x.txt,x.act),R=rc?RCLASS[rc]:null;
-      out.push({src:sk,ttl:`${x.p.nm} — ${x.p.role} — ${x.txt}${x.act==='молчание'?' '+x.days+' дн':''}`,
-        mt:`<b>${SRC[sk][0]}</b> · ${a.name} · ${x.p.title} · <span class="act">${x.act}</span>${R?` · <span class="rcl ${R[1]}">класс ответа: ${R[0]}</span> · срок ${R[2]}`:''}`,
-        when:x.days!=null?x.days+' дн':'',open:'person:'+x.p.id,
-        status:R?[R[1],R[0]]:x.act==='молчание'&&x.days>=8?['down','молчит']:['flat',x.act]});}}
+      out.push({src:sk,ttl:`${x.p.nm} — ${x.p.role==='защищает внутри'?'защищает':x.p.role} — ${x.txt}${x.act==='молчание'?' '+x.days+' дн':''}`,
+        mt:`${R&&R[2]!=='задача не нужна'?`<b class="due">ответить: ${R[2]}</b> · `:''}<b>${SRC[sk][0]}</b> · ${a.name}<span class="act" data-tip="Речевой акт: что человек сделал словами"> · ${x.act}</span>`,
+        when:x.days!=null?x.days+' дн':'',open:'person:'+x.p.id,av:av(x.p.nm,'var(--fg3)'),
+        sig:R?R[2]!=='задача не нужна':(x.act==='молчание'&&x.days>=8),
+        status:R?[R[1],R[0]]:x.act==='молчание'&&x.days>=8?['down','молчит']:null});}}
     for(const m of MEET){if(S.sel&&S.sel.type==='person')break;if(m.w>Math.max(t,NOW))continue;
       out.unshift({src:'teams',ttl:`${m.who} — ${m.ttl}`,
-        mt:`<b>встреча</b> · ${ACCBY[m.acc].name} · ${esc(m.when)} · <span class="rcl up">довести до разговора</span>`,
-        when:ago(m.w),open:'person:'+(m.acc==='a0'?'p-moss':'p-hale'),status:m.st,
+        mt:`<b class="due">довести до разговора</b> · встреча · ${ACCBY[m.acc].name} · ${esc(m.when)}`,
+        when:ago(m.w),open:'person:'+(m.acc==='a0'?'p-moss':'p-hale'),av:av(m.who,'var(--fg3)'),sig:true,status:m.st,
         acts:`<button class="ib" data-brief="${m.id}" data-tip="Собрать контекст к разговору">Briefing</button>`});}
     return out;}
   if(tab==='channel'){
@@ -1431,9 +1451,9 @@ function feedItems(tab){
     return DELIV.filter(d=>(!selA||d.acc===selA)&&d.w<=Math.max(t,NOW)).sort((x,y)=>y.w-x.w).map(d=>{
       const m=MAILBY[d.mail],c=DCLASS[d.k],a=ACCBY[d.acc];
       return {src:'gmail',ttl:`${a?a.name:'—'} · ${d.who} — ${d.sub}`,
-        mt:`<b>${esc(m.adr)}</b> · домен ${esc(m.dom)} · ${esc(m.kind)}`,
-        when:ago(d.w),open:a?'acc:'+d.acc:null,status:[c[1],c[0]],w:d.w};});}
-  if(tab==='agents'){const f=S.sel&&S.sel.type==='agent'?S.sel.id:null;return LOGS.concat(S.extraLogs||[]).filter(l=>(!f||l.ag===f)&&l.w<=Math.max(t,NOW)).sort((x,y)=>y.w-x.w).map(l=>({src:'agent',ttl:`${agBy(l.ag)?agBy(l.ag).nm:'Человек'}: ${l.ttl}`,mt:`<b>журнал</b> · отвечает ${esc(OURS.find(o=>o.id===(agBy(l.ag)||{owner:'h-nik'}).owner).nm)} · ручка: ${agBy(l.ag)?KNOB[S.knob[l.ag]]:'—'}`,when:ago(l.w),open:'agent:'+l.ag,status:l.st}));}
+        mt:`<b>${esc(m.adr)}</b> · ${esc(m.kind)}`,
+        when:ago(d.w),open:a?'acc:'+d.acc:null,av:a?av(a.name,a.hue,'sq'):`<span class="av sq">✉</span>`,sig:d.k!=='ok',status:d.k==='ok'?null:[c[1],c[0]],w:d.w};});}
+  if(tab==='agents'){const f=S.sel&&S.sel.type==='agent'?S.sel.id:null;return LOGS.concat(S.extraLogs||[]).filter(l=>(!f||l.ag===f)&&l.w<=Math.max(t,NOW)).sort((x,y)=>y.w-x.w).map(l=>({src:'agent',ttl:`${agBy(l.ag)?agBy(l.ag).nm:'Человек'}: ${l.ttl}`,mt:`отвечает <b>${esc(OURS.find(o=>o.id===(agBy(l.ag)||{owner:'h-nik'}).owner).nm)}</b> · ручка: ${agBy(l.ag)?KNOB[S.knob[l.ag]]:'—'}`,when:ago(l.w),open:'agent:'+l.ag,av:`<span class="av bot">${ICONS.bot}</span>`,sig:l.st[0]==='down'||l.st[0]==='warn',status:l.st}));}
 }
 const FPOL=[['auto','авто','агент заполняет сам'],['sug','предложить','агент предлагает, человек подтверждает'],['off','выкл','агент не трогает это поле']];
 function fields(arr,scope){
@@ -1464,7 +1484,7 @@ function renderEcard(){
       ['Тикер',a.tk,'enr']],a.id)+
       `<div class="hdr">Люди</div>`+peopleOf(a).map(p=>`<button class="row" data-open="person:${p.id}">${av(p.nm,'var(--fg3)')}<span class="nm">${esc(p.nm)}</span><span class="rt">${p.role}</span></button>`).join('')+`<button class="btn" data-open="sop:${a.id}">Открыть SOP сделки</button>`;}
   else if(sel&&sel.type==='person'){const p=personById(sel.id),a=ACCBY[p.acc];h=`<div class="top">${av(p.nm,'var(--fg3)','big')}<div><h3>${esc(p.nm)}</h3><div class="sub">${esc(p.title)} · ${esc(a.name)}</div></div></div>`+params([['Роль в сделке',p.role],['Канал',p.src]])+`<button class="btn" data-open="msg:${p.id}">Открыть переписку</button>`;}
-  else if(sel&&sel.type==='agent'){const g=agBy(sel.id);h=`<div class="top"><span class="av bot big">AI</span><div><h3>${g.nm}</h3><div class="sub">${g.title}</div></div></div>`+params([['Состояние',`<span class="${ASTATE[g.state][0]}">${ASTATE[g.state][1]}</span>`],['Ручка',KNOB[S.knob[g.id]]],['Отвечает',OURS.find(o=>o.id===g.owner).nm],['Ведёт стадии',g.owns.map(s=>STAGE[s]).join(', ')]])+
+  else if(sel&&sel.type==='agent'){const g=agBy(sel.id);h=`<div class="top"><span class="av bot big">${ICONS.bot}</span><div><h3>${g.nm}</h3><div class="sub">${g.title}</div></div></div>`+params([['Состояние',`<span class="${ASTATE[g.state][0]}">${ASTATE[g.state][1]}</span>`],['Ручка',KNOB[S.knob[g.id]]],['Отвечает',OURS.find(o=>o.id===g.owner).nm],['Ведёт стадии',g.owns.map(s=>STAGE[s]).join(', ')]])+
       `<div class="hdr">Ручка: сколько можно без человека</div><div class="btns">${KNOB.map((k,i)=>`<button class="btn ${S.knob[g.id]===i?'pri':''}" data-knob="${g.id}:${i}">${k}</button>`).join('')}</div>`;}
   else if(tab==='market'){const g=S.seg?segBy(S.seg):null;h=`<div class="top"><span class="av sq big">${g?g.abc:'US'}</span><div><h3>${g?g.name:'Рынок США · все сегменты'}</h3><div class="sub">${g?'Core Job: «'+g.job+'»':'три сегмента по Core Jobs'}</div></div></div>`+params([['NAICS',g?g.naics.map(n=>n.split(' ')[0]).join(', '):'6212 · 5412 · 4841 · 8111'],['Юрлиц',int(formulaAt(t).N)],['Источников',6],['Не проверено',MARKET.filter(n=>!S.facts[n.id]).length]]);}
   else if(tab==='account'){const vis=ACC.filter(a=>stateAt(a,t)&&inF(a));h=`<div class="top"><span class="av sq big">⌂</span><div><h3>Юрлица${S.seg?' · '+segBy(S.seg).name:''}</h3><div class="sub">язык юрлиц — документы; обмен товар ↔ деньги</div></div></div>`+params([['В воронке',vis.filter(a=>{const e=stateAt(a,t);return e.s>=1&&e.s<=4;}).length],['В сервисе',vis.filter(a=>isActive(stateAt(a,t))).length],['▼ застряли',vis.filter(a=>momentum(a,t)<0).length],['Ждут подписи',vis.filter(a=>stateAt(a,t).s===4).length]]);}
@@ -1478,42 +1498,66 @@ function renderEcard(){
         return `<div class="mailrow" style="padding-left:0"><span class="adr">${esc(m.adr)}</span>${m.warm<100?`<span class="warmb"><i style="width:${m.warm}%"></i></span>`:''}<span class="lim">${m.lim?m.sent+'/'+m.lim:'—'}</span><span class="chip ${r.length&&o2/r.length<.85?'down':'up'}">${r.length?pct(o2/r.length,0):'—'}</span></div>`;}).join('')
       +`<div class="note">Жалоба и отписка гасят человека во всех ящиках сразу. Лимит — защита аккаунта, а не квота.</div>`;}
   else if(tab==='people'){h=`<div class="top"><span class="av big">☺</span><div><h3>Люди клиентов</h3><div class="sub">язык людей — речевые акты: требование, утверждение, обещание, объявление, отношение, молчание</div></div></div>`;}
-  else {h=`<div class="top"><span class="av bot big">AI</span><div><h3>Машина</h3><div class="sub">5 агентов · 3 человека · у каждого агента отвечающий человек</div></div></div>`+params([['Работают',AGENTS.filter(a=>a.state==='active').length],['Ждут человека',AGENTS.filter(a=>a.state==='awaiting').length],['Остановлены',AGENTS.filter(a=>a.state==='paused').length],['Тревоги',AGENTS.filter(a=>a.state==='paused').length]]);}
+  else {h=`<div class="top"><span class="av bot big">${ICONS.bot}</span><div><h3>Машина</h3><div class="sub">5 агентов · 3 человека · у каждого агента отвечающий человек</div></div></div>`+params([['Работают',AGENTS.filter(a=>a.state==='active').length],['Ждут человека',AGENTS.filter(a=>a.state==='awaiting').length],['Остановлены',AGENTS.filter(a=>a.state==='paused').length],['Тревоги',AGENTS.filter(a=>a.state==='paused').length]]);}
   $('ecard').innerHTML=h;}
 function denseRows(items){let last='',h='';
   for(const it of items){const d=/ч$|сейчас/.test(it.when)?'эта неделя':(parseInt(it.when)||0)<=7?'прошлая неделя':'раньше';
     if(d!==last){h+=`<div class="day">${d}</div>`;last=d;}
     const tip=(it.ttl+' — '+String(it.mt).replace(/<[^>]+>/g,'')).replace(/"/g,'&quot;');
-    h+=`<div class="fi ${it.gone?'gone':''}"><span>${srcIc(it.src)}</span><span class="when">${it.when||'—'}</span><button class="main" data-open="${it.open}" title="${tip}"><span class="ttl">${esc(it.ttl)}</span><span class="mt">${it.mt}</span></button><span class="chip st ${it.status[0]}">${esc(it.status[1])}</span>${it.acts?`<span class="acts">${it.acts}</span>`:''}</div>`;}
+    h+=`<div class="fi ${it.gone?'gone':''}"><span class="lead">${it.av||srcIc(it.src)}</span><span class="when">${it.when||'—'}</span><button class="main" data-open="${it.open}" title="${tip}"><span class="ttl">${esc(it.ttl)}</span><span class="mt">${it.mt}</span></button>${it.status?`<span class="chip st ${it.status[0]}">${esc(it.status[1])}</span>`:'<span class="st"></span>'}${it.acts?`<span class="acts">${it.acts}</span>`:''}</div>`;}
   return h;}
+/* Лента обязана объяснять свой отбор: сколько строк из скольких и по какому правилу. */
+const FEEDWHY={
+  market:['факты, которые ещё никто не подтвердил','все факты о рынке за квартал'],
+  account:['документы, где ход за нами или за клиентом','все документы и юрлица в воронке'],
+  people:['сказанное, на что нужен ответ в срок','всё, что сказали люди за 4 недели'],
+  channel:['письма, которые не дошли или сожгли контакт','все отправки за 4 недели'],
+  agents:['где агент остановился или его остановили','весь журнал агентов']};
+const GLOSS={
+  market:'пока факт не подтверждён человеком, формула наверху его не считает',
+  people:'речевой акт — что человек сделал словами: потребовал, пообещал, объявил, промолчал',
+  channel:'жалоба и отписка гасят человека во всех ящиках сразу',
+  agents:'у каждой записи есть отвечающий человек — агент не отвечает сам за себя'};
+const ageD=it=>{const w=String(it.when||'');if(!w||/сейчас/.test(w))return 0;if(/\sч$/.test(w))return 0;const m=w.match(/(\d+)/);return m?+m[1]:999;};
+function feedView(tab){
+  const all=(feedItems(tab)||[]).slice().sort((a,b)=>ageD(a)-ageD(b)), sig=all.filter(x=>x.sig);
+  const mode=(S.fmode!=='all'&&sig.length)?'sig':'all';
+  return {rows:mode==='sig'?sig:all,all:all,sig:sig,mode:mode};
+}
 function renderPanel(){
   const tabs=[['market','Рынок · информация'],['account','Юрлица · документы'],['people','Люди · речь'],['channel','Канал · что дошло'],['agents','Агенты · журнал']];
   $('ptabs').innerHTML=tabs.map(([k,t])=>`<button class="ptab" role="tab" data-ptab="${k}" aria-selected="${S.ptab===k}">${t}<span class="cnt">${feedItems(k).length}</span></button>`).join('')+`<span style="flex:1"></span><span class="dens" role="group" aria-label="Плотность ленты"><button data-dense="1" aria-pressed="${S.dense!==false}" aria-label="Плотно" data-tip="Плотно: одна строка на событие">≡</button><button data-dense="0" aria-pressed="${S.dense===false}" aria-label="Подробно" data-tip="Подробно: две строки на событие">☰</button></span>${S.sel?`<button class="ib" data-clearsel="1">снять выбор ×</button>`:''}`;
   renderEcard();
-  const items=feedItems(S.ptab);
+  const V=feedView(S.ptab), items=V.rows;
   $('feed').classList.toggle('dense',S.dense!==false);
-  $('feed').innerHTML=(S.ptab==='market'?`<div class="addfact"><input id="myFact" placeholder="Вписать свой факт или мысль о рынке…"><button class="btn" id="addFact">Добавить</button></div>`:'')+
-    (S.dense===false?items.map(it=>`<div class="fi ${it.gone?'gone':''}"><span>${srcIc(it.src)}</span><button class="main" data-open="${it.open}"><span class="ttl">${esc(it.ttl)}</span><span class="mt">${it.mt}</span></button><span class="chip st ${it.status[0]}">${esc(it.status[1])}</span><span class="when">${it.when}</span>${it.acts?`<span class="acts">${it.acts}</span>`:''}</div>`).join(''):denseRows(items))||`<div class="note" style="padding:12px">За н${S.t} в этом срезе событий нет.</div>`;}
+  const head=`<div class="subrule"><span>показываю <b>${items.length}</b> из ${V.all.length} · ${FEEDWHY[S.ptab][V.mode==='sig'?0:1]}</span>
+    <span class="pick"><button data-fmode="sig" aria-pressed="${V.mode==='sig'}" data-tip="Только строки, по которым нужен ход">требует хода</button><button data-fmode="all" aria-pressed="${V.mode==='all'}" data-tip="Весь срез целиком, без отбора">всё</button></span>
+    ${GLOSS[S.ptab]?`<span class="gloss">${GLOSS[S.ptab]}</span>`:''}</div>`;
+  const add=S.ptab==='market'?`<div class="addfact"><input id="myFact" placeholder="Вписать свой факт или мысль о рынке…"><button class="btn" id="addFact">Добавить</button></div>`:'';
+  const body=items.length
+    ? (S.dense===false?items.map(it=>`<div class="fi ${it.gone?'gone':''}"><span class="lead">${it.av||srcIc(it.src)}</span><button class="main" data-open="${it.open}"><span class="ttl">${esc(it.ttl)}</span><span class="mt">${it.mt}</span></button>${it.status?`<span class="chip st ${it.status[0]}">${esc(it.status[1])}</span>`:'<span class="st"></span>'}<span class="when">${it.when}</span>${it.acts?`<span class="acts">${it.acts}</span>`:''}</div>`).join(''):denseRows(items))
+    : `<div class="note" style="padding:12px">За н${S.t} в этом срезе событий нет.</div>`;
+  $('feed').innerHTML=head+add+body;}
 
 /* =================== agent: focus (ToC) + triage + chat, per profile =================== */
 function triageFor(p){
   if(p==='owner')return [
-    {id:'t-knob',t:'Повернуть ручку «Квалификации»: сам → с человеком',s:'снимает ограничение системы · прогноз Conv н42 растёт',a:[['Утвердить','knob'],['Отклонить','no']]},
-    {id:'t-cmmc',t:'Факт рынка: CMMC Phase 2 приостановлена — снизить прогноз Compliance-first?',s:'Federal Register · влияет на Сегмент',a:[['Подтвердить','fact:m4:ok'],['Опровергнуть','fact:m4:no']]},
-    {id:'t-seller',t:'Вернуть «Переписку» после стоп-крана (CAN-SPAM)?',s:'стоп «не обещает вне каталога» сработал 2×',a:[['Вернуть','resume'],['Оставить стоп','no']]},
-    {id:'t-msa',t:'MSA Brightline ждёт подписи Лизы с понедельника',s:'подписывает Лиза — у неё полномочие',a:[['Открыть','open:doc:d-msa']]}];
+    {id:'t-knob',u:'now',w:'6 недель как сломано',t:'Повернуть ручку «Квалификации»: сам → с человеком',s:'снимает ограничение системы · прогноз Conv н42 растёт',a:[['Утвердить','knob'],['Отклонить','no']]},
+    {id:'t-cmmc',u:'soon',t:'Факт рынка: CMMC Phase 2 приостановлена — снизить прогноз Compliance-first?',s:'Federal Register · влияет на Сегмент',a:[['Подтвердить','fact:m4:ok'],['Опровергнуть','fact:m4:no']]},
+    {id:'t-seller',u:'soon',t:'Вернуть «Переписку» после стоп-крана (CAN-SPAM)?',s:'стоп «не обещает вне каталога» сработал 2×',a:[['Вернуть','resume'],['Оставить стоп','no']]},
+    {id:'t-msa',u:'fyi',t:'MSA Brightline ждёт подписи Лизы с понедельника',s:'подписывает Лиза — у неё полномочие',a:[['Открыть','open:doc:d-msa']]}];
   if(p==='liza')return [
-    {id:'t-sign',t:'Подписать MSA Brightline Dental · $38K/год',s:'ждёт вас с понедельника · клиент тоже ещё не подписал',a:[['Открыть на подпись','open:doc:d-msa']]},
-    {id:'t-inv',t:'Hale & Ortiz CPA: счёт #1042 просрочен 12 дн',s:'клиент обещал оплатить на следующей неделе',a:[['Открыть счёт','open:doc:d-inv']]},
-    {id:'t-svc',t:'«Сервис»: 3 клиента без первой ценности > 14 дн',s:'ранний сигнал ухода',a:[['Показать','open:agent:service']]}];
+    {id:'t-sign',u:'now',w:'ждёт вас с понедельника · 4 дн',t:'Подписать MSA Brightline Dental · $38K/год',s:'ждёт вас с понедельника · клиент тоже ещё не подписал',a:[['Открыть на подпись','open:doc:d-msa']]},
+    {id:'t-inv',u:'soon',t:'Hale & Ortiz CPA: счёт #1042 просрочен 12 дн',s:'клиент обещал оплатить на следующей неделе',a:[['Открыть счёт','open:doc:d-inv']]},
+    {id:'t-svc',u:'soon',t:'«Сервис»: 3 клиента без первой ценности > 14 дн',s:'ранний сигнал ухода',a:[['Показать','open:agent:service']]}];
   if(p==='sales')return [
-    {id:'t-diaz',t:'Karen Diaz (Brightline) молчит 9 дн — черновик напоминания готов',s:'без неё Dr. Moss не решает',a:[['Открыть','open:msg:p-diaz']]},
-    {id:'t-hale',t:'Tom Hale: «$38K — дорого» — черновик ответа с расчётом',s:'снимает узкое место сделки',a:[['Открыть','open:msg:p-hale']]},
-    {id:'t-v2',t:'Оферта v2 Brightline со скидкой 8 % — одобрить?',s:'черновик агента «Оферта»',a:[['Открыть','open:doc:d-offer2']]}];
+    {id:'t-diaz',u:'now',w:'молчит 9 дн',t:'Karen Diaz (Brightline) молчит 9 дн — черновик напоминания готов',s:'без неё Dr. Moss не решает',a:[['Открыть','open:msg:p-diaz']]},
+    {id:'t-hale',u:'soon',t:'Tom Hale: «$38K — дорого» — черновик ответа с расчётом',s:'снимает узкое место сделки',a:[['Открыть','open:msg:p-hale']]},
+    {id:'t-v2',u:'soon',t:'Оферта v2 Brightline со скидкой 8 % — одобрить?',s:'черновик агента «Оферта»',a:[['Открыть','open:doc:d-offer2']]}];
   return [
-    {id:'t-dentrix',t:'«Переписка» пообещала интеграцию с Dentrix — вне каталога',s:'стоп сработал · риск претензии',a:[['Открыть переписку','open:msg:p-moss']]},
-    {id:'t-clause',t:'В 14 офертах нет оговорки «not an offer until countersigned»',s:'E-SIGN / UETA: письмо может стать офертой',a:[['Добавить в шаблон','no']]},
-    {id:'t-msa7',t:'MSA Brightline: проверить раздел 7 «Ответственность»',s:'до подписи Лизы',a:[['Открыть','open:doc:d-msa']]}];}
+    {id:'t-dentrix',u:'now',w:'агент стоит, пока вы не решите',t:'«Переписка» пообещала интеграцию с Dentrix — вне каталога',s:'стоп сработал · риск претензии',a:[['Открыть переписку','open:msg:p-moss']]},
+    {id:'t-clause',u:'soon',t:'В 14 офертах нет оговорки «not an offer until countersigned»',s:'E-SIGN / UETA: письмо может стать офертой',a:[['Добавить в шаблон','no']]},
+    {id:'t-msa7',u:'fyi',t:'MSA Brightline: проверить раздел 7 «Ответственность»',s:'до подписи Лизы',a:[['Открыть','open:doc:d-msa']]}];}
 const FEVER=[
   {id:'pf',nm:'Price-first TX/FL',x:.40,y:.92,open:null,why:'Conv 36 → 12 %: «Квалификация» пускает без отсева'},
   {id:'br',nm:'Brightline $38K',x:.62,y:.78,open:'sop:a0',why:'подпись ждёт согласия Tom Hale (платит)'},
@@ -1537,16 +1581,18 @@ function focusFor(p){const F=formulaAt(S.t),P=formulaAt(S.t-WIN);
   if(p==='liza')return {t:'MSA Brightline ждёт вашей подписи с понедельника',d:'Клиент тоже ещё не подписал: нужно согласие Tom Hale. Ваша подпись снимает половину буфера этой сделки.',btn:[['Открыть на подпись','open:doc:d-msa']]};
   if(p==='sales')return {t:'9 оферт в DFW молчат 8+ дней',d:'Самая дорогая — Brightline ($38K): ждёт согласия Tom Hale (платит). Снимите его возражение — остальные подождут.',btn:[['Открыть SOP Brightline','open:sop:a0'],['Показать DFW','showdfw']]};
   return {t:'Обещания агентов вне каталога',d:'Стоп «не обещает вне каталога» сработал 2× за неделю, самый опасный — интеграция с Dentrix. «Переписка» стоит.',btn:[['Открыть переписку Moss','open:msg:p-moss']]};}
+const URG={now:0,soon:1,fyi:2};
 function renderAgent(){
   const p=S.profile,f=focusFor(p),tri=triageFor(p);
-  const who={owner:'Николай · Jobs: наращивать выручку',liza:'Лиза · Jobs: подписать и запустить без сбоев',sales:'Оператор продаж · Jobs: довести оферты до подписи',legal:'Юрист · Jobs: не дать машине обязать компанию лишним'}[p];
+  const who={owner:'работа — наращивать выручку',liza:'работа — подписать и запустить без сбоев',sales:'работа — довести оферты до подписи',legal:'работа — не дать машине обязать компанию лишним'}[p];
   const me={owner:'Николай',liza:'Лиза',sales:'Оператор продаж',legal:'Юрист'}[p];
-  const turnA=(html)=>`<div class="turn"><div class="by"><span class="av bot">AI</span>Мой агент <span class="faint">· ${who}</span></div><div class="bodyt">${html}</div></div>`;
+  const turnA=(html)=>`<div class="turn"><div class="by"><span class="av bot">${ICONS.bot}</span>Мой агент <span class="faint">· ${who}</span></div><div class="bodyt">${html}</div></div>`;
   $('agbody').innerHTML=turnA(`<span>${me}, главное на сейчас — одно узкое место. Остальное подождёт.</span>
     <div class="focus"><span class="k">Узкое место · TOC</span><span class="t">${f.t}</span><span class="d">${f.d}</span>${p==='owner'||p==='sales'?fever():''}<div class="btns">${f.btn.map(([t,k],i)=>`<button class="${i===0?'btn':'lnk'}" data-do="${k}">${t}</button>`).join('')}</div></div>
-    `)+turnA(`${p==='owner'||p==='sales'?`<div><div class="hdr">В риске · почему</div>${FEVER.slice(0,3).map(f=>`<button class="risk" ${f.open?`data-open="${f.open}"`:'data-do="showtx"'}><b>${esc(f.nm)}</b><span>${esc(f.why)}</span></button>`).join('')}</div>`:''}
-    <div class="hdr">Проверить · ${tri.filter(x=>!S.tri[x.id]).length}</div>${tri.every(x=>S.tri[x.id])?'<div class="note">Проверять нечего. Следующий прогон — пн 09:00.</div>':''}
-    ${tri.map(x=>`<div class="tri ${S.tri[x.id]?'done':''}"><span class="t">${x.t}</span><span class="s">${x.s}${S.tri[x.id]?' · '+S.tri[x.id]:''}</span>${S.tri[x.id]?'':`<div class="btns">${x.a.map(([t,k],i)=>`<button class="${i===0?(x.id==='t-sign'?'btn pri':'btn'):'lnk'}" data-tri="${x.id}|${k}|${t}">${t}</button>`).join('')}</div>`}</div>`).join('')}
+    ${p==='owner'||p==='sales'?`<div class="grp"><div class="hdr">В риске · почему</div><div class="subrule" style="padding:0 0 2px"><span>три из ${FEVER.length} цепочек, где буфер съеден быстрее, чем пройден путь</span></div>${FEVER.slice(0,3).map(f=>`<button class="risk" ${f.open?`data-open="${f.open}"`:'data-do="showtx"'}><b>${esc(f.nm)}</b><span>${esc(f.why)}</span></button>`).join('')}</div>`:''}
+    <div class="hdr">Проверить · ${tri.filter(x=>!S.tri[x.id]).length}</div>
+    <div class="subrule" style="padding:0 0 4px"><span>агент не решает это сам: нужна ваша подпись, право или суждение</span></div>${tri.every(x=>S.tri[x.id])?'<div class="note">Проверять нечего. Следующий прогон — пн 09:00.</div>':''}
+    ${tri.slice().sort((a,b)=>(!!S.tri[a.id]-!!S.tri[b.id])||(URG[a.u||'soon']-URG[b.u||'soon'])).map(x=>`<div class="tri ${x.u||'soon'} ${S.tri[x.id]?'done':''}">${x.u==='now'&&!S.tri[x.id]?`<span class="urg">решить сейчас${x.w?' · '+esc(x.w):''}</span>`:''}<span class="t">${x.t}</span><span class="s">${x.s}${S.tri[x.id]?' · '+S.tri[x.id]:''}</span>${S.tri[x.id]?'':`<div class="btns">${x.a.map(([t,k],i)=>`<button class="${i===0?(x.u==='now'?'btn pri':'btn'):'lnk'}" data-tri="${x.id}|${k}|${t}">${t}</button>`).join('')}</div>`}</div>`).join('')}
     `)+S.chat.map(m=>m.u?`<div class="turn user"><div class="by">${av(me,'var(--human)')}${me}</div><div class="bodyt">${m.t}</div></div>`:turnA(m.t)).join('');
   const ctx=S.sel&&S.sel.type==='acc'?ACCBY[S.sel.id].name:S.sel&&S.sel.type==='person'?personById(S.sel.id).nm:S.sel&&S.sel.type==='agent'?agBy(S.sel.id).nm:({map:'Карта',sop:'SOP'}[S.primary]);
   $('askCtx').innerHTML='📎 '+esc(S.source?S.tabs.find(x=>x.id===S.source).title:ctx);
@@ -1587,10 +1633,11 @@ function openRef(k){
 }
 function logAdd(ag,ttl,st){(S.extraLogs=S.extraLogs||[]).push({ag,w:NOW,ttl,st});}
 document.addEventListener('click',e=>{
-  const b=e.target.closest('[data-open],[data-side],[data-tab],[data-close],[data-ptab],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-step],[data-plus],[data-newchat],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-knobw],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepmv],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-fpol],[data-fhide],[data-fshow],[data-dnc],#fDown,#addFact,#play');
+  const b=e.target.closest('[data-open],[data-side],[data-tab],[data-close],[data-ptab],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-step],[data-plus],[data-newchat],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-knobw],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepmv],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-fmode],#fDown,#addFact,#play');
   if(!b)return;
   if(b.dataset.pal)$('pal').hidden=true;
   if(b.dataset.dense!==undefined){S.dense=b.dataset.dense==='1';renderPanel();return;}
+  if(b.dataset.fmode){S.fmode=b.dataset.fmode;renderPanel();return;}
   if(b.dataset.newchat){S.chat=[];renderAgent();return;}
   /* ===== ДОБАВЛЕНО: правка SOP ===== */
   if(b.dataset.stepadd!==undefined){const i=+b.dataset.stepadd;
