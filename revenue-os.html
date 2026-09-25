@@ -114,6 +114,37 @@ q{quotes:"«" "»"}
 .chip.up{color:var(--up)} .chip.down{color:var(--down)} .chip.flat{color:var(--flat)} .chip.warn{color:var(--warn)} .chip.acc{color:var(--accent)} .chip.agent{color:var(--agent)}
 .search{padding:6px 12px}
 .search input{width:100%}
+/* складывающиеся разделы дерева */
+.sec.fold{cursor:pointer;user-select:none;display:flex;align-items:center;gap:6px}
+.sec.fold:hover{color:var(--fg)}
+.sec.fold .tw{width:10px;flex:none;font-size:9px;color:var(--fg3)}
+.sec.fold .sum{margin-left:auto;font-family:var(--ui);font-size:10px;font-weight:400;letter-spacing:0;text-transform:none;color:var(--fg3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:60%}
+.grp2{font-family:var(--mono);font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--fg3);padding:10px 12px 2px;border-top:1px solid var(--border);margin-top:6px}
+.grp2:first-child{border-top:0;margin-top:0}
+/* выход в полную базу */
+.dbopen{display:flex;align-items:center;gap:8px;width:100%;text-align:left;padding:7px 12px;margin:2px 0 2px;font-size:12px;color:var(--link);border-top:1px dashed var(--border)}
+.dbopen:hover{background:var(--hover)}
+.dbopen i{font-style:normal;color:var(--fg3);font-size:11px}
+.dbopen b{font-weight:600}
+/* база таблицей */
+#dbview{display:none;height:100%;overflow:auto;background:var(--editor)}
+.dbh{position:sticky;top:0;z-index:3;background:var(--editor);border-bottom:1px solid var(--border);padding:10px 14px 8px;display:flex;flex-direction:column;gap:6px}
+.dbh .r1{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.dbh h3{margin:0;font-size:14px}
+.dbh .cnt{font-family:var(--mono);font-size:11px;color:var(--fg3)}
+.dbh input{flex:1;min-width:160px;max-width:320px;height:26px;background:var(--side);border:1px solid var(--border);border-radius:5px;color:var(--fg);padding:0 8px;font-size:12px;font-family:var(--ui)}
+.dbh .note{font-size:11px;color:var(--fg3)}
+table.db{width:100%;border-collapse:collapse;font-size:12px}
+table.db th{position:sticky;top:0;background:var(--side);text-align:left;font-family:var(--mono);font-size:9.5px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--fg3);padding:6px 10px;border-bottom:1px solid var(--border);cursor:pointer;white-space:nowrap}
+table.db th:hover{color:var(--fg2)}
+table.db th .ar{color:var(--link)}
+table.db td{padding:5px 10px;border-bottom:1px solid color-mix(in srgb,var(--border) 55%,transparent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:240px}
+table.db tr:hover td{background:var(--hover)}
+table.db tr{cursor:pointer}
+table.db td.nm{display:flex;align-items:center;gap:7px;color:var(--fg)}
+table.db td.num{font-family:var(--mono);text-align:right}
+.dbmore{display:block;width:100%;padding:10px;font-size:12px;color:var(--link);border-top:1px solid var(--border)}
+.dbmore:hover{background:var(--hover)}
 .filt{padding:4px 14px;display:flex;flex-direction:column;gap:6px}
 .filt label{display:flex;align-items:center;gap:8px;font-size:13px}
 
@@ -141,10 +172,10 @@ q{quotes:"«" "»"}
 /* map view */
 .mapview{display:flex;flex-direction:column;height:100%;min-height:0}
 .formula{display:flex;flex-wrap:wrap;align-items:flex-start;gap:6px 13px;padding:6px 12px 7px;border-bottom:1px solid var(--border);flex:none}
-.fres{display:grid;grid-template-rows:16px 18px 27px 14px;padding:0 15px 0 0;border-right:1px solid var(--border)}
-.fres .fn{grid-row:1;align-self:center}.fres .fv{grid-row:3}.fres .fdd{grid-row:4}
+.fres{display:grid;grid-template-rows:16px 4px 14px 21px 13px;padding:0 15px 0 0;border-right:1px solid var(--border)}
+.fres .fn{grid-row:1;align-self:center}.fres .fv{grid-row:4}.fres .fdd{grid-row:5}
 .fres .fn{font-size:11px;font-weight:600;color:var(--fg)}
-.fres .fv{font-family:var(--mono);font-size:23px;font-weight:600;letter-spacing:-.02em;line-height:27px;white-space:nowrap}
+.fres .fv{font-family:var(--mono);font-size:15px;font-weight:600;line-height:21px;white-space:nowrap}
 .fres .fdd{display:flex;align-items:baseline;gap:6px}
 .fres .vs{font-size:10px;color:var(--fg3)}
 .fg{display:flex;flex-direction:column;gap:4px}
@@ -163,7 +194,7 @@ q{quotes:"«" "»"}
 .fres .d{font-size:12px}
 .fo{font-family:var(--mono);color:var(--fg3);align-self:center;flex:none}
 .fo.x{font-size:13px;color:var(--fg3);opacity:.8;align-self:start;margin-top:14px;line-height:21px}
-.fo.big{font-size:17px;color:var(--link);align-self:start;margin-top:34px;line-height:27px}
+.fo.big{font-size:15px;color:var(--link);align-self:start;margin-top:34px;line-height:21px}
 .f{display:flex;flex-direction:column;padding:3px 8px;border-radius:5px;min-width:0}
 .f.res .v{font-weight:600}
 .f.lim{box-shadow:inset 0 -2px 0 var(--focus)}
@@ -324,6 +355,8 @@ q{quotes:"«" "»"}
 .fi .mt{font-size:12px;color:var(--fg3);display:flex;flex-wrap:wrap;gap:3px 8px;align-items:center}
 .fi .mt b{color:var(--fg2);font-weight:500}
 .fi .mt b.due{color:var(--focus);font-weight:600}
+.fi .mt b.mk.up{color:var(--up)}
+.fi .mt b.mk.no,.fi .mt b.mk.down{color:var(--down)}
 .fi .st{justify-self:start;margin-top:2px}
 .fi .when{text-align:right;margin-top:3px}
 .fi .acts{position:absolute;right:12px;bottom:6px;opacity:0;transition:opacity 80ms linear}
@@ -677,7 +710,7 @@ q{quotes:"«" "»"}
       <section class="editor">
         <div class="tabs" id="tabs" role="tablist"></div>
         <div class="crumbs" id="crumbs"></div>
-        <div class="groups" id="groups"><div class="view" id="view"><div id="mapwrap" style="height:100%"></div><div id="sopview"></div></div><div class="view" id="view2"></div></div>
+        <div class="groups" id="groups"><div class="view" id="view"><div id="mapwrap" style="height:100%"></div><div id="sopview"></div><div id="dbview"></div></div><div class="view" id="view2"></div></div>
       </section>
       <div class="gutter hgut g3" data-g="pnh"></div>
       <section class="panel">
@@ -883,7 +916,7 @@ function formulaAt(t,st){const t0=t-WIN;let start=0,end=0,kept=0,newA=0,newC=0,i
   const N=segN(st);return {start,end,ret:start?kept/start:1,newA,N,reach:N?interest/N:0,conv:interest?newC/interest:0,acv:newC?newA/newC:0};}
 
 /* people for any account */
-function peopleOf(a){if(a.people)return a.people;const f=i=>FIRST[(a.seed>>i)%FIRST.length],g=i=>GIVEN[(a.seed>>i)%GIVEN.length];
+function peopleOf(a){if(a.people)return a.people;const h=(a.seed*2654435761)>>>0;const f=i=>FIRST[(h>>>i)%FIRST.length],g=i=>GIVEN[(h>>>(i+11))%GIVEN.length];
   return [{id:a.id+'-p0',nm:(a.seg==='cmp'?'Dr. ':'')+g(1)+' '+f(2),title:a.seg==='cmp'?'владелец практики':'владелец',role:'решает',src:'Gmail'},
     {id:a.id+'-p1',nm:g(4)+' '+f(5),title:'офис-менеджер',role:'защищает внутри',src:'LinkedIn'},
     {id:a.id+'-p2',nm:g(7)+' '+f(8),title:'бухгалтер',role:'платит',src:'Aircall'}];}
@@ -1014,53 +1047,75 @@ function renderSide(){
   $('sideTitle').textContent=T[S.side];let h='';
   if(S.side==='tree'){
     const t=S.t;
-    const MODES={attn:['где ждут решения','застряли, уходят или спрашивают человека'],
-                 work:['в работе','от первого касания до подписи'],
-                 all:['все','вся база целиком']};
-    const mode=S.treeMode||'attn';
+    S.fold=S.fold||{flt:true};
+    const off=k=>!!S.fold[k];
+    const sec=(k,label,cnt,sum)=>`<div class="sec fold ${off(k)?'closed':''}" data-fold="${k}"><span class="tw">${off(k)?'▸':'▾'}</span>${label}${cnt!=null?`<span class="cnt2">${cnt}</span>`:''}${sum?`<span class="sum">${esc(sum)}</span>`:''}</div>`;
+    const rule=x=>`<div class="subrule"><span>${x}</span></div>`;
+
+    /* фильтры наверху: строкой видно, что включено, разворачивается по клику */
+    const fsum=[S.seg?segBy(S.seg).name:'все сегменты',S.stF||'все штаты',S.stage?STAGE[S.stage]:'вся воронка',S.downOnly?'только ▼':''].filter(Boolean).join(' · ');
+    h+=sec('flt','Фильтры',null,fsum);
+    if(!off('flt'))h+=filtersHTML();
+
+    h+=`<div class="grp2">Мир клиента</div>`;
+    /* ---- юрлица: в дереве только те, где нужен ход; вся база — таблицей ---- */
+    const MODES={attn:['ждут решения','застряли, уходят или спрашивают человека'],
+                 work:['в работе','от первого касания до подписи']};
+    const mode=S.treeMode==='work'?'work':'attn';
     const allAcc=ACC.filter(a=>stateAt(a,t)&&inF(a));
-    const pick=a=>{const e=stateAt(a,t);if(!e)return false;if(mode==='all')return true;if(mode==='work')return e.s>=1&&e.s<=4;return e.s<=6&&momentum(a,t)<0;};
+    const pick=a=>{const e=stateAt(a,t);if(!e)return false;if(mode==='work')return e.s>=1&&e.s<=4;return e.s<=6&&momentum(a,t)<0;};
     const sel=allAcc.filter(pick).sort((x,y)=>(y.feat-x.feat)||(momentum(x,t)-momentum(y,t))||(y.acv-x.acv));
-    const shown=sel.slice(0,mode==='all'?40:10);
-    /* юрлица */
-    h+=`<div class="sec">▾ Юрлица<span class="cnt2">${int(allAcc.length)}</span></div>`;
-    h+=`<div class="subrule"><span>показываю <b>${shown.length}</b> из ${int(allAcc.length)} · ${MODES[mode][1]}</span>
-        <span class="pick">${Object.entries(MODES).map(([k,v])=>`<button data-treemode="${k}" aria-pressed="${mode===k}" data-tip="${esc(v[1])}">${v[0]}</button>`).join('')}</span></div>`;
-    h+=`<button class="row us" data-open="us" data-tip="Мы тоже юрлицо: наши люди и агенты"><span class="av sq bot">${ICONS.mark}</span><span class="nm">Bobroff MSP · мы</span><span class="rt">3 чел · 5 агентов</span></button>`;
-    h+=shown.map(a=>{const e=stateAt(a,t),m=momentum(a,t),d=e?daysIn(e,t):0;
-      const why=stuck(a,e,t)?`стоит ${d} дн`:churnSig(a,e,t)?'сигнал ухода':e&&e.s>=7?'закрыто':'';
-      return `<button class="row acc ${S.sel&&S.sel.id===a.id?'on':''}" data-open="acc:${a.id}" data-tip="${esc(a.name+' · '+a.city+', '+a.st+' · '+usd(a.acv)+'/год')}">
-        <span class="av sq" style="background:${a.hue};border-color:${a.hue};color:#fff">${esc(a.tk.slice(0,2))}</span>
-        <span class="nm">${esc(a.name)}</span>
-        <span class="rt">${why?`<span class="why ${mcls(m)}">${why}</span>`:`<span class="stg">${e?STAGE[e.s]:'—'}</span>`}</span></button>`;}).join('');
-    if(sel.length>shown.length)h+=`<div class="more">ещё ${int(sel.length-shown.length)} — уточните фильтром ниже</div>`;
-    /* физлица */
+    const shown=sel.slice(0,10);
+    h+=sec('acc','Юрлица',int(allAcc.length));
+    if(!off('acc')){
+      h+=`<div class="subrule"><span>показываю <b>${shown.length}</b> из ${int(sel.length)} · ${MODES[mode][1]}</span>
+          <span class="pick">${Object.entries(MODES).map(([k,v])=>`<button data-treemode="${k}" aria-pressed="${mode===k}" data-tip="${esc(v[1])}">${v[0]}</button>`).join('')}</span></div>`;
+      h+=`<button class="row us" data-open="us" data-tip="Мы тоже юрлицо: наши люди и агенты"><span class="av sq bot">${ICONS.mark}</span><span class="nm">Bobroff MSP · мы</span><span class="rt">3 чел · 5 агентов</span></button>`;
+      h+=shown.map(a=>{const e=stateAt(a,t),m=momentum(a,t),d=e?daysIn(e,t):0;
+        const why=stuck(a,e,t)?`стоит ${d} дн`:churnSig(a,e,t)?'сигнал ухода':e&&e.s>=7?'закрыто':'';
+        return `<button class="row acc ${S.sel&&S.sel.id===a.id?'on':''}" data-open="acc:${a.id}" data-tip="${esc(a.name+' · '+a.city+', '+a.st+' · '+usd(a.acv)+'/год')}">
+          <span class="av sq" style="background:${a.hue};border-color:${a.hue};color:#fff">${esc(a.tk.slice(0,2))}</span>
+          <span class="nm">${esc(a.name)}</span>
+          <span class="rt">${why?`<span class="why ${mcls(m)}">${why}</span>`:`<span class="stg">${e?STAGE[e.s]:'—'}</span>`}</span></button>`;}).join('');
+      h+=`<button class="dbopen" data-open="db:acc"><b>Вся база — ${int(allAcc.length)} юрлиц</b> <i>таблицей с фильтрами ↗</i></button>`;
+    }
+    /* ---- физлица ---- */
     const RL={'решает':'последнее слово за ним','защищает внутри':'двигает сделку внутри компании','платит':'согласует бюджет и подписывает счёт'};
     const ppl=shown.slice(0,4).flatMap(a=>peopleOf(a).map(p=>({...p,acc:a})));
-    h+=`<div class="sec" style="margin-top:6px">▾ Физлица<span class="cnt2">${int(ppl.length)}</span></div>`;
-    h+=`<div class="subrule"><span>люди из юрлиц выше · роль в сделке, а не должность</span></div>`;
-    h+=ppl.map(p=>`<button class="row ${S.sel&&S.sel.id===p.id?'on':''}" data-open="person:${p.id}" data-tip="${esc(p.nm+' · '+p.title+' · '+p.acc.name)}">
-      ${av(p.nm,'var(--fg3)')}<span class="nm">${esc(p.nm)}</span>
-      <span class="rt"><span class="role" data-tip="${esc(RL[p.role]||p.role)}">${esc(p.role==='защищает внутри'?'защищает':p.role)}</span></span></button>`).join('');
-    /* агенты */
-    h+=`<div class="sec" style="margin-top:6px">▾ Агенты<span class="cnt2">${AGENTS.length}</span></div>`;
-    h+=`<div class="subrule"><span>сотрудники · у каждого свобода и край</span></div>`;
-    h+=AGENTS.map(a=>`<div class="agrow">
-      <button class="l1" data-open="agent:${a.id}" data-tip="${esc(a.title+' · отвечает '+OURS.find(o=>o.id===a.owner).nm.split(' ')[0]+' · никогда: '+STOPS[a.id][0])}">
-        <span class="av bot ag ${ASTATE[a.state][0]}">${ICONS.bot}</span><span class="nm">${esc(a.nm)}</span>
-        <span class="rt ${ASTATE[a.state][0]}">${ASTATE[a.state][1]}</span></button>
-      <div class="agk"><span class="knobi" role="group" aria-label="Ручка ${a.nm}">${KNOB.map((k,i)=>`<button data-knob="${a.id}:${i}" aria-pressed="${S.knob[a.id]===i}" data-tip="холодные контакты: ${k}">${k}</button>`).join('')}</span>
-        <span class="cw" data-tip="Тёплому письмо уходит от вашего имени. Выше «с человеком» ручка не поднимается.">тёплые — <b>${KNOB[S.knobW[a.id]]}</b></span>
-        ${STOPS[a.id][1]?`<span class="stops" data-tip="${esc('Стоп-правило сработало: '+STOPS[a.id][0])}">стоп ${STOPS[a.id][1]}×</span>`:''}</div></div>`).join('');
-    /* ящики */
-    h+=`<div class="sec" style="margin-top:6px">▾ Ящики и домены<span class="cnt2">${MAIL.length}</span></div>`;
-    h+=`<div class="subrule"><span>холодное — с расходных доменов, тёплое — с вашего имени</span></div>`;
-    h+=MAIL.map(m=>`<div class="mailrow" data-tip="${esc(m.kind+' · домен '+m.dom+(m.lim?' · лимит '+m.lim+' писем в сутки, отправлено '+m.sent:' · без лимита: пишет только человек'))}"><span class="av sq">${m.kind[0]==='т'?'Т':'Х'}</span><span class="adr">${esc(m.adr)}</span>${m.warm<100?`<span class="warmb"><i style="width:${m.warm}%"></i></span>`:''}<span class="lim">${m.lim?m.sent+'/'+m.lim:'—'}</span></div>`).join('');
-    /* документы */
-    h+=`<div class="sec" style="margin-top:6px">▾ Документы<span class="cnt2">${Object.keys(DOCS).length}</span></div>`;
-    h+=`<div class="subrule"><span>язык юрлиц: обмен товар ↔ деньги</span></div>`;
-    h+=Object.entries(DOCS).map(([id,d])=>`<button class="row" data-open="doc:${id}" data-tip="${esc(d.ttl)}"><span class="av sq">${esc(SRC[d.src][0].slice(0,2))}</span><span class="nm">${esc(d.kind)} · ${esc(ACCBY[d.acc].name.split(' ')[0])}</span><span class="rt"><span class="${d.status[0]}">●</span> ${esc(d.status[1])}</span></button>`).join('');
-    h+=filtersHTML();
+    h+=sec('ppl','Физлица',int(allAcc.length*3));
+    if(!off('ppl')){
+      h+=rule(`показываю <b>${ppl.length}</b> · люди из юрлиц выше · роль в сделке, а не должность`);
+      h+=ppl.map(p=>`<button class="row ${S.sel&&S.sel.id===p.id?'on':''}" data-open="person:${p.id}" data-tip="${esc(p.nm+' · '+p.title+' · '+p.acc.name)}">
+        ${av(p.nm,'var(--fg3)')}<span class="nm">${esc(p.nm)}</span>
+        <span class="rt"><span class="role" data-tip="${esc(RL[p.role]||p.role)}">${esc(p.role==='защищает внутри'?'защищает':p.role)}</span></span></button>`).join('');
+      h+=`<button class="dbopen" data-open="db:person"><b>Вся база — ${int(allAcc.length*3)} человек</b> <i>таблицей с фильтрами ↗</i></button>`;
+    }
+
+    h+=`<div class="grp2">Мы</div>`;
+    /* ---- агенты ---- */
+    h+=sec('ag','Агенты',AGENTS.length);
+    if(!off('ag')){
+      h+=rule('сотрудники · у каждого свобода и край');
+      h+=AGENTS.map(a=>`<div class="agrow">
+        <button class="l1" data-open="agent:${a.id}" data-tip="${esc(a.title+' · отвечает '+OURS.find(o=>o.id===a.owner).nm.split(' ')[0]+' · никогда: '+STOPS[a.id][0])}">
+          <span class="av bot ag ${ASTATE[a.state][0]}">${ICONS.bot}</span><span class="nm">${esc(a.nm)}</span>
+          <span class="rt ${ASTATE[a.state][0]}">${ASTATE[a.state][1]}</span></button>
+        <div class="agk"><span class="knobi" role="group" aria-label="Ручка ${a.nm}">${KNOB.map((k,i)=>`<button data-knob="${a.id}:${i}" aria-pressed="${S.knob[a.id]===i}" data-tip="холодные контакты: ${k}">${k}</button>`).join('')}</span>
+          <span class="cw" data-tip="Тёплому письмо уходит от вашего имени. Выше «с человеком» ручка не поднимается.">тёплые — <b>${KNOB[S.knobW[a.id]]}</b></span>
+          ${STOPS[a.id][1]?`<span class="stops" data-tip="${esc('Стоп-правило сработало: '+STOPS[a.id][0])}">стоп ${STOPS[a.id][1]}×</span>`:''}</div></div>`).join('');
+    }
+    /* ---- ящики ---- */
+    h+=sec('mail','Ящики и домены',MAIL.length);
+    if(!off('mail')){
+      h+=rule('холодное — с расходных доменов, тёплое — с вашего имени');
+      h+=MAIL.map(m=>`<div class="mailrow" data-tip="${esc(m.kind+' · домен '+m.dom+(m.lim?' · лимит '+m.lim+' писем в сутки, отправлено '+m.sent:' · без лимита: пишет только человек'))}"><span class="av sq">${m.kind[0]==='т'?'Т':'Х'}</span><span class="adr">${esc(m.adr)}</span>${m.warm<100?`<span class="warmb"><i style="width:${m.warm}%"></i></span>`:''}<span class="lim">${m.lim?m.sent+'/'+m.lim:'—'}</span></div>`).join('');
+    }
+    /* ---- документы ---- */
+    h+=sec('doc','Документы',Object.keys(DOCS).length);
+    if(!off('doc')){
+      h+=rule('язык юрлиц: обмен товар ↔ деньги');
+      h+=Object.entries(DOCS).map(([id,d])=>`<button class="row" data-open="doc:${id}" data-tip="${esc(d.ttl)}"><span class="av sq">${esc(SRC[d.src][0].slice(0,2))}</span><span class="nm">${esc(d.kind)} · ${esc(ACCBY[d.acc].name.split(' ')[0])}</span><span class="rt"><span class="${d.status[0]}">●</span> ${esc(d.status[1])}</span></button>`).join('');
+    }
   } else if(S.side==='machine'){
     h+=`<div class="sec">▾ Мы · Bobroff MSP</div><button class="row" data-open="us" style="padding-left:12px"><span class="tw"></span><span class="av sq bot">B</span><span class="nm">Орграмма: люди и агенты</span></button>`;
     h+=`<div class="sec" style="margin-top:4px">Люди</div>`+OURS.map(p=>`<div class="mrow"><div class="l1">${av(p.nm,'var(--human)')}<span class="nm">${esc(p.nm)}</span></div><div class="l2">${esc(p.title)}</div></div>`).join('');
@@ -1110,24 +1165,28 @@ function renderSearch(){const q=(S.q||'').toLowerCase();const r=q?allEntities().
 function openTab(kind,id,title){const tid=kind+':'+id;if(!S.tabs.some(t=>t.id===tid))S.tabs.push({id:tid,kind,ref:id,title});S.tab=tid;renderEditor();}
 function renderTabs(){
   const st=S.tabs.find(t=>t.id==='sop');if(st)st.title='SOP · '+ACCBY[S.sopAcc].name.split(' ')[0];
-  const ic={map:'◎',sop:'⎇',doc:'▤',msg:'☺',news:'◆',org:'⌂',agent:'◈'};
+  const ic={map:'◎',sop:'⎇',db:'▦',doc:'▤',msg:'☺',news:'◆',org:'⌂',agent:'◈'};
   $('tabs').innerHTML=S.tabs.map(t=>`<div class="tabb" role="tab" aria-selected="${S.tab===t.id}"><button data-tab="${t.id}"><span class="ic">${ic[t.kind]}</span> ${esc(t.title)}</button>${t.id!=='map'&&t.id!=='sop'?`<button class="x" data-close="${t.id}" aria-label="Закрыть вкладку">×</button>`:''}</div>`).join('');
 }
 function renderSource(t){if(t.kind==='doc')return renderDoc(t.ref);if(t.kind==='msg')return renderMsg(t.ref);if(t.kind==='news')return renderNews(t.ref);if(t.kind==='org')return renderOrg();if(t.kind==='agent')return renderAgentTab(t.ref);return '';}
 function renderEditor(){
   const t=S.tabs.find(x=>x.id===S.tab)||S.tabs[0];
-  if(t.kind==='map'||t.kind==='sop'){S.primary=t.kind;S.source=null;}else S.source=t.id;
+  if(t.kind==='map'||t.kind==='sop'||t.kind==='db'){S.primary=t.kind;S.source=null;if(t.kind==='db')S.dbKind=t.ref;}else S.source=t.id;
   renderTabs();
   if(!MAPEL)buildMapView();
   $('mapwrap').style.display=S.primary==='map'?'':'none';
   $('sopview').style.display=S.primary==='sop'?'':'none';
-  if(S.primary==='sop')$('sopview').innerHTML=renderSOP(ACCBY[S.sopAcc]);else renderMap();
+  $('dbview').style.display=S.primary==='db'?'block':'none';
+  if(S.primary==='sop')$('sopview').innerHTML=renderSOP(ACCBY[S.sopAcc]);
+  else if(S.primary==='db')renderDB();
+  else renderMap();
   const src=S.source&&S.tabs.find(x=>x.id===S.source);
   $('groups').classList.toggle('src',!!src);
   $('view2').innerHTML=src?renderSource(src):'';
   renderCrumbs();}
 function renderCrumbs(){const t=S.tabs.find(x=>x.id===S.tab)||S.tabs[0];let c='';
   if(t.kind==='map'){c=[['segment','Сегменты'],['accounts','Юрлица'],['people','Люди']].map(([k,n])=>`<button class="crumb ${S.level===k?'on':''}" data-level="${k}">${n}</button>`).join('<span class="faint">›</span>')+(S.seg?` <span class="faint">·</span> ${segBy(S.seg).name}`:'')+(S.sel&&S.sel.type==='acc'?` <span class="faint">·</span> <b>${esc(ACCBY[S.sel.id].name)}</b>`:'');}
+  else if(t.kind==='db')c=`База <span class="faint">›</span> <b>${t.ref==='acc'?'юрлица':'физлица'}</b> <span class="faint">·</span> ${S.seg?segBy(S.seg).name:'все сегменты'}`;
   else c=`${{sop:'SOP',doc:'Документ',msg:'Профиль',news:'Новость',org:'Мы',agent:'Агент'}[t.kind]} <span>›</span> <b>${esc(t.title)}</b>`;
   $('crumbs').innerHTML=c;}
 
@@ -1513,6 +1572,11 @@ const FEEDWHY={
   people:['сказанное, на что нужен ответ в срок','всё, что сказали люди за 4 недели'],
   channel:['письма, которые не дошли или сожгли контакт','все отправки за 4 недели'],
   agents:['где агент остановился или его остановили','весь журнал агентов']};
+/* Блок 3 «сути»: «Факт в ленте можно подтвердить, опровергнуть, выкинуть или дописать свой».
+   Форма одна на все сущности — значит и действия одни, а не только на вкладке рынка. */
+const MARKV={ok:['подтверждено','up'],no:['опровергнуто','down']};
+function markRow(ref){if(!ref)return '';
+  return `<span class="acts"><button class="ib ok" data-mark="${esc(ref)}|ok" aria-label="Подтвердить" data-tip="Подтвердить: так и есть">✓</button><button class="ib no" data-mark="${esc(ref)}|no" aria-label="Опровергнуть" data-tip="Опровергнуть: это неверно">✕</button><button class="ib" data-mark="${esc(ref)}|x" aria-label="Выкинуть" data-tip="Выкинуть из ленты">−</button><button class="ib" data-note="${esc(ref)}" aria-label="Дописать своё" data-tip="Дописать своё — заметка от вашего имени">+</button></span>`;}
 const GLOSS={
   market:'пока факт не подтверждён человеком, формула наверху его не считает',
   people:'речевой акт — что человек сделал словами: потребовал, пообещал, объявил, промолчал',
@@ -1520,7 +1584,15 @@ const GLOSS={
   agents:'у каждой записи есть отвечающий человек — агент не отвечает сам за себя'};
 const ageD=it=>{const w=String(it.when||'');if(!w||/сейчас/.test(w))return 0;if(/\sч$/.test(w))return 0;const m=w.match(/(\d+)/);return m?+m[1]:999;};
 function feedView(tab){
-  const all=(feedItems(tab)||[]).slice().sort((a,b)=>ageD(a)-ageD(b)), sig=all.filter(x=>x.sig);
+  const own=(S.own||[]).filter(o=>o.tab===tab).map(o=>({src:'me',ttl:o.txt,mt:`<b>моя заметка</b>${o.about?' · к «'+esc(o.about)+'»':''}`,when:'сейчас',open:o.ref,
+    av:av('Я','var(--human)'),sig:true,status:['flat','от меня']}));
+  let all=own.concat((feedItems(tab)||[]).slice()).sort((a,b)=>ageD(a)-ageD(b));
+  all.forEach(it=>{it.key=(it.open||'')+'#'+String(it.ttl).slice(0,60);
+    const m=S.marks&&S.marks[it.key];
+    if(m==='x')it.gone=true;
+    else if(m&&MARKV[m])it.mt=`<b class="mk ${MARKV[m][1]}">${m==='ok'?'✓ подтвердили':'✕ опровергли'}</b> · `+it.mt;
+    if(!it.acts)it.acts=markRow(it.key);});
+  const sig=all.filter(x=>x.sig);
   const mode=(S.fmode!=='all'&&sig.length)?'sig':'all';
   return {rows:mode==='sig'?sig:all,all:all,sig:sig,mode:mode};
 }
@@ -1533,11 +1605,60 @@ function renderPanel(){
   const head=`<div class="subrule"><span>показываю <b>${items.length}</b> из ${V.all.length} · ${FEEDWHY[S.ptab][V.mode==='sig'?0:1]}</span>
     <span class="pick"><button data-fmode="sig" aria-pressed="${V.mode==='sig'}" data-tip="Только строки, по которым нужен ход">требует хода</button><button data-fmode="all" aria-pressed="${V.mode==='all'}" data-tip="Весь срез целиком, без отбора">всё</button></span>
     ${GLOSS[S.ptab]?`<span class="gloss">${GLOSS[S.ptab]}</span>`:''}</div>`;
-  const add=S.ptab==='market'?`<div class="addfact"><input id="myFact" placeholder="Вписать свой факт или мысль о рынке…"><button class="btn" id="addFact">Добавить</button></div>`:'';
+  const add=S.ptab==='market'?`<div class="addfact"><input id="myFact" placeholder="Вписать свой факт или мысль о рынке…"><button class="btn" id="addFact">Добавить</button></div>`
+    :(S.noteFor?`<div class="addfact"><input id="myNote" placeholder="Дописать своё — заметка от вашего имени…" autofocus><button class="btn" id="addNote">Добавить</button><button class="ib" data-notecancel="1">×</button></div>`:'');
   const body=items.length
     ? (S.dense===false?items.map(it=>`<div class="fi ${it.gone?'gone':''}"><span class="lead">${it.av||srcIc(it.src)}</span><button class="main" data-open="${it.open}"><span class="ttl">${esc(it.ttl)}</span><span class="mt">${it.mt}</span></button>${it.status?`<span class="chip st ${it.status[0]}">${esc(it.status[1])}</span>`:'<span class="st"></span>'}<span class="when">${it.when}</span>${it.acts?`<span class="acts">${it.acts}</span>`:''}</div>`).join(''):denseRows(items))
     : `<div class="note" style="padding:12px">За н${S.t} в этом срезе событий нет.</div>`;
   $('feed').innerHTML=head+add+body;}
+
+/* =================== база: вся таблица в рабочей области ===================
+   Дерево слева отвечает на «где нужен ход», база — на «покажи всё».
+   Список в боковой панели не масштабируется: при сотнях тысяч юрлиц его нельзя
+   ни пролистать, ни отфильтровать. Таблица с колонками, сортировкой и страницами —
+   то же решение, что у Attio, Clarify и Breakcold (приёмы 100, 75, 51). */
+const DBCOLS={
+  acc:[['nm','Юрлицо'],['seg','Сегмент'],['loc','Город, штат'],['stg','Этап'],['mv','Движение'],['acv','ACV'],['last','Последнее касание']],
+  person:[['nm','Человек'],['acc','Юрлицо'],['role','Роль в сделке'],['title','Должность'],['src','Канал'],['last','Последнее касание']]};
+function dbRows(kind){
+  const t=S.t,q=(S.dbQ||'').toLowerCase().trim();
+  const base=ACC.filter(a=>stateAt(a,t)&&inF(a));
+  if(kind==='acc'){
+    let r=base.map(a=>{const e=stateAt(a,t);return {id:'acc:'+a.id,a,
+      nm:a.name,seg:segBy(a.seg).name,loc:a.city+', '+a.st,stg:e?STAGE[e.s]:'—',
+      mv:momentum(a,t),acv:a.acv,last:e?(t-e.w)*7:9999};});
+    if(q)r=r.filter(x=>(x.nm+' '+x.loc+' '+x.seg+' '+x.stg).toLowerCase().includes(q));
+    return r;}
+  let r=[];
+  for(const a of base){const e=stateAt(a,t);
+    for(const pp of peopleOf(a))r.push({id:'person:'+pp.id,a,p:pp,
+      nm:pp.nm,acc:a.name,role:pp.role,title:pp.title,src:pp.src,last:e?(t-e.w)*7:9999});}
+  if(q)r=r.filter(x=>(x.nm+' '+x.acc+' '+x.role+' '+x.title).toLowerCase().includes(q));
+  return r;}
+function renderDB(){
+  const kind=S.dbKind||'acc',cols=DBCOLS[kind];
+  const sort=S.dbSort||{k:kind==='acc'?'acv':'nm',d:kind==='acc'?-1:1};
+  const total=ACC.filter(a=>stateAt(a,S.t)).length*(kind==='acc'?1:3);
+  let rows=dbRows(kind);
+  rows.sort((x,y)=>{const a=x[sort.k],b=y[sort.k];
+    return (typeof a==='number'?(a-b):String(a).localeCompare(String(b),'ru'))*sort.d;});
+  const n=S.dbN||50,page=rows.slice(0,n);
+  const cell=(r,k)=>{
+    if(k==='nm')return `<td class="nm">${kind==='acc'?`<span class="av sq" style="background:${r.a.hue};border-color:${r.a.hue};color:#fff">${esc(r.a.tk.slice(0,2))}</span>`:av(r.nm,'var(--fg3)')}${esc(r.nm)}</td>`;
+    if(k==='mv')return `<td class="num ${mcls(r.mv)}">${arrow(r.mv)}</td>`;
+    if(k==='acv')return `<td class="num">${usd(r.acv)}</td>`;
+    if(k==='last')return `<td class="num">${r.last>=9999?'—':r.last+' дн'}</td>`;
+    if(k==='role')return `<td><span class="role">${esc(r.role==='защищает внутри'?'защищает':r.role)}</span></td>`;
+    return `<td title="${esc(String(r[k]))}">${esc(String(r[k]))}</td>`;};
+  $('dbview').innerHTML=
+    `<div class="dbh"><div class="r1"><h3>База · ${kind==='acc'?'юрлица':'физлица'}</h3>
+      <span class="cnt">показываю ${int(page.length)} из ${int(rows.length)}${rows.length<total?` · отобрано фильтрами из ${int(total)}`:''}</span>
+      <input id="dbQ" placeholder="${kind==='acc'?'Название, город, этап…':'Имя, юрлицо, роль…'}" value="${esc(S.dbQ||'')}">
+      <span class="pick"><button data-dbkind="acc" aria-pressed="${kind==='acc'}">юрлица</button><button data-dbkind="person" aria-pressed="${kind==='person'}">физлица</button></span></div>
+      <div class="note">В дереве слева — только те, где нужен ход. Вся база живёт здесь; фильтры слева пересчитывают и её, и формулу наверху.</div></div>
+    <table class="db"><thead><tr>${cols.map(([k,t])=>`<th data-dbsort="${k}">${t}${sort.k===k?` <span class="ar">${sort.d>0?'▲':'▼'}</span>`:''}</th>`).join('')}</tr></thead>
+    <tbody>${page.map(r=>`<tr data-open="${r.id}">${cols.map(([k])=>cell(r,k)).join('')}</tr>`).join('')||`<tr><td colspan="${cols.length}" style="padding:16px;color:var(--fg3)">Под эти фильтры ничего не попало.</td></tr>`}</tbody></table>
+    ${rows.length>page.length?`<button class="dbmore" data-dbmore="1">показать ещё ${int(Math.min(50,rows.length-page.length))} · осталось ${int(rows.length-page.length)}</button>`:''}`;}
 
 /* =================== agent: focus (ToC) + triage + chat, per profile =================== */
 function triageFor(p){
@@ -1630,14 +1751,26 @@ function openRef(k){
   if(type==='sop'){S.sopAcc=id;S.sel={type:'acc',id};S.tab='sop';renderEditor();renderAllButMap();return;}
   if(type==='agent'){S.sel={type:'agent',id};S.ptab='agents';openTab('agent',id,'Агент · '+agBy(id).nm);renderAllButMap();return;}
   if(type==='us'){openTab('org','us','Мы · люди и агенты');S.ptab='agents';S.sel=null;renderAllButMap();return;}
+  if(type==='db'){S.dbKind=id;S.dbN=50;S.dbSort=null;openTab('db',id,'База · '+(id==='acc'?'юрлица':'физлица'));return;}
 }
 function logAdd(ag,ttl,st){(S.extraLogs=S.extraLogs||[]).push({ag,w:NOW,ttl,st});}
 document.addEventListener('click',e=>{
-  const b=e.target.closest('[data-open],[data-side],[data-tab],[data-close],[data-ptab],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-step],[data-plus],[data-newchat],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-knobw],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepmv],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-fmode],#fDown,#addFact,#play');
+  const b=e.target.closest('[data-open],[data-side],[data-tab],[data-close],[data-ptab],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-step],[data-plus],[data-newchat],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-knobw],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepmv],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-fmode],[data-fold],[data-dbsort],[data-dbmore],[data-dbkind],[data-mark],[data-note],[data-notecancel],#fDown,#addFact,#addNote,#play');
   if(!b)return;
   if(b.dataset.pal)$('pal').hidden=true;
   if(b.dataset.dense!==undefined){S.dense=b.dataset.dense==='1';renderPanel();return;}
   if(b.dataset.fmode){S.fmode=b.dataset.fmode;renderPanel();return;}
+  if(b.dataset.fold){S.fold=S.fold||{};S.fold[b.dataset.fold]=!S.fold[b.dataset.fold];renderSide();return;}
+  if(b.dataset.dbsort){const k=b.dataset.dbsort,cur=S.dbSort||{};S.dbSort={k,d:cur.k===k?-cur.d:(k==='acv'||k==='last'||k==='mv'?-1:1)};renderDB();return;}
+  if(b.dataset.dbmore){S.dbN=(S.dbN||50)+50;renderDB();return;}
+  if(b.dataset.mark){const [ref,v]=b.dataset.mark.split('|');S.marks=S.marks||{};S.marks[ref]=S.marks[ref]===v?null:v;renderPanel();return;}
+  if(b.dataset.note){S.noteFor=b.dataset.note;renderPanel();const i=$('myNote');if(i)i.focus();return;}
+  if(b.dataset.notecancel){S.noteFor=null;renderPanel();return;}
+  if(b.id==='addNote'){const i=$('myNote'),v=i?i.value.trim():'';if(!v)return;
+    const it=(feedItems(S.ptab)||[]).find(x=>((x.open||'')+'#'+String(x.ttl).slice(0,60))===S.noteFor);
+    (S.own=S.own||[]).unshift({tab:S.ptab,ref:it?it.open:null,txt:v,about:it?String(it.ttl).slice(0,40):''});
+    S.noteFor=null;renderPanel();toast('Заметка добавлена от вашего имени.');return;}
+  if(b.dataset.dbkind){S.dbKind=b.dataset.dbkind;S.dbN=50;S.dbSort=null;S.dbQ='';openTab('db',S.dbKind,'База · '+(S.dbKind==='acc'?'юрлица':'физлица'));return;}
   if(b.dataset.newchat){S.chat=[];renderAgent();return;}
   /* ===== ДОБАВЛЕНО: правка SOP ===== */
   if(b.dataset.stepadd!==undefined){const i=+b.dataset.stepadd;
@@ -1725,6 +1858,7 @@ document.addEventListener('auxclick',e=>{const b=e.target.closest('[data-tab]');
 document.addEventListener('input',e=>{
   if(e.target.id==='tr'){S.t=+e.target.value;renderAll();}
   if(e.target.id==='sideSearch'){S.q=e.target.value;renderSearch();}
+  if(e.target.id==='dbQ'){S.dbQ=e.target.value;S.dbN=50;const c=e.target.selectionStart;renderDB();const el=$('dbQ');if(el){el.focus();el.setSelectionRange(c,c);}}
   if(e.target.dataset&&e.target.dataset.rename){const [i,f]=e.target.dataset.rename.split(':');
     const v=e.target.textContent.replace(/\s+/g,' ').trim();if(v)S.steps[+i][f]=v;}
 });
@@ -1744,7 +1878,7 @@ function renderAllButMap(){renderFormula();renderFilters();renderAlarm();renderA
 function renderAlarm(){const on=agBy('seller').state==='paused';const el=$('alarmbar');el.hidden=!on;if(!on)return;
   el.innerHTML=`<span class="k">▲ Стоп-кран</span><span class="t"><q>j.moss@… отписался 22.09, агент прислал follow-up №4</q> с ящика outreach@bobroff-msp.io → «Переписка» остановлена сама · закон (CAN-SPAM)</span><span class="owner">позван владелец: Николай Бобров · push 22.09 14:05</span><button class="btn" data-open="agent:seller">Разобрать</button>`;}
 function renderAll(){renderFormula();renderFilters();renderAlarm();renderActivity();renderSide();renderEditorLight();renderPanel();renderAgent();renderStatus();}
-function renderEditorLight(){if(S.primary==='map')renderMap();else $('sopview').innerHTML=renderSOP(ACCBY[S.sopAcc]);const src=S.source&&S.tabs.find(x=>x.id===S.source);if(src&&src.kind!=='msg')$('view2').innerHTML=renderSource(src);renderTabs();renderCrumbs();}
+function renderEditorLight(){if(S.primary==='map')renderMap();else if(S.primary==='db')renderDB();else $('sopview').innerHTML=renderSOP(ACCBY[S.sopAcc]);const src=S.source&&S.tabs.find(x=>x.id===S.source);if(src&&src.kind!=='msg')$('view2').innerHTML=renderSource(src);renderTabs();renderCrumbs();}
 
 applyLayout();
 if(S.layout.panelRight)document.querySelector('.g3').classList.remove('hgut');
