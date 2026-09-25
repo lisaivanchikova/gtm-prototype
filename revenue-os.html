@@ -367,6 +367,9 @@ table.db td.num{font-family:var(--mono);text-align:right}
 .fi .lead{display:flex;align-items:center;justify-content:center}
 .fi .av{width:20px;height:20px;font-size:9px;margin-top:1px}
 .fi .av.bot{padding:2px}
+.fname{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--fg3);padding:0 8px 0 12px;flex:none}
+.pick.ent button{height:20px;padding:0 7px;font-size:11px;display:flex;align-items:center;gap:4px}
+.pick.ent button b{font-family:var(--mono);font-size:10px;font-weight:500;opacity:.75}
 .feed .subrule{padding:6px 12px;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:2;background:var(--panel)}
 .feed .subrule .gloss{flex-basis:100%;color:var(--fg3);opacity:.8;font-size:10.5px}
 .av.bot svg{width:11px;height:11px}
@@ -379,6 +382,7 @@ table.db td.num{font-family:var(--mono);text-align:right}
 .fi .mt b{color:var(--fg2);font-weight:500}
 .fi .mt b.due{color:var(--link);font-weight:600}
 .fi .mt b.mk.up{color:var(--up)}
+.fi .mt b.mk.need{color:var(--warn)}
 .fi .mt b.mk.no,.fi .mt b.mk.down{color:var(--down)}
 .fi .st{justify-self:start;margin-top:2px}
 .fi .when{text-align:right;margin-top:3px}
@@ -1191,7 +1195,9 @@ function renderTabs(){
 function renderSource(t){if(t.kind==='doc')return renderDoc(t.ref);if(t.kind==='msg')return renderMsg(t.ref);if(t.kind==='news')return renderNews(t.ref);if(t.kind==='org')return renderOrg();if(t.kind==='agent')return renderAgentTab(t.ref);return '';}
 function renderEditor(){
   const t=S.tabs.find(x=>x.id===S.tab)||S.tabs[0];
-  if(t.kind==='map'||t.kind==='sop'||t.kind==='db'||t.kind==='today'){S.primary=t.kind;S.source=null;if(t.kind==='db')S.dbKind=t.ref;}else S.source=t.id;
+  if(t.kind==='map'||t.kind==='sop'||t.kind==='db'||t.kind==='today'){S.primary=t.kind;S.source=null;if(t.kind==='db')S.dbKind=t.ref;
+    if(!S.ptabLock)S.ptab={today:'people',map:'market',sop:'people',db:S.dbKind==='person'?'people':'account'}[t.kind]||S.ptab;
+  }else S.source=t.id;
   renderTabs();
   if(!MAPEL)buildMapView();
   $('mapwrap').style.display=S.primary==='map'?'':'none';
@@ -1615,7 +1621,18 @@ const FEEDWHY={
 /* Блок 3 «сути»: «Факт в ленте можно подтвердить, опровергнуть, выкинуть или дописать свой».
    Форма одна на все сущности — значит и действия одни, а не только на вкладке рынка. */
 const MARKV={ok:['подтверждено','up'],no:['опровергнуто','down']};
-function markRow(ref){if(!ref)return '';
+/* Поправка после разбора: подтверждать КАЖДЫЙ факт на базе в сотни тысяч — это то же ручное
+   заполнение CRM, только переименованное. Право оспорить остаётся на любой строке;
+   обязанность решить выносится человеку только по четырём причинам. */
+function needsHuman(it,tab){
+  if(tab==='market')return S.facts[it.open&&it.open.split(':')[1]]?null:'двигает член формулы, а непроверенное формула не считает';
+  if(tab==='people')return /ответить:/.test(String(it.mt))?'меняет обязательство — нужен ответ в срок':null;
+  if(tab==='agents')return (it.status&&(it.status[0]==='down'||it.status[0]==='warn'))?'агент вышел за своё правило':null;
+  if(tab==='account')return (it.status&&it.status[0]==='down')?'доказательства не хватает — ход за нами':null;
+  if(tab==='channel')return (it.status&&it.status[0]==='down')?'касание сожжено — решение человека':null;
+  return null;}
+function markRow(ref,onlyNote){if(!ref)return '';
+  if(onlyNote)return `<span class="acts"><button class="ib" data-note="${esc(ref)}" aria-label="Дописать своё" data-tip="Агент решил это сам. Дописать своё можно всегда.">+</button></span>`;
   return `<span class="acts"><button class="ib ok" data-mark="${esc(ref)}|ok" aria-label="Подтвердить" data-tip="Подтвердить: так и есть">✓</button><button class="ib no" data-mark="${esc(ref)}|no" aria-label="Опровергнуть" data-tip="Опровергнуть: это неверно">✕</button><button class="ib" data-mark="${esc(ref)}|x" aria-label="Выкинуть" data-tip="Выкинуть из ленты">−</button><button class="ib" data-note="${esc(ref)}" aria-label="Дописать своё" data-tip="Дописать своё — заметка от вашего имени">+</button></span>`;}
 const GLOSS={
   market:'пока факт не подтверждён человеком, формула наверху его не считает',
@@ -1628,17 +1645,19 @@ function feedView(tab){
     av:av('Я','var(--human)'),sig:true,status:['flat','от меня']}));
   let all=own.concat((feedItems(tab)||[]).slice()).sort((a,b)=>ageD(a)-ageD(b));
   all.forEach(it=>{it.key=(it.open||'')+'#'+String(it.ttl).slice(0,60);
+    it.need=needsHuman(it,tab);
     const m=S.marks&&S.marks[it.key];
     if(m==='x')it.gone=true;
     else if(m&&MARKV[m])it.mt=`<b class="mk ${MARKV[m][1]}">${m==='ok'?'✓ подтвердили':'✕ опровергли'}</b> · `+it.mt;
-    if(!it.acts)it.acts=markRow(it.key);});
+    else if(it.need)it.mt=`<b class="mk need" title="${esc(it.need)}">ваше решение</b> · `+it.mt;
+    if(!it.acts)it.acts=markRow(it.key,!it.need);});
   const sig=all.filter(x=>x.sig);
   const mode=(S.fmode!=='all'&&sig.length)?'sig':'all';
   return {rows:mode==='sig'?sig:all,all:all,sig:sig,mode:mode};
 }
 function renderPanel(){
   const tabs=[['market','Рынок · информация'],['account','Юрлица · документы'],['people','Люди · речь'],['channel','Канал · что дошло'],['agents','Агенты · журнал']];
-  $('ptabs').innerHTML=tabs.map(([k,t])=>`<button class="ptab" role="tab" data-ptab="${k}" aria-selected="${S.ptab===k}">${t}<span class="cnt">${feedItems(k).length}</span></button>`).join('')+`<span style="flex:1"></span><span class="dens" role="group" aria-label="Плотность ленты"><button data-dense="1" aria-pressed="${S.dense!==false}" aria-label="Плотно" data-tip="Плотно: одна строка на событие">≡</button><button data-dense="0" aria-pressed="${S.dense===false}" aria-label="Подробно" data-tip="Подробно: две строки на событие">☰</button></span>${S.sel?`<button class="ib" data-clearsel="1">снять выбор ×</button>`:''}`;
+  $('ptabs').innerHTML=`<span class="fname">Лента</span><span class="pick ent">`+tabs.map(([k,t])=>`<button data-ptab="${k}" aria-pressed="${S.ptab===k}" data-tip="${esc(t)}">${esc(t.split(' · ')[0])}<b>${feedItems(k).length}</b></button>`).join('')+`</span><span style="flex:1"></span><span class="dens" role="group" aria-label="Плотность ленты"><button data-dense="1" aria-pressed="${S.dense!==false}" aria-label="Плотно" data-tip="Плотно: одна строка на событие">≡</button><button data-dense="0" aria-pressed="${S.dense===false}" aria-label="Подробно" data-tip="Подробно: две строки на событие">☰</button></span>${S.sel?`<button class="ib" data-clearsel="1">снять выбор ×</button>`:''}`;
   renderEcard();
   const V=feedView(S.ptab), items=V.rows;
   $('feed').classList.toggle('dense',S.dense!==false);
@@ -1886,7 +1905,7 @@ document.addEventListener('click',e=>{
   if(b.dataset.side){if(S.side===b.dataset.side&&S.layout.side){S.layout.side=false;}else{S.side=b.dataset.side;S.layout.side=true;}applyLayout();renderActivity();renderSide();return;}
   if(b.dataset.tab){S.tab=b.dataset.tab;renderEditor();return;}
   if(b.dataset.close){const i=S.tabs.findIndex(t=>t.id===b.dataset.close);S.tabs.splice(i,1);if(S.tab===b.dataset.close)S.tab=S.tabs[Math.max(0,i-1)].id;renderEditor();return;}
-  if(b.dataset.ptab){S.ptab=b.dataset.ptab;renderPanel();return;}
+  if(b.dataset.ptab){S.ptab=b.dataset.ptab;S.ptabLock=true;renderPanel();return;}
   if(b.dataset.clearsel){S.sel=null;renderAll();return;}
   if(b.dataset.level){const l=b.dataset.level;if(l==='segment'){S.sel=null;svg.transition().duration(600).call(zoom.transform,d3.zoomIdentity);}else if(l==='accounts'){S.sel=null;zoomToFeature(statesF.find(f=>f.abbr==='TX'));}else selectAcc(BRIGHT);return;}
   if(b.dataset.seg!==undefined){S.seg=b.dataset.seg||null;renderAll();return;}
