@@ -140,7 +140,28 @@ q{quotes:"«" "»"}
 
 /* map view */
 .mapview{display:flex;flex-direction:column;height:100%;min-height:0}
-.formula{display:flex;flex-wrap:wrap;align-items:stretch;gap:2px 4px;padding:8px 12px;border-bottom:1px solid var(--border);flex:none}
+.formula{display:flex;flex-wrap:wrap;align-items:flex-start;gap:6px 13px;padding:6px 12px 7px;border-bottom:1px solid var(--border);flex:none}
+.fres{display:grid;grid-template-rows:14px 27px 14px;padding:20px 15px 0 0;border-right:1px solid var(--border)}
+.fres .fn{font-size:11px;color:var(--fg2)}
+.fres .fv{font-family:var(--mono);font-size:23px;font-weight:600;letter-spacing:-.02em;line-height:27px;white-space:nowrap}
+.fres .fdd{display:flex;align-items:baseline;gap:6px}
+.fres .vs{font-size:10px;color:var(--fg3)}
+.fg{display:flex;flex-direction:column;gap:4px}
+.fg .fgi{padding-top:0}
+.fgl{display:flex;align-items:baseline;gap:6px;height:16px;font-size:10px;font-weight:600;color:var(--link);border-bottom:1px solid color-mix(in srgb,var(--link) 30%,transparent)}
+.fgl i{font-style:normal;font-weight:400;color:var(--fg3)}
+.fgi{display:flex;align-items:flex-start;gap:9px}
+.fc{display:grid;grid-template-rows:14px 21px 13px;min-width:0}
+.fc .fn{font-size:11px;color:var(--fg2);white-space:nowrap}
+.fc .fv{font-family:var(--mono);font-size:15px;font-weight:500;line-height:21px;white-space:nowrap}
+.fc .fdd{line-height:13px}
+.fc.lim{box-shadow:inset 0 -2px 0 var(--accent)}
+.fc.lim .fn{color:var(--link)}
+.formula .d{font-family:var(--mono);font-size:10px;white-space:nowrap}
+.fres .d{font-size:12px}
+.fo{font-family:var(--mono);color:var(--fg3);align-self:center;flex:none}
+.fo.x{font-size:13px;color:var(--fg3);opacity:.8;align-self:start;margin-top:14px;line-height:21px}
+.fo.big{font-size:17px;color:var(--link);align-self:start;margin-top:34px;line-height:27px}
 .f{display:flex;flex-direction:column;padding:3px 8px;border-radius:5px;min-width:0}
 .f.res .v{font-weight:600}
 .f.lim{box-shadow:inset 0 -2px 0 var(--focus)}
@@ -1116,11 +1137,21 @@ function scaleMarks(){const k=S.K,s=(0.6+0.4*Math.min(k,8)/8)/k,chips=k>=9;
 function selectAcc(a){S.sel={type:'acc',id:a.id};S.sopAcc=a.id;S.orgOpen=false;S.level='people';if(S.primary!=='map'||S.source){S.tab='map';renderEditor();}zoomTo(a.x,a.y,Math.max(S.K,11));S.ptab='account';renderAllButMap();renderMap();}
 function selectAgent(id){S.sel=id?{type:'agent',id}:null;S.ptab='agents';renderAllButMap();}
 function renderFormula(){
-  const st=null,F=formulaAt(S.t,st),P=formulaAt(S.t-WIN,st),ap=S.t>NOW?'≈ ':'';
-  const box=(c,n,v,d)=>`<div class="f ${c}"><span class="n">${n}</span><span class="v">${ap}${v}</span>${d}</div>`;
-  $('formula').innerHTML=box('res','ARR (конец)',usd(F.end),dd(F.end/P.end-1,'%',.004))+'<span class="op">=</span>'+box('','ARR (начало)',usd(F.start),`<span class="d flat">н${S.t-WIN}</span>`)+'<span class="op">×</span>'+
-    box('','Retention',pct(F.ret),dd(F.ret-P.ret,'pp',.002))+'<span class="op">+</span>'+box('','Сегмент',int(F.N),`<span class="d flat">${S.seg?segBy(S.seg).name:'все сегменты'}</span>`)+'<span class="op">×</span>'+
-    box('','Охват',pct(F.reach,3),dd(F.reach-P.reach,'pp',.00001))+'<span class="op">×</span>'+box('lim','Conv',pct(F.conv),dd(F.conv-P.conv,'pp',.005))+'<span class="op">×</span>'+box('','ACV',usd(F.acv),dd(P.acv?F.acv/P.acv-1:0,'%',.02));
+  const F=formulaAt(S.t),P=formulaAt(S.t-WIN),ap=S.t>NOW?'≈ ':'';
+  const cell=(n,v,d,cls)=>`<div class="fc ${cls||''}"><span class="fn">${n}</span><span class="fv">${ap}${v}</span><span class="fdd">${d||''}</span></div>`;
+  const grp=(label,hint,inner)=>`<div class="fg"><span class="fgl">${label}<i>${hint}</i></span><div class="fgi">${inner}</div></div>`;
+  const X='<span class="fo x">×</span>';
+  $('formula').innerHTML =
+    `<div class="fres"><span class="fn">${S.t>NOW?'ARR прогноз':'ARR сейчас'}</span><span class="fv">${ap}${usd(F.end)}</span><span class="fdd">${dd(F.end/P.end-1,'%',.004)}<span class="vs">к н${S.t-WIN}</span></span></div>`
+    + '<span class="fo big">=</span>'
+    + grp('база','что удержали',
+        cell(`было · н${S.t-WIN}`,usd(F.start),'')+X+cell('Retention',pct(F.ret),dd(F.ret-P.ret,'pp',.002)))
+    + '<span class="fo big">+</span>'
+    + grp('новые','кого привели',
+        cell(S.seg?segBy(S.seg).name:'Сегмент',int(F.N),'')+X
+       +cell('Охват',pct(F.reach,3),dd(F.reach-P.reach,'pp',.00001))+X
+       +cell('Conv',pct(F.conv),dd(F.conv-P.conv,'pp',.005),'lim')+X
+       +cell('ACV',usd(F.acv),dd(P.acv?F.acv/P.acv-1:0,'%',.02)));
 }
 function renderFilters(){
   const note=S.t>=36?(S.t>NOW?'прогноз без правок · н36 включили дешёвый канал':'н36 включили дешёвый канал → Conv ▼'):'до дешёвого канала';
