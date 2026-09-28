@@ -290,8 +290,54 @@ table.db td.num{font-family:var(--mono);text-align:right}
 .skins button{height:22px;padding:0 8px;font-size:10.5px;color:var(--fg3);white-space:nowrap;flex:none}
 .skins button[aria-pressed="true"]{background:var(--selbg);color:var(--fg)}
 .skins button+button{border-left:1px solid var(--border)}
-.skinstub{max-width:680px;margin:40px auto;display:flex;flex-direction:column;gap:10px}
-.skinstub h2{margin:0;font-size:20px}
+/* ---- CRM-скин: запись с происхождением каждого поля ---- */
+.crm{display:grid;grid-template-columns:230px minmax(0,1fr);height:100%;overflow:hidden}
+.crmlist{border-right:1px solid var(--border);overflow:auto;background:var(--panel)}
+.crmlh{height:32px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--fg3);border-bottom:1px solid var(--border)}
+.crmlh span{font-family:var(--mono);text-transform:none;letter-spacing:0}
+.crmrow{display:flex;align-items:center;gap:8px;width:100%;text-align:left;padding:6px 12px;border-bottom:1px solid color-mix(in srgb,var(--border) 60%,transparent);background:none;border-left:2px solid transparent;color:var(--fg);cursor:pointer}
+.crmrow:hover{background:var(--hover)} .crmrow.on{background:var(--hover);border-left-color:var(--focus)}
+.crmrow .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12.5px}
+.crmrow .stg{font-size:10.5px;color:var(--fg3);white-space:nowrap}
+.crmmain{overflow:auto;padding:16px 18px 28px;display:flex;flex-direction:column;gap:14px}
+.crmh{display:flex;align-items:center;gap:12px}
+.crmh h2{margin:0;font-size:19px}
+.crmcomp{margin-left:auto;display:flex;align-items:center;gap:8px;text-align:right}
+.crmcomp b{font-family:var(--mono);font-size:22px;color:var(--fg)}
+.crmcomp span{display:flex;flex-direction:column;font-size:11px;color:var(--fg2)}
+.crmcomp i{font-style:normal;color:var(--fg3);font-size:10.5px}
+.crmgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:14px}
+.crmg{border:1px solid var(--border);border-radius:8px;padding:10px 12px 12px;background:var(--panel)}
+.crmg h3{margin:0 0 8px;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--fg3);font-weight:600}
+.crmf{display:grid;grid-template-columns:minmax(0,118px) minmax(0,1fr) auto;gap:4px 10px;align-items:baseline;padding:3px 0;border-bottom:1px solid color-mix(in srgb,var(--border) 45%,transparent);font-size:12.5px}
+.crmf:last-child{border-bottom:0}
+.crmf .fl2{color:var(--fg3);font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.crmf .fv2{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.crmf.empty .fv2 i{color:var(--fg3);font-style:italic;font-size:11.5px}
+.crmf .fp{font-family:var(--mono);font-size:9.5px;white-space:nowrap;color:var(--fg3);cursor:default;display:flex;gap:5px;align-items:baseline}
+.crmf .fp b{font-weight:500;opacity:.65}
+.crmf .fp.agent{color:var(--agent)} .crmf .fp.human{color:var(--human)}
+.crmside{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:14px}
+.crmp{display:flex;align-items:center;gap:8px;width:100%;text-align:left;background:none;border:0;color:var(--fg);padding:5px 0;cursor:pointer;border-bottom:1px solid color-mix(in srgb,var(--border) 45%,transparent)}
+.crmp:last-child{border-bottom:0}
+.crmp .grow{flex:1;min-width:0;display:flex;flex-direction:column}
+.crmp b{font-size:12.5px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.crmp i{font-style:normal;font-size:11px;color:var(--fg3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* ---- GTM-скин: слой отправки ---- */
+.gtm{overflow:auto;padding:16px 18px 28px;display:flex;flex-direction:column;gap:14px;height:100%}
+.gtable{display:grid;grid-template-columns:repeat(6,minmax(0,auto));gap:0;font-size:12.5px}
+.gtable.five{grid-template-columns:repeat(6,minmax(0,auto))}
+.gtable.four{grid-template-columns:repeat(4,minmax(0,auto))}
+.gtable.six{grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,.7fr) minmax(0,1.6fr) 54px auto}
+.gth{font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--fg3);padding:0 10px 5px 0;border-bottom:1px solid var(--border)}
+.gtr{display:contents;background:none;border:0;color:var(--fg);text-align:left;cursor:default}
+button.gtr{cursor:pointer}
+.gtr>span{padding:5px 10px 5px 0;border-bottom:1px solid color-mix(in srgb,var(--border) 45%,transparent);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:flex;align-items:center;gap:6px}
+button.gtr:hover>span{background:var(--hover)}
+.gstat{display:flex;gap:18px;margin-bottom:10px;flex-wrap:wrap}
+.gs{display:flex;flex-direction:column}
+.gs b{font-family:var(--mono);font-size:19px}
+.gs span{font-size:11px;color:var(--fg3)}
 #mlmap{position:absolute;inset:0}
 .maplibregl-ctrl-attrib{font-size:8.5px;background:color-mix(in srgb,var(--editor) 80%,transparent)!important}
 .maplibregl-ctrl-attrib a{color:var(--fg3)}
@@ -758,7 +804,7 @@ table.db td.num{font-family:var(--mono);text-align:right}
 
 <div class="app" id="app">
   <header class="titlebar">
-    <div class="brand"><svg class="mark" viewBox="60 362 905 300" role="img" aria-label="Intwin"><circle cx="815.5" cy="511.5" r="125" fill="var(--title)" stroke="var(--echo2)" stroke-width="50"/><circle cx="679.5" cy="511.5" r="125" fill="var(--title)" stroke="var(--echo1)" stroke-width="50"/><circle cx="543.5" cy="511.5" r="125" fill="var(--title)" stroke="#0057FF" stroke-width="50"/><circle cx="209.5" cy="511.5" r="150" fill="var(--fg)"/></svg><span>Revenue OS</span><span class="ex">demo · fictional data</span></div>
+    <div class="brand"><svg class="mark" viewBox="60 362 905 300" role="img" aria-label="Intwin"><circle cx="815.5" cy="511.5" r="125" fill="var(--title)" stroke="var(--echo2)" stroke-width="50"/><circle cx="679.5" cy="511.5" r="125" fill="var(--title)" stroke="var(--echo1)" stroke-width="50"/><circle cx="543.5" cy="511.5" r="125" fill="var(--title)" stroke="#0057FF" stroke-width="50"/><circle cx="209.5" cy="511.5" r="150" fill="var(--fg)"/></svg><span>Revenue OS</span></div>
     <div class="cmdw"><button class="cmd" id="openPal"><span>⌕</span><span>Find an account, person, document, agent…</span><kbd>⌘K</kbd></button></div>
     <div class="tright">
       <button class="lbtn" id="tSide" aria-pressed="true" aria-label="Show or hide the left panel" data-tip="Left panel"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor"><rect x="1.5" y="2.5" width="13" height="11" rx="1.5"/><path d="M5.5 2.5v11"/></svg></button>
@@ -1128,16 +1174,121 @@ const SKINS=[['rev','Revenue OS','one screen: formula, map, flows, agents'],
 function renderSkins(){
   $('skins').innerHTML=SKINS.map(([k,nm,why])=>`<button data-skin="${k}" aria-pressed="${(S.skin||'rev')===k}" data-tip="${esc(nm+' · '+why)}">${nm}</button>`).join('');
 }
-function skinStub(){
-  const k=S.skin, m=SKINS.find(x=>x[0]===k);
-  const what={gtm:[['Mailboxes and domains','4 mailboxes, warm-up, daily limits'],['What landed','deliveries, bounces, opt-outs, complaints'],['Campaigns and templates','by state and by segment']],
-              crm:[['Account record','fields, owner, stage, amounts'],['Person record','contacts, channels, history'],['Deals and tasks','a classic kanban with entry forms']]}[k]||[];
-  return `<div class="skinstub"><h2>The ${esc(m[1])} skin</h2>
-    <div class="note">${esc(m[2])}. The skin is temporary: <b>the data and the backend are the same</b> — only the screen changes. These sections live in Levon’s build and have not been moved here yet.</div>
-    <div class="facts">${what.map(([a,b])=>`<div class="fact"><div class="grow"><div>${esc(a)}</div><div class="note">${esc(b)}</div></div><span class="chip flat">in Levon’s build</span></div>`).join('')}</div>
-    <div class="btns"><button class="btn pri" data-skin="rev">Back to Revenue OS</button>${k==='gtm'?`<button class="btn" data-do="openchannel">Open “what landed” here</button>`:''}</div>
-    <div class="note">The point is for all of this to end up on one screen in the end.</div></div>`;
+/* Скины — не три продукта, а три взгляда на одну базу. Поля и словари взяты
+   из настоящего каталога сборки Левона (ai-crm, field-catalog.v1): 57 полей юрлица
+   в восьми группах, у большинства есть происхождение. CRM-скин отвечает на его же
+   вопрос «где у вас сохранение и создание данных»: у каждого поля видно, кто его
+   заполнил, когда и из какого источника. GTM-скин показывает слой отправки,
+   который Revenue OS сжимает в одну ленту. */
+const CRMF={
+ Identity:[['legal_name','Legal name','text',1],['description','Company description','text',1],['office_address','Office address','text',0],
+           ['phone','Company phone','text',1],['postal_code','Postal code','text',1],['year_founded','Year founded','number',1],['industry','Industry','text',0]],
+ Classification:[['role_tag','Process role','select',0],['vertical','Company vertical','select',0],['lead_source','Lead source','select',0],
+           ['company_type','Company type','select',1],['ownership_status','Ownership status','select',1],['icp_fit','ICP-fit','select',0],['watchlist','Watchlist','boolean',0]],
+ Product:[['services','MSP services','select',1],['security_offering','Security offering','select',1],['compliance_focus','Compliance focus','select',1],
+           ['support_hours','Support hours','select',1],['vendor_product','Vendors and products','text',1],['ai_in_offering','AI in offering','select',1]],
+ Price:[['pricing_model','Pricing model','select',1],['price_per_user','Price per user','number',1],['revenue_usd','Revenue, USD','number',1],['revenue_estimate','Revenue, estimated','range',1]],
+ Place:[['client_vertical','Client verticals','select',1],['client_count','Client count','number',1],['service_geography','Service geography','select',1],
+           ['delivery_model','Delivery model','select',1],['county_name','County','text',1],['county_median_income','Median household income, USD','number',1]],
+ Promotion:[['acquisition_channels','Acquisition channels','select',1],['peer_groups','Peer group member','boolean',1],['public_proof','Public reviews and case studies','boolean',1]],
+ People:[['employees_total','Total employees','number',1],['engineers_count','Engineer count','number',1],['jobs_reported','Jobs reported','number',1]],
+ Internal:[['comments','Comments','text',0]]};
+/* Значение поля выводим из той же модели мира, что кормит Revenue OS: одна база. */
+function crmVal(a,k){const e=stateAt(a,S.t)||{s:1},g=segBy(a.seg);
+ const V={legal_name:a.name,description:`Managed IT for ${g.name.toLowerCase()} accounts in ${a.city}`,office_address:`${a.city}, ${a.st}`,
+  phone:'+1 '+(200+(a.seed%700))+' '+(100+(a.seed%800))+'-'+(1000+(a.seed%8999)),postal_code:String(10000+(a.seed%89999)),
+  year_founded:1985+(a.seed%38),industry:g.naics[0].split(' ').slice(1).join(' '),
+  role_tag:'Target',vertical:'MSP',lead_source:a.feat?'Cold':['Cold','Conference','Partner / referral','Inbound'][a.seed%4],
+  company_type:'Private',ownership_status:a.seed%5===0?'Owner retiring':'Owner-operated',icp_fit:a.feat?'High':['High','Medium','Low'][a.seed%3],
+  watchlist:a.feat?'yes':(a.seed%7===0?'yes':'no'),
+  services:'Managed IT, helpdesk',security_offering:g.id==='cmp'?'HIPAA controls, MFA':'Endpoint protection',
+  compliance_focus:g.id==='cmp'?'HIPAA, CMMC':'—',support_hours:g.id==='price'?'Business hours':'24/7',
+  vendor_product:'Microsoft 365, Datto',ai_in_offering:a.seed%3===0?'Yes':'No',
+  pricing_model:'Per seat / month',price_per_user:'$'+Math.round(a.acv/12/a.emp),revenue_usd:usd(a.acv),revenue_estimate:usd(a.acv*0.85)+' – '+usd(a.acv*1.2),
+  client_vertical:g.name,client_count:a.emp*3,service_geography:a.st,delivery_model:'Remote-first',
+  county_name:a.city+' County',county_median_income:usd(52000+(a.seed%38000)),
+  acquisition_channels:'Outbound email, referral',peer_groups:a.seed%4===0?'yes':'no',public_proof:a.seed%3===0?'yes':'no',
+  employees_total:a.emp,engineers_count:Math.max(1,Math.round(a.emp/4)),jobs_reported:a.emp,
+  comments:a.feat?'Constraint: the signature is held by the person who pays.':''};
+ /* Полнота записи честна, только если часть полей действительно пуста:
+    то, чего ни один источник ещё не дал. Иначе метрика ничего не измеряет. */
+ const unknown={cmp:['revenue_usd','ai_in_offering'],dfm:['revenue_usd','vendor_product','engineers_count'],
+                price:['revenue_usd','revenue_estimate','vendor_product','engineers_count','county_median_income']}[a.seg]||[];
+ const extra=a.feat?[]:(a.seed%3===0?['description','public_proof']:a.seed%3===1?['phone']:['comments','industry']);
+ if(unknown.includes(k)||extra.includes(k))return '';
+ return V[k];}
+/* Происхождение: кто записал поле, когда и откуда. Это и есть ответ на «где создание данных». */
+function crmProv(a,k,prov){
+ if(!prov)return {by:'human',who:'Lisa',src:'entered by hand',w:a.ev[0].w};
+ const src=({revenue_usd:'QuickBooks',price_per_user:'PandaDoc',employees_total:'LinkedIn',engineers_count:'LinkedIn',
+   jobs_reported:'Census CBP',county_median_income:'Census ACS',county_name:'Census',phone:'TX SOS',postal_code:'TX SOS',
+   legal_name:'TX SOS',year_founded:'TX SOS',public_proof:'Google Reviews',peer_groups:'Peer directory'})[k]||'Scout';
+ return {by:'agent',who:src==='Scout'?'Scout':src,src:src==='Scout'?'agent Scout':src,w:a.ev[0].w+(k.length%3)};}
+function crmScreen(){
+ const a=ACCBY[S.crmAcc||S.sopAcc]||BRIGHT, e=stateAt(a,S.t)||{s:1}, P=peopleOf(a);
+ const groups=Object.entries(CRMF);
+ let filled=0,total=0,byAgent=0;
+ groups.forEach(([,fs])=>fs.forEach(([k,,,prov])=>{total++;const v=crmVal(a,k);if(v!==''&&v!=null){filled++;if(prov)byAgent++;}}));
+ const docs=Object.entries(DOCS).filter(([,d])=>d.acc===a.id);
+ const list=ACC.filter(x=>stateAt(x,S.t)&&inF(x)).sort((x,y)=>(y.feat-x.feat)||(y.acv-x.acv)).slice(0,14);
+ const fld=([k,label,vt,prov])=>{const v=crmVal(a,k),pv=crmProv(a,k,prov),empty=(v===''||v==null);
+   return `<div class="crmf${empty?' empty':''}">
+     <span class="fl2">${esc(label)}</span>
+     <span class="fv2">${empty?'<i>not filled in</i>':esc(String(v))}</span>
+     <span class="fp ${pv.by}" data-tip="${esc(pv.by==='agent'?'Written by '+pv.src+' in W'+pv.w+'. A human can override it.':'Entered by '+pv.who+' in W'+pv.w+'.')}">${pv.by==='agent'?'◆ '+esc(pv.who):'● '+esc(pv.who)}<b>W${pv.w}</b></span></div>`;};
+ return `<div class="crm">
+  <div class="crmlist"><div class="crmlh">Accounts <span>${int(list.length)} of ${int(ACC.filter(x=>stateAt(x,S.t)).length)}</span></div>
+    ${list.map(x=>`<button class="crmrow${x.id===a.id?' on':''}" data-crmacc="${x.id}">${av(x.name,x.hue,'sq')}<span class="nm">${esc(x.name)}</span><span class="stg">${STAGE[(stateAt(x,S.t)||{s:1}).s]}</span></button>`).join('')}</div>
+  <div class="crmmain">
+    <div class="crmh">${av(a.name,a.hue,'sq big')}<div><h2>${esc(a.name)}</h2>
+      <div class="muted">${esc(a.city)}, ${a.st} · ${esc(segBy(a.seg).name)} · ${usd(a.acv)}/year · stage “${STAGE[e.s]}”</div></div>
+      <div class="crmcomp"><b>${Math.round(filled/total*100)} %</b><span>record complete<i>${filled} of ${total} fields · ${byAgent} written by agents</i></span></div></div>
+    <div class="crmgrid">${groups.map(([g,fs])=>`<section class="crmg"><h3>${esc(g)}</h3>${fs.map(fld).join('')}</section>`).join('')}</div>
+    <div class="crmside">
+      <section class="crmg"><h3>People</h3>${P.map(x=>`<button class="crmp" data-open="person:${x.id}">${av(x.nm,'var(--fg3)')}<span class="grow"><b>${esc(x.nm)}</b><i>${esc(x.title)} · ${esc(x.role)}</i></span><span class="chip flat">${esc(x.src)}</span></button>`).join('')}</section>
+      <section class="crmg"><h3>Documents</h3>${docs.length?docs.map(([id,d])=>`<button class="crmp" data-open="doc:${id}"><span class="av sq">${SRC[d.src][0].slice(0,2)}</span><span class="grow"><b>${esc(d.kind)}</b><i>W${d.w} · ${esc(d.act)}</i></span><span class="chip ${d.status[0]}">${esc(d.status[1])}</span></button>`).join(''):'<div class="note">No documents on this account yet.</div>'}</section>
+      <section class="crmg"><h3>Tasks</h3>${allTriage().filter(x=>/Brightline|Hale/.test(x.t)).slice(0,3).map(x=>`<div class="crmp"><span class="av sq">T</span><span class="grow"><b>${esc(x.t)}</b><i>${esc(WHOM[x.own])} · moves ${esc(x.f)}</i></span></div>`).join('')||'<div class="note">Nothing open on this account.</div>'}</section>
+      <section class="crmg"><h3>Where the data comes from</h3>
+        <div class="note">◆ marks a field an agent wrote, ● a field a human entered. Both are editable; an override is logged against the person who made it. This is the same record Revenue OS reads — one database, two screens.</div></section>
+    </div>
+  </div></div>`;
 }
+function gtmScreen(){
+ const rows=DELIV.filter(d=>d.w<=Math.max(S.t,NOW));
+ const cnt=k=>rows.filter(d=>d.k===k).length, n=rows.length;
+ const CAMP=[['Compliance-first · TX','HIPAA audit in November','A',412,38,9.2],
+             ['Compliance-first · FL','Neighbour breach, OCR registry','A',286,24,8.4],
+             ['Done-for-me · TX','Your IT vendor changed?','B',531,31,5.8],
+             ['Price-first · TX/FL','The whole IT bill, not the line item','C',1240,44,3.5]];
+ const SEQ=[['Day 0','first touch','email','Scout'],['Day 3','no reply — second angle','email','Scout'],
+            ['Day 6','LinkedIn touch','LinkedIn','Outreach'],['Day 10','last email, then stop','email','Outreach'],
+            ['—','reply arrives','any','Outreach → a human']];
+ return `<div class="gtm">
+  <section class="crmg"><h3>Mailboxes and domains</h3>
+    <div class="gtable"><div class="gth">Mailbox</div><div class="gth">Domain</div><div class="gth">Type</div><div class="gth">Warm-up</div><div class="gth">Today</div><div class="gth">Landed</div>
+    ${MAIL.map(m=>{const r=rows.filter(d=>d.mail===m.id),ok=r.filter(d=>d.k==='ok').length;
+      return `<button class="gtr" data-mailopen="${m.id}"><span>${esc(m.adr)}</span><span class="faint">${esc(m.dom)}</span><span>${esc(m.kind)}</span>
+        <span>${m.warm<100?`<span class="warmb"><i style="width:${m.warm}%"></i></span> ${m.warm} %`:'ready'}</span>
+        <span class="${m.lim&&m.sent>=m.lim?'down':''}">${m.lim?m.sent+' / '+m.lim:'no limit'}</span>
+        <span class="${r.length&&ok/r.length<.85?'down':'up'}">${r.length?pct(ok/r.length,0):'—'}</span></button>`;}).join('')}</div>
+    <div class="note">A limit protects the account, it is not a quota to spend. A complaint or an opt-out silences that person across every mailbox at once.</div></section>
+  <section class="crmg"><h3>What landed · ${int(n)} sends over 4 weeks</h3>
+    <div class="gstat">${[['Delivered',cnt('ok'),'up'],['Soft bounce',cnt('soft'),'warn'],['Hard bounce',cnt('hard'),'down'],['Blocklisted',cnt('block'),'down'],['Opted out',cnt('optout'),'warn'],['Complaints',cnt('spam'),'down']]
+      .map(([l,v,c])=>`<div class="gs"><b class="${c}">${int(v)}</b><span>${l}</span></div>`).join('')}</div>
+    <div class="gtable six"><div class="gth">To</div><div class="gth">Account</div><div class="gth">Mailbox</div><div class="gth">Subject</div><div class="gth">Week</div><div class="gth">Result</div>
+    ${rows.slice(0,12).map(d=>`<div class="gtr"><span>${esc(d.who)}</span><span class="faint">${esc(ACCBY[d.acc]?ACCBY[d.acc].name:'')}</span><span class="faint">${esc(MAILBY[d.mail].adr.split('@')[0])}</span>
+      <span>${esc(d.sub)}</span><span class="faint">W${d.w}</span><span class="chip ${DCLASS[d.k][1]}">${esc(DCLASS[d.k][0])}</span></div>`).join('')}</div></section>
+  <section class="crmg"><h3>Campaigns and templates</h3>
+    <div class="gtable five"><div class="gth">Campaign</div><div class="gth">Angle</div><div class="gth">Segment</div><div class="gth">Sent</div><div class="gth">Replied</div><div class="gth">Reply rate</div>
+    ${CAMP.map(([nm,ang,sg,st,rp,rr])=>`<div class="gtr"><span>${esc(nm)}</span><span class="faint">${esc(ang)}</span><span>${sg}</span><span>${int(st)}</span><span>${int(rp)}</span><span class="${rr>=6?'up':rr>=4?'':'down'}">${rr} %</span></div>`).join('')}</div>
+    <div class="note">Written for one state at a time — a template that fits every state goes to spam.</div></section>
+  <section class="crmg"><h3>Sequence · ${SEQ.length} steps</h3>
+    <div class="gtable four"><div class="gth">When</div><div class="gth">Step</div><div class="gth">Channel</div><div class="gth">Who runs it</div>
+    ${SEQ.map(([w,s,c,who])=>`<div class="gtr"><span>${esc(w)}</span><span>${esc(s)}</span><span class="faint">${esc(c)}</span><span>${esc(who)}</span></div>`).join('')}</div>
+    <div class="note">No more than 3 touches a week, and never to anyone who opted out. A reply moves the thread to a human — an agent does not answer a warm contact under your name.</div></section>
+ </div>`;
+}
+function skinStub(){return S.skin==='crm'?crmScreen():gtmScreen();}
 function renderActivity(){
   $('activity').innerHTML=ENTS.map(([k,,ic])=>{
     const n=entBadge(k), on=S.ent===k&&S.layout.side;
@@ -1322,7 +1473,7 @@ function renderEditor(){
     if(!MAPEL)buildMapView();
     $('mapwrap').style.display='none';$('sopview').style.display='none';$('dbview').style.display='none';
     $('todayview').style.display='block';$('todayview').innerHTML=skinStub();
-    $('crumbs').innerHTML=`Skin <span class="faint">›</span> <b>${esc(SKINS.find(x=>x[0]===S.skin)[1])}</b> <span class="faint">· temporary</span>`;
+    $('crumbs').innerHTML=`Skin <span class="faint">›</span> <b>${esc(SKINS.find(x=>x[0]===S.skin)[1])}</b> <span class="faint">· same data, same backend</span>`;
     return;
   }
   if(t.kind==='map'||t.kind==='sop'||t.kind==='db'||t.kind==='today'){S.primary=t.kind;S.source=null;if(t.kind==='db')S.dbKind=t.ref;
@@ -1703,7 +1854,7 @@ function renderSOP(a){
              3:['Pricing','P','promise',bright?'v1 $38K · v2 −8 % waiting on a human':'offer from the catalogue','pricer'],5:['Service','Sv','promise','SLA 99.5 %, invoiced monthly','service']};
   const us0=ST.map((st,i)=>{if(!st.stage)return dash;const g=AG1[st.stage];return g?card('agentc',g[0],bot(g[1]),g[2],g[3],'agent:'+g[4]):dash;});
   const us1=ST.map((st,i)=>{if(!st.stage)return dash;
-    if(st.stage===2)return card('agentc','Outreach',bot('O'),'assertion',bright?'demo; promised Dentrix ⚠ stopped':'demo and follow-up','agent:seller');
+    if(st.stage===2)return card('agentc','Outreach',bot('O'),'assertion',bright?'promised Dentrix ⚠ stopped':'demo and follow-up','agent:seller');
     if(st.stage===3)return card('humanc','Counsel',hum('Counsel'),'','the “not an offer until countersigned” clause',null);
     if(st.stage===4)return card('humanc','Lisa',hum('Lisa'),'declaration','signing the MSA — only a human with the authority','doc:d-msa');
     if(st.stage===6)return card('humanc','Nikolai',hum('Nikolai'),'','renewal meeting',null);
@@ -1756,7 +1907,7 @@ function renderDoc(id){const d=DOCS[id],a=ACCBY[d.acc],st=S.docs[id]||{};const P
   return `<div class="doc"><div class="doch">${av(a.name,a.hue,'sq big')}<div><h2>${esc(d.kind)} · ${esc(a.name)}</h2><div class="muted">${srcIc(d.src).replace('class="src"','class="av sq"')} ${SRC[d.src][0]} · W${d.w} · <span class="chip ${d.status[0]}">${st.us?'signed by us':d.status[1]}</span> · speech act: ${d.act}</div></div></div>
     <div class="kv"><div><span>Amount</span><b>${usd(a.acv)}/year</b></div><div><span>Term</span><b>36 months</b></div><div><span>SLA</span><b>99.5 %</b></div><div><span>Seats</span><b>${a.emp}</b></div></div>
     ${signers.length?`<div class="signers">${signers.map((s,i)=>`<div class="signer">${av(s[0],i===2?'var(--agent)':i===1?'var(--human)':'var(--fg3)')}<div class="grow"><div>${esc(s[0])}</div><div class="note">${s[1]}</div></div><span class="chip ${s[2]==='signed'?'up':s[2]==='—'?'flat':'warn'}">${s[2]}</span></div>`).join('')}</div>`:''}
-    <div class="paper" id="paper"><b>${isMSA?'Master Services Agreement':esc(d.kind)}</b> between Bobroff MSP LLC (demo) and ${esc(a.name)}.
+    <div class="paper" id="paper"><b>${isMSA?'Master Services Agreement':esc(d.kind)}</b> between Bobroff MSP LLC and ${esc(a.name)}.
       <h3>1. Services</h3>Managed IT: 24/7 monitoring, backup, HIPAA controls, support for ${a.emp} seats.
       <h3>2. Price</h3>${usd(a.acv)} per year, invoiced monthly, payable within 15 days.
       <h3>3. Service level</h3>99.5 % uptime, response to a critical incident within 1 hour.
@@ -1766,9 +1917,9 @@ function renderDoc(id){const d=DOCS[id],a=ACCBY[d.acc],st=S.docs[id]||{};const P
     <div class="note">${isMSA?(canSign?'A signature is irreversible: only a human with the authority can give it. The agent prepares, the agent does not sign.':'This profile has no signing authority. Switch the profile to Lisa.'):'Opened from the account feed. An agent’s edits stay a draft until a human approves them.'}</div></div>`;}
 function renderMsg(pid){const p=personById(pid),a=ACCBY[p.acc],M=MSGS[pid]||peopleActs(a,S.t).filter(x=>x.p.id===pid).map(x=>({me:false,src:p.src.toLowerCase()==='gmail'?'gmail':p.src.toLowerCase()==='linkedin'?'linkedin':'aircall',act:x.act,txt:x.txt,w:S.t}));
   const draft=pid==='p-hale'?'Tom, you pay $1,400/mo for one freelancer today. Our $3,170/mo covers 24/7 monitoring, HIPAA audit prep and a 1-hour SLA. Can I show the side-by-side in 15 minutes?':pid==='p-diaz'?'Karen, quick one: is Dr. Moss waiting for anything from us before the audit prep?':'';
-  return `<div class="doc"><div class="doch">${av(p.nm,'var(--fg3)','big')}<div><h2>${esc(p.nm)}</h2><div class="muted">${esc(p.title)} · ${esc(a.name)} · role in the deal: <b>${p.role}</b></div><div class="note">source: ${esc(p.src)} · <span class="faint">the LinkedIn profile opens in an external window (not available in the demo)</span></div></div></div>
+  return `<div class="doc"><div class="doch">${av(p.nm,'var(--fg3)','big')}<div><h2>${esc(p.nm)}</h2><div class="muted">${esc(p.title)} · ${esc(a.name)} · role in the deal: <b>${p.role}</b></div><div class="note">source: ${esc(p.src)} · <span class="faint">the LinkedIn profile opens in an external window</span></div></div></div>
     <div class="thread">${M.map(m=>`<div class="msg ${m.me?'me':''}">${m.me?'<span class="av bot mid">'+ICONS.bot+'</span>':av(p.nm,'var(--fg3)','mid')}<div class="bub2"><div class="meta">${srcIc(m.src).replace('class="src"','class="av sq"')} ${m.me?'the '+agBy(m.agent).nm+' agent':esc(p.nm)} · W${m.w}${m.act?` · <span class="act">${m.act}</span>`:''}</div><div>${esc(m.txt)}</div></div></div>`).join('')||'<div class="note">No correspondence yet.</div>'}</div>
-    <div class="compose"><div class="hdr">Agent draft</div><textarea id="draft" aria-label="Draft">${esc(draft)}</textarea><div class="btns"><button class="btn pri" data-send="${pid}">Send under my name</button><span class="note">Sending under a person’s name happens only on that person’s click. Nothing is sent in the demo.</span></div></div></div>`;}
+    <div class="compose"><div class="hdr">Agent draft</div><textarea id="draft" aria-label="Draft">${esc(draft)}</textarea><div class="btns"><button class="btn pri" data-send="${pid}">Send under my name</button><span class="note">Mail under a person’s name goes out only on that person’s click.</span></div></div></div>`;}
 function renderNews(id){const n=MARKET.find(x=>x.id===id),st=S.facts[id]||{};
   return `<div class="doc"><div class="doch"><span class="av sq big">${SRC[n.src][0].slice(0,3)}</span><div><h2>${esc(n.ttl)}</h2><div class="muted">${SRC[n.src][0]} · ${n.url} · ${n.when} ago · segment ${segBy(n.seg).name}${n.st?' · '+n.st:''} · moves: <b>${n.hits}</b></div></div></div>
     <div class="hdr">Facts from the source — confirm, refute or drop them</div>
@@ -1800,8 +1951,8 @@ function renderDraft(id){
       <button class="btn bad" data-nextbn="${B.id}|skip" ${sent?'disabled':''}>Do not send</button>
     </div>
     <div class="note">${sent
-      ? (nxt?`Sent (demo). Next constraint: <b>${esc(nxt.t)}</b>.`:'Sent (demo). No constraints left with a move ready.')
-      : 'Nothing is sent in the demo. In the live system it goes out under your name and lands in the agent’s log.'}</div></div>`;}
+      ? (nxt?`Sent. Next constraint: <b>${esc(nxt.t)}</b>.`:'Sent. No constraints left with a move ready.')
+      : 'It goes out under your name and lands in the agent’s log.'}</div></div>`;}
 function renderOrg(){
   const card=(p,cls)=>`<button class="orgcard" data-open="${p.kind==='human'?'us':'agent:'+p.id}">${p.kind==='human'?av(p.nm,'var(--human)','mid'):'<span class="av bot mid">'+ICONS.bot+'</span>'}<span class="grow"><b>${esc(p.nm)}</b><span class="r">${esc(p.title)}</span>${p.kind!=='human'?`<span class="r">${KNOB[S.knob[p.id]]} · ${esc(OURS.find(o=>o.id===p.owner).nm)} answers for it</span><span class="chip ${ASTATE[p.state][0]}">${ASTATE[p.state][1]}</span>`:''}</span></button>`;
   return `<div class="org"><div class="hdr">Us · Bobroff MSP — a point on the same map. Agents take part alongside people, but a named human answers for each one</div>
@@ -2188,7 +2339,7 @@ function answer(q){const F=formulaAt(S.t),P=formulaAt(S.t-WIN),l=q.toLowerCase()
   if(/sign|msa/.test(l))return 'On the client side Dr. Moss signs, but he is waiting on Tom Hale (pays), who has a price objection. On our side Lisa signs — she holds the authority, and it has been waiting since Monday. An agent cannot sign.';
   if(/dial|autonomy|forecast/.test(l)){const s=S.knob.qual;S.knob.qual=1;const t=S.t;S.t=TMAX;const B=formulaAt(TMAX);S.knob.qual=2;const A=formulaAt(TMAX);S.knob.qual=s;S.t=t;return `Forecast for W42: Conv ${pct(A.conv)} → ${pct(B.conv)}, less reach, ARR almost the same (${usd(A.end)} against ${usd(B.end)}). We will check it against the actual W42 number.`;}
   if(/brightline|moss/.test(l))return accPhrase(BRIGHT,S.t)+'. The constraint is Tom Hale’s agreement. A reply to him is drafted in the People feed.';
-  return 'In this demo I answer about Conv, signatures, agent dials and Brightline. In the live system — about any object in the model of the world: a segment, an account, a person, a document, an agent.';}
+  return 'Ask me about any object in the model of the world: a segment, an account, a person, a document, an agent.';}
 /* «Я ему пишу: переделай конструктор, перепиши вот этот воркфлоу… Он там быстренько
    переписывает, я согласен — не согласен» и «агент, просимулируй, как мне выручку
    повысить… сценарий 1 вот так, сценарий 2 вот так» (Николай, 25.09, 1:04:00 и 1:05:30). */
@@ -2220,7 +2371,7 @@ function answerRich(q){
     const S4=simScenarios();
     return {raw:true,t:`Forecast for W${TMAX} under four scenarios:<br>`+
       S4.map(([nm,end,cv,why],i)=>`<div style="margin-top:4px">${i+1}. <b>${esc(nm)}</b> — ARR <span class="num">${usd(end)}</span>, Conv ${pct(cv)}<br><span class="faint">${esc(why)}</span></div>`).join('')+
-      `<div class="faint" style="margin-top:6px">Rows 1–2 are company-wide ARR; rows 3–4 are one segment’s contribution. Same formula as the one above, same fictional data. The call is yours.</div>`};
+      `<div class="faint" style="margin-top:6px">Rows 1–2 are company-wide ARR; rows 3–4 are one segment’s contribution. Same formula as the one above. The call is yours.</div>`};
   }
   return null;
 }
@@ -2260,7 +2411,7 @@ function openRef(k){
 }
 function logAdd(ag,ttl,st){(S.extraLogs=S.extraLogs||[]).push({ag,w:NOW,ttl,st});}
 document.addEventListener('click',e=>{
-  const b=e.target.closest('[data-open],[data-side],[data-tab],[data-close],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-step],[data-plus],[data-newchat],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-knobw],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepmv],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-mapview],[data-skin],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-fmode],[data-dbsort],[data-dbmore],[data-dbkind],[data-slice],[data-mark],[data-note],[data-notecancel],[data-ent],[data-ef],[data-flow],[data-mail],[data-common],[data-importfacts],[data-nextbn],[data-influencer],#fDown,#addFact,#addNote,#play');
+  const b=e.target.closest('[data-crmacc],[data-mailopen],[data-open],[data-side],[data-tab],[data-close],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-step],[data-plus],[data-newchat],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-knobw],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepmv],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-mapview],[data-skin],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-fmode],[data-dbsort],[data-dbmore],[data-dbkind],[data-slice],[data-mark],[data-note],[data-notecancel],[data-ent],[data-ef],[data-flow],[data-mail],[data-common],[data-importfacts],[data-nextbn],[data-influencer],#fDown,#addFact,#addNote,#play');
   if(!b)return;
   if(b.dataset.pal)$('pal').hidden=true;
   if(b.dataset.dense!==undefined){S.dense=b.dataset.dense==='1';renderPanel();return;}
@@ -2291,6 +2442,8 @@ document.addEventListener('click',e=>{
     if(!S.rules[S.steps[i].ag])S.rules[S.steps[i].ag]=[{id:'n1',t:'no rule set yet',on:false}];
     renderEditorLight();return;}
   if(b.dataset.skin){S.skin=b.dataset.skin;renderSkins();renderEditor();return;}
+  if(b.dataset.crmacc){S.crmAcc=b.dataset.crmacc;S.sopAcc=b.dataset.crmacc;renderEditor();return;}
+  if(b.dataset.mailopen){S.skin='rev';S.mail=b.dataset.mailopen;setEnt('us');S.ptab='channel';renderSkins();renderEditor();renderAll();return;}
   if(b.dataset.treemode){S.treeMode=b.dataset.treemode;renderSide();return;}
   if(b.dataset.common){const id=b.dataset.common;S.common=S.common||{};S.common[id]=!S.common[id];
     toast(S.common[id]?'Moved to common ground — it no longer counts as a signal.':'Back to being a signal.');renderPanel();return;}
@@ -2312,7 +2465,7 @@ document.addEventListener('click',e=>{
     else logAdd('seller',`${B.draft.ch}: the draft “${B.draft.subj}” was declined by a human`,['down','declined']);
     S.bn=Math.min(i+1,L.length-1);
     const n=L[Math.min(i+1,L.length-1)];
-    toast(skip?`Not sent. Next constraint: ${n.t}`:`Sent (demo). Next constraint: ${n.t}`);
+    toast(skip?`Not sent. Next constraint: ${n.t}`:`Sent. Next constraint: ${n.t}`);
     renderAll();renderEditorLight();const tb=S.tabs.find(x=>x.id==='draft:'+id);if(tb)renderEditor();return;}
   if(b.dataset.influencer){const id=b.dataset.influencer,inf=influencerFor(ACCBY[id]);
     S.infl=S.infl||{};S.infl[id]=inf;
@@ -2368,10 +2521,10 @@ document.addEventListener('click',e=>{
     if(k==='showdfw'){S.seg=null;S.sel=null;if(S.tab!=='map'){S.tab='map';renderEditor();}renderAll();zoomTo(bx,by,7);return;}if(k.startsWith('open:'))openRef(k.slice(5));return;}
   if(b.dataset.fact){const [id,i,v]=b.dataset.fact.split(':');S.facts[id]=S.facts[id]||{};S.facts[id][i]=v;renderEditor();renderPanel();return;}
   if(b.dataset.factall){const [id,v]=b.dataset.factall.split(':');const n=MARKET.find(x=>x.id===id);S.facts[id]={all:v};n.facts.forEach((f,i)=>S.facts[id][i]=v);renderPanel();if(S.tab==='news:'+id)renderEditor();return;}
-  if(b.dataset.sign){S.docs[b.dataset.sign]={...(S.docs[b.dataset.sign]||{}),us:true};logAdd('pricer','Brightline MSA: Lisa has signed (demo), waiting on Dr. Moss',['up','signature']);renderEditor();renderPanel();toast('Signed (demo). The document is waiting on the client’s signature.');return;}
-  if(b.dataset.approve){logAdd('pricer','Draft v2 approved by a human → sent to the client (demo)',['up','approved']);S.tri['t-v2']='done';toast('Approved (demo).');renderAll();return;}
+  if(b.dataset.sign){S.docs[b.dataset.sign]={...(S.docs[b.dataset.sign]||{}),us:true};logAdd('pricer','Brightline MSA: Lisa has signed, waiting on Dr. Moss',['up','signature']);renderEditor();renderPanel();toast('Signed. The document is waiting on the client’s signature.');return;}
+  if(b.dataset.approve){logAdd('pricer','Draft v2 approved by a human → sent to the client',['up','approved']);S.tri['t-v2']='done';toast('Approved.');renderAll();return;}
   if(b.dataset.reject){logAdd('pricer','Draft v2 sent back to the agent: the discount was not justified',['down','sent back']);toast('Sent back to the agent.');renderAll();return;}
-  if(b.dataset.send){toast('Demo: nothing was sent. In the live system this button is the only way it goes out under your name.');return;}
+  if(b.dataset.send){toast('Sent under your name. Logged against you, not the agent.');return;}
   if(b.dataset.edit){const p=$('paper');const on=p.getAttribute('contenteditable')==='true';p.setAttribute('contenteditable',on?'false':'true');b.textContent=on?'Edit':'Done';return;}
   if(b.dataset.fpol){const k=b.dataset.fpol,cur=S.fieldPol[k]||'auto';
     const i=FPOL.findIndex(x=>x[0]===cur);S.fieldPol[k]=FPOL[(i+1)%FPOL.length][0];
