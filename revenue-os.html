@@ -311,7 +311,10 @@ body.focus-mode .ptabs{cursor:pointer}
 .maplibregl-ctrl-attrib{font-size:8.5px;background:color-mix(in srgb,var(--editor) 80%,transparent)!important}
 .maplibregl-ctrl-attrib a{color:var(--fg3)}
 .mk{cursor:pointer;font-family:var(--mono);display:flex;align-items:center;justify-content:center;border-radius:50%;color:#fff;font-size:11px;font-weight:600;border:1.5px solid rgba(0,0,0,.35);box-shadow:0 1px 4px rgba(0,0,0,.35);white-space:nowrap}
-.mk i{font-style:normal;font-size:8px;opacity:.8;margin-left:2px}
+.mk{position:relative}
+.mk i{position:absolute;top:100%;left:50%;transform:translateX(-50%);margin-top:2px;
+ font-style:normal;font-size:9px;line-height:1;padding:1px 3px;border-radius:3px;
+ background:color-mix(in srgb,var(--editor) 78%,transparent);color:var(--fg2)}
 .mk.sq{border-radius:5px;padding:0 7px;height:20px;width:auto}
 .mk.hq{background:var(--agent);width:15px;height:15px;transform:rotate(45deg);border-radius:2px}
 .mkorg{position:relative;width:0;height:0}
@@ -1395,7 +1398,11 @@ function renderEditor(){
   const t=S.tabs.find(x=>x.id===S.tab)||S.tabs[0];
   if(t.kind==='map'||t.kind==='sop'||t.kind==='db'||t.kind==='today'){S.primary=t.kind;S.source=null;if(t.kind==='db')S.dbKind=t.ref;
     setEnt({sop:'flow',db:S.dbKind==='person'?'ppl':'acc'}[t.kind]||S.ent);
-  }else S.source=t.id;
+  }else{S.source=t.id;
+    /* Левая и лента идут за центром: «это просто дублирование», если они смотрят
+       в разные стороны (Николай, 25.09). */
+    const follow={doc:'acc',msg:'ppl',news:'seg',agent:'ag',org:'us',draft:'ppl'}[t.kind];
+    if(follow)setEnt(follow);}
   renderTabs();
   if(!MAPEL)buildMapView();
   $('mapwrap').style.display=S.primary==='map'?'':'none';
@@ -1411,7 +1418,7 @@ function renderEditor(){
   $('groups').classList.toggle('src',!!src);
   /* «Один экран — один фокус». Документ 766 px не помещался в 384 px: лента съедала половину.
      Открыт исходник — лента сворачивается в полоску и поднимается кликом по заголовку. */
-  document.body.classList.toggle('focus-mode',!!src&&!S.pinFeed);
+  document.body.classList.toggle('focus-mode',(!!src||S.primary==='sop'||S.primary==='db')&&!S.pinFeed);
   if(!src)S.pinFeed=false;
   $('view2').innerHTML=src?renderSource(src):'';
   renderCrumbs();}
@@ -1472,6 +1479,14 @@ function buildMapView(){
     try{ML.getStyle().layers.filter(l=>l.type==='symbol').forEach(l=>{
       ML.setLayerZoomRange(l.id,Math.max(l.minzoom||0,7),l.maxzoom||24);});}catch(e){}
     MLREADY=true;renderMap();});
+  /* Тема может смениться после загрузки — подложка обязана пойти за ней,
+     иначе в светлой теме карта остаётся чёрным прямоугольником. */
+  const syncBasemap=()=>{const want=isLightTheme()?'positron':'dark';
+    if(ML._ofmStyle===want)return; ML._ofmStyle=want; MLREADY=false;
+    ML.setStyle('https://tiles.openfreemap.org/styles/'+want);};
+  ML._ofmStyle=isLightTheme()?'positron':'dark';
+  try{matchMedia('(prefers-color-scheme: light)').addEventListener('change',syncBasemap);}catch(e){}
+  new MutationObserver(syncBasemap).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
   ML.on('click','acc-dot',e=>{const id=e.features[0].properties.id;if(ACCBY[id])selectAcc(ACCBY[id]);});
   ML.on('mouseenter','acc-dot',e=>{ML.getCanvas().style.cursor='pointer';
     const a=ACCBY[e.features[0].properties.id];if(a)tipShow(e.originalEvent,accPhrase(a,S.t));});
@@ -2308,7 +2323,7 @@ function ask(q){if(!q.trim())return;S.chat.push({u:1,t:esc(q)});
 
 /* =================== status bar & palette =================== */
 function renderStatus(){const F=formulaAt(S.t),P=formulaAt(S.t-WIN),d=F.end/P.end-1,alarms=AGENTS.filter(a=>a.state==='paused').length;
-  $('status').innerHTML=`<span class="it num">${S.t>NOW?'forecast':S.t===NOW?'● now':'past'} W${S.t} · ${wkd(S.t)}</span><span class="it num">ARR ${usd(F.end)} <span class="${d>=0?'up':'down'}">${d>=0?'▲':'▼'} ${Math.abs(d*100).toFixed(1)} %</span></span><span class="it num">Conv ${pct(F.conv)}</span><button class="it" style="color:var(--link);font-weight:600" data-do="focuscard">⚠ Conv — the constraint</button>${alarms?`<span class="it faint">■ ${alarms} agent stopped by a hard stop</span>`:''}<span class="sp"></span><span class="it">sources 7/7 in sync</span><span class="it faint" data-tip="When this version was published. If it is older than what you expect, the page came from cache — press Cmd+Shift+R.">build Sep 29, 18:26</span><span class="it">${esc($('profile').selectedOptions[0].text)}</span>`;}
+  $('status').innerHTML=`<span class="it num">${S.t>NOW?'forecast':S.t===NOW?'● now':'past'} W${S.t} · ${wkd(S.t)}</span><span class="it num">ARR ${usd(F.end)} <span class="${d>=0?'up':'down'}">${d>=0?'▲':'▼'} ${Math.abs(d*100).toFixed(1)} %</span></span><span class="it num">Conv ${pct(F.conv)}</span><button class="it" style="color:var(--link);font-weight:600" data-do="focuscard">⚠ Conv — the constraint</button>${alarms?`<span class="it faint">■ ${alarms} agent stopped by a hard stop</span>`:''}<span class="sp"></span><span class="it">sources 7/7 in sync</span><span class="it faint" data-tip="When this version was published. If it is older than what you expect, the page came from cache — press Cmd+Shift+R.">build Sep 29, 18:45</span><span class="it">${esc($('profile').selectedOptions[0].text)}</span>`;}
 let palSel=0;
 function openPal(){$('pal').hidden=false;$('palIn').value='';palSel=0;renderPal();$('palIn').focus();}
 function renderPal(){const q=$('palIn').value.toLowerCase();const r=allEntities().filter(e=>!q||(e.t+' '+e.ty).toLowerCase().includes(q)).slice(0,30);S.palR=r;
