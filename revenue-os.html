@@ -296,78 +296,10 @@ table.db td.num{font-family:var(--mono);text-align:right}
 .legend i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:4px;vertical-align:-1px}
 .legend .grad{display:inline-block;width:90px;height:8px;border-radius:2px;background:linear-gradient(90deg,var(--down),color-mix(in srgb,var(--down) 35%,var(--land)),var(--land),color-mix(in srgb,var(--up) 35%,var(--land)),var(--up));vertical-align:-1px}
 .skins{display:inline-flex;flex:none;border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-right:8px}
-.skins button{height:22px;padding:0 8px;font-size:10.5px;color:var(--fg3);white-space:nowrap;flex:none}
+.skins button,.skins a{display:inline-flex;align-items:center;height:22px;padding:0 8px;font-size:10.5px;color:var(--fg3);white-space:nowrap;flex:none;text-decoration:none}
 .skins button[aria-pressed="true"]{background:var(--selbg);color:var(--fg)}
-.skins button+button{border-left:1px solid var(--border)}
-/* ---- CRM-скин: запись с происхождением каждого поля ---- */
-.crm{display:grid;grid-template-columns:230px minmax(0,1fr);height:100%;overflow:hidden}
-.crmlist{border-right:1px solid var(--border);overflow:auto;background:var(--panel)}
-.crmlh{height:32px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--fg3);border-bottom:1px solid var(--border)}
-.crmlh span{font-family:var(--mono);text-transform:none;letter-spacing:0}
-.crmrow{display:flex;align-items:center;gap:8px;width:100%;text-align:left;padding:6px 12px;border-bottom:1px solid color-mix(in srgb,var(--border) 60%,transparent);background:none;border-left:2px solid transparent;color:var(--fg);cursor:pointer}
-.crmrow:hover{background:var(--hover)} .crmrow.on{background:var(--hover);border-left-color:var(--focus)}
-.crmrow .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12.5px}
-.crmrow .stg{font-size:10.5px;color:var(--fg3);white-space:nowrap}
-.crmmain{overflow:auto;padding:16px 18px 28px;display:flex;flex-direction:column;gap:14px}
-.crmh{display:flex;align-items:center;gap:12px}
-.crmh h2{margin:0;font-size:19px}
-.crmcomp{margin-left:auto;display:flex;align-items:center;gap:8px;text-align:right}
-.crmcomp b{font-family:var(--mono);font-size:22px;color:var(--fg)}
-.crmcomp span{display:flex;flex-direction:column;font-size:11px;color:var(--fg2)}
-.crmcomp i{font-style:normal;color:var(--fg3);font-size:10.5px}
-.crmgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:14px}
-.crmg{border:1px solid var(--border);border-radius:8px;padding:10px 12px 12px;background:var(--panel)}
-.crmg h3{margin:0 0 8px;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--fg3);font-weight:600}
-.crmf{display:grid;grid-template-columns:minmax(0,118px) minmax(0,1fr) auto;gap:4px 10px;align-items:baseline;padding:3px 0;border-bottom:1px solid color-mix(in srgb,var(--border) 45%,transparent);font-size:12.5px}
-.crmf:last-child{border-bottom:0}
-.crmf .fl2{color:var(--fg3);font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.crmf .fv2{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.crmf.empty .fv2 i{color:var(--fg3);font-style:italic;font-size:11.5px}
-.crmf .fp{font-family:var(--mono);font-size:9.5px;white-space:nowrap;color:var(--fg3);cursor:default;display:flex;gap:5px;align-items:baseline}
-.crmf .fp b{font-weight:500;opacity:.65}
-.crmf .fp.agent{color:var(--agent)} .crmf .fp.human{color:var(--human)}
-.crmside{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:14px}
-.crmp{display:flex;align-items:center;gap:8px;width:100%;text-align:left;background:none;border:0;color:var(--fg);padding:5px 0;cursor:pointer;border-bottom:1px solid color-mix(in srgb,var(--border) 45%,transparent)}
-.crmp:last-child{border-bottom:0}
-.crmp .grow{flex:1;min-width:0;display:flex;flex-direction:column}
-.crmp b{font-size:12.5px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.crmp i{font-style:normal;font-size:11px;color:var(--fg3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-/* ---- GTM-скин: слой отправки ---- */
-.gtm{overflow:auto;padding:16px 18px 28px;display:flex;flex-direction:column;gap:14px;height:100%}
-.gtable{display:grid;grid-template-columns:repeat(6,minmax(0,auto));gap:0;font-size:12.5px}
-.gtable.five{grid-template-columns:repeat(6,minmax(0,auto))}
-.gtable.four{grid-template-columns:repeat(4,minmax(0,auto))}
-.gtable.six{grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,.7fr) minmax(0,1.6fr) 54px auto}
-.gth{font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--fg3);padding:0 10px 5px 0;border-bottom:1px solid var(--border)}
-.gtr{display:contents;background:none;border:0;color:var(--fg);text-align:left;cursor:default}
-button.gtr{cursor:pointer}
-.gtr>span{padding:5px 10px 5px 0;border-bottom:1px solid color-mix(in srgb,var(--border) 45%,transparent);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:flex;align-items:center;gap:6px}
-button.gtr:hover>span{background:var(--hover)}
-.gstat{display:flex;gap:18px;margin-bottom:10px;flex-wrap:wrap}
-.gs{display:flex;flex-direction:column}
-.gs b{font-family:var(--mono);font-size:19px}
-.gs span{font-size:11px;color:var(--fg3)}
-#mlmap{position:absolute;inset:0}
-.maplibregl-ctrl-attrib{font-size:8.5px;background:color-mix(in srgb,var(--editor) 80%,transparent)!important}
-.maplibregl-ctrl-attrib a{color:var(--fg3)}
-.mk{cursor:pointer;font-family:var(--mono);display:flex;align-items:center;justify-content:center;border-radius:50%;color:#fff;font-size:11px;font-weight:600;border:1.5px solid rgba(0,0,0,.35);box-shadow:0 1px 4px rgba(0,0,0,.35);white-space:nowrap}
-.mk.sq{border-radius:5px;padding:0 7px;height:20px;width:auto}
-.mk.hq{background:var(--agent);width:15px;height:15px;transform:rotate(45deg);border-radius:2px}
-.mkorg{position:relative;width:0;height:0}
-.mkorg .node{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer}
-.mkorg .node i{width:16px;height:16px;border-radius:50%;background:var(--fg3);border:1.5px solid var(--editor);display:block}
-.mkorg .node.miss i{background:var(--down)}
-.mkorg .node span{font-size:10px;color:var(--fg);background:color-mix(in srgb,var(--editor) 88%,transparent);border:1px solid var(--border);border-radius:9px;padding:0 6px;white-space:nowrap}
-.mkorg .ln{position:absolute;height:1px;background:var(--fg3);opacity:.7;transform-origin:0 50%}
-.mapsw{position:absolute;left:10px;top:10px;display:flex;border:1px solid var(--border);border-radius:13px;overflow:hidden;background:var(--editor)}
-.mapsw button{height:24px;padding:0 10px;font-size:11px;color:var(--fg3)}
-.mapsw button[aria-pressed="true"]{background:var(--selbg);color:var(--fg)}
-.mapsw button+button{border-left:1px solid var(--border)}
-.zbtn{position:absolute;right:10px;bottom:28px;display:flex;flex-direction:column;border:1px solid var(--border);border-radius:6px;overflow:hidden;background:var(--editor)}
-.zbtn button{width:28px;height:26px;text-align:center;font-size:15px;color:var(--fg2)}
-.zbtn button+button{border-top:1px solid var(--border)}
-.hint{position:absolute;right:10px;top:10px;font-size:11px;color:var(--fg3);background:color-mix(in srgb,var(--editor) 90%,transparent);padding:3px 8px;border-radius:5px;border:1px solid var(--border)}
-
+.skins a:hover{color:var(--link);background:var(--hover)}
+.skins>*+*{border-left:1px solid var(--border)}
 /* SOP: service blueprint */
 .bp{padding:14px 16px 24px;min-width:1150px}
 .bph{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:10px}
@@ -823,10 +755,8 @@ button.gtr:hover>span{background:var(--hover)}
       <button class="lbtn" id="tSwap" aria-label="Swap the side panels" data-tip="Swap panels"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor"><path d="M2 5h11l-3-3M14 11H3l3 3"/></svg></button>
       <span class="skins" id="skins" role="group" aria-label="Display skin"></span>
       <select class="profile" id="profile" aria-label="Signed in as">
-        <option value="owner">Nikolai · revenue owner</option>
-        <option value="liza">Lisa · operations, signature</option>
-        <option value="sales">Sales operator</option>
-        <option value="legal">Counsel</option>
+        <option value="owner">Revenue owner</option>
+        <option value="sdr">SDR</option>
       </select>
     </div>
   </header>
@@ -940,6 +870,7 @@ const US={id:'us',name:'Bobroff MSP (us)',x:usx,y:usy};
 const OURS=[
   {id:'h-nik',nm:'Nikolai Bobrov',title:'CEO \u00b7 revenue owner',kind:'human',boss:null},
   {id:'h-liza',nm:'Lisa',title:'operations \u00b7 signing authority',kind:'human',boss:'h-nik'},
+  {id:'h-sdr',nm:'Dana Whitfield',title:'SDR \u00b7 first touch and follow-up',kind:'human',boss:'h-nik'},
   {id:'h-ops',nm:'Ops director',title:'service and SLA',kind:'human',boss:'h-nik'},
   {id:'h-law',nm:'Counsel (external)',title:'contracts and clauses',kind:'human',boss:'h-nik'}];
 const AGENTS=[
@@ -1241,127 +1172,16 @@ function entBadge(k){
 }
 /* «Можно отображение просто сверху поставить, сделать три скина… временно»
    (Николай, 25.09, 1:27:25). Бэкенд и база CRM остаются как есть — меняется только экран. */
-const SKINS=[['rev','Revenue OS','one screen: formula, map, flows, agents'],
-             ['gtm','GTM','the outreach engine: mailboxes, warm-up, what landed'],
-             ['crm','CRM','classic forms and records \u2014 Levon\u2019s build']];
+/* Скины. Revenue OS — здесь. GTM и CRM — наши живые приложения: кнопка уводит
+   в них, а не показывает их копию. Со временем ходить туда станет незачем. */
+const SKINS=[['rev','Revenue OS',null],
+             ['gtm','GTM','https://app.lusin.ai'],
+             ['crm','CRM','https://crm.lusin.ai']];
 function renderSkins(){
-  $('skins').innerHTML=SKINS.map(([k,nm,why])=>`<button data-skin="${k}" aria-pressed="${(S.skin||'rev')===k}" data-tip="${esc(nm+' · '+why)}">${nm}</button>`).join('');
+  $('skins').innerHTML=SKINS.map(([k,nm,url])=>url
+    ?`<a href="${url}" target="_blank" rel="noopener" data-tip="Opens ${nm} in a new tab — ${url.replace('https://','')}">${nm} ↗</a>`
+    :`<button aria-pressed="true">${nm}</button>`).join('');
 }
-/* Скины — не три продукта, а три взгляда на одну базу. Поля и словари взяты
-   из настоящего каталога сборки Левона (ai-crm, field-catalog.v1): 57 полей юрлица
-   в восьми группах, у большинства есть происхождение. CRM-скин отвечает на его же
-   вопрос «где у вас сохранение и создание данных»: у каждого поля видно, кто его
-   заполнил, когда и из какого источника. GTM-скин показывает слой отправки,
-   который Revenue OS сжимает в одну ленту. */
-const CRMF={
- Identity:[['legal_name','Legal name','text',1],['description','Company description','text',1],['office_address','Office address','text',0],
-           ['phone','Company phone','text',1],['postal_code','Postal code','text',1],['year_founded','Year founded','number',1],['industry','Industry','text',0]],
- Classification:[['role_tag','Process role','select',0],['vertical','Company vertical','select',0],['lead_source','Lead source','select',0],
-           ['company_type','Company type','select',1],['ownership_status','Ownership status','select',1],['icp_fit','ICP-fit','select',0],['watchlist','Watchlist','boolean',0]],
- Product:[['services','MSP services','select',1],['security_offering','Security offering','select',1],['compliance_focus','Compliance focus','select',1],
-           ['support_hours','Support hours','select',1],['vendor_product','Vendors and products','text',1],['ai_in_offering','AI in offering','select',1]],
- Price:[['pricing_model','Pricing model','select',1],['price_per_user','Price per user','number',1],['revenue_usd','Revenue, USD','number',1],['revenue_estimate','Revenue, estimated','range',1]],
- Place:[['client_vertical','Client verticals','select',1],['client_count','Client count','number',1],['service_geography','Service geography','select',1],
-           ['delivery_model','Delivery model','select',1],['county_name','County','text',1],['county_median_income','Median household income, USD','number',1]],
- Promotion:[['acquisition_channels','Acquisition channels','select',1],['peer_groups','Peer group member','boolean',1],['public_proof','Public reviews and case studies','boolean',1]],
- People:[['employees_total','Total employees','number',1],['engineers_count','Engineer count','number',1],['jobs_reported','Jobs reported','number',1]],
- Internal:[['comments','Comments','text',0]]};
-/* Значение поля выводим из той же модели мира, что кормит Revenue OS: одна база. */
-function crmVal(a,k){const e=stateAt(a,S.t)||{s:1},g=segBy(a.seg);
- const V={legal_name:a.name,description:`Managed IT for ${g.name.toLowerCase()} accounts in ${a.city}`,office_address:`${a.city}, ${a.st}`,
-  phone:'+1 '+(200+(a.seed%700))+' '+(100+(a.seed%800))+'-'+(1000+(a.seed%8999)),postal_code:String(10000+(a.seed%89999)),
-  year_founded:1985+(a.seed%38),industry:g.naics[0].split(' ').slice(1).join(' '),
-  role_tag:'Target',vertical:'MSP',lead_source:a.feat?'Cold':['Cold','Conference','Partner / referral','Inbound'][a.seed%4],
-  company_type:'Private',ownership_status:a.seed%5===0?'Owner retiring':'Owner-operated',icp_fit:a.feat?'High':['High','Medium','Low'][a.seed%3],
-  watchlist:a.feat?'yes':(a.seed%7===0?'yes':'no'),
-  services:'Managed IT, helpdesk',security_offering:g.id==='cmp'?'HIPAA controls, MFA':'Endpoint protection',
-  compliance_focus:g.id==='cmp'?'HIPAA, CMMC':'—',support_hours:g.id==='price'?'Business hours':'24/7',
-  vendor_product:'Microsoft 365, Datto',ai_in_offering:a.seed%3===0?'Yes':'No',
-  pricing_model:'Per seat / month',price_per_user:'$'+Math.round(a.acv/12/a.emp),revenue_usd:usd(a.acv),revenue_estimate:usd(a.acv*0.85)+' – '+usd(a.acv*1.2),
-  client_vertical:g.name,client_count:a.emp*3,service_geography:a.st,delivery_model:'Remote-first',
-  county_name:a.city+' County',county_median_income:usd(52000+(a.seed%38000)),
-  acquisition_channels:'Outbound email, referral',peer_groups:a.seed%4===0?'yes':'no',public_proof:a.seed%3===0?'yes':'no',
-  employees_total:a.emp,engineers_count:Math.max(1,Math.round(a.emp/4)),jobs_reported:a.emp,
-  comments:a.feat?'Constraint: the signature is held by the person who pays.':''};
- /* Полнота записи честна, только если часть полей действительно пуста:
-    то, чего ни один источник ещё не дал. Иначе метрика ничего не измеряет. */
- const unknown={cmp:['revenue_usd','ai_in_offering'],dfm:['revenue_usd','vendor_product','engineers_count'],
-                price:['revenue_usd','revenue_estimate','vendor_product','engineers_count','county_median_income']}[a.seg]||[];
- const extra=a.feat?[]:(a.seed%3===0?['description','public_proof']:a.seed%3===1?['phone']:['comments','industry']);
- if(unknown.includes(k)||extra.includes(k))return '';
- return V[k];}
-/* Происхождение: кто записал поле, когда и откуда. Это и есть ответ на «где создание данных». */
-function crmProv(a,k,prov){
- if(!prov)return {by:'human',who:'Lisa',src:'entered by hand',w:a.ev[0].w};
- const src=({revenue_usd:'QuickBooks',price_per_user:'PandaDoc',employees_total:'LinkedIn',engineers_count:'LinkedIn',
-   jobs_reported:'Census CBP',county_median_income:'Census ACS',county_name:'Census',phone:'TX SOS',postal_code:'TX SOS',
-   legal_name:'TX SOS',year_founded:'TX SOS',public_proof:'Google Reviews',peer_groups:'Peer directory'})[k]||'Scout';
- return {by:'agent',who:src==='Scout'?'Scout':src,src:src==='Scout'?'agent Scout':src,w:a.ev[0].w+(k.length%3)};}
-function crmScreen(){
- const a=ACCBY[S.crmAcc||S.sopAcc]||BRIGHT, e=stateAt(a,S.t)||{s:1}, P=peopleOf(a);
- const groups=Object.entries(CRMF);
- let filled=0,total=0,byAgent=0;
- groups.forEach(([,fs])=>fs.forEach(([k,,,prov])=>{total++;const v=crmVal(a,k);if(v!==''&&v!=null){filled++;if(prov)byAgent++;}}));
- const docs=Object.entries(DOCS).filter(([,d])=>d.acc===a.id);
- const list=ACC.filter(x=>stateAt(x,S.t)&&inF(x)).sort((x,y)=>(y.feat-x.feat)||(y.acv-x.acv)).slice(0,14);
- const fld=([k,label,vt,prov])=>{const v=crmVal(a,k),pv=crmProv(a,k,prov),empty=(v===''||v==null);
-   return `<div class="crmf${empty?' empty':''}">
-     <span class="fl2">${esc(label)}</span>
-     <span class="fv2">${empty?'<i>not filled in</i>':esc(String(v))}</span>
-     <span class="fp ${pv.by}" data-tip="${esc(pv.by==='agent'?'Written by '+pv.src+' in W'+pv.w+'. A human can override it.':'Entered by '+pv.who+' in W'+pv.w+'.')}">${pv.by==='agent'?'◆ '+esc(pv.who):'● '+esc(pv.who)}<b>W${pv.w}</b></span></div>`;};
- return `<div class="crm">
-  <div class="crmlist"><div class="crmlh">Accounts <span>${int(list.length)} of ${int(ACC.filter(x=>stateAt(x,S.t)).length)}</span></div>
-    ${list.map(x=>`<button class="crmrow${x.id===a.id?' on':''}" data-crmacc="${x.id}">${logo(x,'sq')}<span class="nm">${esc(x.name)}</span><span class="stg">${STAGE[(stateAt(x,S.t)||{s:1}).s]}</span></button>`).join('')}</div>
-  <div class="crmmain">
-    <div class="crmh">${logo(a,'sq big')}<div><h2>${esc(a.name)}</h2>
-      <div class="muted">${esc(a.city)}, ${a.st} · ${esc(segBy(a.seg).name)} · ${usd(a.acv)}/year · stage “${STAGE[e.s]}”</div></div>
-      <div class="crmcomp"><b>${Math.round(filled/total*100)} %</b><span>record complete<i>${filled} of ${total} fields · ${byAgent} written by agents</i></span></div></div>
-    <div class="crmgrid">${groups.map(([g,fs])=>`<section class="crmg"><h3>${esc(g)}</h3>${fs.map(fld).join('')}</section>`).join('')}</div>
-    <div class="crmside">
-      <section class="crmg"><h3>People</h3>${P.map(x=>`<button class="crmp" data-open="person:${x.id}">${face(x.nm)}<span class="grow"><b>${esc(x.nm)}</b><i>${esc(x.title)} · ${esc(x.role)}</i></span><span class="chip flat">${esc(x.src)}</span></button>`).join('')}</section>
-      <section class="crmg"><h3>Documents</h3>${docs.length?docs.map(([id,d])=>`<button class="crmp" data-open="doc:${id}"><span class="av sq">${SRC[d.src][0].slice(0,2)}</span><span class="grow"><b>${esc(d.kind)}</b><i>W${d.w} · ${esc(d.act)}</i></span><span class="chip ${d.status[0]}">${esc(d.status[1])}</span></button>`).join(''):'<div class="note">No documents on this account yet.</div>'}</section>
-      <section class="crmg"><h3>Tasks</h3>${allTriage().filter(x=>/Brightline|Hale/.test(x.t)).slice(0,3).map(x=>`<div class="crmp"><span class="av sq">T</span><span class="grow"><b>${esc(x.t)}</b><i>${esc(WHOM[x.own])} · moves ${esc(x.f)}</i></span></div>`).join('')||'<div class="note">Nothing open on this account.</div>'}</section>
-      <section class="crmg"><h3>Where the data comes from</h3>
-        <div class="note">◆ marks a field an agent wrote, ● a field a human entered. Both are editable; an override is logged against the person who made it. This is the same record Revenue OS reads — one database, two screens.</div></section>
-    </div>
-  </div></div>`;
-}
-function gtmScreen(){
- const rows=DELIV.filter(d=>d.w<=Math.max(S.t,NOW));
- const cnt=k=>rows.filter(d=>d.k===k).length, n=rows.length;
- const CAMP=[['Compliance-first · TX','HIPAA audit in November','A',412,38,9.2],
-             ['Compliance-first · FL','Neighbour breach, OCR registry','A',286,24,8.4],
-             ['Done-for-me · TX','Your IT vendor changed?','B',531,31,5.8],
-             ['Price-first · TX/FL','The whole IT bill, not the line item','C',1240,44,3.5]];
- const SEQ=[['Day 0','first touch','email','Scout'],['Day 3','no reply — second angle','email','Scout'],
-            ['Day 6','LinkedIn touch','LinkedIn','Outreach'],['Day 10','last email, then stop','email','Outreach'],
-            ['—','reply arrives','any','Outreach → a human']];
- return `<div class="gtm">
-  <section class="crmg"><h3>Mailboxes and domains</h3>
-    <div class="gtable"><div class="gth">Mailbox</div><div class="gth">Domain</div><div class="gth">Type</div><div class="gth">Warm-up</div><div class="gth">Today</div><div class="gth">Landed</div>
-    ${MAIL.map(m=>{const r=rows.filter(d=>d.mail===m.id),ok=r.filter(d=>d.k==='ok').length;
-      return `<button class="gtr" data-mailopen="${m.id}"><span>${esc(m.adr)}</span><span class="faint">${esc(m.dom)}</span><span>${esc(m.kind)}</span>
-        <span>${m.warm<100?`<span class="warmb"><i style="width:${m.warm}%"></i></span> ${m.warm} %`:'ready'}</span>
-        <span class="${m.lim&&m.sent>=m.lim?'down':''}">${m.lim?m.sent+' / '+m.lim:'no limit'}</span>
-        <span class="${r.length&&ok/r.length<.85?'down':'up'}">${r.length?pct(ok/r.length,0):'—'}</span></button>`;}).join('')}</div>
-    <div class="note">A limit protects the account, it is not a quota to spend. A complaint or an opt-out silences that person across every mailbox at once.</div></section>
-  <section class="crmg"><h3>What landed · ${int(n)} sends over 4 weeks</h3>
-    <div class="gstat">${[['Delivered',cnt('ok'),'up'],['Soft bounce',cnt('soft'),'warn'],['Hard bounce',cnt('hard'),'down'],['Blocklisted',cnt('block'),'down'],['Opted out',cnt('optout'),'warn'],['Complaints',cnt('spam'),'down']]
-      .map(([l,v,c])=>`<div class="gs"><b class="${c}">${int(v)}</b><span>${l}</span></div>`).join('')}</div>
-    <div class="gtable six"><div class="gth">To</div><div class="gth">Account</div><div class="gth">Mailbox</div><div class="gth">Subject</div><div class="gth">Week</div><div class="gth">Result</div>
-    ${rows.slice(0,12).map(d=>`<div class="gtr"><span>${esc(d.who)}</span><span class="faint">${esc(ACCBY[d.acc]?ACCBY[d.acc].name:'')}</span><span class="faint">${esc(MAILBY[d.mail].adr.split('@')[0])}</span>
-      <span>${esc(d.sub)}</span><span class="faint">W${d.w}</span><span class="chip ${DCLASS[d.k][1]}">${esc(DCLASS[d.k][0])}</span></div>`).join('')}</div></section>
-  <section class="crmg"><h3>Campaigns and templates</h3>
-    <div class="gtable five"><div class="gth">Campaign</div><div class="gth">Angle</div><div class="gth">Segment</div><div class="gth">Sent</div><div class="gth">Replied</div><div class="gth">Reply rate</div>
-    ${CAMP.map(([nm,ang,sg,st,rp,rr])=>`<div class="gtr"><span>${esc(nm)}</span><span class="faint">${esc(ang)}</span><span>${sg}</span><span>${int(st)}</span><span>${int(rp)}</span><span class="${rr>=6?'up':rr>=4?'':'down'}">${rr} %</span></div>`).join('')}</div>
-    <div class="note">Written for one state at a time — a template that fits every state goes to spam.</div></section>
-  <section class="crmg"><h3>Sequence · ${SEQ.length} steps</h3>
-    <div class="gtable four"><div class="gth">When</div><div class="gth">Step</div><div class="gth">Channel</div><div class="gth">Who runs it</div>
-    ${SEQ.map(([w,s,c,who])=>`<div class="gtr"><span>${esc(w)}</span><span>${esc(s)}</span><span class="faint">${esc(c)}</span><span>${esc(who)}</span></div>`).join('')}</div>
-    <div class="note">No more than 3 touches a week, and never to anyone who opted out. A reply moves the thread to a human — an agent does not answer a warm contact under your name.</div></section>
- </div>`;
-}
-function skinStub(){return S.skin==='crm'?crmScreen():gtmScreen();}
 function renderActivity(){
   $('activity').innerHTML=ENTS.map(([k,,ic])=>{
     const n=entBadge(k), on=S.ent===k&&S.layout.side;
@@ -1541,14 +1361,6 @@ function renderTabs(){
 function renderSource(t){if(t.kind==='draft')return renderDraft(t.ref);if(t.kind==='doc')return renderDoc(t.ref);if(t.kind==='msg')return renderMsg(t.ref);if(t.kind==='news')return renderNews(t.ref);if(t.kind==='org')return renderOrg();if(t.kind==='agent')return renderAgentTab(t.ref);return '';}
 function renderEditor(){
   const t=S.tabs.find(x=>x.id===S.tab)||S.tabs[0];
-  if((S.skin||'rev')!=='rev'){
-    renderTabs();$('groups').classList.remove('src');$('view2').innerHTML='';
-    if(!MAPEL)buildMapView();
-    $('mapwrap').style.display='none';$('sopview').style.display='none';$('dbview').style.display='none';
-    $('todayview').style.display='block';$('todayview').innerHTML=skinStub();
-    $('crumbs').innerHTML=`Skin <span class="faint">›</span> <b>${esc(SKINS.find(x=>x[0]===S.skin)[1])}</b> <span class="faint">· same data, same backend</span>`;
-    return;
-  }
   if(t.kind==='map'||t.kind==='sop'||t.kind==='db'||t.kind==='today'){S.primary=t.kind;S.source=null;if(t.kind==='db')S.dbKind=t.ref;
     setEnt({sop:'flow',db:S.dbKind==='person'?'ppl':'acc'}[t.kind]||S.ent);
   }else S.source=t.id;
@@ -1975,7 +1787,7 @@ function renderSOP(a){
 }
 /* =================== documents, messages, news, org =================== */
 function renderDoc(id){const d=DOCS[id],a=ACCBY[d.acc],st=S.docs[id]||{};const P=peopleOf(a);
-  const isMSA=d.kind==='MSA',canSign=S.profile==='liza';
+  const isMSA=d.kind==='MSA',canSign=S.profile==='owner';
   const signers=isMSA?[[P[0].nm,'client · decides',st.client?'signed':'not signed'],['Lisa','us · signing authority · waiting since Monday',st.us?'signed':'not signed'],['The Pricing agent','cannot sign','—']]:[];
   return `<div class="doc"><div class="doch">${logo(a,'sq big')}<div><h2>${esc(d.kind)} · ${esc(a.name)}</h2><div class="muted">${srcIc(d.src).replace('class="src"','class="av sq"')} ${SRC[d.src][0]} · W${d.w} · <span class="chip ${d.status[0]}">${st.us?'signed by us':d.status[1]}</span> · speech act: ${d.act}</div></div></div>
     <div class="kv"><div><span>Amount</span><b>${usd(a.acv)}/year</b></div><div><span>Term</span><b>36 months</b></div><div><span>SLA</span><b>99.5 %</b></div><div><span>Seats</span><b>${a.emp}</b></div></div>
@@ -2287,7 +2099,10 @@ function renderDB(){
 /* Модель мира у всех одна, работа разная: центр показывает ходы всей команды,
    а сужает до «моего куска» только правая панель — «интерфейс от этого не поменяется»
    (Николай, 25.09, 1:15:30). Раньше центр резался по роли — это откачено. */
-const WHOM={owner:'Nikolai',liza:'Lisa',sales:'Sales operator',legal:'Counsel'};
+/* Две роли. Николай 29.09: управленец и продавец — под них описываются все джобы.
+   Всё, что раньше было отдельными профилями «операции» и «юрист», — это работы
+   управленца: подпись и край свободы агента решает он. */
+const WHOM={owner:'Revenue owner',sdr:'SDR'};
 function allTriage(){
   return Object.keys(WHOM).flatMap(k=>triageFor(k).map(x=>({...x,own:k})));
 }
@@ -2319,22 +2134,17 @@ function renderToday(){
 /* =================== agent: focus (ToC) + triage + chat, per profile =================== */
 function triageFor(p){
   if(p==='owner')return [
-    {id:'t-knob',f:'Conv',u:'now',w:'broken for 6 weeks',t:'Turn the Qualifier dial: Auto → Approve',s:'lifts the constraint on the system · the Conv forecast for W42 rises',a:[['Approve','knob'],['Decline','no']]},
-    {id:'t-cmmc',f:'Segment',u:'soon',t:'Market fact: CMMC Phase 2 is paused — lower the Compliance-first forecast?',s:'Federal Register · moves Segment',a:[['Confirm','fact:m4:ok'],['Refute','fact:m4:no']]},
-    {id:'t-seller',f:'Reach',u:'soon',t:'Put Outreach back to work after the hard stop (CAN-SPAM)?',s:'the never-do “no promises outside the catalogue” fired 2×',a:[['Resume','resume'],['Keep it stopped','no']]},
-    {id:'t-msa',f:'ACV',u:'fyi',t:'The Brightline MSA has been waiting on Lisa since Monday',s:'Lisa signs — she holds the authority',a:[['Open','open:doc:d-msa']]}];
-  if(p==='liza')return [
-    {id:'t-sign',f:'ACV',u:'now',w:'waiting on you since Monday · 4d',t:'Sign the Brightline Dental MSA · $38K/year',s:'waiting on you since Monday · the client has not signed either',a:[['Open to sign','open:doc:d-msa']]},
-    {id:'t-inv',f:'Retention',u:'soon',t:'Hale & Ortiz CPA: invoice #1042 is 12d overdue',s:'the client promised to pay next week',a:[['Open the invoice','open:doc:d-inv']]},
-    {id:'t-svc',f:'Retention',u:'soon',t:'Service: 3 clients with no first value for over 14d',s:'an early churn signal',a:[['Show me','open:agent:service']]}];
-  if(p==='sales')return [
-    {id:'t-diaz',f:'Conv',u:'now',w:'silent 9d',t:'Karen Diaz (Brightline) has been silent 9d — a reminder draft is ready',s:'Dr. Moss will not move without her',a:[['Open','open:msg:p-diaz']]},
-    {id:'t-hale',f:'Conv',u:'soon',t:'Tom Hale: “$38K is a lot” — a reply with the numbers is drafted',s:'clears the constraint on this deal',a:[['Open','open:msg:p-hale']]},
-    {id:'t-v2',f:'ACV',u:'soon',t:'Brightline offer v2 with an 8 % discount — approve it?',s:'a draft from the Pricing agent',a:[['Open','open:doc:d-offer2']]}];
+    {id:'t-sign',f:'ACV',u:'now',w:'waiting on you since Monday · 4d',t:'Sign the Brightline Dental MSA · $38K/year',s:'only a human signs · the client has not signed either',a:[['Open to sign','open:doc:d-msa']]},
+    {id:'t-knob',f:'Conv',u:'now',w:'broken for 6 weeks',t:'Turn the Qualifier dial: Auto \u2192 Approve',s:'lifts the constraint on the system \u00b7 the Conv forecast for W42 rises',a:[['Approve','knob'],['Decline','no']]},
+    {id:'t-dentrix',f:'Retention',u:'now',w:'the agent is held until you decide',t:'Outreach promised a Dentrix integration \u2014 outside the catalogue',s:'the never-do fired \u00b7 exposure to a claim',a:[['Open the thread','open:msg:p-moss']]},
+    {id:'t-cmmc',f:'Segment',u:'soon',t:'Market fact: CMMC Phase 2 is paused \u2014 lower the Compliance-first forecast?',s:'Federal Register \u00b7 moves Segment',a:[['Confirm','fact:m4:ok'],['Refute','fact:m4:no']]},
+    {id:'t-seller',f:'Reach',u:'soon',t:'Put Outreach back to work after the hard stop (CAN-SPAM)?',s:'the never-do \u201cno promises outside the catalogue\u201d fired 2\u00d7',a:[['Resume','resume'],['Keep it stopped','no']]},
+    {id:'t-inv',f:'Retention',u:'soon',t:'Hale & Ortiz CPA: invoice #1042 is 12d overdue',s:'the client promised to pay next week',a:[['Open the invoice','open:doc:d-inv']]}];
   return [
-    {id:'t-dentrix',f:'Retention',u:'now',w:'the agent is held until you decide',t:'Outreach promised a Dentrix integration — outside the catalogue',s:'the never-do fired · exposure to a claim',a:[['Open the thread','open:msg:p-moss']]},
-    {id:'t-clause',f:'ACV',u:'soon',t:'14 offers are missing the “not an offer until countersigned” clause',s:'E-SIGN / UETA: an email can become an offer',a:[['Add it to the template','no']]},
-    {id:'t-msa7',f:'ACV',u:'fyi',t:'Brightline MSA: review section 7, Liability',s:'before Lisa signs',a:[['Open','open:doc:d-msa']]}];}
+    {id:'t-diaz',f:'Conv',u:'now',w:'silent 9d',t:'Karen Diaz (Brightline) has been silent 9d \u2014 a reminder draft is ready',s:'Dr. Moss will not move without her',a:[['Open','open:msg:p-diaz']]},
+    {id:'t-hale',f:'Conv',u:'soon',t:'Tom Hale: \u201c$38K is a lot\u201d \u2014 a reply with the numbers is drafted',s:'clears the constraint on this deal',a:[['Open','open:msg:p-hale']]},
+    {id:'t-v2',f:'ACV',u:'soon',t:'Brightline offer v2 with an 8 % discount \u2014 approve it?',s:'a draft from the Pricing agent',a:[['Open','open:doc:d-offer2']]},
+    {id:'t-svc',f:'Retention',u:'fyi',t:'Service: 3 clients with no first value for over 14d',s:'an early churn signal',a:[['Show me','open:agent:service']]}];}
 const FEVER=[
   {id:'pf',nm:'Price-first TX/FL',x:.40,y:.92,open:null,why:'Conv 36 → 12 %: the Qualifier lets deals through unscreened'},
   {id:'br',nm:'Brightline $38K',x:.62,y:.78,open:'sop:a0',why:'the signature is waiting on Tom Hale (pays)'},
@@ -2353,15 +2163,12 @@ function fever(){const W=300,H=150,pl=28,pb=20,pw=W-pl-8,ph=H-pb-8,X=v=>pl+v*pw,
     h+=`<circle class="pt" cx="${X(f.x)}" cy="${Y(f.y)}" r="${i===0?6:4.5}" fill="${col}" ${f.open?`data-open="${f.open}"`:(i===0?'data-do="showtx"':'')} data-tip="${esc(f.nm+': '+f.why)}"></circle>`;
     if(i<2)h+=`<text class="lab" x="${X(f.x)+(i===0?9:-9)}" y="${Y(f.y)+4}" text-anchor="${i===0?'start':'end'}">${esc(f.nm)}</text>`;});
   return h+'</svg>';}
-function focusFor(p){const F=formulaAt(S.t),P=formulaAt(S.t-WIN);
+function focusFor(p){
   if(p==='owner'){const B=bnCur();const L=BNS();
-    return {t:B.t,d:B.d+` Constraint ${(S.bn||0)+1} of ${L.length} — one at a time.`,
+    return {t:B.t,d:B.d+` Constraint ${(S.bn||0)+1} of ${L.length} \u2014 one at a time.`,
       btn:B.draft?[['Open the draft','open:draft:'+B.id],['Show it on the map','showtx']]
                  :[['Open the Brightline SOP','open:sop:a0'],['Show it on the map','showtx']]};}
-  if(p==='__never')return {t:'System constraint: interest → signature in Price-first (TX, FL)',d:`Conv ${pct(P.conv)} → ${pct(F.conv)} over 4 weeks. The cause sits upstream: the Qualifier has been letting deals through unscreened since W36. One constraint at a time.`,btn:[['Show it on the map','showtx'],['Open the Brightline SOP','open:sop:a0']]};
-  if(p==='liza')return {t:'The Brightline MSA has been waiting on your signature since Monday',d:'The client has not signed either: Tom Hale still has to agree. Your signature clears half the buffer on this deal.',btn:[['Open to sign','open:doc:d-msa']]};
-  if(p==='sales')return {t:'9 offers in DFW have been silent 8+ days',d:'The biggest is Brightline ($38K): waiting on Tom Hale (pays). Answer his objection — the rest can wait.',btn:[['Open the Brightline SOP','open:sop:a0'],['Show DFW','showdfw']]};
-  return {t:'Agents promising things outside the catalogue',d:'The never-do “no promises outside the catalogue” fired twice this week; the dangerous one was a Dentrix integration. Outreach is stopped.',btn:[['Open the Moss thread','open:msg:p-moss']]};}
+  return {t:'9 offers in DFW have been silent 8+ days',d:'The biggest is Brightline ($38K): waiting on Tom Hale (pays). Answer his objection \u2014 the rest can wait.',btn:[['Open the Brightline SOP','open:sop:a0'],['Show DFW','showdfw']]};}
 const URG={now:0,soon:1,fyi:2};
 
 /* ============ Цепочка узких мест с готовым ходом ============
@@ -2395,11 +2202,11 @@ function bnCur(){const L=BNS();return L[Math.min(S.bn||0,L.length-1)];}
 function bnDone(){const L=BNS();return (S.bn||0)>=L.length-1?null:L[(S.bn||0)+1];}
 function renderAgent(){
   const p=S.profile,f=focusFor(p),tri=triageFor(p);
-  const who={owner:'job — grow revenue',liza:'job — sign it and launch it without a hitch',sales:'job — carry offers through to signature',legal:'job — keep the machine from committing the company to anything extra'}[p];
-  const me={owner:'Nikolai',liza:'Lisa',sales:'Sales operator',legal:'Counsel'}[p];
+  const who={owner:'job \u2014 grow revenue',sdr:'job \u2014 get my people to a signature'}[p];
+  const me={owner:'Nikolai Bobrov',sdr:'Dana Whitfield'}[p];
   const turnA=(html)=>`<div class="turn"><div class="by"><span class="av bot">${ICONS.bot}</span>My agent <span class="faint">· ${who}</span></div><div class="bodyt">${html}</div></div>`;
   const nOpen=tri.filter(x=>!S.tri[x.id]).length;
-  $('agbody').innerHTML=turnA(`<span>${me}, the thing that matters right now is one constraint. The rest can wait.</span>
+  $('agbody').innerHTML=turnA(`<span>The thing that matters right now is one constraint. The rest can wait.</span>
     <div class="focus"><span class="k">Constraint · TOC</span><span class="t">${f.t}</span>
       <div class="btns"><button class="btn" data-do="today">Work on it in the centre${nOpen?` · ${nOpen}`:''}</button></div></div>
     <div class="note" style="margin-top:8px">The queue of moves and the analysis live in the centre, on the Today tab. Here I only flag things and answer questions.</div>
@@ -2454,7 +2261,7 @@ function ask(q){if(!q.trim())return;S.chat.push({u:1,t:esc(q)});
 
 /* =================== status bar & palette =================== */
 function renderStatus(){const F=formulaAt(S.t),P=formulaAt(S.t-WIN),d=F.end/P.end-1,alarms=AGENTS.filter(a=>a.state==='paused').length;
-  $('status').innerHTML=`<span class="it num">${S.t>NOW?'forecast':S.t===NOW?'● now':'past'} W${S.t} · ${wkd(S.t)}</span><span class="it num">ARR ${usd(F.end)} <span class="${d>=0?'up':'down'}">${d>=0?'▲':'▼'} ${Math.abs(d*100).toFixed(1)} %</span></span><span class="it num">Conv ${pct(F.conv)}</span><button class="it" style="color:var(--link);font-weight:600" data-do="focuscard">⚠ Conv — the constraint</button>${alarms?`<span class="it faint">■ ${alarms} agent stopped by a hard stop</span>`:''}<span class="sp"></span><span class="it">sources 7/7 in sync</span><span class="it faint" data-tip="When this version was published. If it is older than what you expect, the page came from cache — press Cmd+Shift+R.">build Sep 29, 16:04</span><span class="it">${esc($('profile').selectedOptions[0].text)}</span>`;}
+  $('status').innerHTML=`<span class="it num">${S.t>NOW?'forecast':S.t===NOW?'● now':'past'} W${S.t} · ${wkd(S.t)}</span><span class="it num">ARR ${usd(F.end)} <span class="${d>=0?'up':'down'}">${d>=0?'▲':'▼'} ${Math.abs(d*100).toFixed(1)} %</span></span><span class="it num">Conv ${pct(F.conv)}</span><button class="it" style="color:var(--link);font-weight:600" data-do="focuscard">⚠ Conv — the constraint</button>${alarms?`<span class="it faint">■ ${alarms} agent stopped by a hard stop</span>`:''}<span class="sp"></span><span class="it">sources 7/7 in sync</span><span class="it faint" data-tip="When this version was published. If it is older than what you expect, the page came from cache — press Cmd+Shift+R.">build Sep 29, 17:13</span><span class="it">${esc($('profile').selectedOptions[0].text)}</span>`;}
 let palSel=0;
 function openPal(){$('pal').hidden=false;$('palIn').value='';palSel=0;renderPal();$('palIn').focus();}
 function renderPal(){const q=$('palIn').value.toLowerCase();const r=allEntities().filter(e=>!q||(e.t+' '+e.ty).toLowerCase().includes(q)).slice(0,30);S.palR=r;
@@ -2484,7 +2291,7 @@ function openRef(k){
 }
 function logAdd(ag,ttl,st){(S.extraLogs=S.extraLogs||[]).push({ag,w:NOW,ttl,st});}
 document.addEventListener('click',e=>{
-  const b=e.target.closest('[data-crmacc],[data-mailopen],[data-open],[data-side],[data-tab],[data-close],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-step],[data-plus],[data-newchat],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-knobw],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepmv],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-mapview],[data-skin],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-fmode],[data-dbsort],[data-dbmore],[data-dbkind],[data-slice],[data-mark],[data-note],[data-notecancel],[data-ent],[data-ef],[data-flow],[data-mail],[data-common],[data-importfacts],[data-nextbn],[data-influencer],#fDown,#addFact,#addNote,#play');
+  const b=e.target.closest('[data-open],[data-side],[data-tab],[data-close],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-step],[data-plus],[data-newchat],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-knobw],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepmv],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-mapview],[data-skin],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-fmode],[data-dbsort],[data-dbmore],[data-dbkind],[data-slice],[data-mark],[data-note],[data-notecancel],[data-ent],[data-ef],[data-flow],[data-mail],[data-common],[data-importfacts],[data-nextbn],[data-influencer],#fDown,#addFact,#addNote,#play');
   if(!b)return;
   if(b.dataset.pal)$('pal').hidden=true;
   if(b.dataset.dense!==undefined){S.dense=b.dataset.dense==='1';renderPanel();return;}
@@ -2514,9 +2321,6 @@ document.addEventListener('click',e=>{
     const cur=S.steps[i].ag;S.steps[i].ag=opts[(opts.indexOf(cur)+1)%opts.length];
     if(!S.rules[S.steps[i].ag])S.rules[S.steps[i].ag]=[{id:'n1',t:'no rule set yet',on:false}];
     renderEditorLight();return;}
-  if(b.dataset.skin){S.skin=b.dataset.skin;renderSkins();renderEditor();return;}
-  if(b.dataset.crmacc){S.crmAcc=b.dataset.crmacc;S.sopAcc=b.dataset.crmacc;renderEditor();return;}
-  if(b.dataset.mailopen){S.skin='rev';S.mail=b.dataset.mailopen;setEnt('us');S.ptab='channel';renderSkins();renderEditor();renderAll();return;}
   if(b.dataset.treemode){S.treeMode=b.dataset.treemode;renderSide();return;}
   if(b.dataset.common){const id=b.dataset.common;S.common=S.common||{};S.common[id]=!S.common[id];
     toast(S.common[id]?'Moved to common ground — it no longer counts as a signal.':'Back to being a signal.');renderPanel();return;}
