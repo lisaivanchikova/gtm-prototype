@@ -417,6 +417,8 @@ body.focus-mode .ptabs{cursor:pointer}
 .ptab .cnt{font-family:var(--mono);font-size:11px;background:var(--hover);border-radius:8px;padding:0 5px}
 .pbody{flex:1;min-height:0;display:grid;grid-template-columns:260px minmax(0,1fr);gap:0}
 .panel-right .pbody{grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr)}
+.ecard[hidden]{display:none}
+.pbody.nocard{grid-template-columns:minmax(0,1fr)}
 .ecard{border-right:1px solid var(--border);padding:10px 12px;display:flex;flex-direction:column;gap:8px;overflow:auto}
 .ecard>.btn:last-child{position:sticky;bottom:0;align-self:flex-start}
 .panel-right .ecard{border-right:0;border-bottom:1px solid var(--border)}
@@ -1048,7 +1050,7 @@ const DOCS={
   'd-quest':{acc:'a0',src:'pdf',kind:'Questionnaire',ttl:'HIPAA security questionnaire completed: 14 seats, no MFA',w:36,status:['flat','received'],act:'assertion'},
   'd-offer1':{acc:'a0',src:'pandadoc',kind:'Offer v1',ttl:'Offer v1 \u00b7 $38K/year \u00b7 36 months \u2014 opened 3 times, not signed',w:37,status:['down','silent 9d'],act:'promise'},
   'd-offer2':{acc:'a0',src:'pandadoc',kind:'Offer v2',ttl:'Offer v2 draft \u00b7 8 % discount \u00b7 waiting on a human to approve',w:38,status:['warn','agent draft'],act:'promise'},
-  'd-msa':{acc:'a0',src:'docusign',kind:'MSA',ttl:'MSA \u00b7 $38,000/year \u00b7 awaiting signatures from Dr. Moss and Lisa since Monday',w:38,status:['warn','awaiting signature'],act:'declaration'},
+  'd-msa':{acc:'a0',src:'docusign',kind:'MSA',ttl:'MSA \u00b7 $38,000/year \u00b7 awaiting signatures from Dr. Moss and the revenue owner since Monday',w:38,status:['warn','awaiting signature'],act:'declaration'},
   'd-inv':{acc:'a1',src:'quickbooks',kind:'Invoice',ttl:'Invoice #1042 \u00b7 $2,583 \u00b7 12 days overdue',w:37,status:['down','overdue'],act:'request'},
   'd-sla':{acc:'a1',src:'rmm',kind:'SLA report',ttl:'August SLA report: 99.7 % uptime, 14 tickets, all on time',w:36,status:['up','SLA met'],act:'assertion'}};
 const MSGS={
@@ -1987,8 +1989,9 @@ function renderEcard(){
      сигнала от шума, описание объекта не сигнал. Остаётся только сводка среза,
      когда ничего не выбрано: она своего не повторяет. */
   const t=S.t,sel=S.sel,tab=S.ptab;let h='';
-  if(sel){$('ecard').innerHTML='';$('ecard').hidden=true;return;}
-  $('ecard').hidden=false;
+  const pb=document.querySelector('.pbody');
+  if(sel){$('ecard').innerHTML='';$('ecard').hidden=true;if(pb)pb.classList.add('nocard');return;}
+  $('ecard').hidden=false;if(pb)pb.classList.remove('nocard');
   const params=arr=>`<div class="params">${arr.map(([k,v])=>`<div>${k}<b>${v}</b></div>`).join('')}</div>`;
   if(sel&&sel.type==='acc'){const a=ACCBY[sel.id],e=stateAt(a,t),m=momentum(a,t);
     h=`<div class="top">${logo(a,'sq big')}<div><h3>${esc(a.name)}</h3><div class="sub">${a.city}, ${a.st} · ${segBy(a.seg).name}</div></div></div>`+fields([
@@ -2278,7 +2281,7 @@ function renderAgent(){
       :['Simulate revenue scenarios','Rewrite the rule on the Qualification step','Why did Conv drop?','Who has to sign Brightline?']).map(s=>`<button data-ask="${s}">${s}</button>`).join('');}
 function answer(q){const F=formulaAt(S.t),P=formulaAt(S.t-WIN),l=q.toLowerCase();
   if(/conv|drop|convers/.test(l))return `Conv ${pct(P.conv)} → ${pct(F.conv)}. Since W36 Scout has been pulling a cheap channel in TX and FL, the Qualifier lets Price-first through unscreened, and their offers go silent. This is the system constraint: turn the Qualifier dial to Approve.`;
-  if(/sign|msa/.test(l))return 'On the client side Dr. Moss signs, but he is waiting on Tom Hale (pays), who has a price objection. On our side Lisa signs — she holds the authority, and it has been waiting since Monday. An agent cannot sign.';
+  if(/sign|msa/.test(l))return 'On the client side Dr. Moss signs, but he is waiting on Tom Hale (pays), who has a price objection. On our side the revenue owner signs, and it has been waiting since Monday. An agent cannot sign.';
   if(/dial|autonomy|forecast/.test(l)){const s=S.knob.qual;S.knob.qual=1;const t=S.t;S.t=TMAX;const B=formulaAt(TMAX);S.knob.qual=2;const A=formulaAt(TMAX);S.knob.qual=s;S.t=t;return `Forecast for W42: Conv ${pct(A.conv)} → ${pct(B.conv)}, less reach, ARR almost the same (${usd(A.end)} against ${usd(B.end)}). We will check it against the actual W42 number.`;}
   if(/brightline|moss/.test(l))return accPhrase(BRIGHT,S.t)+'. The constraint is Tom Hale’s agreement. A reply to him is drafted in the People feed.';
   return 'Ask me about any object in the model of the world: a segment, an account, a person, a document, an agent.';}
@@ -2323,7 +2326,7 @@ function ask(q){if(!q.trim())return;S.chat.push({u:1,t:esc(q)});
 
 /* =================== status bar & palette =================== */
 function renderStatus(){const F=formulaAt(S.t),P=formulaAt(S.t-WIN),d=F.end/P.end-1,alarms=AGENTS.filter(a=>a.state==='paused').length;
-  $('status').innerHTML=`<span class="it num">${S.t>NOW?'forecast':S.t===NOW?'● now':'past'} W${S.t} · ${wkd(S.t)}</span><span class="it num">ARR ${usd(F.end)} <span class="${d>=0?'up':'down'}">${d>=0?'▲':'▼'} ${Math.abs(d*100).toFixed(1)} %</span></span><span class="it num">Conv ${pct(F.conv)}</span><button class="it" style="color:var(--link);font-weight:600" data-do="focuscard">⚠ Conv — the constraint</button>${alarms?`<span class="it faint">■ ${alarms} agent stopped by a hard stop</span>`:''}<span class="sp"></span><span class="it">sources 7/7 in sync</span><span class="it faint" data-tip="When this version was published. If it is older than what you expect, the page came from cache — press Cmd+Shift+R.">build Sep 29, 18:45</span><span class="it">${esc($('profile').selectedOptions[0].text)}</span>`;}
+  $('status').innerHTML=`<span class="it num">${S.t>NOW?'forecast':S.t===NOW?'● now':'past'} W${S.t} · ${wkd(S.t)}</span><span class="it num">ARR ${usd(F.end)} <span class="${d>=0?'up':'down'}">${d>=0?'▲':'▼'} ${Math.abs(d*100).toFixed(1)} %</span></span><span class="it num">Conv ${pct(F.conv)}</span><button class="it" style="color:var(--link);font-weight:600" data-do="focuscard">⚠ Conv — the constraint</button>${alarms?`<span class="it faint">■ ${alarms} agent stopped by a hard stop</span>`:''}<span class="sp"></span><span class="it">sources 7/7 in sync</span><span class="it faint" data-tip="When this version was published. If it is older than what you expect, the page came from cache — press Cmd+Shift+R.">build Sep 29, 19:08</span><span class="it">${esc($('profile').selectedOptions[0].text)}</span>`;}
 let palSel=0;
 function openPal(){$('pal').hidden=false;$('palIn').value='';palSel=0;renderPal();$('palIn').focus();}
 function renderPal(){const q=$('palIn').value.toLowerCase();const r=allEntities().filter(e=>!q||(e.t+' '+e.ty).toLowerCase().includes(q)).slice(0,30);S.palR=r;
