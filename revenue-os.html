@@ -1203,7 +1203,7 @@ const ENTFEED={seg:'market',acc:'account',ppl:'people',flow:'flow',ag:'agents',u
    «У него будет срез по документам… а у Карины узкое место — лид не ответил, вот здесь
    в ленте» (Николай, 25.09). Управленец живёт сегментом и формулой, продавец — человеком
    и сообщением. */
-const ROLEHOME={owner:{ent:'seg',db:'account'},sdr:{ent:'ppl',db:'person'}};
+const ROLEHOME={owner:{ent:'seg',db:'acc'},sdr:{ent:'ppl',db:'person'}};
 function setEnt(k){if(!k||S.ent===k){S.ptab=S.mail?'channel':ENTFEED[S.ent];return;}S.ent=k;S.ptab=ENTFEED[k];S.mail=null;}
 /* Бейдж обещает ровно то, что человек увидит, нажав кнопку: число строк,
    требующих хода, в ленте этой сущности. Одно число вместо трёх разных. */
@@ -2136,7 +2136,7 @@ function dbRows(kind){
   if(q)r=r.filter(x=>(x.nm+' '+x.acc+' '+x.role+' '+x.title).toLowerCase().includes(q));
   return r;}
 function renderDB(){
-  const kind=S.dbKind||'acc',cols=DBCOLS[kind];
+  const kind=DBCOLS[S.dbKind]?S.dbKind:'acc',cols=DBCOLS[kind];
   const sort=S.dbSort||{k:kind==='acc'?'acv':'nm',d:kind==='acc'?-1:1};
   const total=ACC.filter(a=>stateAt(a,S.t)).length*(kind==='acc'?1:3);
   let rows=dbRows(kind);
@@ -2327,7 +2327,7 @@ function ask(q){if(!q.trim())return;S.chat.push({u:1,t:esc(q)});
 
 /* =================== status bar & palette =================== */
 function renderStatus(){const F=formulaAt(S.t),P=formulaAt(S.t-WIN),d=F.end/P.end-1,alarms=AGENTS.filter(a=>a.state==='paused').length;
-  $('status').innerHTML=`<span class="it num">${S.t>NOW?'forecast':S.t===NOW?'● now':'past'} W${S.t} · ${wkd(S.t)}</span><span class="it num">ARR ${usd(F.end)} <span class="${d>=0?'up':'down'}">${d>=0?'▲':'▼'} ${Math.abs(d*100).toFixed(1)} %</span></span><span class="it num">Conv ${pct(F.conv)}</span><button class="it" style="color:var(--link);font-weight:600" data-do="focuscard">⚠ Conv — the constraint</button>${alarms?`<span class="it faint">■ ${alarms} agent stopped by a hard stop</span>`:''}<span class="sp"></span><span class="it">sources 7/7 in sync</span><span class="it faint" data-tip="When this version was published. If it is older than what you expect, the page came from cache — press Cmd+Shift+R.">build Sep 29, 19:20</span><span class="it">${esc($('profile').selectedOptions[0].text)}</span>`;}
+  $('status').innerHTML=`<span class="it num">${S.t>NOW?'forecast':S.t===NOW?'● now':'past'} W${S.t} · ${wkd(S.t)}</span><span class="it num">ARR ${usd(F.end)} <span class="${d>=0?'up':'down'}">${d>=0?'▲':'▼'} ${Math.abs(d*100).toFixed(1)} %</span></span><span class="it num">Conv ${pct(F.conv)}</span><button class="it" style="color:var(--link);font-weight:600" data-do="focuscard">⚠ Conv — the constraint</button>${alarms?`<span class="it faint">■ ${alarms} agent stopped by a hard stop</span>`:''}<span class="sp"></span><span class="it">sources 7/7 in sync</span><span class="it faint" data-tip="When this version was published. If it is older than what you expect, the page came from cache — press Cmd+Shift+R.">build Sep 29, 20:02</span><span class="it">${esc($('profile').selectedOptions[0].text)}</span>`;}
 let palSel=0;
 function openPal(){$('pal').hidden=false;$('palIn').value='';palSel=0;renderPal();$('palIn').focus();}
 function renderPal(){const q=$('palIn').value.toLowerCase();const r=allEntities().filter(e=>!q||(e.t+' '+e.ty).toLowerCase().includes(q)).slice(0,30);S.palR=r;
@@ -2345,12 +2345,15 @@ function openRef(k){
     openTab('draft',B.id,'Draft · '+(personById(B.draft.to)||{nm:''}).nm.split(' ').slice(-1)[0]);
     setEnt('ppl');S.sel={type:'person',id:B.draft.to};renderAllButMap();return;}
   if(type==='acc'){selectAcc(ACCBY[id]);return;}
-  if(type==='seg'){S.seg=S.seg===id?null:id;setEnt('seg');S.sel=null;if(S.tab!=='map'){S.tab='map';renderEditor();}renderAll();return;}
+  if(type==='seg'){S.seg=S.seg===id?null:id;setEnt('seg');S.sel=null;S.level='segment';
+    if(S.tab!=='map'){S.tab='map';renderEditor();}
+    if(ML&&ML.getZoom()>=4.2)ML.flyTo({center:[-98.5,39.5],zoom:3.1,duration:700});
+    renderAll();return;}
   if(type==='person'){const p=personById(id);S.sel={type:'person',id};setEnt('ppl');openTab('msg',id,'Profile · '+p.nm);renderAllButMap();return;}
   if(type==='msg'){const p=personById(id);S.sel={type:'person',id};setEnt('ppl');openTab('msg',id,'Profile · '+p.nm);renderAllButMap();return;}
   if(type==='doc'){setEnt('acc');S.sel={type:'acc',id:DOCS[id].acc};openTab('doc',id,DOCS[id].kind+' · '+ACCBY[DOCS[id].acc].name.split(' ')[0]);renderAllButMap();return;}
   if(type==='news'){setEnt('seg');openTab('news',id,MARKET.find(n=>n.id===id).ttl.slice(0,28)+'…');renderAllButMap();return;}
-  if(type==='sop'){S.sopAcc=id;S.sel={type:'acc',id};S.tab='sop';renderEditor();renderAllButMap();return;}
+  if(type==='sop'){S.sopAcc=id;S.sel={type:'acc',id};S.tab='sop';setEnt('flow');renderEditor();renderAllButMap();return;}
   if(type==='agent'){S.sel={type:'agent',id};setEnt('ag');openTab('agent',id,'Agent · '+agBy(id).nm);renderAllButMap();return;}
   if(type==='us'){openTab('org','us','Us · people and agents');setEnt('us');S.sel=null;renderAllButMap();return;}
   if(type==='db'){S.dbKind=id;S.dbN=50;S.dbSort=null;openTab('db',id,'Database · '+(id==='acc'?'accounts':'people'));return;}
