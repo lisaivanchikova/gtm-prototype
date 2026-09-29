@@ -113,6 +113,13 @@ q{quotes:"«" "»"}
 .av.bot{border-radius:5px;background:var(--agent);border-color:var(--agent);color:#fff}
 .av.big{width:40px;height:40px;font-size:14px}
 .av.mid{width:28px;height:28px;font-size:11px}
+.av.lg{overflow:hidden;padding:2px;background:transparent}
+.av.lg svg{width:100%;height:100%;display:block}
+.av.lg.big{padding:4px;border-radius:8px}
+.av.lg.mid{padding:3px}
+.av.pf{overflow:hidden;padding:0;border-radius:50%;background:var(--border)}
+.av.pf svg{width:100%;height:100%;display:block}
+.av.pf.hum{background:var(--border);border-color:var(--human)}
 .naics{font-family:var(--mono);font-size:11px;color:var(--fg3)}
 .chip{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:0 6px;height:17px;border-radius:9px;border:1px solid currentColor;white-space:nowrap;letter-spacing:.02em}
 .chip.up{color:var(--up)} .chip.down{color:var(--down)} .chip.flat{color:var(--flat)} .chip.warn{color:var(--warn)} .chip.acc{color:var(--accent)} .chip.agent{color:var(--agent)}
@@ -895,14 +902,13 @@ function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a
 const R=mulberry32(20260925), rint=(a,b)=>a+Math.floor(R()*(b-a+1));
 function wpick(arr,wf){const tot=arr.reduce((s,x)=>s+wf(x),0);let r=R()*tot;for(const x of arr){r-=wf(x);if(r<=0)return x;}return arr[arr.length-1];}
 const proj=d3.geoAlbersUsa().scale(1300).translate([487.5,305]);
-function ticker(n){const w=n.replace(/[^A-Za-z ]/g,'').split(' ').filter(Boolean);let s=(w[0][0]+w[0].slice(1).replace(/[aeiou]/gi,'')).toUpperCase();if(s.length<4&&w[1])s+=w[1].toUpperCase();return s.slice(0,4);}
 
 const ACC=[];
 function makeAcc(o){
   const m=o.metro, mi=METROS.indexOf(m), [px,py]=proj([m[2],m[3]]), ang=R()*Math.PI*2, rad=Math.sqrt(R())*(3+m[4]*1.1);
   const seg=SEGS.find(s=>s.id===o.seg);
   const name=o.name||`${N1[rint(0,N1.length-1)]} ${N2[o.seg][rint(0,7)]} ${SUF[rint(0,4)]}`;
-  const a={id:'a'+ACC.length,seg:o.seg,mi,city:o.city||m[0],st:m[1],x:o.x??px+Math.cos(ang)*rad,y:o.y??py+Math.sin(ang)*rad,name,tk:ticker(name),
+  const a={id:'a'+ACC.length,seg:o.seg,mi,city:o.city||m[0],st:m[1],x:o.x??px+Math.cos(ang)*rad,y:o.y??py+Math.sin(ang)*rad,name,
     acv:o.acv||Math.round(seg.acv*(0.7+R()*0.6)/500)*500,emp:o.emp||rint(6,60),ev:o.ev,cheap:!!o.cheap,payW:o.payW??null,valW:o.valW??null,reason:o.reason||null,
     people:o.people||null,seed:rint(1,1e6),hue:HUE[rint(0,7)],feat:!!o.feat};
   ACC.push(a);return a;
@@ -937,11 +943,11 @@ const OURS=[
   {id:'h-ops',nm:'Ops director',title:'service and SLA',kind:'human',boss:'h-nik'},
   {id:'h-law',nm:'Counsel (external)',title:'contracts and clauses',kind:'human',boss:'h-nik'}];
 const AGENTS=[
-  {id:'scout',ini:'S',nm:'Scout',title:'finds accounts, makes the first touch',owner:'h-nik',owns:[1],state:'active'},
-  {id:'qual',ini:'Q',nm:'Qualifier',title:'screens against the segment\u2019s causal criteria',owner:'h-nik',owns:[2],state:'active'},
-  {id:'seller',ini:'O',nm:'Outreach',title:'correspondence, demos, follow-up',owner:'h-nik',owns:[3],state:'paused'},
-  {id:'pricer',ini:'P',nm:'Pricing',title:'assembles the offer and the price',owner:'h-nik',owns:[3],state:'awaiting'},
-  {id:'service',ini:'Sv',nm:'Service',title:'onboarding, SLA, invoices',owner:'h-liza',owns:[5,6],state:'active'}];
+  {id:'scout',nm:'Scout',title:'finds accounts, makes the first touch',owner:'h-nik',owns:[1],state:'active'},
+  {id:'qual',nm:'Qualifier',title:'screens against the segment\u2019s causal criteria',owner:'h-nik',owns:[2],state:'active'},
+  {id:'seller',nm:'Outreach',title:'correspondence, demos, follow-up',owner:'h-nik',owns:[3],state:'paused'},
+  {id:'pricer',nm:'Pricing',title:'assembles the offer and the price',owner:'h-nik',owns:[3],state:'awaiting'},
+  {id:'service',nm:'Service',title:'onboarding, SLA, invoices',owner:'h-liza',owns:[5,6],state:'active'}];
 const KNOB=['Suggest','Approve','Auto'];
 const STOPS={scout:['never writes to anyone who opted out; \u2264 3 touches a week',0],qual:['never passes a deal on without an answer about price',0],seller:['never promises anything outside the catalogue',2],pricer:['a discount above 12 % goes to a human',1],service:['never cuts a client off for non-payment on its own',0]};
 const JOBS=[['','all jobs'],['hipaa','pass a HIPAA audit'],['ftc','meet FTC Safeguards'],['dfm','hand off IT entirely'],['price','cut the IT bill']];
@@ -1122,7 +1128,72 @@ const ago=w=>{const d=(S.t-w)*7;return d<=0?'now':d+'d';};
 const arrow=m=>m>0?'▲':m<0?'▼':'■';
 const mcls=m=>m>0?'up':m<0?'down':'flat';
 function dd(v,kind,th){const c=v>th?'up':v<-th?'down':'flat';const s=Math.abs(v*100).toFixed(kind==='pp'&&Math.abs(v)<.001?3:1)+(kind==='pp'?'\u00a0pp':'\u00a0%');return `<span class="d ${c}">${arrow(v>th?1:v<-th?-1:0)} ${s}</span>`;}
-function av(nm,col,cls=''){const ini=nm.replace(/^Dr\. /,'').split(/\s+/).map(w=>w[0]).join('').slice(0,2).toUpperCase();return `<span class="av ${cls} ${col==='var(--human)'?'hum':''}">${esc(ini)}</span>`;}
+/* ===== Проход 4 · картинки =====================================================
+   Форма несёт род объекта, рисунок — который именно.
+   Юрлицо  — знак в скруглённом квадрате: у компании есть логотип.
+   Человек — портрет в круге: у человека есть лицо.
+   Агент   — глиф своего дела в квадрате со скруглением 5: агент — не человек.
+   Всё считается из имени, поэтому картинка у объекта всегда одна и та же. */
+function hsh(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return (h>>>0);}
+function tint(hex,a){const n=parseInt(hex.slice(1),16);return `rgba(${n>>16&255},${n>>8&255},${n&255},${a})`;}
+
+/* Восемь знаков. Геометрия жирная: знак читается на 16 px в строке ленты. */
+const MARKS=[
+  '<path d="M12 2.6 20.5 5.8v6.6c0 4.9-3.6 8-8.5 9.2-4.9-1.2-8.5-4.3-8.5-9.2V5.8z"/>',
+  '<path fill-rule="evenodd" d="M12 2.4 20.6 7.4v9.2L12 21.6 3.4 16.6V7.4zm0 4.6L7.4 9.7v4.6L12 17l4.6-2.7V9.7z"/>',
+  '<path d="M12 4.6 20 12l-2.9 2.7L12 10 6.9 14.7 4 12zM12 12.8l8 7.4-2.9 2.7L12 18.2l-5.1 4.7L4 20.2z" transform="translate(0 -2.4)"/>',
+  '<g fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><path d="M4.6 15.4a10.4 10.4 0 0 1 14.8 0"/><path d="M8.6 19.1a5 5 0 0 1 6.8 0"/></g><circle cx="12" cy="21" r="1.9"/>',
+  '<rect x="3.2" y="3.2" width="7.6" height="7.6" rx="1.4"/><rect x="13.2" y="3.2" width="7.6" height="7.6" rx="1.4"/><rect x="3.2" y="13.2" width="7.6" height="7.6" rx="1.4"/><rect x="14.4" y="14.4" width="5.2" height="5.2" rx="1.1" opacity=".55"/>',
+  '<g fill="none" stroke="currentColor" stroke-width="3.4"><path d="M12 3.6a8.4 8.4 0 1 1-6.5 3.1"/></g><circle cx="12" cy="12" r="2.6"/>',
+  '<g stroke="currentColor" stroke-width="2.4"><path d="M12 5.6 5.6 17.4h12.8z" fill="none"/></g><circle cx="12" cy="5.2" r="3.6"/><circle cx="5" cy="18.2" r="3.6"/><circle cx="19" cy="18.2" r="3.6"/>',
+  '<path d="M13.8 2.2 5.4 13.4h5.3l-1.4 8.4 8.9-11.6h-5.3z"/>'];
+/* Знак юрлица. cls: sq | sq big | sq mid */
+function logo(a,cls=''){
+  const h=hsh(a.name||''),m=MARKS[h%8],st=(h>>>3)%3,c=a.hue||'#5c6b7a';
+  const box=st===0?`background:${c};border-color:${c};color:#fff`
+          :st===1?`background:transparent;border-color:${c};color:${c}`
+                 :`background:${tint(c,.16)};border-color:${tint(c,.45)};color:${c}`;
+  return `<span class="av lg ${cls}" style="${box}"><svg viewBox="0 0 24 24" fill="currentColor">${m}</svg></span>`;}
+
+/* Портрет. Набирается из черт, каждая — из имени. Не фотография: людей выдумали мы. */
+const SKIN=['#f2cda8','#e5b189','#cf9068','#ab6f4d','#805239','#f7dcc4'],
+      HAIR=['#211a14','#3f2c1f','#6f4a2c','#a8783d','#d6bd8d','#8d8d8d','#55342a'],
+      SHIRT=['#3a4a5e','#4d5a6b','#5b6e8c','#7a6a5d','#6b5b7a','#3f6b63','#8a5a5a','#2f4858'],
+      BACK=['#cfd8e3','#dbd4c9','#cddbd3','#e1d4d9','#d6d6e1','#ded9ca'];
+const HAIRCUT=[
+  h=>`<path d="M10.2 17.4C9.5 9.2 13.4 5.4 20 5.4s10.5 3.8 9.8 12c-1.2-4.9-4.6-6.6-9.8-6.6s-8.6 1.7-9.8 6.6z" fill="${h}"/>`,
+  h=>`<path d="M11 14.6C12.6 9.8 15.9 7.6 20 7.6c4.5 0 7.6 2.4 8.8 7.4-2.4-2.6-5.2-3.6-8.8-3.6-3.3 0-6.3.9-9 3.2z" fill="${h}"/>`,
+  h=>`<path d="M10.2 17.4C9.5 9.2 13.4 5.4 20 5.4s10.5 3.8 9.8 12v9h-3.4V14.2c-1.8 1-4 1.5-6.4 1.5s-4.6-.5-6.4-1.5v12.2h-3.4z" fill="${h}"/>`,
+  h=>`<path d="M10.2 17.4C9.5 9.2 13.4 5.4 20 5.4s10.5 3.8 9.8 12v13.4h-3.9V14.2c-1.8 1-4 1.5-5.9 1.5s-4.1-.5-5.9-1.5v16.6h-3.9z" fill="${h}"/>`,
+  h=>`<path d="M10.2 17.4C9.5 9.2 13.4 5.4 20 5.4s10.5 3.8 9.8 12c-1.2-4.9-4.6-6.6-9.8-6.6s-8.6 1.7-9.8 6.6z" fill="${h}"/><circle cx="20" cy="4.4" r="3.4" fill="${h}"/>`,
+  h=>`<g fill="${h}"><circle cx="13" cy="11.4" r="4"/><circle cx="20" cy="8.6" r="4.6"/><circle cx="27" cy="11.4" r="4"/><path d="M10.6 15.6c1-3.6 4.6-5.4 9.4-5.4s8.4 1.8 9.4 5.4z"/></g>`,
+  h=>`<path d="M10.6 16.6C10.6 9.6 14.6 6.2 20 6.2s9.4 3.4 9.4 10.4c-1.6-4.2-4.8-6-9.4-6s-7.8 1.8-9.4 6z" fill="${h}" opacity=".78"/>`,
+  ()=>''];
+function faceSVG(nm){
+  const h=hsh(nm||''),sk=SKIN[h%6],hr=HAIR[(h>>>3)%7],sh=SHIRT[(h>>>6)%8],bg=BACK[(h>>>9)%6],
+        cut=HAIRCUT[(h>>>12)%8],beard=((h>>>15)%5)===0,glass=((h>>>17)%4)===0;
+  return `<svg viewBox="0 0 40 40" aria-hidden="true">`
+   +`<circle cx="20" cy="20" r="20" fill="${bg}"/>`
+   +`<path d="M2.4 40c1.2-8.4 8.2-12.6 17.6-12.6S36.4 31.6 37.6 40z" fill="${sh}"/>`
+   +`<path d="M16.6 22h6.8v7.4h-6.8z" fill="${sk}"/><path d="M16.6 22h6.8v3.4a3.4 3.4 0 0 1-6.8 0z" fill="rgba(0,0,0,.14)"/>`
+   +`<ellipse cx="20" cy="17" rx="8.2" ry="9.6" fill="${sk}"/>`
+   +(beard?`<path d="M12 18.8c.6 6.3 4 9.4 8 9.4s7.4-3.1 8-9.4c-1.7 3.4-4.6 5-8 5s-6.3-1.6-8-5z" fill="${hr}"/>`:'')
+   +`<circle cx="16.9" cy="17.2" r="1.15" fill="#2a2320"/><circle cx="23.1" cy="17.2" r="1.15" fill="#2a2320"/>`
+   +cut(hr)
+   +(glass?`<g fill="none" stroke="#2a2320" stroke-width="1.3" opacity=".85"><rect x="13.1" y="14.7" width="5.4" height="4.8" rx="1.6"/><rect x="21.5" y="14.7" width="5.4" height="4.8" rx="1.6"/><path d="M18.5 17h3"/></g>`:'')
+   +`</svg>`;}
+/* mine — наш человек: тот же портрет, но с кольцом «это мы» */
+function face(nm,cls='',mine=false){return `<span class="av pf ${mine?'hum':''} ${cls}">${faceSVG(nm)}</span>`;}
+
+/* Агент: у каждого свой глиф своего дела. Форма (квадрат) говорит «это агент». */
+const AGICON={
+  scout:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="10.6" cy="10.6" r="6"/><path d="M15 15l5 5"/></svg>',
+  qual:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M4 5h16l-6.2 7.6V20l-3.6-1.8v-5.6z"/></svg>',
+  seller:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="m3.8 7 8.2 6 8.2-6"/></svg>',
+  pricer:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M12.4 3H20v7.6l-9.4 9.4-7.6-7.6z"/><circle cx="16.4" cy="7" r="1.5" fill="currentColor" stroke="none"/></svg>',
+  service:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M12 3.2 19.4 6v6c0 4.3-3 7-7.4 8.4C7.6 19 4.6 16.3 4.6 12V6z"/><path d="m9.2 12 2.2 2.2 3.8-4"/></svg>',
+  sign:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M3.5 18.5c3-.4 4.6-2.2 5.6-5.2 1-3 2-6.6 3.4-6.6 1.2 0 1 2.4.2 4.6-.8 2.2-2 4-2 5.2 0 .9.6 1.4 1.5 1.4 1.8 0 3-1.6 3.8-3"/><path d="M17.5 20.5h3"/></svg>'};
+function agAv(id,cls=''){const g=AGICON[id]||ICONS.bot;return `<span class="av bot ${cls}">${g}</span>`;}
 function srcIc(k){const s=SRC[k];return `<span class="src" title="${esc(s[0])}">${esc(s[0].slice(0,3))}</span>`;}
 function toast(t){const el=$('toast');el.textContent=t;el.hidden=false;clearTimeout(toast.h);toast.h=setTimeout(()=>el.hidden=true,2600);}
 function accPhrase(a,t){const e=stateAt(a,t);if(!e)return a.name;let s=`${a.name} · ${a.city}, ${a.st} · ${STAGE[e.s]} · ${usd(acvAt(a,t))}`;
@@ -1240,14 +1311,14 @@ function crmScreen(){
      <span class="fp ${pv.by}" data-tip="${esc(pv.by==='agent'?'Written by '+pv.src+' in W'+pv.w+'. A human can override it.':'Entered by '+pv.who+' in W'+pv.w+'.')}">${pv.by==='agent'?'◆ '+esc(pv.who):'● '+esc(pv.who)}<b>W${pv.w}</b></span></div>`;};
  return `<div class="crm">
   <div class="crmlist"><div class="crmlh">Accounts <span>${int(list.length)} of ${int(ACC.filter(x=>stateAt(x,S.t)).length)}</span></div>
-    ${list.map(x=>`<button class="crmrow${x.id===a.id?' on':''}" data-crmacc="${x.id}">${av(x.name,x.hue,'sq')}<span class="nm">${esc(x.name)}</span><span class="stg">${STAGE[(stateAt(x,S.t)||{s:1}).s]}</span></button>`).join('')}</div>
+    ${list.map(x=>`<button class="crmrow${x.id===a.id?' on':''}" data-crmacc="${x.id}">${logo(x,'sq')}<span class="nm">${esc(x.name)}</span><span class="stg">${STAGE[(stateAt(x,S.t)||{s:1}).s]}</span></button>`).join('')}</div>
   <div class="crmmain">
-    <div class="crmh">${av(a.name,a.hue,'sq big')}<div><h2>${esc(a.name)}</h2>
+    <div class="crmh">${logo(a,'sq big')}<div><h2>${esc(a.name)}</h2>
       <div class="muted">${esc(a.city)}, ${a.st} · ${esc(segBy(a.seg).name)} · ${usd(a.acv)}/year · stage “${STAGE[e.s]}”</div></div>
       <div class="crmcomp"><b>${Math.round(filled/total*100)} %</b><span>record complete<i>${filled} of ${total} fields · ${byAgent} written by agents</i></span></div></div>
     <div class="crmgrid">${groups.map(([g,fs])=>`<section class="crmg"><h3>${esc(g)}</h3>${fs.map(fld).join('')}</section>`).join('')}</div>
     <div class="crmside">
-      <section class="crmg"><h3>People</h3>${P.map(x=>`<button class="crmp" data-open="person:${x.id}">${av(x.nm,'var(--fg3)')}<span class="grow"><b>${esc(x.nm)}</b><i>${esc(x.title)} · ${esc(x.role)}</i></span><span class="chip flat">${esc(x.src)}</span></button>`).join('')}</section>
+      <section class="crmg"><h3>People</h3>${P.map(x=>`<button class="crmp" data-open="person:${x.id}">${face(x.nm)}<span class="grow"><b>${esc(x.nm)}</b><i>${esc(x.title)} · ${esc(x.role)}</i></span><span class="chip flat">${esc(x.src)}</span></button>`).join('')}</section>
       <section class="crmg"><h3>Documents</h3>${docs.length?docs.map(([id,d])=>`<button class="crmp" data-open="doc:${id}"><span class="av sq">${SRC[d.src][0].slice(0,2)}</span><span class="grow"><b>${esc(d.kind)}</b><i>W${d.w} · ${esc(d.act)}</i></span><span class="chip ${d.status[0]}">${esc(d.status[1])}</span></button>`).join(''):'<div class="note">No documents on this account yet.</div>'}</section>
       <section class="crmg"><h3>Tasks</h3>${allTriage().filter(x=>/Brightline|Hale/.test(x.t)).slice(0,3).map(x=>`<div class="crmp"><span class="av sq">T</span><span class="grow"><b>${esc(x.t)}</b><i>${esc(WHOM[x.own])} · moves ${esc(x.f)}</i></span></div>`).join('')||'<div class="note">Nothing open on this account.</div>'}</section>
       <section class="crmg"><h3>Where the data comes from</h3>
@@ -1330,7 +1401,7 @@ $('tSwap').onclick=()=>{S.layout.swap=!S.layout.swap;applyLayout();};
 
 /* =================== sidebar views =================== */
 function attnList(seg){return ACC.filter(a=>a.seg===seg&&stateAt(a,S.t)).sort((x,y)=>(y.feat-x.feat)||(momentum(x,S.t)-momentum(y,S.t))).slice(0,6);}
-function accRow(a,ind=2){const m=momentum(a,S.t),e=stateAt(a,S.t);return `<button class="row ${S.sel&&S.sel.id===a.id?'on':''}" data-open="acc:${a.id}" style="padding-left:${ind*12}px"><span class="tw"></span>${av(a.name,a.hue,'sq')}<span class="nm" title="${esc(a.name)}">${esc(a.name)}</span><span class="rt"><span class="${mcls(m)}">${arrow(m)}</span> ${e?STAGE[e.s]:''}</span></button>`;}
+function accRow(a,ind=2){const m=momentum(a,S.t),e=stateAt(a,S.t);return `<button class="row ${S.sel&&S.sel.id===a.id?'on':''}" data-open="acc:${a.id}" style="padding-left:${ind*12}px"><span class="tw"></span>${logo(a,'sq')}<span class="nm" title="${esc(a.name)}">${esc(a.name)}</span><span class="rt"><span class="${mcls(m)}">${arrow(m)}</span> ${e?STAGE[e.s]:''}</span></button>`;}
 function renderSide(){
   $('sideTitle').textContent=S.side==='tree'?(ENTNM[S.ent]||'Segments'):'Profile';let h='';
   if(S.side==='tree'){
@@ -1373,7 +1444,7 @@ function renderSide(){
       h+=shown.map(a=>{const e=stateAt(a,tt),m=momentum(a,tt),d=e?daysIn(e,tt):0;
         const why=stuck(a,e,tt)?`stuck ${d}d`:churnSig(a,e,tt)?'churn signal':e&&e.s>=7?'closed':'';
         return `<button class="row acc ${S.sel&&S.sel.id===a.id?'on':''}" data-open="acc:${a.id}" data-tip="${esc(a.name+' · '+a.city+', '+a.st+' · '+usd(a.acv)+'/year')}">
-          <span class="av sq" style="background:${a.hue};border-color:${a.hue};color:#fff">${esc(a.tk.slice(0,2))}</span>
+          ${logo(a,'sq')}
           <span class="nm">${esc(a.name)}</span>
           <span class="rt">${why?`<span class="why ${mcls(m)}">${why}</span>`:`<span class="stg">${e?STAGE[e.s]:'—'}</span>`}</span></button>`;}).join('');
       h+=`<button class="dbopen" data-open="db:acc"><b>Everything — ${int(allAcc.length)} accounts</b> <i>as a filterable table ↗</i></button>`;
@@ -1392,7 +1463,7 @@ function renderSide(){
       h+=`<div class="grp2">People</div>`;
       h+=rule(`showing <b>${ppl.length}</b> · people at accounts where someone owes a move${S.ef.role?' · role: '+esc(S.ef.role):''}`);
       h+=ppl.map(x=>`<button class="row ${S.sel&&S.sel.id===x.id?'on':''}" data-open="person:${x.id}" data-tip="${esc(x.nm+' · '+x.title+' · '+x.acc.name)}">
-        ${av(x.nm,'var(--fg3)')}<span class="nm">${esc(x.nm)}</span>
+        ${face(x.nm)}<span class="nm">${esc(x.nm)}</span>
         <span class="rt"><span class="role">${esc(x.role)}</span></span></button>`).join('');
       h+=`<button class="dbopen" data-open="db:person"><b>Everything — ${int(allAcc.length*3)} people</b> <i>as a filterable table ↗</i></button>`;
     }
@@ -1407,7 +1478,7 @@ function renderSide(){
       h+=PROC.map(([k,nm])=>`<button class="row ${(S.ef.proc||'sale')===k?'on':''}" data-flow="${k}"><span class="av sq">⎇</span><span class="nm">${esc(nm)}</span></button>`).join('');
       const opened=ACCBY[S.sopAcc];
       h+=`<div class="grp2">Open on</div>`;
-      h+=`<button class="row on" data-open="sop:${S.sopAcc}">${av(opened.name,opened.hue,'sq')}<span class="nm">${esc(opened.name)}</span><span class="rt"><span class="stg">${STAGE[(stateAt(opened,tt)||{s:1}).s]}</span></span></button>`;
+      h+=`<button class="row on" data-open="sop:${S.sopAcc}">${logo(opened,'sq')}<span class="nm">${esc(opened.name)}</span><span class="rt"><span class="stg">${STAGE[(stateAt(opened,tt)||{s:1}).s]}</span></span></button>`;
       h+=rule('to open the flow on another deal, pick an account and press “Flow” on its record');
     }
 
@@ -1421,7 +1492,7 @@ function renderSide(){
       h+=`<div class="grp2">Agents · ${ags.length} of ${AGENTS.length}</div>`;
       h+=ags.map(a=>`<div class="agrow">
         <button class="l1" data-open="agent:${a.id}" data-tip="${esc(a.title+' · answers for it: '+OURS.find(o=>o.id===a.owner).nm.split(' ')[0]+' · never: '+STOPS[a.id][0])}">
-          <span class="av bot ag ${ASTATE[a.state][0]}">${ICONS.bot}</span><span class="nm">${esc(a.nm)}</span>
+          <span class="av bot ag ${ASTATE[a.state][0]}">${AGICON[a.id]||ICONS.bot}</span><span class="nm">${esc(a.nm)}</span>
           <span class="rt ${ASTATE[a.state][0]}">${ASTATE[a.state][1]}</span></button>
         <div class="agk"><span class="knobi" role="group" aria-label="Autonomy for ${a.nm}">${KNOB.map((k,i)=>`<button data-knob="${a.id}:${i}" aria-pressed="${S.knob[a.id]===i}" data-tip="cold contacts: ${k}">${k}</button>`).join('')}</span>
           <span class="cw" data-tip="A warm contact is written under your own name, so this dial never goes above Approve.">warm — <b>${KNOB[S.knobW[a.id]]}</b></span>
@@ -1436,10 +1507,10 @@ function renderSide(){
       for(const o of OURS){
         const mine=AGENTS.filter(a=>a.owner===o.id);
         const bad=mine.filter(a=>a.state==='paused'||a.state==='error');
-        h+=`<button class="row ${bad.length?'alarm':''}" data-open="us" data-tip="${esc(o.title)}">${av(o.nm,'var(--human)')}<span class="nm">${esc(o.nm)}</span>
+        h+=`<button class="row ${bad.length?'alarm':''}" data-open="us" data-tip="${esc(o.title)}">${face(o.nm,'',true)}<span class="nm">${esc(o.nm)}</span>
           <span class="rt">${bad.length?`<span class="why down">${bad.length} agent${bad.length===1?'':'s'} stopped</span>`:`<span class="stg">${mine.length?mine.length+' agent'+(mine.length===1?'':'s'):'no agents'}</span>`}</span></button>`;
         h+=mine.map(a=>`<button class="row ${a.state==='paused'||a.state==='error'?'alarm':''}" data-open="agent:${a.id}" style="padding-left:30px">
-          <span class="av bot ag ${ASTATE[a.state][0]}">${ICONS.bot}</span><span class="nm">${esc(a.nm)}</span>
+          <span class="av bot ag ${ASTATE[a.state][0]}">${AGICON[a.id]||ICONS.bot}</span><span class="nm">${esc(a.nm)}</span>
           <span class="rt ${ASTATE[a.state][0]}">${ASTATE[a.state][1]}</span></button>`).join('');
       }
       const mbad=MAIL.filter(m=>m.lim&&m.sent>=m.lim).length;
@@ -1768,12 +1839,12 @@ function defectAt(i){
 function stepRuleCell(i,cls){
   const st=S.steps[i],id=st.ag;
   if(!id)return `<div class="cw">${S.sopEdit?'<button class="lnk" data-setag="'+i+'">assign who runs this step →</button>':'<span class="faint">nobody runs this</span>'}</div>`;
-  if(id==='sign')return `<div class="cw">${av('Lisa','var(--human)')}<b>Lisa</b> · signing authority</div><div class="cw">an agent cannot sign — that is the boundary</div>`;
+  if(id==='sign')return `<div class="cw">${face('Lisa','',true)}<b>Lisa</b> · signing authority</div><div class="cw">an agent cannot sign — that is the boundary</div>`;
   const g=agBy(id);if(!g)return '<span class="faint">—</span>';
   const rs=S.rules[id]||[],def=defectAt(i);
   const kb=(w)=>{const v=w==='cold'?S.knob[id]:S.knobW[id];
     return S.sopEdit?`<button class="lnk" data-knobcycle="${id}:${w}" data-tip="Click to change how much freedom the agent has">${KNOB[v]}</button>`:`<b>${KNOB[v]}</b>`;};
-  let h=`<div class="cw"><span class="av bot">${g.ini}</span><b>${esc(g.nm)}</b></div>
+  let h=`<div class="cw">${agAv(g.id)}<b>${esc(g.nm)}</b></div>
     <div class="cw">cold — ${kb('cold')} · warm — ${kb('warm')}</div>
     <div class="rules">`+rs.map(r=>{
       const clickable=S.sopEdit&&!r.lock;
@@ -1835,7 +1906,7 @@ function renderSOP(a){
   const cur=e.s>=7?Math.max(1,(a.ev.filter(x=>x.s<7).pop()||{s:1}).s):Math.min(e.s,6);
   const ST=S.steps,N=ST.length;
   const card=(cls,who,whoAv,act,txt,open)=>`<button class="card ${cls}" title="${esc(who+': '+String(txt).replace(/<[^>]+>/g,''))}" ${open?`data-open="${open}"`:''}><span class="who">${whoAv}${esc(who)}</span>${act?`<span class="act">${act}</span>`:''}<span class="t">${txt}</span></button>`;
-  const pv=p=>av(p.nm,'var(--fg3)'),bot=ini=>`<span class="av bot">${ini}</span>`,hum=n=>av(n,'var(--human)');
+  const pv=p=>face(p.nm),bot=ini=>`<span class="av bot">${ini}</span>`,hum=n=>face(n,'',true);
   const now=i=>ST[i].stage===cur, past=i=>ST[i].stage&&ST[i].stage<cur;
   const dash='<span class="faint">—</span>', empty='<span class="faint" style="font-size:11px">your own step — no data for it yet</span>';
   /* содержимое привязано к стадии, а не к номеру колонки: шаги можно переставлять */
@@ -1888,7 +1959,7 @@ function renderSOP(a){
         if(!bl)return '';
         const inf=(S.infl||{})[a.id];
         if(!inf)return `<div class="lh">Who can reach them<small>nobody added yet</small></div><div style="grid-column:span ${N}"><button class="btn" data-influencer="${a.id}" data-tip="The agent will find someone who can reach this person">Find someone who can reach ${esc(bl[0].nm)}</button> <span class="faint" style="font-size:11px">a red lane means no buy-in. The move is not to push harder, but to come in through someone they listen to.</span></div>`;
-        return `<div class="lh"><span class="pl up"></span>${esc(inf.nm)}<small>added by you · reaches ${esc(bl[0].nm)}</small></div>`+ST.map((st,i)=>`<div class="${cellCls(i)}">${st.stage===4?card('client',inf.nm,av(inf.nm,'var(--fg3)'),'request','introduces you to '+bl[0].nm+' · '+esc(inf.why),null):dash}</div>`).join('');})()}
+        return `<div class="lh"><span class="pl up"></span>${esc(inf.nm)}<small>added by you · reaches ${esc(bl[0].nm)}</small></div>`+ST.map((st,i)=>`<div class="${cellCls(i)}">${st.stage===4?card('client',inf.nm,face(inf.nm),'request','introduces you to '+bl[0].nm+' · '+esc(inf.why),null):dash}</div>`).join('');})()}
       <div class="iface lab">Interface<small class="faint" style="font-weight:400">meetings, email, documents</small></div>${MF.map((m,i)=>`<div class="iface ${cellCls(i)}">${m?`<button class="mf ${m[2]||''}" ${m[1]?`data-open="person:${m[1]}"`:''} data-tip="The connection: how it changed — open the conversation log">${m[0]}</button>`:''}</div>`).join('')}
       <div class="pool">Us · Bobroff MSP <small>BPMN pool · agents and people</small></div>
       <div class="lh">Agents<small>frontstage and backstage</small></div>${us0.map((x,i)=>`<div class="${cellCls(i)}">${x}</div>`).join('')}
@@ -1906,9 +1977,9 @@ function renderSOP(a){
 function renderDoc(id){const d=DOCS[id],a=ACCBY[d.acc],st=S.docs[id]||{};const P=peopleOf(a);
   const isMSA=d.kind==='MSA',canSign=S.profile==='liza';
   const signers=isMSA?[[P[0].nm,'client · decides',st.client?'signed':'not signed'],['Lisa','us · signing authority · waiting since Monday',st.us?'signed':'not signed'],['The Pricing agent','cannot sign','—']]:[];
-  return `<div class="doc"><div class="doch">${av(a.name,a.hue,'sq big')}<div><h2>${esc(d.kind)} · ${esc(a.name)}</h2><div class="muted">${srcIc(d.src).replace('class="src"','class="av sq"')} ${SRC[d.src][0]} · W${d.w} · <span class="chip ${d.status[0]}">${st.us?'signed by us':d.status[1]}</span> · speech act: ${d.act}</div></div></div>
+  return `<div class="doc"><div class="doch">${logo(a,'sq big')}<div><h2>${esc(d.kind)} · ${esc(a.name)}</h2><div class="muted">${srcIc(d.src).replace('class="src"','class="av sq"')} ${SRC[d.src][0]} · W${d.w} · <span class="chip ${d.status[0]}">${st.us?'signed by us':d.status[1]}</span> · speech act: ${d.act}</div></div></div>
     <div class="kv"><div><span>Amount</span><b>${usd(a.acv)}/year</b></div><div><span>Term</span><b>36 months</b></div><div><span>SLA</span><b>99.5 %</b></div><div><span>Seats</span><b>${a.emp}</b></div></div>
-    ${signers.length?`<div class="signers">${signers.map((s,i)=>`<div class="signer">${av(s[0],i===2?'var(--agent)':i===1?'var(--human)':'var(--fg3)')}<div class="grow"><div>${esc(s[0])}</div><div class="note">${s[1]}</div></div><span class="chip ${s[2]==='signed'?'up':s[2]==='—'?'flat':'warn'}">${s[2]}</span></div>`).join('')}</div>`:''}
+    ${signers.length?`<div class="signers">${signers.map((s,i)=>`<div class="signer">${(i===2?agAv('pricer'):face(s[0],'',i===1))}<div class="grow"><div>${esc(s[0])}</div><div class="note">${s[1]}</div></div><span class="chip ${s[2]==='signed'?'up':s[2]==='—'?'flat':'warn'}">${s[2]}</span></div>`).join('')}</div>`:''}
     <div class="paper" id="paper"><b>${isMSA?'Master Services Agreement':esc(d.kind)}</b> between Bobroff MSP LLC and ${esc(a.name)}.
       <h3>1. Services</h3>Managed IT: 24/7 monitoring, backup, HIPAA controls, support for ${a.emp} seats.
       <h3>2. Price</h3>${usd(a.acv)} per year, invoiced monthly, payable within 15 days.
@@ -1919,8 +1990,8 @@ function renderDoc(id){const d=DOCS[id],a=ACCBY[d.acc],st=S.docs[id]||{};const P
     <div class="note">${isMSA?(canSign?'A signature is irreversible: only a human with the authority can give it. The agent prepares, the agent does not sign.':'This profile has no signing authority. Switch the profile to Lisa.'):'Opened from the account feed. An agent’s edits stay a draft until a human approves them.'}</div></div>`;}
 function renderMsg(pid){const p=personById(pid),a=ACCBY[p.acc],M=MSGS[pid]||peopleActs(a,S.t).filter(x=>x.p.id===pid).map(x=>({me:false,src:p.src.toLowerCase()==='gmail'?'gmail':p.src.toLowerCase()==='linkedin'?'linkedin':'aircall',act:x.act,txt:x.txt,w:S.t}));
   const draft=pid==='p-hale'?'Tom, you pay $1,400/mo for one freelancer today. Our $3,170/mo covers 24/7 monitoring, HIPAA audit prep and a 1-hour SLA. Can I show the side-by-side in 15 minutes?':pid==='p-diaz'?'Karen, quick one: is Dr. Moss waiting for anything from us before the audit prep?':'';
-  return `<div class="doc"><div class="doch">${av(p.nm,'var(--fg3)','big')}<div><h2>${esc(p.nm)}</h2><div class="muted">${esc(p.title)} · ${esc(a.name)} · role in the deal: <b>${p.role}</b></div><div class="note">source: ${esc(p.src)} · <span class="faint">the LinkedIn profile opens in an external window</span></div></div></div>
-    <div class="thread">${M.map(m=>`<div class="msg ${m.me?'me':''}">${m.me?'<span class="av bot mid">'+ICONS.bot+'</span>':av(p.nm,'var(--fg3)','mid')}<div class="bub2"><div class="meta">${srcIc(m.src).replace('class="src"','class="av sq"')} ${m.me?'the '+agBy(m.agent).nm+' agent':esc(p.nm)} · W${m.w}${m.act?` · <span class="act">${m.act}</span>`:''}</div><div>${esc(m.txt)}</div></div></div>`).join('')||'<div class="note">No correspondence yet.</div>'}</div>
+  return `<div class="doc"><div class="doch">${face(p.nm,'big')}<div><h2>${esc(p.nm)}</h2><div class="muted">${esc(p.title)} · ${esc(a.name)} · role in the deal: <b>${p.role}</b></div><div class="note">source: ${esc(p.src)} · <span class="faint">the LinkedIn profile opens in an external window</span></div></div></div>
+    <div class="thread">${M.map(m=>`<div class="msg ${m.me?'me':''}">${m.me?agAv(m.agent,'mid'):face(p.nm,'mid')}<div class="bub2"><div class="meta">${srcIc(m.src).replace('class="src"','class="av sq"')} ${m.me?'the '+agBy(m.agent).nm+' agent':esc(p.nm)} · W${m.w}${m.act?` · <span class="act">${m.act}</span>`:''}</div><div>${esc(m.txt)}</div></div></div>`).join('')||'<div class="note">No correspondence yet.</div>'}</div>
     <div class="compose"><div class="hdr">Agent draft</div><textarea id="draft" aria-label="Draft">${esc(draft)}</textarea><div class="btns"><button class="btn pri" data-send="${pid}">Send under my name</button><span class="note">Mail under a person’s name goes out only on that person’s click.</span></div></div></div>`;}
 function renderNews(id){const n=MARKET.find(x=>x.id===id),st=S.facts[id]||{};
   return `<div class="doc"><div class="doch"><span class="av sq big">${SRC[n.src][0].slice(0,3)}</span><div><h2>${esc(n.ttl)}</h2><div class="muted">${SRC[n.src][0]} · ${n.url} · ${n.when} ago · segment ${segBy(n.seg).name}${n.st?' · '+n.st:''} · moves: <b>${n.hits}</b></div></div></div>
@@ -1928,7 +1999,7 @@ function renderNews(id){const n=MARKET.find(x=>x.id===id),st=S.facts[id]||{};
     <div class="facts">${n.facts.map((f,i)=>{const s=st[i];return `<div class="fact"><div class="grow"><div>${esc(f)}</div><div class="note">${s?{ok:'confirmed by a human',no:'refuted by a human',x:'dropped'}[s]:'unverified'}</div></div><div class="btns"><button class="ib ok" data-fact="${id}:${i}:ok" aria-label="Confirm">✓</button><button class="ib no" data-fact="${id}:${i}:no" aria-label="Refute">✕</button><button class="ib" data-fact="${id}:${i}:x" aria-label="Drop">−</button></div></div>`;}).join('')}</div>
     <div class="note">A confirmed fact goes into the model of the world: it moves the “${n.hits.replace(' ×','')}” term and the forecast on the time arrow.</div></div>`;}
 function renderAgentTab(id){const g=agBy(id),own=OURS.find(o=>o.id===g.owner);const logs=LOGS.concat(S.extraLogs||[]).filter(l=>l.ag===id).sort((a,b)=>b.w-a.w);
-  return `<div class="doc"><div class="doch"><span class="av bot big">${g.ini}</span><div><h2>${g.nm}</h2><div class="muted">${g.title} · ${esc(own.nm)} answers for it · <span class="chip ${ASTATE[g.state][0]}">${ASTATE[g.state][1]}</span></div><div class="note">An agent is a colleague: a role, a face, a log. Same form as a person — do not mistake one for the other.</div></div></div>
+  return `<div class="doc"><div class="doch">${agAv(g.id,'big')}<div><h2>${g.nm}</h2><div class="muted">${g.title} · ${esc(own.nm)} answers for it · <span class="chip ${ASTATE[g.state][0]}">${ASTATE[g.state][1]}</span></div><div class="note">An agent is a colleague: a role, a face, a log. Same form as a person — do not mistake one for the other.</div></div></div>
     <div class="kv"><div><span>Autonomy</span><b>${KNOB[S.knob[id]]}</b></div><div><span>Runs stages</span><b>${g.owns.map(x=>STAGE[x]).join(', ')}</b></div><div><span>Never-do fired</span><b>${STOPS[id][1]}×</b></div><div><span>Answers for it</span><b>${esc(own.nm.split(' ')[0])}</b></div></div>
     <div class="hdr">Autonomy — how much freedom</div><div class="btns">${KNOB.map((k,i)=>`<button class="btn ${S.knob[id]===i?'pri':''}" data-knob="${id}:${i}">${k}</button>`).join('')}</div>
     <div class="hdr">Never-do — where that freedom ends</div><div class="paper">Never: ${STOPS[id][0]}.</div>
@@ -1939,7 +2010,7 @@ function renderDraft(id){
   const per=personById(D.to)||{nm:'—',role:'—',title:''}, a=ACCBY[D.acc];
   const sent=!!S.sent[id];
   const L=BNS(), nxt=L[L.findIndex(x=>x.id===B.id)+1];
-  return `<div class="doc"><div class="doch"><span class="av bot big">${ICONS.bot}</span><div><h2>Agent draft · ${esc(D.ch)}</h2>
+  return `<div class="doc"><div class="doch">${agAv('seller','big')}<div><h2>Agent draft · ${esc(D.ch)}</h2>
     <div class="muted">to: <b>${esc(per.nm)}</b> — ${esc(per.role)} · ${esc(a?a.name:'')}</div>
     <div class="note">The agent wrote this itself and is waiting for your yes. Nothing goes out except on a human’s click.</div></div></div>
     <div class="kv"><div><span>Why now</span><b>${esc(B.t)}</b></div><div><span>Moves</span><b>${esc(B.m)}</b></div>
@@ -1956,7 +2027,7 @@ function renderDraft(id){
       ? (nxt?`Sent. Next constraint: <b>${esc(nxt.t)}</b>.`:'Sent. No constraints left with a move ready.')
       : 'It goes out under your name and lands in the agent’s log.'}</div></div>`;}
 function renderOrg(){
-  const card=(p,cls)=>`<button class="orgcard" data-open="${p.kind==='human'?'us':'agent:'+p.id}">${p.kind==='human'?av(p.nm,'var(--human)','mid'):'<span class="av bot mid">'+ICONS.bot+'</span>'}<span class="grow"><b>${esc(p.nm)}</b><span class="r">${esc(p.title)}</span>${p.kind!=='human'?`<span class="r">${KNOB[S.knob[p.id]]} · ${esc(OURS.find(o=>o.id===p.owner).nm)} answers for it</span><span class="chip ${ASTATE[p.state][0]}">${ASTATE[p.state][1]}</span>`:''}</span></button>`;
+  const card=(p,cls)=>`<button class="orgcard" data-open="${p.kind==='human'?'us':'agent:'+p.id}">${p.kind==='human'?face(p.nm,'mid',true):agAv(p.id,'mid')}<span class="grow"><b>${esc(p.nm)}</b><span class="r">${esc(p.title)}</span>${p.kind!=='human'?`<span class="r">${KNOB[S.knob[p.id]]} · ${esc(OURS.find(o=>o.id===p.owner).nm)} answers for it</span><span class="chip ${ASTATE[p.state][0]}">${ASTATE[p.state][1]}</span>`:''}</span></button>`;
   return `<div class="org"><div class="hdr">Us · Bobroff MSP — a point on the same map. Agents take part alongside people, but a named human answers for each one</div>
     <div class="orgrow">${card(OURS[0])}</div><div class="orgline"></div>
     <div class="orgrow">${OURS.slice(1).map(p=>card(p)).join('')}</div><div class="orgline"></div>
@@ -1976,8 +2047,8 @@ function feedItems(tab){
     try{out=(feedItems('account')||[]).concat(feedItems('people')||[]);}finally{S.sel=sv;}
     return out.sort((x,y)=>ageD(x)-ageD(y));}
   if(tab==='account'){
-    let items=Object.entries(DOCS).filter(([id,d])=>(!selA||d.acc===selA.id)&&d.w<=Math.max(t,NOW)).map(([id,d])=>({src:d.src,ttl:`${ACCBY[d.acc].name}: ${d.ttl}`,mt:`<b>${SRC[d.src][0]}</b> · ${d.kind}<span class="act"> · ${d.act}</span>`,when:ago(d.w),open:'doc:'+id,av:av(ACCBY[d.acc].name,ACCBY[d.acc].hue,'sq'),sig:(S.docs[id]&&S.docs[id].us)?false:(d.status[0]==='down'||d.status[0]==='warn'),status:S.docs[id]&&S.docs[id].us?['up','signed by us']:d.status,w:d.w}));
-    if(!selA){const gen=ACC.filter(a=>!a.feat&&inF(a)&&momentum(a,t)<0).slice(0,14).map(a=>{const e=stateAt(a,t);const kind=e.s===3?['pandadoc',`Offer ${usd(a.acv)} opened, not signed`,'promise']:e.s===2?['pdf','Qualification questionnaire filled in, no reply','assertion']:e.s===1?['crm','First touch, no reply','request']:isActive(e)?['quickbooks',`Invoice ${a.payW?(t-a.payW)*7+5:5}d overdue`,'request']:['crm',`Lost: ${a.reason||'—'}`,'declaration'];return {src:kind[0],ttl:`${a.name}: ${kind[1]}`,mt:`<b>${SRC[kind[0]][0]}</b> · ${a.city}, ${a.st}<span class="act"> · ${kind[2]}</span>`,when:ago(e.w),open:'acc:'+a.id,av:av(a.name,a.hue,'sq'),sig:stuck(a,e,t),status:['down',stuck(a,e,t)?'silent '+daysIn(e,t)+'d':'▼'],w:e.w};});items=items.concat(gen);}
+    let items=Object.entries(DOCS).filter(([id,d])=>(!selA||d.acc===selA.id)&&d.w<=Math.max(t,NOW)).map(([id,d])=>({src:d.src,ttl:`${ACCBY[d.acc].name}: ${d.ttl}`,mt:`<b>${SRC[d.src][0]}</b> · ${d.kind}<span class="act"> · ${d.act}</span>`,when:ago(d.w),open:'doc:'+id,av:logo(ACCBY[d.acc],'sq'),sig:(S.docs[id]&&S.docs[id].us)?false:(d.status[0]==='down'||d.status[0]==='warn'),status:S.docs[id]&&S.docs[id].us?['up','signed by us']:d.status,w:d.w}));
+    if(!selA){const gen=ACC.filter(a=>!a.feat&&inF(a)&&momentum(a,t)<0).slice(0,14).map(a=>{const e=stateAt(a,t);const kind=e.s===3?['pandadoc',`Offer ${usd(a.acv)} opened, not signed`,'promise']:e.s===2?['pdf','Qualification questionnaire filled in, no reply','assertion']:e.s===1?['crm','First touch, no reply','request']:isActive(e)?['quickbooks',`Invoice ${a.payW?(t-a.payW)*7+5:5}d overdue`,'request']:['crm',`Lost: ${a.reason||'—'}`,'declaration'];return {src:kind[0],ttl:`${a.name}: ${kind[1]}`,mt:`<b>${SRC[kind[0]][0]}</b> · ${a.city}, ${a.st}<span class="act"> · ${kind[2]}</span>`,when:ago(e.w),open:'acc:'+a.id,av:logo(a,'sq'),sig:stuck(a,e,t),status:['down',stuck(a,e,t)?'silent '+daysIn(e,t)+'d':'▼'],w:e.w};});items=items.concat(gen);}
     return items.sort((x,y)=>y.w-x.w);}
   if(tab==='people'){
     let src=selA?[selA]:[BRIGHT,HALE,...ACC.filter(a=>!a.feat&&inF(a)&&momentum(a,t)<0).slice(0,8)];
@@ -1986,7 +2057,7 @@ function feedItems(tab){
       const rc=replyClass(x.txt,x.act),R=rc?RCLASS[rc]:null;
       out.push({src:sk,ttl:`${x.p.nm} — ${x.p.role} — ${x.txt}${x.act==='silence'?' '+x.days+'d':''}`,
         mt:`${R&&R[2]!=='no task needed'?`<b class="due">reply: ${R[2]}</b> · `:''}<b>${SRC[sk][0]}</b> · ${a.name}<span class="act" data-tip="Speech act: what the person did with words"> · ${x.act}</span>`,
-        when:x.days!=null?x.days+'d':'',open:'person:'+x.p.id,av:av(x.p.nm,'var(--fg3)'),
+        when:x.days!=null?x.days+'d':'',open:'person:'+x.p.id,av:face(x.p.nm),
         role:x.p.role,
         sig:R?R[2]!=='no task needed':(x.act==='silence'&&x.days>=8),
         status:R?[R[1],R[0]]:x.act==='silence'&&x.days>=8?['down','silent']:null});}}
@@ -1996,13 +2067,13 @@ function feedItems(tab){
         out.unshift({src:B.draft.ch==='WhatsApp'?'linkedin':'gmail',
           ttl:`${per.nm} — ${B.draft.ch}: the agent wrote a draft — “${B.draft.subj}”`,
           mt:`<b class="due">ready to send</b> · ${esc(ac?ac.name:'')} · clears the constraint on ${esc(B.m)}`,
-          when:'now',open:'draft:'+B.id,av:`<span class="av bot">${ICONS.bot}</span>`,sig:true,
+          when:'now',open:'draft:'+B.id,av:agAv('seller'),sig:true,
           role:per.role,status:['warn','waiting on your yes'],
           acts:`<button class="ib" data-open="draft:${B.id}" data-tip="Open the draft in the work area">Open</button>`});}
     for(const m of MEET){if(S.sel&&S.sel.type==='person')break;if(m.w>Math.max(t,NOW))continue;
       out.unshift({src:'teams',ttl:`${m.who} — ${m.ttl}`,
         mt:`<b class="due">get it to a conversation</b> · meeting · ${ACCBY[m.acc].name} · ${esc(m.when)}`,
-        when:ago(m.w),open:'person:'+(m.acc==='a0'?'p-moss':'p-hale'),av:av(m.who,'var(--fg3)'),sig:true,status:m.st,
+        when:ago(m.w),open:'person:'+(m.acc==='a0'?'p-moss':'p-hale'),av:face(m.who),sig:true,status:m.st,
         acts:`<button class="ib" data-brief="${m.id}" data-tip="Pull together the context for this conversation">Briefing</button>`});}
     return out;}
   if(tab==='channel'){
@@ -2011,8 +2082,8 @@ function feedItems(tab){
       const m=MAILBY[d.mail],c=DCLASS[d.k],a=ACCBY[d.acc];
       return {src:'gmail',ttl:`${a?a.name:'—'} · ${d.who} — ${d.sub}`,
         mt:`<b>${esc(m.adr)}</b> · ${esc(m.kind)}`,
-        when:ago(d.w),open:a?'acc:'+d.acc:null,av:a?av(a.name,a.hue,'sq'):`<span class="av sq">✉</span>`,sig:d.k!=='ok',status:d.k==='ok'?null:[c[1],c[0]],w:d.w,mail:d.mail};});}
-  if(tab==='agents'){const f=S.sel&&S.sel.type==='agent'?S.sel.id:null;return LOGS.concat(S.extraLogs||[]).filter(l=>(!f||l.ag===f)&&l.w<=Math.max(t,NOW)).sort((x,y)=>y.w-x.w).map(l=>({src:'agent',ttl:`${agBy(l.ag)?agBy(l.ag).nm:'A human'}: ${l.ttl}`,mt:`answered for by <b>${esc(OURS.find(o=>o.id===(agBy(l.ag)||{owner:'h-nik'}).owner).nm)}</b> · autonomy: ${agBy(l.ag)?KNOB[S.knob[l.ag]]:'—'}`,when:ago(l.w),open:'agent:'+l.ag,av:`<span class="av bot">${ICONS.bot}</span>`,sig:l.st[0]==='down'||l.st[0]==='warn',status:l.st}));}
+        when:ago(d.w),open:a?'acc:'+d.acc:null,av:a?logo(a,'sq'):`<span class="av sq">✉</span>`,sig:d.k!=='ok',status:d.k==='ok'?null:[c[1],c[0]],w:d.w,mail:d.mail};});}
+  if(tab==='agents'){const f=S.sel&&S.sel.type==='agent'?S.sel.id:null;return LOGS.concat(S.extraLogs||[]).filter(l=>(!f||l.ag===f)&&l.w<=Math.max(t,NOW)).sort((x,y)=>y.w-x.w).map(l=>({src:'agent',ttl:`${agBy(l.ag)?agBy(l.ag).nm:'A human'}: ${l.ttl}`,mt:`answered for by <b>${esc(OURS.find(o=>o.id===(agBy(l.ag)||{owner:'h-nik'}).owner).nm)}</b> · autonomy: ${agBy(l.ag)?KNOB[S.knob[l.ag]]:'—'}`,when:ago(l.w),open:'agent:'+l.ag,av:agAv(l.ag),sig:l.st[0]==='down'||l.st[0]==='warn',status:l.st}));}
 }
 /* Работа №1 кончается тем, что «список под тезис отобран». До сих пор этот список жил
    только как временное состояние фильтров и исчезал при перезагрузке. Срез — сохранённая
@@ -2046,14 +2117,14 @@ function renderEcard(){
   const t=S.t,sel=S.sel,tab=S.ptab;let h='';
   const params=arr=>`<div class="params">${arr.map(([k,v])=>`<div>${k}<b>${v}</b></div>`).join('')}</div>`;
   if(sel&&sel.type==='acc'){const a=ACCBY[sel.id],e=stateAt(a,t),m=momentum(a,t);
-    h=`<div class="top">${av(a.name,a.hue,'sq big')}<div><h3>${esc(a.name)}</h3><div class="sub">${a.city}, ${a.st} · ${segBy(a.seg).name}</div></div></div>`+fields([
+    h=`<div class="top">${logo(a,'sq big')}<div><h3>${esc(a.name)}</h3><div class="sub">${a.city}, ${a.st} · ${segBy(a.seg).name}</div></div></div>`+fields([
       ['State',`<span class="${mcls(m)}">${arrow(m)} ${e?STAGE[e.s]:'—'}</span>`,'sys'],
       ['ACV',usd(a.acv),'own'],
       ['Staff',a.emp,'enr'],
       ['Last touch',ago(e?e.w:S.t),'sys']],a.id)+
-      `<div class="hdr">People</div>`+peopleOf(a).map(p=>`<button class="row" data-open="person:${p.id}">${av(p.nm,'var(--fg3)')}<span class="nm">${esc(p.nm)}</span><span class="rt">${p.role}</span></button>`).join('')+`<button class="btn" data-open="sop:${a.id}">Open the deal SOP</button>`;}
-  else if(sel&&sel.type==='person'){const p=personById(sel.id),a=ACCBY[p.acc];h=`<div class="top">${av(p.nm,'var(--fg3)','big')}<div><h3>${esc(p.nm)}</h3><div class="sub">${esc(p.title)} · ${esc(a.name)}</div></div></div>`+params([['Role in the deal',p.role],['Channel',p.src]])+`<button class="btn" data-open="msg:${p.id}">Open the correspondence</button>`;}
-  else if(sel&&sel.type==='agent'){const g=agBy(sel.id);h=`<div class="top"><span class="av bot big">${ICONS.bot}</span><div><h3>${g.nm}</h3><div class="sub">${g.title}</div></div></div>`+params([['State',`<span class="${ASTATE[g.state][0]}">${ASTATE[g.state][1]}</span>`],['Autonomy',KNOB[S.knob[g.id]]],['Answers for it',OURS.find(o=>o.id===g.owner).nm],['Runs stages',g.owns.map(s=>STAGE[s]).join(', ')]])+
+      `<div class="hdr">People</div>`+peopleOf(a).map(p=>`<button class="row" data-open="person:${p.id}">${face(p.nm)}<span class="nm">${esc(p.nm)}</span><span class="rt">${p.role}</span></button>`).join('')+`<button class="btn" data-open="sop:${a.id}">Open the deal SOP</button>`;}
+  else if(sel&&sel.type==='person'){const p=personById(sel.id),a=ACCBY[p.acc];h=`<div class="top">${face(p.nm,'big')}<div><h3>${esc(p.nm)}</h3><div class="sub">${esc(p.title)} · ${esc(a.name)}</div></div></div>`+params([['Role in the deal',p.role],['Channel',p.src]])+`<button class="btn" data-open="msg:${p.id}">Open the correspondence</button>`;}
+  else if(sel&&sel.type==='agent'){const g=agBy(sel.id);h=`<div class="top">${agAv(g.id,'big')}<div><h3>${g.nm}</h3><div class="sub">${g.title}</div></div></div>`+params([['State',`<span class="${ASTATE[g.state][0]}">${ASTATE[g.state][1]}</span>`],['Autonomy',KNOB[S.knob[g.id]]],['Answers for it',OURS.find(o=>o.id===g.owner).nm],['Runs stages',g.owns.map(s=>STAGE[s]).join(', ')]])+
       `<div class="hdr">Autonomy: how much happens without a human</div><div class="btns">${KNOB.map((k,i)=>`<button class="btn ${S.knob[g.id]===i?'pri':''}" data-knob="${g.id}:${i}">${k}</button>`).join('')}</div>`;}
   else if(tab==='market'){const g=S.seg?segBy(S.seg):null;h=`<div class="top"><span class="av sq big">${g?g.abc:'US'}</span><div><h3>${g?g.name:'US market · all segments'}</h3><div class="sub">${g?'Core job: “'+g.job+'”':'three segments by core job'}</div></div></div>`+params([['Accounts',int(formulaAt(t).N)],['Market',usd(SEGS.filter(x=>!S.seg||x.id===S.seg).reduce((s,x)=>s+segMetrics(x).mkt,0))],['Unverified',MARKET.filter(n=>!S.facts[n.id]).length]]);}
   else if(tab==='account'){const vis=ACC.filter(a=>stateAt(a,t)&&inF(a));h=`<div class="top"><span class="av sq big">⌂</span><div><h3>Accounts${S.seg?' · '+segBy(S.seg).name:''}</h3><div class="sub">an account speaks in documents — goods for money</div></div></div>`+params([['In pipeline',vis.filter(a=>{const e=stateAt(a,t);return e.s>=1&&e.s<=4;}).length],['In service',vis.filter(a=>isActive(stateAt(a,t))).length],['▼ stuck',vis.filter(a=>momentum(a,t)<0).length],['Awaiting signature',vis.filter(a=>stateAt(a,t).s===4).length]]);}
@@ -2067,7 +2138,7 @@ function renderEcard(){
         return `<div class="mailrow" style="padding-left:0"><span class="adr">${esc(m.adr)}</span>${m.warm<100?`<span class="warmb"><i style="width:${m.warm}%"></i></span>`:''}<span class="lim">${m.lim?m.sent+'/'+m.lim:'—'}</span><span class="chip ${r.length&&o2/r.length<.85?'down':'up'}">${r.length?pct(o2/r.length,0):'—'}</span></div>`;}).join('')
       +`<div class="note">A complaint or an opt-out silences that person across every mailbox at once. The limit protects the account; it is not a quota to spend.</div>`;}
   else if(tab==='flow'){const a=ACCBY[S.sopAcc],e=stateAt(a,t),m=momentum(a,t),d=e?daysIn(e,t):0;
-    h=`<div class="top">${av(a.name,a.hue,'sq big')}<div><h3>${esc(a.name)}</h3><div class="sub">the flow of one deal: who owes what to whom to get the document signed</div></div></div>`
+    h=`<div class="top">${logo(a,'sq big')}<div><h3>${esc(a.name)}</h3><div class="sub">the flow of one deal: who owes what to whom to get the document signed</div></div></div>`
       +params([['Stage',`<span class="${mcls(m)}">${arrow(m)} ${e?STAGE[e.s]:'—'}</span>`],['ACV',usd(a.acv)],['Stuck',d+'d'],['People',peopleOf(a).length]])
       +`<button class="btn" data-open="sop:${a.id}">Open the deal SOP</button>`;}
   else if(tab==='people'){h=`<div class="top"><span class="av big">☺</span><div><h3>Client people</h3><div class="sub">people speak in speech acts: request, assertion, promise, declaration, expressive, silence</div></div></div>`;}
@@ -2121,7 +2192,7 @@ function entFilter(tab,rows){
 }
 function feedView(tab){
   const own=(S.own||[]).filter(o=>o.tab===tab).map(o=>({src:'me',ttl:o.txt,mt:`<b>my note</b>${o.about?' · on “'+esc(o.about)+'”':''}`,when:'now',open:o.ref,
-    av:av('Me','var(--human)'),sig:true,status:['flat','from me']}));
+    av:face('Me','',true),sig:true,status:['flat','from me']}));
   let all=own.concat(entFilter(tab,(feedItems(tab)||[]).slice())).sort((a,b)=>ageD(a)-ageD(b));
   all.forEach(it=>{it.key=(it.open||'')+'#'+String(it.ttl).slice(0,60);
     it.need=needsHuman(it,tab);
@@ -2195,7 +2266,7 @@ function renderDB(){
     return (typeof a==='number'?(a-b):String(a).localeCompare(String(b),'ru'))*sort.d;});
   const n=S.dbN||50,page=rows.slice(0,n);
   const cell=(r,k)=>{
-    if(k==='nm')return `<td class="nm">${kind==='acc'?`<span class="av sq" style="background:${r.a.hue};border-color:${r.a.hue};color:#fff">${esc(r.a.tk.slice(0,2))}</span>`:av(r.nm,'var(--fg3)')}${esc(r.nm)}</td>`;
+    if(k==='nm')return `<td class="nm">${kind==='acc'?logo(r.a,'sq'):face(r.nm)}${esc(r.nm)}</td>`;
     if(k==='mv')return `<td class="num ${mcls(r.mv)}">${arrow(r.mv)}</td>`;
     if(k==='acv')return `<td class="num">${usd(r.acv)}</td>`;
     if(k==='last')return `<td class="num">${r.last>=9999?'—':r.last+'d'}</td>`;
@@ -2332,7 +2403,7 @@ function renderAgent(){
     <div class="focus"><span class="k">Constraint · TOC</span><span class="t">${f.t}</span>
       <div class="btns"><button class="btn" data-do="today">Work on it in the centre${nOpen?` · ${nOpen}`:''}</button></div></div>
     <div class="note" style="margin-top:8px">The queue of moves and the analysis live in the centre, on the Today tab. Here I only flag things and answer questions.</div>
-    `)+S.chat.map(m=>m.u?`<div class="turn user"><div class="by">${av(me,'var(--human)')}${me}</div><div class="bodyt">${m.t}</div></div>`:turnA(m.t)).join('');
+    `)+S.chat.map(m=>m.u?`<div class="turn user"><div class="by">${face(me,'',true)}${me}</div><div class="bodyt">${m.t}</div></div>`:turnA(m.t)).join('');
   const ctx=S.sel&&S.sel.type==='acc'?ACCBY[S.sel.id].name:S.sel&&S.sel.type==='person'?personById(S.sel.id).nm:S.sel&&S.sel.type==='agent'?agBy(S.sel.id).nm:({map:'Map',sop:'SOP',today:'Today',db:'Database'}[S.primary]||'Today');
   $('askCtx').innerHTML='📎 '+esc(S.source?S.tabs.find(x=>x.id===S.source).title:ctx);
   $('sugg').innerHTML=`<button data-photo="1" data-tip="You remember the face but not the conversation — drop in a photo or a business card">⧉ photo or business card</button>`+['Simulate revenue scenarios','Rewrite the rule on the Qualification step','Why did Conv drop?','Who has to sign Brightline?'].map(s=>`<button data-ask="${s}">${s}</button>`).join('');}
@@ -2383,7 +2454,7 @@ function ask(q){if(!q.trim())return;S.chat.push({u:1,t:esc(q)});
 
 /* =================== status bar & palette =================== */
 function renderStatus(){const F=formulaAt(S.t),P=formulaAt(S.t-WIN),d=F.end/P.end-1,alarms=AGENTS.filter(a=>a.state==='paused').length;
-  $('status').innerHTML=`<span class="it num">${S.t>NOW?'forecast':S.t===NOW?'● now':'past'} W${S.t} · ${wkd(S.t)}</span><span class="it num">ARR ${usd(F.end)} <span class="${d>=0?'up':'down'}">${d>=0?'▲':'▼'} ${Math.abs(d*100).toFixed(1)} %</span></span><span class="it num">Conv ${pct(F.conv)}</span><button class="it" style="color:var(--link);font-weight:600" data-do="focuscard">⚠ Conv — the constraint</button>${alarms?`<span class="it faint">■ ${alarms} agent stopped by a hard stop</span>`:''}<span class="sp"></span><span class="it">sources 7/7 in sync</span><span class="it faint" data-tip="When this version was published. If it is older than what you expect, the page came from cache — press Cmd+Shift+R.">build Sep 28, 21:09</span><span class="it">${esc($('profile').selectedOptions[0].text)}</span>`;}
+  $('status').innerHTML=`<span class="it num">${S.t>NOW?'forecast':S.t===NOW?'● now':'past'} W${S.t} · ${wkd(S.t)}</span><span class="it num">ARR ${usd(F.end)} <span class="${d>=0?'up':'down'}">${d>=0?'▲':'▼'} ${Math.abs(d*100).toFixed(1)} %</span></span><span class="it num">Conv ${pct(F.conv)}</span><button class="it" style="color:var(--link);font-weight:600" data-do="focuscard">⚠ Conv — the constraint</button>${alarms?`<span class="it faint">■ ${alarms} agent stopped by a hard stop</span>`:''}<span class="sp"></span><span class="it">sources 7/7 in sync</span><span class="it faint" data-tip="When this version was published. If it is older than what you expect, the page came from cache — press Cmd+Shift+R.">build Sep 29, 16:04</span><span class="it">${esc($('profile').selectedOptions[0].text)}</span>`;}
 let palSel=0;
 function openPal(){$('pal').hidden=false;$('palIn').value='';palSel=0;renderPal();$('palIn').focus();}
 function renderPal(){const q=$('palIn').value.toLowerCase();const r=allEntities().filter(e=>!q||(e.t+' '+e.ty).toLowerCase().includes(q)).slice(0,30);S.palR=r;
