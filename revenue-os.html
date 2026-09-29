@@ -62,7 +62,6 @@ q{quotes:"«" "»"}
 .lbtn{width:26px;height:24px;border-radius:5px;display:inline-flex;align-items:center;justify-content:center;color:var(--fg2)}
 .lbtn:hover{background:var(--hover)}
 .lbtn[aria-pressed="true"]{color:var(--fg)}
-#tPanelPos[aria-pressed="true"],#tSwap[aria-pressed="true"]{color:var(--accent);background:var(--selbg);border-radius:4px}
 .lbtn svg{width:16px;height:16px}
 .profile{height:24px;font-size:12px;padding:0 6px;margin-left:6px;min-width:0;max-width:clamp(88px,17vw,200px)}
 
@@ -786,8 +785,7 @@ body.focus-mode .ptabs{cursor:pointer}
       <button class="lbtn" id="tSide" aria-pressed="true" aria-label="Show or hide the left panel" data-tip="Left panel"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor"><rect x="1.5" y="2.5" width="13" height="11" rx="1.5"/><path d="M5.5 2.5v11"/></svg></button>
       <button class="lbtn" id="tPanel" aria-pressed="true" aria-label="Show or hide the feeds" data-tip="Feeds"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor"><rect x="1.5" y="2.5" width="13" height="11" rx="1.5"/><path d="M1.5 9.5h13"/></svg></button>
       <button class="lbtn" id="tAgent" aria-pressed="true" aria-label="Show or hide the agent" data-tip="Agent"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor"><rect x="1.5" y="2.5" width="13" height="11" rx="1.5"/><path d="M10.5 2.5v11"/></svg></button>
-      <button class="lbtn" id="tPanelPos" aria-label="Feeds at the bottom or on the right" data-tip="Feeds: bottom ↔ right"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor"><rect x="1.5" y="2.5" width="13" height="11" rx="1.5"/><path d="M9.5 2.5v11M1.5 8h8"/></svg></button>
-      <button class="lbtn" id="tSwap" aria-label="Swap the side panels" data-tip="Swap panels"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor"><path d="M2 5h11l-3-3M14 11H3l3 3"/></svg></button>
+      
       <span class="skins" id="skins" role="group" aria-label="Display skin"></span>
       <select class="profile" id="profile" aria-label="Signed in as">
         <option value="owner">Revenue owner</option>
@@ -995,10 +993,10 @@ const S={t:NOW,seg:null,downOnly:false,sel:null,level:'segment',K:1,
   knob:{scout:2,qual:2,seller:2,pricer:1,service:1},profile:'owner',
   side:'tree',ent:'seg',mapView:'geo',bn:0,sent:{},skin:'rev',ef:{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false},ptab:'market',job:'',stF:'',stage:'',primary:'today',source:null,orgOpen:false,sopAcc:'a0',tabs:[{id:'today',kind:'today',title:'Today'},{id:'map',kind:'map',title:'Map'},{id:'sop',kind:'sop',title:'SOP'}],tab:'today',
   facts:{},docs:{},tri:{},chat:[],layout:{side:true,panel:true,agent:true,panelRight:false,swap:false},sopEdit:false,sopFix:null,steps:JSON.parse(JSON.stringify(STEPS0)),fieldPol:{},hidden:{},dnc:{},knobW:{scout:1,qual:1,seller:1,pricer:1,service:1},rules:JSON.parse(JSON.stringify(RULES0))};
-try{const L=JSON.parse(localStorage.getItem('revos-layout-v3')||'null');if(L)Object.assign(S.layout,L);}catch(e){}
-if(window.innerWidth<1280&&!(()=>{try{return localStorage.getItem('revos-layout-v3')}catch(e){return null}})())S.layout.side=false;
+try{const L=JSON.parse(localStorage.getItem('revos-layout-v4')||'null');if(L)Object.assign(S.layout,L);}catch(e){}
+if(window.innerWidth<1280&&!(()=>{try{return localStorage.getItem('revos-layout-v4')}catch(e){return null}})())S.layout.side=false;
 S.layout.agent=true;
-function saveLayout(){try{localStorage.setItem('revos-layout-v3',JSON.stringify(S.layout));}catch(e){}}
+function saveLayout(){try{localStorage.setItem('revos-layout-v4',JSON.stringify(S.layout));}catch(e){}}
 
 function filtered(a){return a.cheap&&a.ev[0].w>NOW&&S.knob.qual<2&&((a.seed%100)/100)<.75;}
 function stateAt(a,t){if(filtered(a))return null;let c=null;for(const e of a.ev){if(e.w<=t)c=e;else break;}return c;}
@@ -1233,9 +1231,7 @@ function applyLayout(){
   b.classList.toggle('no-side',!L.side);b.classList.toggle('no-agent',!L.agent);b.classList.toggle('swap',L.swap);
   c.classList.toggle('no-panel',!L.panel);c.classList.toggle('panel-right',L.panelRight);
   $('tSide').setAttribute('aria-pressed',L.side);$('tPanel').setAttribute('aria-pressed',L.panel);$('tAgent').setAttribute('aria-pressed',L.agent);
-  $('tPanelPos').setAttribute('aria-pressed',L.panelRight);$('tSwap').setAttribute('aria-pressed',L.swap);
-  $('tPanelPos').setAttribute('data-tip',L.panelRight?'Feeds are on the right \u2014 move them back to the bottom':'Feeds are at the bottom \u2014 move them to the right');
-  $('tSwap').setAttribute('data-tip',L.swap?'Panels are swapped \u2014 put them back':'Swap the side panels');
+
   /* панели не должны съедать рабочее поле на узком экране: зажимаем показ, сохранённые значения не трогаем */
   const W=Math.max(640,innerWidth);
   const sb=Math.min(L.sbw||270,Math.max(170,W*0.24)), ag=Math.min(L.agw||340,Math.max(210,W*0.30));
@@ -1259,8 +1255,6 @@ document.querySelectorAll('.gutter').forEach(g=>{
 $('tSide').onclick=()=>{S.layout.side=!S.layout.side;applyLayout();renderActivity();};
 $('tPanel').onclick=()=>{S.layout.panel=!S.layout.panel;applyLayout();};
 $('tAgent').onclick=()=>{S.layout.agent=!S.layout.agent;applyLayout();};
-$('tPanelPos').onclick=()=>{S.layout.panelRight=!S.layout.panelRight;const g=document.querySelector('.g3');g.classList.toggle('hgut',!S.layout.panelRight);applyLayout();};
-$('tSwap').onclick=()=>{S.layout.swap=!S.layout.swap;applyLayout();};
 
 /* =================== sidebar views =================== */
 function attnList(seg){return ACC.filter(a=>a.seg===seg&&stateAt(a,S.t)).sort((x,y)=>(y.feat-x.feat)||(momentum(x,S.t)-momentum(y,S.t))).slice(0,6);}
@@ -2330,7 +2324,7 @@ function ask(q){if(!q.trim())return;S.chat.push({u:1,t:esc(q)});
 
 /* =================== status bar & palette =================== */
 function renderStatus(){const F=formulaAt(S.t),P=formulaAt(S.t-WIN),d=F.end/P.end-1,alarms=AGENTS.filter(a=>a.state==='paused').length;
-  $('status').innerHTML=`<span class="it num">${S.t>NOW?'forecast':S.t===NOW?'● now':'past'} W${S.t} · ${wkd(S.t)}</span><span class="it num">ARR ${usd(F.end)} <span class="${d>=0?'up':'down'}">${d>=0?'▲':'▼'} ${Math.abs(d*100).toFixed(1)} %</span></span><span class="it num">Conv ${pct(F.conv)}</span><button class="it" style="color:var(--link);font-weight:600" data-do="focuscard">⚠ Conv — the constraint</button>${alarms?`<span class="it faint">■ ${alarms} agent stopped by a hard stop</span>`:''}<span class="sp"></span><span class="it">sources 7/7 in sync</span><span class="it faint" data-tip="When this version was published. If it is older than what you expect, the page came from cache — press Cmd+Shift+R.">build Sep 29, 19:12</span><span class="it">${esc($('profile').selectedOptions[0].text)}</span>`;}
+  $('status').innerHTML=`<span class="it num">${S.t>NOW?'forecast':S.t===NOW?'● now':'past'} W${S.t} · ${wkd(S.t)}</span><span class="it num">ARR ${usd(F.end)} <span class="${d>=0?'up':'down'}">${d>=0?'▲':'▼'} ${Math.abs(d*100).toFixed(1)} %</span></span><span class="it num">Conv ${pct(F.conv)}</span><button class="it" style="color:var(--link);font-weight:600" data-do="focuscard">⚠ Conv — the constraint</button>${alarms?`<span class="it faint">■ ${alarms} agent stopped by a hard stop</span>`:''}<span class="sp"></span><span class="it">sources 7/7 in sync</span><span class="it faint" data-tip="When this version was published. If it is older than what you expect, the page came from cache — press Cmd+Shift+R.">build Sep 29, 19:16</span><span class="it">${esc($('profile').selectedOptions[0].text)}</span>`;}
 let palSel=0;
 function openPal(){$('pal').hidden=false;$('palIn').value='';palSel=0;renderPal();$('palIn').focus();}
 function renderPal(){const q=$('palIn').value.toLowerCase();const r=allEntities().filter(e=>!q||(e.t+' '+e.ty).toLowerCase().includes(q)).slice(0,30);S.palR=r;
