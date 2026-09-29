@@ -300,6 +300,28 @@ table.db td.num{font-family:var(--mono);text-align:right}
 .skins button[aria-pressed="true"]{background:var(--selbg);color:var(--fg)}
 .skins a:hover{color:var(--link);background:var(--hover)}
 .skins>*+*{border-left:1px solid var(--border)}
+
+/* ---- карта: слой MapLibre, маркеры, органиграмма над юрлицом ---- */
+#mlmap{position:absolute;inset:0}
+.maplibregl-ctrl-attrib{font-size:8.5px;background:color-mix(in srgb,var(--editor) 80%,transparent)!important}
+.maplibregl-ctrl-attrib a{color:var(--fg3)}
+.mk{cursor:pointer;font-family:var(--mono);display:flex;align-items:center;justify-content:center;border-radius:50%;color:#fff;font-size:11px;font-weight:600;border:1.5px solid rgba(0,0,0,.35);box-shadow:0 1px 4px rgba(0,0,0,.35);white-space:nowrap}
+.mk.sq{border-radius:5px;padding:0 7px;height:20px;width:auto}
+.mk.hq{background:var(--agent);width:15px;height:15px;transform:rotate(45deg);border-radius:2px}
+.mkorg{position:relative;width:0;height:0}
+.mkorg .node{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer}
+.mkorg .node i{width:16px;height:16px;border-radius:50%;background:var(--fg3);border:1.5px solid var(--editor);display:block}
+.mkorg .node.miss i{background:var(--down)}
+.mkorg .node span{font-size:10px;color:var(--fg);background:color-mix(in srgb,var(--editor) 88%,transparent);border:1px solid var(--border);border-radius:9px;padding:0 6px;white-space:nowrap}
+.mkorg .ln{position:absolute;height:1px;background:var(--fg3);opacity:.7;transform-origin:0 50%}
+.mapsw{position:absolute;left:10px;top:10px;display:flex;border:1px solid var(--border);border-radius:13px;overflow:hidden;background:var(--editor)}
+.mapsw button{height:24px;padding:0 10px;font-size:11px;color:var(--fg3)}
+.mapsw button[aria-pressed="true"]{background:var(--selbg);color:var(--fg)}
+.mapsw button+button{border-left:1px solid var(--border)}
+.zbtn{position:absolute;right:10px;bottom:28px;display:flex;flex-direction:column;border:1px solid var(--border);border-radius:6px;overflow:hidden;background:var(--editor)}
+.zbtn button{width:28px;height:26px;text-align:center;font-size:15px;color:var(--fg2)}
+.zbtn button+button{border-top:1px solid var(--border)}
+.hint{position:absolute;right:10px;top:10px;font-size:11px;color:var(--fg3);background:color-mix(in srgb,var(--editor) 90%,transparent);padding:3px 8px;border-radius:5px;border:1px solid var(--border)}
 /* SOP: service blueprint */
 .bp{padding:14px 16px 24px;min-width:1150px}
 .bph{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:10px}
@@ -2261,7 +2283,7 @@ function ask(q){if(!q.trim())return;S.chat.push({u:1,t:esc(q)});
 
 /* =================== status bar & palette =================== */
 function renderStatus(){const F=formulaAt(S.t),P=formulaAt(S.t-WIN),d=F.end/P.end-1,alarms=AGENTS.filter(a=>a.state==='paused').length;
-  $('status').innerHTML=`<span class="it num">${S.t>NOW?'forecast':S.t===NOW?'● now':'past'} W${S.t} · ${wkd(S.t)}</span><span class="it num">ARR ${usd(F.end)} <span class="${d>=0?'up':'down'}">${d>=0?'▲':'▼'} ${Math.abs(d*100).toFixed(1)} %</span></span><span class="it num">Conv ${pct(F.conv)}</span><button class="it" style="color:var(--link);font-weight:600" data-do="focuscard">⚠ Conv — the constraint</button>${alarms?`<span class="it faint">■ ${alarms} agent stopped by a hard stop</span>`:''}<span class="sp"></span><span class="it">sources 7/7 in sync</span><span class="it faint" data-tip="When this version was published. If it is older than what you expect, the page came from cache — press Cmd+Shift+R.">build Sep 29, 17:13</span><span class="it">${esc($('profile').selectedOptions[0].text)}</span>`;}
+  $('status').innerHTML=`<span class="it num">${S.t>NOW?'forecast':S.t===NOW?'● now':'past'} W${S.t} · ${wkd(S.t)}</span><span class="it num">ARR ${usd(F.end)} <span class="${d>=0?'up':'down'}">${d>=0?'▲':'▼'} ${Math.abs(d*100).toFixed(1)} %</span></span><span class="it num">Conv ${pct(F.conv)}</span><button class="it" style="color:var(--link);font-weight:600" data-do="focuscard">⚠ Conv — the constraint</button>${alarms?`<span class="it faint">■ ${alarms} agent stopped by a hard stop</span>`:''}<span class="sp"></span><span class="it">sources 7/7 in sync</span><span class="it faint" data-tip="When this version was published. If it is older than what you expect, the page came from cache — press Cmd+Shift+R.">build Sep 29, 17:39</span><span class="it">${esc($('profile').selectedOptions[0].text)}</span>`;}
 let palSel=0;
 function openPal(){$('pal').hidden=false;$('palIn').value='';palSel=0;renderPal();$('palIn').focus();}
 function renderPal(){const q=$('palIn').value.toLowerCase();const r=allEntities().filter(e=>!q||(e.t+' '+e.ty).toLowerCase().includes(q)).slice(0,30);S.palR=r;
