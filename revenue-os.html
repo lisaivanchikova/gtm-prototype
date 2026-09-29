@@ -62,6 +62,7 @@ q{quotes:"«" "»"}
 .lbtn{width:26px;height:24px;border-radius:5px;display:inline-flex;align-items:center;justify-content:center;color:var(--fg2)}
 .lbtn:hover{background:var(--hover)}
 .lbtn[aria-pressed="true"]{color:var(--fg)}
+#tPanelPos[aria-pressed="true"],#tSwap[aria-pressed="true"]{color:var(--accent);background:var(--selbg);border-radius:4px}
 .lbtn svg{width:16px;height:16px}
 .profile{height:24px;font-size:12px;padding:0 6px;margin-left:6px;min-width:0;max-width:clamp(88px,17vw,200px)}
 
@@ -1232,6 +1233,9 @@ function applyLayout(){
   b.classList.toggle('no-side',!L.side);b.classList.toggle('no-agent',!L.agent);b.classList.toggle('swap',L.swap);
   c.classList.toggle('no-panel',!L.panel);c.classList.toggle('panel-right',L.panelRight);
   $('tSide').setAttribute('aria-pressed',L.side);$('tPanel').setAttribute('aria-pressed',L.panel);$('tAgent').setAttribute('aria-pressed',L.agent);
+  $('tPanelPos').setAttribute('aria-pressed',L.panelRight);$('tSwap').setAttribute('aria-pressed',L.swap);
+  $('tPanelPos').setAttribute('data-tip',L.panelRight?'Feeds are on the right \u2014 move them back to the bottom':'Feeds are at the bottom \u2014 move them to the right');
+  $('tSwap').setAttribute('data-tip',L.swap?'Panels are swapped \u2014 put them back':'Swap the side panels');
   /* панели не должны съедать рабочее поле на узком экране: зажимаем показ, сохранённые значения не трогаем */
   const W=Math.max(640,innerWidth);
   const sb=Math.min(L.sbw||270,Math.max(170,W*0.24)), ag=Math.min(L.agw||340,Math.max(210,W*0.30));
@@ -2326,7 +2330,7 @@ function ask(q){if(!q.trim())return;S.chat.push({u:1,t:esc(q)});
 
 /* =================== status bar & palette =================== */
 function renderStatus(){const F=formulaAt(S.t),P=formulaAt(S.t-WIN),d=F.end/P.end-1,alarms=AGENTS.filter(a=>a.state==='paused').length;
-  $('status').innerHTML=`<span class="it num">${S.t>NOW?'forecast':S.t===NOW?'● now':'past'} W${S.t} · ${wkd(S.t)}</span><span class="it num">ARR ${usd(F.end)} <span class="${d>=0?'up':'down'}">${d>=0?'▲':'▼'} ${Math.abs(d*100).toFixed(1)} %</span></span><span class="it num">Conv ${pct(F.conv)}</span><button class="it" style="color:var(--link);font-weight:600" data-do="focuscard">⚠ Conv — the constraint</button>${alarms?`<span class="it faint">■ ${alarms} agent stopped by a hard stop</span>`:''}<span class="sp"></span><span class="it">sources 7/7 in sync</span><span class="it faint" data-tip="When this version was published. If it is older than what you expect, the page came from cache — press Cmd+Shift+R.">build Sep 29, 19:08</span><span class="it">${esc($('profile').selectedOptions[0].text)}</span>`;}
+  $('status').innerHTML=`<span class="it num">${S.t>NOW?'forecast':S.t===NOW?'● now':'past'} W${S.t} · ${wkd(S.t)}</span><span class="it num">ARR ${usd(F.end)} <span class="${d>=0?'up':'down'}">${d>=0?'▲':'▼'} ${Math.abs(d*100).toFixed(1)} %</span></span><span class="it num">Conv ${pct(F.conv)}</span><button class="it" style="color:var(--link);font-weight:600" data-do="focuscard">⚠ Conv — the constraint</button>${alarms?`<span class="it faint">■ ${alarms} agent stopped by a hard stop</span>`:''}<span class="sp"></span><span class="it">sources 7/7 in sync</span><span class="it faint" data-tip="When this version was published. If it is older than what you expect, the page came from cache — press Cmd+Shift+R.">build Sep 29, 19:12</span><span class="it">${esc($('profile').selectedOptions[0].text)}</span>`;}
 let palSel=0;
 function openPal(){$('pal').hidden=false;$('palIn').value='';palSel=0;renderPal();$('palIn').focus();}
 function renderPal(){const q=$('palIn').value.toLowerCase();const r=allEntities().filter(e=>!q||(e.t+' '+e.ty).toLowerCase().includes(q)).slice(0,30);S.palR=r;
