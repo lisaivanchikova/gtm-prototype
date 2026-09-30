@@ -43,7 +43,15 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:1px solid var(--accent);outline-offset:-1px}
 input,select,textarea{font:inherit;color:var(--fg);background:var(--input);border:1px solid var(--border);border-radius:4px;padding:4px 7px}
 .num{font-family:var(--mono);font-variant-numeric:tabular-nums}
-.up{color:var(--up)} .down{color:var(--down)} .flat{color:var(--flat)}
+.agentry{display:flex;flex-wrap:wrap;gap:6px;padding:8px 12px 0}
+.agentry button{height:26px;padding:0 10px;border:1px solid var(--border);border-radius:13px;font-size:11.5px;color:var(--fg2);display:flex;align-items:center;gap:6px}
+.agentry button:hover{background:var(--hover)}
+.agentry button[aria-pressed="true"]{background:var(--selbg);border-color:var(--link);color:var(--fg)}
+.agentry button b{font-family:var(--mono);font-size:10.5px;color:var(--link)}
+.agentry button.alarm{border-color:var(--down);color:var(--down)}
+.agentry button.alarm b{color:var(--down)}
+.up{color:var(--up)} .down{color:var(--down)} .flat{color:var(--flat)} .wn{color:var(--warn)}
+.picked .sgn{font-family:var(--mono);font-size:10px;letter-spacing:.03em;border:1px solid currentColor;border-radius:9px;padding:0 6px;margin-left:5px}
 .muted{color:var(--fg2)} .faint{color:var(--fg3)}
 .hdr{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.15em;text-transform:uppercase;color:var(--fg2)}
 q{quotes:"«" "»"}
@@ -51,8 +59,6 @@ q{quotes:"«" "»"}
 /* shell: VS Code workbench */
 .app{height:100%;display:grid;grid-template-rows:35px minmax(0,1fr) 22px}
 .app>*{min-width:0}
-.alarmbar{min-width:0;overflow:hidden}
-.alarmbar .owner{min-width:0;overflow:hidden;text-overflow:ellipsis}
 .titlebar{background:var(--title);border-bottom:1px solid var(--border);display:grid;grid-template-columns:minmax(0,1fr) minmax(120px,560px) minmax(0,1fr);align-items:center;padding-inline:10px;gap:10px;overflow:hidden}
 .brand{display:flex;align-items:center;gap:8px;font-weight:600;white-space:nowrap;overflow:hidden;min-width:0}
 .brand .ex{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--fg3);border:1px dashed var(--fg3);border-radius:3px;padding:0 5px}
@@ -148,19 +154,14 @@ q{quotes:"«" "»"}
 #dbview{display:none;height:100%;overflow:auto;background:var(--editor)}
 /* «Сегодня» — очередь ходов в центре. Три независимых разбора сошлись на том, что
    самое важное действие не может жить в 340-пиксельной колонке у края экрана. */
-#todayview{display:none;height:100%;overflow:auto;background:var(--editor);padding:14px 16px 24px}
-.tdh{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:2px}
-.tdh h2{margin:0;font-size:16px;font-weight:600}
-.tdh .who{font-size:12px;color:var(--fg3)}
-.tdwrap{max-width:880px}
-.tdsec{font-family:var(--mono);font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--fg3);margin:16px 0 6px;border-top:1px solid var(--border);padding-top:10px}
-.tdq{display:flex;flex-direction:column;gap:8px}
-#todayview .tri{padding:11px 13px}
-#todayview .tri.now .t{font-size:15px}
-#todayview .focus{padding:13px 15px}
-#todayview .focus .t{font-size:15px}
-#todayview .risk{padding:7px 0}
 .tdempty{font-size:13px;color:var(--fg3);padding:10px 0}
+.tdh{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:2px}
+.tdh h2{margin:0;font-size:15px;font-weight:600}
+.tdh .who{font-size:11.5px;color:var(--fg3)}
+.tdwrap{display:flex;flex-direction:column}
+.tdsec{font-family:var(--mono);font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--fg3);margin:14px 0 6px;border-top:1px solid var(--border);padding-top:9px}
+.tdq{display:flex;flex-direction:column;gap:8px}
+.tdempty{font-size:12.5px;color:var(--fg3);padding:10px 0}
 .dbh{position:sticky;top:0;z-index:3;background:var(--editor);border-bottom:1px solid var(--border);padding:10px 14px 8px;display:flex;flex-direction:column;gap:6px}
 .dbh .r1{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
 .dbh h3{margin:0;font-size:14px}
@@ -176,13 +177,6 @@ table.db tr:hover td{background:var(--hover)}
 table.db tr{cursor:pointer}
 table.db td.nm{display:flex;align-items:center;gap:7px;color:var(--fg)}
 table.db td.num{font-family:var(--mono);text-align:right}
-/* Фильтр стоит там, где виден его результат: он меняет формулу, карту, таблицу и ленту,
-   поэтому живёт одной строкой под формулой, а не в подвале боковой панели. */
-.scope{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:5px 15px 6px;border-top:1px solid var(--border);font-size:11.5px;color:var(--fg3);min-width:0;overflow:hidden}
-.scope .lb{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--fg3);flex:none}
-.scope b{color:var(--fg2);font-weight:600}
-.scope .sep{color:var(--border)}
-.scope .fchip{height:19px}
 .scope .picked{display:inline-flex;align-items:baseline;gap:6px;border:1px solid var(--link);border-radius:11px;padding:1px 9px}
 .scope .picked .lb2{font-family:var(--mono);font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--fg3)}
 .scope .picked .rl{font-size:10.5px;color:var(--fg3)}
@@ -190,15 +184,14 @@ table.db td.num{font-family:var(--mono);text-align:right}
 /* Верхний слой карты — не география. Работа №1 решается по сегменту (Core Job),
    а юрлица сегмента разбросаны по всем штатам. Площадь = $ рынка, цвет = движение ARR;
    география включается вторым разрезом внутри выбранного сегмента. */
-.tmap{position:absolute;inset:0;display:none;padding:44px 10px 10px;gap:6px;box-sizing:border-box}
-.tmap.on{display:block}
-.tmap .tm{position:absolute;border-radius:7px;border:1px solid var(--border);padding:11px 13px;display:flex;flex-direction:column;gap:3px;text-align:left;overflow:hidden;transition:filter 100ms linear}
-.tmap .tm:hover{filter:brightness(1.35)}
-.tmap .tm .nm{font-size:14px;font-weight:600;color:var(--fg)}
-.tmap .tm .job{font-size:11px;color:var(--fg2);opacity:.95;overflow:hidden;text-overflow:ellipsis}
-.tmap .tm .num{font-family:var(--mono);font-size:12px;color:var(--fg);margin-top:auto}
-.tmap .tm .d{font-family:var(--mono);font-size:11px}
-.tmap .tmh{position:absolute;left:10px;right:10px;bottom:-2px;font-size:10.5px;color:var(--fg3);text-align:center}
+/* первая ступень лестницы: сегменты пузырями на самой карте.
+   Плиточный вид (treemap) удалён целиком — Лиза 30.09: «никаких плиток,
+   всегда должна быть карта визуальная, все отображения только на карте». */
+.segclu{display:flex;align-items:flex-end;gap:3px;position:relative}
+.segclu .sb{border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;font-family:var(--mono);font-weight:600;line-height:1.05;cursor:pointer;border:1px solid rgba(255,255,255,.3);box-shadow:0 1px 5px rgba(0,0,0,.4);transition:filter 90ms linear}
+.segclu .sb:hover{filter:brightness(1.35)}
+.segclu .sb i{font-style:normal;font-size:.72em;opacity:.92;font-weight:500}
+.segclu .ab{position:absolute;left:50%;top:100%;transform:translateX(-50%);margin-top:4px;font-family:var(--mono);font-size:9.5px;letter-spacing:.04em;color:var(--fg2);white-space:nowrap;pointer-events:none}
 .outscope{margin:6px 12px 0;padding:6px 9px;border:1px solid var(--warn);border-radius:5px;background:color-mix(in srgb,var(--warn) 8%,transparent);font-size:11.5px;color:var(--fg2)}
 .dbmore{display:block;width:100%;padding:10px;font-size:12px;color:var(--link);border-top:1px solid var(--border)}
 .dbmore:hover{background:var(--hover)}
@@ -224,6 +217,7 @@ body.focus-mode .ptabs{cursor:pointer}
 .tabb .x{width:18px;height:18px;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;color:var(--fg3);font-size:14px}
 .tabb .x:hover{background:var(--hover);color:var(--fg)}
 .tabb .ic{font-size:12px}
+.crumbs[hidden]{display:none}
 .crumbs{height:24px;display:flex;align-items:center;gap:6px;padding-inline:12px;font-size:12px;color:var(--fg2);border-bottom:1px solid var(--border);flex:none;white-space:nowrap;overflow:hidden}
 .crumbs b{color:var(--fg);font-weight:500}
 .crumb{color:var(--fg2);padding:1px 4px;border-radius:3px;transition:background-color 80ms linear}
@@ -323,13 +317,14 @@ body.focus-mode .ptabs{cursor:pointer}
 .mkorg{position:relative;width:0;height:0}
 .mkorg .node{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer}
 .mkorg .node i{width:16px;height:16px;border-radius:50%;background:var(--fg3);border:1.5px solid var(--editor);display:block}
+.mkorg .node.on{border-color:var(--link);box-shadow:0 0 0 2px color-mix(in srgb,var(--link) 45%,transparent)}
 .mkorg .node.miss i{background:var(--down)}
 .mkorg .node span{font-size:10px;color:var(--fg);background:color-mix(in srgb,var(--editor) 88%,transparent);border:1px solid var(--border);border-radius:9px;padding:0 6px;white-space:nowrap}
 .mkorg .ln{position:absolute;height:1px;background:var(--fg3);opacity:.7;transform-origin:0 50%}
-.mapsw{position:absolute;left:10px;top:10px;display:flex;border:1px solid var(--border);border-radius:13px;overflow:hidden;background:var(--editor)}
-.mapsw button{height:24px;padding:0 10px;font-size:11px;color:var(--fg3)}
-.mapsw button[aria-pressed="true"]{background:var(--selbg);color:var(--fg)}
-.mapsw button+button{border-left:1px solid var(--border)}
+.mkorg .node.doc i{width:13px;height:16px;border-radius:2px 2px 2px 0;background:var(--fg3)}
+.mkorg .node.flow i{width:16px;height:16px;border-radius:3px;background:var(--fg3)}
+.mkorg .node.bot i{border-radius:4px;background:var(--agent)}
+.mkorg .node.up i{background:var(--up)} .mkorg .node.down i{background:var(--down)} .mkorg .node.warn i{background:var(--warn)}
 .zbtn{position:absolute;right:10px;bottom:28px;display:flex;flex-direction:column;border:1px solid var(--border);border-radius:6px;overflow:hidden;background:var(--editor)}
 .zbtn button{width:28px;height:26px;text-align:center;font-size:15px;color:var(--fg2)}
 .zbtn button+button{border-top:1px solid var(--border)}
@@ -481,6 +476,15 @@ body.focus-mode .ptabs{cursor:pointer}
 .tri .t{font-size:13px}
 .tri .s{font-size:11px;color:var(--fg3)}
 .tri.done{opacity:.55}
+.planbar{border:1px solid var(--link);border-radius:8px;padding:8px 10px;display:flex;flex-wrap:wrap;align-items:baseline;gap:3px 10px;background:color-mix(in srgb,var(--link) 6%,var(--editor));margin:2px 0 12px}
+.planbar .k{font-family:var(--mono);font-size:9.5px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--link)}
+.planbar .t{font-size:13px;font-weight:600}
+.planbar .s{font-size:11px;color:var(--fg3);flex-basis:100%}
+.planbar .lnk{margin-left:auto}
+.tri .owner.pl{color:var(--link);border-color:var(--link)}
+.tri.plan{box-shadow:inset 2px 0 0 var(--link)}
+.scn{margin-top:7px;padding-top:7px;border-top:1px solid var(--border)}
+.scn:first-of-type{margin-top:4px;padding-top:0;border-top:0}
 .tri.now{border-color:var(--focus);background:color-mix(in srgb,var(--focus) 7%,var(--editor))}
 .tri.now .t{font-size:14px;font-weight:600;line-height:1.3}
 .tri .urg{font-family:var(--mono);font-size:9.5px;font-weight:500;letter-spacing:.15em;text-transform:uppercase;color:var(--link)}
@@ -544,10 +548,6 @@ body.focus-mode .ptabs{cursor:pointer}
 .tarrow button{width:24px;height:24px;border:1px solid var(--border);border-radius:12px;color:var(--fg2);display:inline-flex;align-items:center;justify-content:center;font-size:10px}
 .tarrow button:hover{border-color:var(--fg3);color:var(--fg)}
 .tnote{font-size:12px;color:var(--fg3);max-width:280px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.alarmbar{display:flex;align-items:center;gap:10px;padding:5px 12px;background:color-mix(in srgb,var(--down) 10%,var(--title));border-top:1px solid color-mix(in srgb,var(--down) 40%,var(--border));font-size:12px}
-.alarmbar[hidden]{display:none}
-.alarmbar .k{color:var(--down);font-weight:600;white-space:nowrap}
-.alarmbar .t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 /* machine sidebar */
 .mrow{display:flex;flex-direction:column;gap:3px;padding:6px 12px;border-bottom:1px solid var(--border)}
 .mrow:hover{background:var(--hover)}
@@ -626,7 +626,6 @@ body.focus-mode .ptabs{cursor:pointer}
 .knobi{display:inline-flex;border:1px solid var(--border);border-radius:9px;overflow:hidden}
 .knobi button{font-size:11px;padding:0 6px;height:17px;color:var(--fg3)}
 .knobi button[aria-pressed="true"]{background:var(--fg);color:var(--editor)}
-.alarmbar .owner{font-size:12px;color:var(--fg2);white-space:nowrap}
 
 /* Мой агент — VS Code Chat look */
 .aghb{display:flex;gap:2px}
@@ -654,7 +653,6 @@ body.focus-mode .ptabs{cursor:pointer}
 #timebar input{width:170px}
 #timebar .tl{grid-column:1/3;grid-row:2;font-size:11px;min-width:0}
 #timebar .tnote{grid-column:3/5;grid-row:2;font-size:11px;max-width:220px;text-align:right}
-#timebar #play{height:22px;font-size:11px;padding:0 8px}
 @media (max-width:1180px){.bandrow{grid-template-columns:1fr}#timebar{border-left:0;padding-left:0;justify-self:start}}
 .center{grid-template-rows:minmax(0,1fr) 4px var(--pnh,42%)}
 .pbody{grid-template-columns:200px minmax(0,1fr)}
@@ -698,6 +696,7 @@ body.focus-mode .ptabs{cursor:pointer}
 /* дерево: правило отбора видно, строки читаются */
 .subrule{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:2px 12px 6px;font-size:11px;color:var(--fg3);line-height:1.35}
 .subrule b{color:var(--fg2);font-weight:600}
+.subrule i{flex-basis:100%;font-style:normal;color:var(--fg3);opacity:.85}
 .pick{display:inline-flex;border:1px solid var(--border);border-radius:4px;overflow:hidden;flex:none}
 .pick button{font-size:10px;padding:0 6px;height:18px;color:var(--fg3);background:transparent;white-space:nowrap}
 .pick button[aria-pressed="true"]{background:var(--accent);color:var(--on-accent);font-weight:600}
@@ -799,7 +798,6 @@ body.focus-mode .ptabs{cursor:pointer}
 
   <section class="band" aria-label="Result: formula and time">
     <div class="bandrow"><div class="formula" id="formula"></div><div class="timeline" id="timebar"></div></div>
-    <div class="scope" id="scope"></div>
   </section>
 
   <div class="body" id="body">
@@ -810,7 +808,7 @@ body.focus-mode .ptabs{cursor:pointer}
       <section class="editor">
         <div class="tabs" id="tabs" role="tablist"></div>
         <div class="crumbs" id="crumbs"></div>
-        <div class="groups" id="groups"><div class="view" id="view"><div id="mapwrap" style="height:100%"></div><div id="sopview"></div><div id="dbview"></div><div id="todayview"></div></div><div class="view" id="view2"></div></div>
+        <div class="groups" id="groups"><div class="view" id="view"><div id="mapwrap" style="height:100%"></div><div id="sopview"></div><div id="dbview"></div></div><div class="view" id="view2"></div></div>
       </section>
       <div class="gutter hgut g3" data-g="pnh"></div>
       <section class="panel">
@@ -821,6 +819,7 @@ body.focus-mode .ptabs{cursor:pointer}
     <div class="gutter g2" data-g="agw"></div>
     <aside class="agentbar">
       <div class="agh"><span class="hdr">My agent</span><span class="aghb"><button class="lbtn" data-newchat="1" aria-label="New conversation" data-tip="New conversation">＋</button><button class="lbtn" data-tip="Conversation history" aria-label="History">⟲</button><button class="lbtn" id="agHide" aria-label="Hide the agent" data-tip="Hide">×</button></span></div>
+      <div class="agentry" id="agentry"></div>
       <div class="agbody" id="agbody"></div>
       <div class="ask">
         <div class="sugg" id="sugg"></div>
@@ -832,7 +831,6 @@ body.focus-mode .ptabs{cursor:pointer}
     </aside>
   </div>
 
-  <div class="alarmbar" id="alarmbar" hidden></div>
   <footer class="statusbar" id="status"></footer>
 </div>
 
@@ -994,8 +992,8 @@ const MEET=[{id:'mt1',acc:'a0',who:'Dr. Jonathan Moss',w:38,when:'Thu 2:00 pm',t
             {id:'mt2',acc:'a1',who:'Tom Hale',w:38,when:'not scheduled',ttl:'Price walkthrough: $1,400 freelancer vs $3,170 with an SLA',st:['warn','awaiting a yes']}];
 const S={t:NOW,seg:null,downOnly:false,sel:null,level:'segment',K:1,
   knob:{scout:2,qual:2,seller:2,pricer:1,service:1},profile:'owner',
-  side:'tree',ent:'seg',mapView:'geo',bn:0,sent:{},skin:'rev',ef:{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false},ptab:'market',job:'',stF:'',stage:'',primary:'today',source:null,orgOpen:false,sopAcc:'a0',tabs:[{id:'today',kind:'today',title:'Today'},{id:'map',kind:'map',title:'Map'},{id:'sop',kind:'sop',title:'SOP'}],tab:'today',
-  facts:{},docs:{},tri:{},chat:[],layout:{side:true,panel:true,agent:true,panelRight:false,swap:false},sopEdit:false,sopFix:null,steps:JSON.parse(JSON.stringify(STEPS0)),fieldPol:{},hidden:{},dnc:{},knobW:{scout:1,qual:1,seller:1,pricer:1,service:1},rules:JSON.parse(JSON.stringify(RULES0))};
+  side:'tree',ent:'seg',agView:null,mapAcc:null,bn:0,sent:{},skin:'rev',ef:{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false},ptab:'market',job:'',stF:'',stage:'',primary:'map',source:null,orgOpen:false,sopAcc:'a0',tabs:[{id:'map',kind:'map',title:'Map'},{id:'sop',kind:'sop',title:'SOP'}],tab:'map',
+  facts:{},docs:{},tri:{},plan:null,chat:[],layout:{side:true,panel:true,agent:true,panelRight:false,swap:false},sopEdit:false,sopFix:null,steps:JSON.parse(JSON.stringify(STEPS0)),fieldPol:{},hidden:{},dnc:{},knobW:{scout:1,qual:1,seller:1,pricer:1,service:1},rules:JSON.parse(JSON.stringify(RULES0))};
 try{const L=JSON.parse(localStorage.getItem('revos-layout-v4')||'null');if(L)Object.assign(S.layout,L);}catch(e){}
 if(window.innerWidth<1280&&!(()=>{try{return localStorage.getItem('revos-layout-v4')}catch(e){return null}})())S.layout.side=false;
 S.layout.agent=true;
@@ -1184,6 +1182,7 @@ const ICONS={
   e_seg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 3.5 21 8l-9 4.5L3 8z"/><path d="M3 12.5 12 17l9-4.5M3 16.5 12 21l9-4.5"/></svg>',
   e_acc:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="4" width="10" height="16" rx="1"/><path d="M14 10h6v10h-6M7 8h4M7 12h4M7 16h4M17 14h.01"/></svg>',
   e_ppl:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="9" cy="8" r="3"/><path d="M3 19c.8-3.4 3.2-4.8 6-4.8s5.2 1.4 6 4.8"/><circle cx="17.5" cy="7" r="2.3"/><path d="M16 12.6c2.3-.3 4.3 1 5 4.4"/></svg>',
+  e_doc:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/></svg>',
   e_flow:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2.5" y="4" width="6" height="4.5" rx="1"/><rect x="15.5" y="4" width="6" height="4.5" rx="1"/><rect x="9" y="15.5" width="6" height="4.5" rx="1"/><path d="M5.5 8.5V12h13V8.5M12 12v3.5"/></svg>',
   e_us:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3.5 10.5 12 4l8.5 6.5V20H3.5z"/><path d="M9.5 20v-5h5v5"/></svg>'};
 /* Шесть сущностей — единственное место выбора. Кнопка сверху, фильтры этой сущности
@@ -1193,12 +1192,13 @@ const ENTS=[
   ['acc','Accounts','e_acc','companies and documents \u2014 the language an account speaks'],
   ['ppl','People','e_ppl','who said what, and who needs an answer by when'],
   ['flow','Flows','e_flow','how people connect to each other to get a document signed'],
+  ['doc','Documents','e_doc','what is signed, sent and owed \u2014 under the flow that produced it'],
   ['ag','Agents','bot','who works for us, with how much freedom, and where it ends'],
   ['us','Us','e_us','our own company \u2014 another point on the same map']];
-const ENTNM={seg:'Segments',acc:'Accounts',ppl:'People',flow:'Flows',ag:'Agents',us:'Us'};
+const ENTNM={seg:'Segments',acc:'Accounts',ppl:'People',flow:'Flows',doc:'Documents',ag:'Agents',us:'Us'};
 /* Правило Николая: лента следует за кнопкой слева. Значит у каждой кнопки
    своя лента, и ни одна лента не остаётся без входа. */
-const ENTFEED={seg:'market',acc:'account',ppl:'people',flow:'flow',ag:'agents',us:'channel'};
+const ENTFEED={seg:'market',acc:'account',ppl:'people',flow:'flow',doc:'account',ag:'agents',us:'channel'};
 /* Роль не меняет зоны — зон шесть и их хватает любой роли. Роль меняет СРЕЗ внутри них.
    «У него будет срез по документам… а у Карины узкое место — лид не ответил, вот здесь
    в ленте» (Николай, 25.09). Управленец живёт сегментом и формулой, продавец — человеком
@@ -1267,13 +1267,12 @@ function renderSide(){
   if(S.side==='tree'){
     const ent=S.ent||'seg', tt=S.t;
     S.ef=S.ef||{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false};
-    const rule=x=>`<div class="subrule"><span>${x}</span></div>`;
+    const rule=(x,i)=>`<div class="subrule"><span>${x}</span>${i?`<i>${i}</i>`:''}</div>`;
     const chips=(label,name,opts,cur)=>`<div class="fl"><span>${esc(label)}</span><div class="chips">`+
       opts.map(([v,nm,tip])=>`<button class="fchip" data-ef="${name}:${v}" aria-pressed="${cur===v}"${tip?` data-tip="${esc(tip)}"`:''}>${esc(nm)}</button>`).join('')+`</div></div>`;
 
     /* ---------- СЕГМЕНТЫ ---------- */
     if(ent==='seg'){
-      h+=rule('the market from above. Picking a segment recalculates the formula, the map and the feed');
       h+=`<div class="sfilt">`
         +chips('Segment','seg',[['','all']].concat(SEGS.map(g=>[g.id,g.abc+' · '+g.name,'Core job: “'+g.job+'” · NAICS '+g.naics.join(', ')])),S.seg||'')
         +`<div class="fl"><span>Job</span><select id="fJob">${JOBS.map(([k,x])=>`<option value="${k}" ${S.job===k?'selected':''}>${x}</option>`).join('')}</select></div>`
@@ -1289,7 +1288,6 @@ function renderSide(){
 
     /* ---------- ЮРЛИЦА ---------- */
     else if(ent==='acc'){
-      h+=rule('a company speaks in documents. The feed below is what it has said');
       h+=filtersHTML();
       const MODES={attn:['need a decision','stuck, leaving, or asking for a human'],
                    work:['in play','from the first touch to the signature']};
@@ -1312,7 +1310,6 @@ function renderSide(){
 
     /* ---------- ЛЮДИ ---------- */
     else if(ent==='ppl'){
-      h+=rule('the unit here is one message from one person. The channel is only where the line came from');
       const SRCF=[['','all'],['gmail','email'],['linkedin','LinkedIn'],['aircall','call'],['teams','meeting'],['quickbooks','invoice']];
       const ROLEF=[['','all'],['decides','decides','has the last word'],['champions','champions','moves the deal inside the company'],['pays','pays','approves the budget and signs the invoice']];
       h+=`<div class="sfilt">`+chips('Role in the deal','role',ROLEF,S.ef.role)+chips('Channel','src',SRCF,S.ef.src)+`</div>`;
@@ -1322,15 +1319,14 @@ function renderSide(){
       if(S.ef.role)ppl=ppl.filter(x=>x.role===S.ef.role);
       h+=`<div class="grp2">People</div>`;
       h+=rule(`showing <b>${ppl.length}</b> · people at accounts where someone owes a move${S.ef.role?' · role: '+esc(S.ef.role):''}`);
-      h+=ppl.map(x=>`<button class="row ${S.sel&&S.sel.id===x.id?'on':''}" data-open="person:${x.id}" data-tip="${esc(x.nm+' · '+x.title+' · '+x.acc.name)}">
+      h+=ppl.map(x=>`<button class="row ${S.sel&&S.sel.id===x.id?'on':''}" data-open="person:${x.id}" data-tip="${esc(x.nm+' · '+x.title+' · '+x.acc.name+' · '+((personWorth(x.id)||{eff:{}}).eff.l||''))}">
         ${face(x.nm)}<span class="nm">${esc(x.nm)}</span>
-        <span class="rt"><span class="role">${esc(x.role)}</span></span></button>`).join('');
+        <span class="rt"><span class="role">${esc(x.role)}</span> <span class="num ${(personWorth(x.id)||{eff:{}}).eff.c||'flat'}">${usd((personWorth(x.id)||{money:0}).money)}</span></span></button>`).join('');
       h+=`<button class="dbopen" data-open="db:person"><b>Everything — ${int(allAcc.length*3)} people</b> <i>as a filterable table ↗</i></button>`;
     }
 
     /* ---------- ПОТОКИ ---------- */
     else if(ent==='flow'){
-      h+=rule('a flow is how people connect to each other to get a document signed. Two lanes: the client and us');
       const PROC=[['sale','Sale: interest → renewal'],['onb','Onboarding ≤ 7d'],['ren','Renewal and expansion']];
       h+=`<div class="sfilt">`
         +`<div class="fl"><span>Stage</span><select id="fStage"><option value="">all stages</option>${[1,2,3,4,5,6,7,8].map(k=>`<option value="${k}" ${S.stage==k?'selected':''}>${STAGE[k]}</option>`).join('')}</select></div></div>`;
@@ -1339,12 +1335,23 @@ function renderSide(){
       const opened=ACCBY[S.sopAcc];
       h+=`<div class="grp2">Open on</div>`;
       h+=`<button class="row on" data-open="sop:${S.sopAcc}">${logo(opened,'sq')}<span class="nm">${esc(opened.name)}</span><span class="rt"><span class="stg">${STAGE[(stateAt(opened,tt)||{s:1}).s]}</span></span></button>`;
-      h+=rule('to open the flow on another deal, pick an account and press “Flow” on its record');
+    }
+
+    /* ---------- ДОКУМЕНТЫ (под потоками) ---------- */
+    else if(ent==='doc'){
+      const KIND=[['','all']].concat([...new Set(Object.values(DOCS).map(d=>d.kind))].map(k=>[k,k]));
+      h+=`<div class="sfilt">`+chips('Kind','dkind',KIND,S.ef.dkind||'')+`</div>`;
+      let ds=Object.entries(DOCS).filter(([id,d])=>d.w<=Math.max(tt,NOW)&&(!S.ef.dkind||d.kind===S.ef.dkind)
+        &&(!S.seg||ACCBY[d.acc].seg===S.seg)).sort((a,b)=>b[1].w-a[1].w);
+      h+=`<div class="grp2">Documents</div>`;
+      h+=rule(`showing <b>${ds.length}</b> · what is signed, sent and owed`);
+      h+=ds.map(([id,d])=>`<button class="row ${S.sel&&S.sel.type==='doc'&&S.sel.id===id?'on':''}" data-open="docnode:${id}" data-tip="${esc(d.ttl)}">
+        ${logo(ACCBY[d.acc],'sq')}<span class="nm">${esc(d.kind)} · ${esc(ACCBY[d.acc].name)}</span>
+        <span class="rt ${d.status?d.status[0]:''}">${d.status?esc(d.status[1]):''}</span></button>`).join('');
     }
 
     /* ---------- АГЕНТЫ ---------- */
     else if(ent==='ag'){
-      h+=rule('an agent is a colleague: a role, a face, a log. A named human answers for each one');
       const ST=[['','all'],['active','running'],['awaiting','waiting on a human'],['paused','stopped']];
       h+=`<div class="sfilt">`+chips('State','astate',ST,S.ef.astate)
         +chips('Answers for it','owner',[['','all']].concat(OURS.filter(o=>AGENTS.some(a=>a.owner===o.id)).map(o=>[o.id,o.nm.split(' ')[0]])),S.ef.owner)+`</div>`;
@@ -1354,12 +1361,11 @@ function renderSide(){
         <button class="l1" data-open="agent:${a.id}" data-tip="${esc(a.title+' · answers for it: '+OURS.find(o=>o.id===a.owner).nm.split(' ')[0]+' · never: '+STOPS[a.id][0])}">
           <span class="av bot ag ${ASTATE[a.state][0]}">${AGICON[a.id]||ICONS.bot}</span><span class="nm">${esc(a.nm)}</span>
           <span class="rt ${ASTATE[a.state][0]}">${ASTATE[a.state][1]}</span></button>
-        <div class="agk"><span class="cw">${KNOB[S.knob[a.id]]} on cold \u00b7 ${KNOB[S.knobW[a.id]]} on warm</span></div></div>`).join('');
+        </div>`).join('');
     }
 
     /* ---------- МЫ ---------- */
     else {
-      h+=rule('we are a company on this map like any other. Under each person are their agents');
       h+=`<button class="row us" data-open="us"><span class="av sq bot">${ICONS.mark}</span><span class="nm">Bobroff MSP</span><span class="rt">${OURS.length} people · ${AGENTS.length} agents</span></button>`;
       h+=`<div class="grp2">People and their agents</div>`;
       for(const o of OURS){
@@ -1373,7 +1379,6 @@ function renderSide(){
       }
       const mbad=MAIL.filter(m=>m.lim&&m.sent>=m.lim).length;
       h+=`<div class="grp2">Our mailboxes · ${MAIL.length}</div>`;
-      h+=rule('a mailbox is a resource of ours, not a thing in the world. Click one and the feed shows what landed');
       h+=MAIL.map(m=>`<button class="row" data-mail="${m.id}"><span class="av sq">✉</span><span class="nm" title="${esc(m.adr)}">${esc(m.adr)}</span>
         <span class="rt">${m.lim&&m.sent>=m.lim?'<span class="why down">quota spent</span>':`<span class="stg">${m.sent}/${m.lim||'—'}</span>`}</span></button>`).join('');
       if(mbad)h+=rule(`<b class="down">${mbad} mailbox has spent its daily quota</b> — some mail will not go out today`);
@@ -1399,7 +1404,7 @@ function renderTabs(){
 function renderSource(t){if(t.kind==='draft')return renderDraft(t.ref);if(t.kind==='doc')return renderDoc(t.ref);if(t.kind==='msg')return renderMsg(t.ref);if(t.kind==='news')return renderNews(t.ref);if(t.kind==='org')return renderOrg();if(t.kind==='agent')return renderAgentTab(t.ref);return '';}
 function renderEditor(){
   const t=S.tabs.find(x=>x.id===S.tab)||S.tabs[0];
-  if(t.kind==='map'||t.kind==='sop'||t.kind==='db'||t.kind==='today'){S.primary=t.kind;S.source=null;if(t.kind==='db')S.dbKind=t.ref;
+  if(t.kind==='map'||t.kind==='sop'||t.kind==='db'){S.primary=t.kind;S.source=null;if(t.kind==='db')S.dbKind=t.ref;
     setEnt({sop:'flow',db:S.dbKind==='person'?'ppl':'acc'}[t.kind]||S.ent);
   }else{S.source=t.id;
     /* Левая и лента идут за центром: «это просто дублирование», если они смотрят
@@ -1411,11 +1416,8 @@ function renderEditor(){
   $('mapwrap').style.display=S.primary==='map'?'':'none';
   $('sopview').style.display=S.primary==='sop'?'':'none';
   $('dbview').style.display=S.primary==='db'?'block':'none';
-  $('todayview').style.display=S.primary==='today'?'block':'none';
-  if(S.primary==='today')renderToday();
   if(S.primary==='sop')$('sopview').innerHTML=renderSOP(ACCBY[S.sopAcc]);
   else if(S.primary==='db')renderDB();
-  else if(S.primary==='today')renderToday();
   else renderMap();
   const src=S.source&&S.tabs.find(x=>x.id===S.source);
   $('groups').classList.toggle('src',!!src);
@@ -1427,10 +1429,10 @@ function renderEditor(){
   renderCrumbs();}
 function renderCrumbs(){const t=S.tabs.find(x=>x.id===S.tab)||S.tabs[0];let c='';
   if(t.kind==='map'){c=[['segment','Segments'],['accounts','Accounts'],['people','People']].map(([k,n])=>`<button class="crumb ${S.level===k?'on':''}" data-level="${k}">${n}</button>`).join('<span class="faint">›</span>')+(S.seg?` <span class="faint">·</span> ${segBy(S.seg).name}`:'')+(S.sel&&S.sel.type==='acc'?` <span class="faint">·</span> <b>${esc(ACCBY[S.sel.id].name)}</b>`:'');}
-  else if(t.kind==='today')c=`Today <span class="faint">·</span> <b>${esc($('profile').selectedOptions[0].text)}</b>`;
   else if(t.kind==='db')c=`Database <span class="faint">›</span> <b>${t.ref==='acc'?'accounts':'people'}</b> <span class="faint">·</span> ${S.seg?segBy(S.seg).name:'all segments'}`;
-  else c=`${{sop:'SOP',doc:'Document',msg:'Profile',news:'News',org:'Us',agent:'Agent',draft:'Draft'}[t.kind]} <span>›</span> <b>${esc(t.title)}</b>`;
-  $('crumbs').innerHTML=c;}
+  /* «Нахрена повторять СОП, СОП — опять экран весь уничтожили» (Николай, 16:47).
+     Имя вкладки уже стоит во вкладке; крошка нужна только там, где она — лестница. */
+  $('crumbs').innerHTML=c;$('crumbs').hidden=!c;}
 
 /* =================== map view =================== */
 let MAPEL,svg,root,gStates,gBub,gClu,gAcc,gPer,gHQ,zoom,statesF,pathG;
@@ -1454,8 +1456,6 @@ function buildMapView(){
     <div class="mapbox" id="mapbox">
       <div id="mlmap"></div>
       <div class="legend" id="legend"></div>
-      <div class="tmap" id="tmap"></div>
-      <div class="mapsw" id="mapsw" role="group" aria-label="Map view"></div>
       <div class="zbtn"><button id="zin" aria-label="Zoom in">+</button><button id="zout" aria-label="Zoom out">−</button></div>
     </div></div>`;
   MAPEL=$('mapview');
@@ -1496,9 +1496,13 @@ function buildMapView(){
   ML.on('mouseleave','acc-dot',()=>{ML.getCanvas().style.cursor='';tipHide();});
   ML.on('moveend',()=>{
     const z=ML.getZoom();S.K=z;
-    if(S.sel&&S.sel.type==='acc'&&z<4.2){S.sel=null;}
-    const lv=S.sel&&S.sel.type==='acc'?'people':z>=4.2?'accounts':'segment';
-    if(lv!==S.level){S.level=lv;setEnt({segment:'seg',accounts:'acc',people:'ppl'}[lv]);renderMap();renderCrumbs();renderPanel();}
+    if(S.mapAcc&&z<4.2){S.sel=null;S.mapAcc=null;}
+    const lv=S.mapAcc?'people':z>=4.2?'accounts':'segment';
+    if(lv!==S.level){S.level=lv;
+      /* уровень карты задаёт сущность только если внутри ничего не выбрано:
+         иначе перелёт к юрлицу сбивал бы выбранный документ или поток */
+      setEnt((S.sel&&ENTOF[S.sel.type])||{segment:'seg',accounts:'acc',people:'ppl'}[lv]);
+      renderMap();renderCrumbs();renderPanel();}
     else renderMap();});
   $('zin').onclick=()=>ML.zoomIn();
   $('zout').onclick=()=>ML.zoomOut();
@@ -1509,7 +1513,7 @@ function zoomToFeature(f){if(!ML)return;const [[x0,y0],[x1,y1]]=pathG.bounds(f);
   if(!p1||!p2){return;}
   ML.fitBounds([[Math.min(p1[0],p2[0]),Math.min(p1[1],p2[1])],[Math.max(p1[0],p2[0]),Math.max(p1[1],p2[1])]],{padding:60,duration:900});}
 
-function renderMap(){ setTimeout(renderTreemap,0);
+function renderMap(){
   if(!ML||!MLREADY)return;
   const t=S.t,seg=S.level==='segment',z=ML.getZoom();
   const UP=cssv('--up'),DN=cssv('--down'),FL=cssv('--flat');
@@ -1527,20 +1531,28 @@ function renderMap(){ setTimeout(renderTreemap,0);
 
   clearMarkers();
 
-  /* --- уровень сегмента: пузырь на штат, размер = $ рынка, цвет = движение ARR --- */
+  /* --- первая ступень: сегменты пузырями на штат. Один пузырь = один сегмент
+         в одном штате. Размер = $ его рынка там, цвет = движение ARR.
+         Клик = «выбрал сегмент» и проваливание к юрлицам этого сегмента. --- */
   if(seg){
-    const stats=statesF.map(f=>({f,s:stateStats(f.abbr),c:pathG.centroid(f)}))
-      .filter(x=>x.s.end>0&&Math.abs(x.s.d)>=.002&&isFinite(x.c[0]));
-    const rS=d3.scaleSqrt().domain([0,d3.max(stats,x=>x.s.v)||1]).range([0,30]);
-    stats.forEach(x=>{const ll=proj.invert(x.c);if(!ll)return;
-      const r=Math.max(16,rS(x.s.v)*1.6),el=document.createElement('div');
-      el.className='mk';el.style.width=el.style.height=r+'px';el.style.background=tradeCol(x.s.d);
-      el.style.fontSize=(r>34?11:9)+'px';
-      el.innerHTML=r>34?`${x.f.abbr} ${x.s.d>=0?'▲':'▼'}${Math.abs(x.s.d*100).toFixed(1)}`
-        :`${x.f.abbr}<i>${x.s.d>=0?'▲':'▼'}${Math.abs(x.s.d*100).toFixed(1)}</i>`;
-      el.title=stateTip(x.f);
-      el.onclick=()=>zoomToFeature(x.f);
-      mkMarker('bub',ll,el);});
+    const SEGL=S.seg?SEGS.filter(g=>g.id===S.seg):SEGS;
+    const cells=[];
+    statesF.forEach(f=>{const c=pathG.centroid(f);if(!isFinite(c[0]))return;
+      const ll=proj.invert(c);if(!ll)return;
+      const here=SEGL.map(g=>({g,s:stateSegStats(f.abbr,g.id)}))
+        .filter(x=>x.s.end>0&&Math.abs(x.s.d)>=.002);
+      if(here.length)cells.push({f,ll,here});});
+    const rS=d3.scaleSqrt().domain([0,d3.max(cells.flatMap(c=>c.here.map(x=>x.s.v)))||1]).range([0,26]);
+    cells.forEach(c=>{const box=document.createElement('div');box.className='segclu';
+      c.here.forEach(x=>{const r=Math.max(20,rS(x.s.v)*1.5),b=document.createElement('span');
+        b.className='sb';b.style.width=b.style.height=r+'px';b.style.background=tradeCol(x.s.d);
+        b.style.fontSize=(r>30?11:9.5)+'px';
+        b.innerHTML=`${x.g.abc}<i>${x.s.d>=0?'▲':'▼'}${Math.abs(x.s.d*100).toFixed(1)}</i>`;
+        b.title=`${x.g.name} in ${c.f.properties.name} · market ${usd(x.s.v)} · ${int(x.s.n)} accounts · our ARR ${usd(x.s.end)} ${x.s.d>=0?'▲':'▼'} ${Math.abs(x.s.d*100).toFixed(1)} %`;
+        b.onclick=ev=>{ev.stopPropagation();S.seg=x.g.id;setEnt('seg');renderAllButMap();zoomToFeature(c.f);};
+        box.appendChild(b);});
+      const ab=document.createElement('b');ab.className='ab';ab.textContent=c.f.abbr;box.appendChild(ab);
+      mkMarker('bub',c.ll,box);});
   }
 
   /* --- уровень юрлиц издалека: кластеры по метро --- */
@@ -1558,12 +1570,14 @@ function renderMap(){ setTimeout(renderTreemap,0);
 
   /* --- мы: такая же точка на карте --- */
   const hq=document.createElement('div');hq.className='mk hq';
-  hq.title='We are a point on this map like any other: 3 people, 5 agents. Click for the org chart';
-  hq.onclick=()=>{openTab('org','us','Us · people and agents');selectAgent(null);};
+  hq.title='We are a point on this map like any other: our people and our agents';
+  hq.onclick=()=>{selectNode('us',null);};
   mkMarker('hq',[-73.99,40.75],hq);
 
   /* --- человечки вокруг выбранного юрлица --- */
-  const selA=S.sel&&S.sel.type==='acc'?ACCBY[S.sel.id]:null;
+  /* На каком юрлице стоит карта — отдельное состояние от того, что выбрано внутри него.
+     Иначе выбор человека, документа или потока гасил бы всю органеграмму. */
+  const selA=S.mapAcc?ACCBY[S.mapAcc]:null;
   if(selA&&S.orgOpen){
     const P=peopleOf(selA),miss=selA===BRIGHT?2:-1;
     const box=document.createElement('div');box.className='mkorg';
@@ -1573,53 +1587,71 @@ function renderMap(){ setTimeout(renderTreemap,0);
       ln.style.width=len+'px';ln.style.left='0px';ln.style.top='-14px';ln.style.transform=`rotate(${ang}deg)`;
       box.appendChild(ln);});
     P.forEach((p,i)=>{const n=document.createElement('div');
-      n.className='node'+(i===miss?' miss':'');
+      n.className='node'+(i===miss?' miss':'')+(S.sel&&S.sel.type==='person'&&S.sel.id===p.id?' on':'');
       n.style.left=pos[i][0]+'px';n.style.top=pos[i][1]+'px';
       n.innerHTML=`<span>${esc(p.nm.split(' ').slice(-1)[0])} · ${esc(p.role.split(' ')[0])}</span><i></i>`;
       n.title=`${p.nm} — ${p.role}${i===miss?' · the signature is waiting on their yes':''} → conversation log`;
-      n.onclick=ev=>{ev.stopPropagation();openRef('person:'+p.id);};
+      n.onclick=ev=>{ev.stopPropagation();selectNode('person',p.id);};
       box.appendChild(n);});
+
+    /* «Сверху органеграмма, снизу документы, слева значок workflows» (Николай, 21:50).
+       Цвет узла — его состояние, тот же язык, что и у юрлиц на карте. */
+    const mkNode=(cls,x,y,label,tip,on,fn)=>{const n=document.createElement('div');
+      n.className='node '+cls+(on?' on':'');n.style.left=x+'px';n.style.top=y+'px';
+      n.innerHTML=`<i></i><span>${esc(label)}</span>`;n.title=tip;
+      n.onclick=ev=>{ev.stopPropagation();fn();};box.appendChild(n);
+      const len=Math.hypot(x,y),ang=Math.atan2(y,x)*180/Math.PI;
+      const ln=document.createElement('i');ln.className='ln';ln.style.width=len+'px';ln.style.left='0px';ln.style.top='0px';
+      ln.style.transform=`rotate(${ang}deg)`;box.insertBefore(ln,box.firstChild);};
+
+    const docs=Object.entries(DOCS).filter(([id,d])=>d.acc===selA.id&&d.w<=Math.max(t,NOW)).slice(-3);
+    const dpos=[[-58,62],[0,74],[58,62]];
+    docs.forEach(([id,d],i)=>{const st=(S.docs[id]&&S.docs[id].us)?'up':d.status?d.status[0]:'flat';
+      mkNode('doc '+st,dpos[i][0],dpos[i][1],d.kind,
+        `${d.kind} · ${d.ttl}${d.status?' · '+d.status[1]:''} → the log of this document`,
+        S.sel&&S.sel.type==='doc'&&S.sel.id===id,()=>selectNode('doc',id));});
+
+    const e=stateAt(selA,t),stuckNow=e&&momentum(selA,t)<0;
+    mkNode('flow '+(stuckNow?'down':'up'),-96,10,'Flow',
+      `The flow of this deal: who owes what to whom to get the document signed${e?' · stage “'+STAGE[e.s]+'”':''} → the log of this deal`,
+      S.sel&&S.sel.type==='sop'&&S.sel.id===selA.id,()=>selectNode('sop',selA.id));
+
+    const ag=AGENTS.find(g=>e&&g.owns.includes(e.s))||agBy('seller');
+    mkNode('bot'+(ag.state==='paused'?' down':ag.state==='awaiting'?' warn':''),96,10,ag.nm,
+      `${ag.nm} — ${ag.title} · ${ASTATE[ag.state][1]} → what it did on this account`,
+      S.sel&&S.sel.type==='agent'&&S.sel.id===ag.id,()=>selectNode('agent',ag.id));
     mkMarker('org',llOf(selA),box);
   }
 
   $('legend').innerHTML=S.seg?`<span>ARR over 4 weeks</span><span class="grad"></span><span class="num">−4 % … +4 %</span><span>· size = $ of the segment market</span><span><i style="background:var(--agent);border-radius:1px;transform:rotate(45deg)"></i>us</span>`
-    :`<span>size = $ of the state market</span><span><i style="background:var(--up)"></i>▲ moving</span><span><i style="background:var(--down)"></i>▼ stuck ≥ 8d or a churn signal</span><span><i style="background:var(--flat)"></i>■ flat</span>${t>NOW?'<span>faded — forecast</span>':''}<span><i style="background:var(--agent);border-radius:1px;transform:rotate(45deg)"></i>us</span>`;
+    :`<span>one bubble = one segment in one state</span><span>size = $ of its market there</span><span><i style="background:var(--up)"></i>▲ moving</span><span><i style="background:var(--down)"></i>▼ stuck ≥ 8d or a churn signal</span><span><i style="background:var(--flat)"></i>■ flat</span>${t>NOW?'<span>faded — forecast</span>':''}<span><i style="background:var(--agent);border-radius:1px;transform:rotate(45deg)"></i>us</span>`;
 }
 function scaleMarks(){}
-function selectAcc(a){S.sel={type:'acc',id:a.id};S.sopAcc=a.id;S.orgOpen=true;S.level='people';
+function selectAcc(a){S.sel={type:'acc',id:a.id};S.mapAcc=a.id;S.sopAcc=a.id;S.orgOpen=true;S.level='people';
   if(S.primary!=='map'||S.source){S.tab='map';renderEditor();}
   if(ML&&MLREADY)ML.flyTo({center:llOf(a),zoom:Math.max(ML.getZoom(),13),duration:900});
   setEnt('acc');renderAllButMap();renderMap();}
 function segMetrics(g){const sv=S.seg;S.seg=g.id;const a=formulaAt(S.t),b=formulaAt(Math.max(TMIN,S.t-WIN));S.seg=sv;
   return {mkt:a.N*g.acv,N:a.N,arr:a.end,d:b.end?a.end/b.end-1:0};}
-function renderTreemap(){
-  const box=$('tmap'),on=S.mapView==='tree'&&!S.seg&&S.level!=='people';
-  const sw=$('mapsw');
-  if(sw)sw.innerHTML=[['geo','geography','where the office physically sits and who works there'],['tree','market share','area = $ of the segment market']]
-    .map(([k,nm,why])=>`<button data-mapview="${k}" aria-pressed="${(S.mapView||'geo')===k}" data-tip="${esc(why)}">${nm}</button>`).join('');
-  box.classList.toggle('on',on);const mm=$('mlmap');if(mm)mm.style.opacity=on?'0':'1';
-  const zb=document.querySelector('.zbtn');if(zb)zb.style.display=on?'none':'';
-  const lg=$('legend');if(lg)lg.style.display=on?'none':'';
-  if(!on){box.innerHTML='';return;}
-  const M=SEGS.map(g=>({g,...segMetrics(g)})).sort((x,y)=>y.mkt-x.mkt);
-  const tot=M.reduce((a,x)=>a+x.mkt,0)||1;
-  const W=100,H=100,gp=0.9;
-  const s1=M[0].mkt/tot, r=1-s1, s2=r?M[1].mkt/(M[1].mkt+M[2].mkt):0.5;
-  const R=[[0,0,s1*W,H],[s1*W,0,r*W,s2*H],[s1*W,s2*H,r*W,(1-s2)*H]];
-  box.innerHTML=M.map((m,i)=>{const [x,y,w,h]=R[i];
-    const col=m.d>=0?'var(--up)':'var(--down)';
-    return `<button class="tm" data-open="seg:${m.g.id}" style="left:calc(${x}% + ${gp}px);top:calc(${y}% + ${gp}px);width:calc(${w}% - ${gp*2}px);height:calc(${h}% - ${gp*2}px);background:color-mix(in srgb,${col} ${Math.min(26,6+Math.abs(m.d)*260)}%,var(--side))"
-      data-tip="${esc(m.g.name+' · Core Job: «'+m.g.job+'» · NAICS '+m.g.naics.join(', '))}">
-      <span class="nm">${esc(m.g.name)}</span>
-      <span class="job">${esc(m.g.job)}</span>
-      <span class="num">market ${usd(m.mkt)} · ${int(m.N)} accounts</span>
-      <span class="d ${m.d>=0?'up':'down'}">ARR ${usd(m.arr)} ${m.d>=0?'▲':'▼'} ${Math.abs(m.d*100).toFixed(1)} %</span></button>`;}).join('')
-    +`<div class="tmh">area = $ of the segment market · colour = ARR movement over 4 weeks · click to open the geography inside a segment</div>`;}
+/* деньги и движение одного сегмента в одном штате: та же мера, что и у всего штата,
+   просто срез сузили. Срез ставится глобально, поэтому его надо вернуть на место. */
+function stateSegStats(ab,segId){const sv=S.seg;S.seg=segId;const r=stateStats(ab);S.seg=sv;return r;}
 function stateStats(ab){let n=0,v=0;for(const g of SEGS){if(S.seg&&g.id!==S.seg)continue;const c=(POP[ab]||0)*g.perM;n+=c;v+=c*g.acv;}
   const F=formulaAt(S.t,ab);return {n,v,d:F.start?F.end/F.start-1:0,end:F.end};}
 function stateTip(f){const s=stateStats(f.abbr);return `${f.properties.name} · ${int(s.n)} accounts · ${usd(s.v)} of market · our ARR ${usd(s.end)} ${s.d>=0?'▲':'▼'} ${Math.abs(s.d*100).toFixed(1)} % over 4 weeks`;}
 function tradeCol(d,span=.04){const m=Math.min(Math.abs(d)/span,1);const c=d<0?'var(--down)':'var(--up)';return `color-mix(in srgb, ${c} ${Math.round(18+m*82)}%, var(--land))`;}
 function selectAgent(id){S.sel=id?{type:'agent',id}:null;setEnt('ag');renderAllButMap();}
+/* «А у меня вообще даже карта поменялась. Зачем? Я же не приказывал уходить в другой
+   рабочий экран. Я нахожусь в Maps» (Николай, 30.09, 10:07). Клик по узлу на карте
+   меняет ровно три вещи: подсветку, карточку объекта и ленту. В рабочую область
+   уводит только второй, явный клик — из ленты или из карточки. */
+const ENTOF={person:'ppl',acc:'acc',agent:'ag',doc:'doc',sop:'flow',us:'us'};
+function selectNode(type,id){
+  S.sel=type?{type,id}:null;
+  if(type==='person'||type==='acc')S.orgOpen=true;
+  setEnt(ENTOF[type]||S.ent);
+  if(type==='sop')S.sopAcc=id;
+  renderAllButMap();renderMap();}
 function renderFormula(){
   const F=formulaAt(S.t),P=formulaAt(S.t-WIN),ap=S.t>NOW?'≈ ':'';
   const cell=(n,v,d,cls)=>`<div class="fc ${cls||''}"><span class="fn">${n}</span><span class="fv">${ap}${v}</span><span class="fdd">${d||''}</span></div>`;
@@ -1647,36 +1679,23 @@ function pickMoney(){
       how:e&&isActive(e)?'bringing money in now':e&&e.s>=7?'brought nothing — closed':'in play: '+STAGE[(e||{s:1}).s]};}
   if(s.type==='person'){const p=personById(s.id),a=ACCBY[p.acc],e=stateAt(a,S.t);
     const R={decides:'has the last word on this deal',champions:'moves this deal inside the company',pays:'approves the budget for this deal'}[p.role]||p.role;
-    return {nm:p.nm,role:p.role,sum:acvAt(a,S.t),
-      how:(e&&isActive(e)?'brought in':'is carrying')+' the '+a.name+' deal · '+R};}
+    const w=personWorth(s.id);
+    return {nm:p.nm,role:p.role,sum:acvAt(a,S.t),eff:w&&w.eff,
+      how:(e&&isActive(e)?'brought in':'is carrying')+' the '+a.name+' deal · '+R+'. The money is not split between the people in a deal — this is what rides on this one.'};}
   if(s.type==='agent'){const g=agBy(s.id);
     const mine=ACC.filter(a=>{const e=stateAt(a,S.t);return e&&g.owns.includes(e.s)&&inF(a);});
     return {nm:g.nm,role:'agent',sum:mine.reduce((x,a)=>x+acvAt(a,S.t),0),how:`carries ${mine.length} deals at stages ${g.owns.map(x=>STAGE[x]).join(', ')}`};}
   return null;
 }
-function renderScope(){
-  const PM=pickMoney();
-  const parts=[S.seg?`<b>${esc(segBy(S.seg).name)}</b>`:'all segments',
-    S.job?`<b>${esc((JOBS.find(j=>j[0]===S.job)||['','—'])[1])}</b>`:'all jobs',
-    S.stF?`<b>${esc(S.stF)}</b>`:'all states',
-    S.stage?`<b>${esc(STAGE[S.stage])}</b>`:'the whole funnel',
-    S.downOnly?'<b>▼ only</b>':''].filter(Boolean);
-  const on=S.seg||S.job||S.stF||S.stage||S.downOnly;
-  const _sl=(S.slices||[]).find(x=>sameF(x.f,curF()));
-  $('scope').innerHTML=`<span class="lb">Scope</span>${_sl?`<b>◧ ${esc(_sl.nm)}</b><span class="sep"> · </span>`:''}${parts.join('<span class="sep"> · </span>')}`
-    +(PM?`<span class="sep"> · </span><span class="picked" data-tip="${esc(PM.how)}"><span class="lb2">selected</span><b>${esc(PM.nm)}</b><span class="rl">${esc(PM.role)}</span><span class="num">${usd(PM.sum)}/year</span></span>`:'')
-    +`<span style="flex:1"></span>`
-
-    +(on?`<button class="fchip" data-do="resetscope" data-tip="Back to everything">reset</button>`:'')
-    +`<span class="faint">what the formula above is counted over \u00b7 change it in the left panel</span>`;}
 function renderFilters(){
   const note=S.t>=36?(S.t>NOW?'forecast with no changes · the cheap channel was switched on in W36':'the cheap channel was switched on in W36 → Conv ▼'):'before the cheap channel';
   $('timebar').innerHTML=`<span class="tarrow"><button data-step="-1" aria-label="One week back">◄</button></span><input type="range" id="tr" min="${TMIN}" max="${TMAX}" value="${S.t}" aria-label="Week"><span class="tarrow"><button data-step="1" aria-label="One week forward">►</button></span>
-    <button class="fchip" id="play" aria-label="Play from W30 to now">W30 → now</button><span class="tl">${S.t>NOW?'forecast':S.t===NOW?'now':'back'} · W${S.t} · ${wkd(S.t)}</span><span class="tnote" title="${note}">${note}</span>`;
+<span class="tl">${S.t>NOW?'forecast · ':''}W${S.t} · ${wkd(S.t)}</span><span class="tnote" title="${note}">${note}</span>`;
 }
 function filtersHTML(){
   const sts=[...new Set(ACC.map(a=>a.st))].sort();
-  return `<div class="sfilt"><div class="hdr">Filters · the formula, the map and the feed recalculate</div>
+  const on=S.seg||S.job||S.stF||S.stage||S.downOnly;
+  return `<div class="sfilt"><div class="hdr">Filters · the formula, the map and the feed recalculate${on?` <button class="fchip" data-do="resetscope" data-tip="Back to everything">reset</button>`:''}</div>
     <div class="fl"><span>Segment</span><div class="chips"><button class="fchip" data-seg="" aria-pressed="${!S.seg}">all</button>${SEGS.map(g=>`<button class="fchip" data-seg="${g.id}" aria-pressed="${S.seg===g.id}" data-tip="Core job: “${g.job}” · NAICS ${g.naics.join(', ')}">${g.abc} · ${g.name}</button>`).join('')}</div></div>
     <div class="fl"><span>Job</span><select id="fJob">${JOBS.map(([k,t])=>`<option value="${k}" ${S.job===k?'selected':''}>${t}</option>`).join('')}</select></div>
     <div class="fl"><span>State</span><select id="fSt"><option value="">all states</option>${sts.map(x=>`<option ${S.stF===x?'selected':''}>${x}</option>`).join('')}</select></div>
@@ -1860,6 +1879,25 @@ function renderDoc(id){const d=DOCS[id],a=ACCBY[d.acc],st=S.docs[id]||{};const P
       <h3>Clause</h3>This is not an offer until countersigned by Bobroff MSP LLC.</div>
     <div class="btns"><button class="btn" data-edit="1">Edit</button>${isMSA?`<button class="btn pri" data-sign="${id}" ${canSign&&!st.us?'':'disabled'}>Sign as Nikolai Bobrov</button>`:''}${d.kind==='Offer v2'?`<button class="btn good" data-approve="${id}">Approve the agent’s draft</button><button class="btn bad" data-reject="${id}">Send it back to the agent</button>`:''}</div>
     <div class="note">${isMSA?(canSign?'A signature is irreversible: only a human with the authority can give it. The agent prepares, the agent does not sign.':'This profile has no signing authority. Switch the profile to Lisa.'):'Opened from the account feed. An agent’s edits stay a draft until a human approves them.'}</div></div>`;}
+/* JOB-024: «А сколько конкретно вот этот человек внутри юрлица мне принёс? Вот там три
+   продавана… вот этот принёс вот столько-то» (Николай, 25.09). Выручку между людьми мы
+   не делим — это была бы выдуманная атрибуция, и карточка работы прямо говорит, что она
+   спорна. Меряем проверяемое: сколько денег стоит за согласием этого человека и в какую
+   сторону он их двигает. Член формулы тот же, что и везде, — ACV. */
+function personWorth(pid){
+  const p=personById(pid);if(!p)return null;
+  const a=ACCBY[p.acc],e=stateAt(a,S.t),money=e?acvAt(a,S.t):a.acv;
+  const act=peopleActs(a,S.t).find(x=>x.p.id===pid)||{};
+  let eff={c:'flat',l:'no move either way'};
+  const d=act.days||0;
+  if(act.act==='silence')eff=d>=8?{c:'down',l:`holding \u00b7 silent ${d}d`}:{c:'flat',l:`quiet ${d}d`};
+  else if(act.act==='expressive')eff=/expensive|a lot|too much/i.test(act.txt||'')?{c:'down',l:'holding \u00b7 objecting on price'}:{c:'flat',l:'talking, not deciding'};
+  else if(act.act==='request')eff={c:'wn',l:`waiting on us \u00b7 ${d}d`};
+  else if(act.act==='promise')eff={c:'up',l:'moving \u00b7 promised'};
+  else if(act.act==='declaration')eff={c:'up',l:'moving \u00b7 signed or paid'};
+  else if(act.act==='assertion')eff={c:'flat',l:'setting the terms'};
+  return {p,a,money,eff};
+}
 function renderMsg(pid){const p=personById(pid),a=ACCBY[p.acc],M=MSGS[pid]||peopleActs(a,S.t).filter(x=>x.p.id===pid).map(x=>({me:false,src:p.src.toLowerCase()==='gmail'?'gmail':p.src.toLowerCase()==='linkedin'?'linkedin':'aircall',act:x.act,txt:x.txt,w:S.t}));
   const draft=pid==='p-hale'?'Tom, you pay $1,400/mo for one freelancer today. Our $3,170/mo covers 24/7 monitoring, HIPAA audit prep and a 1-hour SLA. Can I show the side-by-side in 15 minutes?':pid==='p-diaz'?'Karen, quick one: is Dr. Moss waiting for anything from us before the audit prep?':'';
   return `<div class="doc"><div class="doch">${face(p.nm,'big')}<div><h2>${esc(p.nm)}</h2><div class="muted">${esc(p.title)} · ${esc(a.name)} · role in the deal: <b>${p.role}</b></div><div class="note">source: ${esc(p.src)} · <a href="https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(p.nm)}" target="_blank" rel="noopener">LinkedIn \u2197</a></div></div></div>
@@ -1913,13 +1951,14 @@ function feedItems(tab){
       acts:`<button class="ib ok" data-factall="${n.id}:ok" aria-label="Confirm">✓</button><button class="ib no" data-factall="${n.id}:no" aria-label="Refute">✕</button><button class="ib" data-factall="${n.id}:x" aria-label="Drop">−</button><button class="ib" data-common="${n.id}" aria-label="Now common ground" data-tip="A signal is a deviation from the norm. What everyone already knows stops being a signal">≡</button><button class="ib" data-plus="${esc(n.ttl.slice(0,40))}" aria-label="Add your own fact">+</button>`,
       gone:S.facts[n.id]&&S.facts[n.id].all==='x'}));}
   if(tab==='flow'){
-    const sv=S.sel; S.sel={type:'acc',id:S.sopAcc};
+    const sv=S.sel; S.sel={type:'acc',id:(S.sel&&S.sel.type==='sop'?S.sel.id:S.sopAcc)};
     let out=[];
     try{out=(feedItems('account')||[]).concat(feedItems('people')||[]);}finally{S.sel=sv;}
     return out.sort((x,y)=>ageD(x)-ageD(y));}
   if(tab==='account'){
-    let items=Object.entries(DOCS).filter(([id,d])=>(!selA||d.acc===selA.id)&&d.w<=Math.max(t,NOW)).map(([id,d])=>({src:d.src,ttl:`${ACCBY[d.acc].name}: ${d.ttl}`,mt:`<b>${SRC[d.src][0]}</b> · ${d.kind}<span class="act"> · ${d.act}</span>`,when:ago(d.w),open:'doc:'+id,av:logo(ACCBY[d.acc],'sq'),sig:(S.docs[id]&&S.docs[id].us)?false:(d.status[0]==='down'||d.status[0]==='warn'),status:S.docs[id]&&S.docs[id].us?['up','signed by us']:d.status,w:d.w}));
-    if(!selA){const gen=ACC.filter(a=>!a.feat&&inF(a)&&momentum(a,t)<0).slice(0,14).map(a=>{const e=stateAt(a,t);const kind=e.s===3?['pandadoc',`Offer ${usd(a.acv)} opened, not signed`,'promise']:e.s===2?['pdf','Qualification questionnaire filled in, no reply','assertion']:e.s===1?['crm','First touch, no reply','request']:isActive(e)?['quickbooks',`Invoice ${a.payW?(t-a.payW)*7+5:5}d overdue`,'request']:['crm',`Lost: ${a.reason||'—'}`,'declaration'];return {src:kind[0],ttl:`${a.name}: ${kind[1]}`,mt:`<b>${SRC[kind[0]][0]}</b> · ${a.city}, ${a.st}<span class="act"> · ${kind[2]}</span>`,when:ago(e.w),open:'acc:'+a.id,av:logo(a,'sq'),sig:stuck(a,e,t),status:['down',stuck(a,e,t)?'silent '+daysIn(e,t)+'d':'▼'],w:e.w};});items=items.concat(gen);}
+    const selD=S.sel&&S.sel.type==='doc'?S.sel.id:null;
+    let items=Object.entries(DOCS).filter(([id,d])=>(selD?id===selD:(!selA||d.acc===selA.id))&&d.w<=Math.max(t,NOW)).map(([id,d])=>({src:d.src,ttl:`${ACCBY[d.acc].name}: ${d.ttl}`,mt:`<b>${SRC[d.src][0]}</b> · ${d.kind}<span class="act"> · ${d.act}</span>`,when:ago(d.w),open:'doc:'+id,av:logo(ACCBY[d.acc],'sq'),sig:(S.docs[id]&&S.docs[id].us)?false:(d.status[0]==='down'||d.status[0]==='warn'),status:S.docs[id]&&S.docs[id].us?['up','signed by us']:d.status,w:d.w}));
+    if(!selA&&!selD){const gen=ACC.filter(a=>!a.feat&&inF(a)&&momentum(a,t)<0).slice(0,14).map(a=>{const e=stateAt(a,t);const kind=e.s===3?['pandadoc',`Offer ${usd(a.acv)} opened, not signed`,'promise']:e.s===2?['pdf','Qualification questionnaire filled in, no reply','assertion']:e.s===1?['crm','First touch, no reply','request']:isActive(e)?['quickbooks',`Invoice ${a.payW?(t-a.payW)*7+5:5}d overdue`,'request']:['crm',`Lost: ${a.reason||'—'}`,'declaration'];return {src:kind[0],ttl:`${a.name}: ${kind[1]}`,mt:`<b>${SRC[kind[0]][0]}</b> · ${a.city}, ${a.st}<span class="act"> · ${kind[2]}</span>`,when:ago(e.w),open:'acc:'+a.id,av:logo(a,'sq'),sig:stuck(a,e,t),status:['down',stuck(a,e,t)?'silent '+daysIn(e,t)+'d':'▼'],w:e.w};});items=items.concat(gen);}
     return items.sort((x,y)=>y.w-x.w);}
   if(tab==='people'){
     let src=selA?[selA]:[BRIGHT,HALE,...ACC.filter(a=>!a.feat&&inF(a)&&momentum(a,t)<0).slice(0,8)];
@@ -1991,7 +2030,15 @@ function renderEcard(){
      когда ничего не выбрано: она своего не повторяет. */
   const t=S.t,sel=S.sel,tab=S.ptab;let h='';
   const pb=document.querySelector('.pbody');
-  if(sel){$('ecard').innerHTML='';$('ecard').hidden=true;if(pb)pb.classList.add('nocard');return;}
+  /* Карточку сняли в проходе 5 как дубль центра. После 30.09 центр при выборе узла
+     не меняется, поэтому карточка — единственное место, где объект описан.
+     Дубль остаётся только если человек сам открыл этот же объект рабочей областью. */
+  const csrc=S.source&&S.tabs.find(x=>x.id===S.source);
+  const dup=csrc&&sel&&(
+    (sel.type==='person'&&(csrc.kind==='msg'||csrc.kind==='draft')&&csrc.ref===sel.id)||
+    (sel.type==='acc'&&csrc.kind==='doc'&&DOCS[csrc.ref]&&DOCS[csrc.ref].acc===sel.id)||
+    (sel.type==='agent'&&csrc.kind==='agent'&&csrc.ref===sel.id));
+  if(dup){$('ecard').innerHTML='';$('ecard').hidden=true;if(pb)pb.classList.add('nocard');return;}
   $('ecard').hidden=false;if(pb)pb.classList.remove('nocard');
   const params=arr=>`<div class="params">${arr.map(([k,v])=>`<div>${k}<b>${v}</b></div>`).join('')}</div>`;
   if(sel&&sel.type==='acc'){const a=ACCBY[sel.id],e=stateAt(a,t),m=momentum(a,t);
@@ -2001,7 +2048,18 @@ function renderEcard(){
       ['Staff',a.emp,'enr'],
       ['Last touch',ago(e?e.w:S.t),'sys']],a.id)+
       `<div class="hdr">People</div>`+peopleOf(a).map(p=>`<button class="row" data-open="person:${p.id}">${face(p.nm)}<span class="nm">${esc(p.nm)}</span><span class="rt">${p.role}</span></button>`).join('')+`<button class="btn" data-open="sop:${a.id}">Open the deal SOP</button>`;}
-  else if(sel&&sel.type==='person'){const p=personById(sel.id),a=ACCBY[p.acc];h=`<div class="top">${face(p.nm,'big')}<div><h3>${esc(p.nm)}</h3><div class="sub">${esc(p.title)} · ${esc(a.name)}</div></div></div>`+params([['Role in the deal',p.role],['Channel',p.src]])+`<button class="btn" data-open="msg:${p.id}">Open the correspondence</button>`;}
+  else if(sel&&sel.type==='person'){const p=personById(sel.id),a=ACCBY[p.acc],w=personWorth(sel.id);
+    h=`<div class="top">${face(p.nm,'big')}<div><h3>${esc(p.nm)}</h3><div class="sub">${esc(p.title)} · ${esc(a.name)}</div></div></div>`
+      +params([['Role in the deal',p.role],['Moves ACV',`<span class="num">${usd(w?w.money:a.acv)}</span>`],['Which way',w?`<span class="${w.eff.c}">${w.eff.l}</span>`:'—'],['Channel',p.src]])
+      +`<button class="btn" data-open="msg:${p.id}">Open the correspondence</button>`;}
+  else if(sel&&sel.type==='doc'){const d=DOCS[sel.id],a=ACCBY[d.acc];
+    h=`<div class="top"><span class="av sq big">${SRC[d.src][0].slice(0,3)}</span><div><h3>${esc(d.kind)}</h3><div class="sub">${esc(a.name)}</div></div></div>`
+      +params([['State',d.status?`<span class="${d.status[0]}">${d.status[1]}</span>`:'—'],['Source',SRC[d.src][0]],['Week',`W${d.w}`],['Money',usd(a.acv)]])
+      +`<button class="btn" data-open="doc:${sel.id}">Open the document</button>`;}
+  else if(sel&&sel.type==='sop'){const a=ACCBY[sel.id],e=stateAt(a,t),m=momentum(a,t);
+    h=`<div class="top">${logo(a,'sq big')}<div><h3>Flow · ${esc(a.name)}</h3><div class="sub">who owes what to whom to get the document signed</div></div></div>`
+      +params([['Stage',`<span class="${mcls(m)}">${arrow(m)} ${e?STAGE[e.s]:'—'}</span>`],['ACV',usd(a.acv)],['Stuck',(e?daysIn(e,t):0)+'d'],['People',peopleOf(a).length]])
+      +`<button class="btn" data-open="sop:${sel.id}">Open the flow</button>`;}
   else if(sel&&sel.type==='agent'){const g=agBy(sel.id);h=`<div class="top">${agAv(g.id,'big')}<div><h3>${g.nm}</h3><div class="sub">${g.title}</div></div></div>`+params([['State',`<span class="${ASTATE[g.state][0]}">${ASTATE[g.state][1]}</span>`],['Autonomy',KNOB[S.knob[g.id]]],['Answers for it',OURS.find(o=>o.id===g.owner).nm],['Runs stages',g.owns.map(s=>STAGE[s]).join(', ')]])+
       `<div class="hdr">Autonomy \u2014 how much freedom</div><div class="btns">${KNOB.map((k,i)=>`<button class="btn ${S.knob[g.id]===i?'pri':''}" data-knob="${g.id}:${i}">${k}</button>`).join('')}</div>`;}
   else if(tab==='market'){const g=S.seg?segBy(S.seg):null;h=`<div class="top"><span class="av sq big">${g?g.abc:'US'}</span><div><h3>${g?g.name:'US market · all segments'}</h3><div class="sub">${g?'Core job: “'+g.job+'”':'three segments by core job'}</div></div></div>`+params([['Accounts',int(formulaAt(t).N)],['Market',usd(SEGS.filter(x=>!S.seg||x.id===S.seg).reduce((s,x)=>s+segMetrics(x).mkt,0))],['Unverified',MARKET.filter(n=>!S.facts[n.id]).length]]);}
@@ -2170,21 +2228,25 @@ function renderDB(){
    управленца: подпись и край свободы агента решает он. */
 const WHOM={owner:'Revenue owner',sdr:'SDR'};
 function allTriage(){
-  return Object.keys(WHOM).flatMap(k=>triageFor(k).map(x=>({...x,own:k})));
+  return Object.keys(WHOM).flatMap(k=>triageFor(k).map(x=>({...x,own:k})))
+    .concat(((S.plan&&S.plan.extra)||[]).map(x=>({...x,own:'owner'})));
 }
-function renderToday(){
+function todayHTML(){
   const p=S.profile,f=focusFor(p),tri=allTriage();
   const me=WHOM[p];
   const who='moves across the whole team · yours are highlighted and pulled to the top';
   const open=tri.filter(x=>!S.tri[x.id]);
   const mineN=open.filter(x=>x.own===p).length;
+  const pl=planIds();
   const sorted=tri.slice().sort((a,b)=>(!!S.tri[a.id]-!!S.tri[b.id])||((b.own===p)-(a.own===p))||(URG[a.u||'soon']-URG[b.u||'soon']));
-  $('todayview').innerHTML=`<div class="tdwrap">
+  return `<div class="tdwrap">
     <div class="tdh"><h2>Today · the whole team</h2><span class="who">${esc(who)}</span></div>
     <div class="subrule" style="padding:0 0 4px"><span>showing <b>${open.length}</b> move${open.length===1?'':'s'}, <b>${mineN}</b> of them yours · an agent cannot settle these: they need a signature, an authority or a judgement</span></div>
 
+    ${S.plan?`<div class="planbar"><span class="k">Plan · taken in W${S.plan.w} by the revenue owner</span>${p==='owner'?'<button class="lnk" data-do="planclear">Drop it</button>':''}<span class="t">${esc(S.plan.nm)}</span><span class="s">what it is worth by W${TMAX}: ARR <b class="num">${usd(S.plan.end)}</b>, Conv <b class="num">${pct(S.plan.conv)}</b> · ${planDone()} of ${pl.length} moves settled · <button class="lnk" data-ask="Simulate revenue scenarios">compare the scenarios again</button></span></div>`:''}
+
     <div class="tdsec">Decide now</div>
-    ${open.length?`<div class="tdq">${sorted.map(x=>`<div class="tri ${x.u||'soon'} ${S.tri[x.id]?'done':''} ${x.own===p?'mine':''}">${x.u==='now'&&!S.tri[x.id]?`<span class="urg">decide now${x.w?' · '+esc(x.w):''}</span>`:''}<span class="t">${x.t} <span class="owner ${x.own===p?'me':''}">${x.own===p?'your move':esc(WHOM[x.own])}</span></span><span class="s">${x.f?`<b class="fmem">moves ${x.f}</b> · `:''}${x.s}${S.tri[x.id]?' · '+S.tri[x.id]:''}</span>${S.tri[x.id]?'':`<div class="btns">${x.a.map(([t,k],i)=>`<button class="${i===0?(x.u==='now'?'btn pri':'btn'):'lnk'}" data-tri="${x.id}|${k}|${t}">${t}</button>`).join('')}</div>`}</div>`).join('')}</div>`
+    ${open.length?`<div class="tdq">${sorted.map(x=>`<div class="tri ${x.u||'soon'} ${S.tri[x.id]?'done':''} ${x.own===p?'mine':''} ${pl.includes(x.id)?'plan':''}">${x.u==='now'&&!S.tri[x.id]?`<span class="urg">decide now${x.w?' · '+esc(x.w):''}</span>`:''}<span class="t">${x.t} <span class="owner ${x.own===p?'me':''}">${x.own===p?'your move':esc(WHOM[x.own])}</span>${pl.includes(x.id)?'<span class="owner pl">from the plan</span>':''}</span><span class="s">${x.f?`<b class="fmem">moves ${x.f}</b> · `:''}${x.s}${S.tri[x.id]?' · '+S.tri[x.id]:''}</span>${S.tri[x.id]?'':`<div class="btns">${x.a.map(([t,k],i)=>`<button class="${i===0?(x.u==='now'?'btn pri':'btn'):'lnk'}" data-tri="${x.id}|${k}|${t}">${t}</button>`).join('')}</div>`}</div>`).join('')}</div>`
       :`<div class="tdempty">No moves — the agents are working on their own. Next run Monday 9:00. An empty queue does not get filled with news.</div>`}
 
     ${`<div class="tdsec">At risk · why</div>
@@ -2264,7 +2326,15 @@ function BNS(){
 }
 function bnCur(){const L=BNS();return L[Math.min(S.bn||0,L.length-1)];}
 function bnDone(){const L=BNS();return (S.bn||0)>=L.length-1?null:L[(S.bn||0)+1];}
+function renderAgEntry(){
+  const alarm=AGENTS.filter(a=>a.state==='paused').length;
+  const open=allTriage().filter(x=>!S.tri[x.id]).length;
+  const b=(k,lbl,n,cls)=>`<button data-do="${k}" class="${cls||''}" aria-pressed="${S.agView===k}">${lbl}${n?` <b>${n}</b>`:''}</button>`;
+  $('agentry').innerHTML=b('today','Today',open)+(alarm?b('alarm','Hard stop',alarm,'alarm'):'');}
 function renderAgent(){
+  renderAgEntry();
+  if(S.agView==='today'){$('agbody').innerHTML=todayHTML();renderAgAsk();return;}
+  if(S.agView==='alarm'){$('agbody').innerHTML=alarmHTML();renderAgAsk();return;}
   const p=S.profile,f=focusFor(p),tri=triageFor(p);
   const who={owner:'job \u2014 grow revenue',sdr:'job \u2014 get my people to a signature'}[p];
   const me={owner:'Nikolai Bobrov',sdr:'Dana Whitfield'}[p];
@@ -2273,9 +2343,12 @@ function renderAgent(){
   $('agbody').innerHTML=turnA(`<span>The thing that matters right now is one constraint. The rest can wait.</span>
     <div class="focus"><span class="k">Constraint · TOC</span><span class="t">${f.t}</span>
       ${fever()}
-      <div class="btns"><button class="btn" data-do="today">Work on it in the centre${nOpen?` · ${nOpen}`:''}</button></div></div>
+      <div class="btns"><button class="btn" data-do="today">Open the queue${nOpen?` · ${nOpen}`:''}</button></div></div>
     <div class="note" style="margin-top:8px">The queue of moves and the analysis live in the centre, on the Today tab. Here I only flag things and answer questions.</div>
     `)+S.chat.map(m=>m.u?`<div class="turn user"><div class="by">${face(me,'',true)}${me}</div><div class="bodyt">${m.t}</div></div>`:turnA(m.t)).join('');
+  renderAgAsk();}
+function renderAgAsk(){
+  const p=S.profile;
   const ctx=S.sel&&S.sel.type==='acc'?ACCBY[S.sel.id].name:S.sel&&S.sel.type==='person'?personById(S.sel.id).nm:S.sel&&S.sel.type==='agent'?agBy(S.sel.id).nm:({map:'Map',sop:'SOP',today:'Today',db:'Database'}[S.primary]||'Today');
   $('askCtx').innerHTML='📎 '+esc(S.source?S.tabs.find(x=>x.id===S.source).title:ctx);
   $('sugg').innerHTML=`<button data-photo="1" data-tip="You remember the face but not the conversation — drop in a photo or a business card">⧉ photo or business card</button>`+(p==='sdr'?['Who has been silent longest?','What did not land yesterday?','Draft a reply to Tom Hale','Which deal is closest to a signature?']
@@ -2299,10 +2372,44 @@ function simScenarios(){
   S.seg='price';const prc=at();
   S.seg=s0;
   return [
-    ['as is, we touch nothing',base.end,base.conv,'Conv stays broken, as it has been since W36'],
-    ['turn the price check on and reset the Qualifier dial',fix.end,fix.conv,'reach halves, but the funnel is clean'],
-    ['all focus on Compliance-first',cmp.end,cmp.conv,'one segment’s contribution, not the whole company: bigger contract, longer cycle'],
-    ['all focus on Price-first',prc.end,prc.conv,'one segment’s contribution, not the whole company: many accounts, but that is where Conv fell']];
+    {nm:'as is, we touch nothing',end:base.end,conv:base.conv,
+     why:'Conv stays broken, as it has been since W36',
+     ids:[],extra:[{id:'pl-hold',f:'Conv',u:'fyi',
+       t:`W${TMAX} checkpoint: did Conv recover without a change?`,
+       s:'you chose to touch nothing \u2014 this is the date that choice gets checked against the actual number',
+       a:[['Noted','plan']]}]},
+    {nm:'turn the price check on and reset the Qualifier dial',end:fix.end,conv:fix.conv,
+     why:'reach halves, but the funnel is clean',
+     ids:['t-knob'],extra:[{id:'pl-q2',f:'Conv',u:'now',
+       t:'Turn the check \u201ca budget or a price range is named\u201d back on',
+       s:'off since W36 \u2014 this is what lets Price-first through unscreened',
+       a:[['Turn it on','rule:qual:q2'],['Leave it off','no']]}]},
+    {nm:'all focus on Compliance-first',end:cmp.end,conv:cmp.conv,
+     why:'one segment\u2019s contribution, not the whole company: bigger contract, longer cycle',
+     ids:[],extra:[{id:'pl-cmp',f:'Segment',u:'now',
+       t:'Point Scout at Compliance-first only and stop the cheap TX/FL channel',
+       s:'fewer accounts, bigger contract, longer cycle \u2014 the forecast holds only if the channel stops',
+       a:[['Open the segment','open:seg:cmp'],['Not yet','no']]}]},
+    {nm:'all focus on Price-first',end:prc.end,conv:prc.conv,
+     why:'one segment\u2019s contribution: many accounts, but not one of them converted in the last four weeks \u2014 that is where Conv fell',
+     ids:['t-knob'],extra:[{id:'pl-prc',f:'Reach',u:'now',
+       t:'Scale Price-first \u2014 but not before the Qualifier is fixed',
+       s:'this is the segment where Conv fell: scaling it unscreened multiplies the defect',
+       a:[['Open the segment','open:seg:price'],['Not yet','no']]}]}];
+}
+/* «Выбранный сценарий превращается в ходы, а не остаётся картинкой» — критерий
+   успеха JOB-019. План не меняет машину сам: он ставит ходы в очередь в центре,
+   и каждый ход по-прежнему решает человек. Ход, который в очереди уже стоит
+   («повернуть ручку»), не дублируется — он помечается как ход из плана. */
+function planIds(){return S.plan?S.plan.ids.concat(S.plan.extra.map(x=>x.id)):[];}
+function planDone(){return planIds().filter(id=>S.tri[id]).length;}
+function chooseScenario(i){
+  if(S.profile!=='owner'){toast('The plan is the revenue owner\u2019s call.');return;}
+  const x=simScenarios()[i];if(!x)return;const n=x.ids.length+x.extra.length;
+  S.plan={i:i,nm:x.nm,end:x.end,conv:x.conv,w:S.t,ids:x.ids.slice(),extra:x.extra.map(m=>({...m}))};
+  logAdd('qual',`Plan chosen by the revenue owner: ${x.nm} \u2192 ${n} moves in the queue`,['flat','decision']);
+  S.agView='today';renderAllButMap();
+  toast(`Plan taken. ${n} move${n===1?'':'s'} are in Today \u2014 nothing is applied until you settle each one.`);
 }
 function answerRich(q){
   const l=q.toLowerCase();
@@ -2316,8 +2423,11 @@ function answerRich(q){
   if(/simulat|scenario|what if|revenue forecast|how do i grow/.test(l)){
     const S4=simScenarios();
     return {raw:true,t:`Forecast for W${TMAX} under four scenarios:<br>`+
-      S4.map(([nm,end,cv,why],i)=>`<div style="margin-top:4px">${i+1}. <b>${esc(nm)}</b> — ARR <span class="num">${usd(end)}</span>, Conv ${pct(cv)}<br><span class="faint">${esc(why)}</span></div>`).join('')+
-      `<div class="faint" style="margin-top:6px">Rows 1–2 are company-wide ARR; rows 3–4 are one segment’s contribution. Same formula as the one above. The call is yours.</div>`};
+      S4.map((x,i)=>{const n=x.ids.length+x.extra.length,b=S4[0];
+        const dA=i===0?'':i<2?(x.end===b.end?' <span class="faint">(same)</span>':` <span class="${x.end>b.end?'up':'down'}">${x.end>b.end?'+':'−'}${usd(Math.abs(x.end-b.end))}</span>`):'';
+        const dC=i===0?'':i<2?` <span class="${x.conv>b.conv?'up':'down'}">${x.conv>b.conv?'+':'−'}${Math.abs((x.conv-b.conv)*100).toFixed(1)} pp</span>`:'';
+        return `<div class="scn">${i+1}. <b>${esc(x.nm)}</b> — ARR <span class="num">${usd(x.end)}</span>${dA}, Conv ${pct(x.conv)}${dC}<br><span class="faint">${esc(x.why)}</span>${S.profile==='owner'?`<div class="btns" style="margin-top:4px"><button class="${i===1?'btn pri':'btn'}" data-sim="${i}">Take this one · ${n} move${n===1?'':'s'}</button></div>`:''}</div>`;}).join('')+
+      `<div class="faint" style="margin-top:6px">Rows 1–2 are company-wide ARR; rows 3–4 are one segment’s contribution. Same formula as the one above. By W${TMAX} only Conv moves: a clean funnel shows up there first, and ARR follows it about a quarter later. ${S.profile==='owner'?'Taking one puts its moves in the centre — the machine does not change until you settle each move.':'Which one the company takes is the revenue owner’s call. You will see its moves in Today.'}</div>`};
   }
   return null;
 }
@@ -2327,7 +2437,7 @@ function ask(q){if(!q.trim())return;S.chat.push({u:1,t:esc(q)});
 
 /* =================== status bar & palette =================== */
 function renderStatus(){const F=formulaAt(S.t),P=formulaAt(S.t-WIN),d=F.end/P.end-1,alarms=AGENTS.filter(a=>a.state==='paused').length;
-  $('status').innerHTML=`<span class="it num">${S.t>NOW?'forecast':S.t===NOW?'● now':'past'} W${S.t} · ${wkd(S.t)}</span><span class="it num">ARR ${usd(F.end)} <span class="${d>=0?'up':'down'}">${d>=0?'▲':'▼'} ${Math.abs(d*100).toFixed(1)} %</span></span><span class="it num">Conv ${pct(F.conv)}</span><button class="it" style="color:var(--link);font-weight:600" data-do="focuscard">⚠ Conv — the constraint</button>${alarms?`<span class="it faint">■ ${alarms} agent stopped by a hard stop</span>`:''}<span class="sp"></span><span class="it">sources 7/7 in sync</span><span class="it faint" data-tip="When this version was published. If it is older than what you expect, the page came from cache — press Cmd+Shift+R.">build Sep 29, 20:02</span><span class="it">${esc($('profile').selectedOptions[0].text)}</span>`;}
+  $('status').innerHTML=`<span class="it num">${S.t>NOW?'forecast':S.t===NOW?'● now':'past'} W${S.t} · ${wkd(S.t)}</span><span class="it num">ARR ${usd(F.end)} <span class="${d>=0?'up':'down'}">${d>=0?'▲':'▼'} ${Math.abs(d*100).toFixed(1)} %</span></span><span class="it num">Conv ${pct(F.conv)}</span><button class="it" style="color:var(--link);font-weight:600" data-do="focuscard">⚠ Conv — the constraint</button>${alarms?`<span class="it faint">■ ${alarms} agent stopped by a hard stop</span>`:''}<span class="sp"></span><span class="it">sources 7/7 in sync</span><span class="it faint" data-tip="When this version was published. If it is older than what you expect, the page came from cache — press Cmd+Shift+R.">build Sep 30, 13:35</span><span class="it">${esc($('profile').selectedOptions[0].text)}</span>`;}
 let palSel=0;
 function openPal(){$('pal').hidden=false;$('palIn').value='';palSel=0;renderPal();$('palIn').focus();}
 function renderPal(){const q=$('palIn').value.toLowerCase();const r=allEntities().filter(e=>!q||(e.t+' '+e.ty).toLowerCase().includes(q)).slice(0,30);S.palR=r;
@@ -2344,6 +2454,8 @@ function openRef(k){
   if(type==='draft'){const B=BNS().find(x=>x.id===id)||bnCur();
     openTab('draft',B.id,'Draft · '+(personById(B.draft.to)||{nm:''}).nm.split(' ').slice(-1)[0]);
     setEnt('ppl');S.sel={type:'person',id:B.draft.to};renderAllButMap();return;}
+  if(type==='docnode'){const d=DOCS[id];S.mapAcc=d.acc;S.orgOpen=true;selectNode('doc',id);
+    if(ML&&MLREADY&&S.primary==='map')ML.flyTo({center:llOf(ACCBY[d.acc]),zoom:Math.max(ML.getZoom(),13),duration:700});return;}
   if(type==='acc'){selectAcc(ACCBY[id]);return;}
   if(type==='seg'){S.seg=S.seg===id?null:id;setEnt('seg');S.sel=null;S.level='segment';
     if(S.tab!=='map'){S.tab='map';renderEditor();}
@@ -2360,7 +2472,7 @@ function openRef(k){
 }
 function logAdd(ag,ttl,st){(S.extraLogs=S.extraLogs||[]).push({ag,w:NOW,ttl,st});}
 document.addEventListener('click',e=>{
-  const b=e.target.closest('[data-open],[data-side],[data-tab],[data-close],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-step],[data-plus],[data-newchat],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-knobw],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepmv],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-mapview],[data-skin],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-fmode],[data-dbsort],[data-dbmore],[data-dbkind],[data-slice],[data-mark],[data-note],[data-notecancel],[data-ent],[data-ef],[data-flow],[data-mail],[data-common],[data-importfacts],[data-nextbn],[data-influencer],#fDown,#addFact,#addNote,#play');
+  const b=e.target.closest('[data-open],[data-side],[data-tab],[data-close],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-step],[data-plus],[data-newchat],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-knobw],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepmv],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-skin],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-fmode],[data-dbsort],[data-dbmore],[data-dbkind],[data-slice],[data-mark],[data-note],[data-notecancel],[data-ent],[data-ef],[data-flow],[data-mail],[data-common],[data-importfacts],[data-nextbn],[data-influencer],[data-sim],#fDown,#addFact,#addNote');
   if(!b)return;
   if(b.dataset.pal)$('pal').hidden=true;
   if(b.dataset.dense!==undefined){S.dense=b.dataset.dense==='1';renderPanel();return;}
@@ -2417,7 +2529,6 @@ document.addEventListener('click',e=>{
     S.infl=S.infl||{};S.infl[id]=inf;
     logAdd('seller',`${inf.nm} (${inf.from}) added to the ${ACCBY[id].name} flow — they can reach the person who is blocking`,['up','flow edited']);
     toast(`${inf.nm} added to the flow: ${inf.why}.`);renderAll();return;}
-  if(b.dataset.mapview){S.mapView=b.dataset.mapview;renderMap();return;}
   if(b.dataset.sopmode!==undefined){S.sopEdit=b.dataset.sopmode==='1';if(!S.sopEdit)S.sopFix=null;renderEditorLight();return;}
   if(b.dataset.rule){const [ag,rid]=b.dataset.rule.split(':');const r=S.rules[ag].find(x=>x.id===rid);r.on=!r.on;
     if(r.knob==='qual'){S.knob.qual=r.on?1:2;}
@@ -2460,10 +2571,11 @@ document.addEventListener('click',e=>{
   if(b.dataset.tri){const [id,k,label]=b.dataset.tri.split('|');
     if(k==='knob'){logAdd('qual','Dial: Auto → Approve (approved by Nikolai)',['flat','edited']);S.knob.qual=1;}
     if(k==='resume'){agBy('seller').state='active';logAdd('seller','Put back to work after the alarm was reviewed',['up','decision']);}
+    if(k.startsWith('rule:')){const [,ag,rid]=k.split(':');const r=(S.rules[ag]||[]).find(x=>x.id===rid);if(r){r.on=true;logAdd(ag,`Rule \u201c${r.t}\u201d turned on (${$('profile').selectedOptions[0].text})`,['up','edited']);}}
     if(k.startsWith('fact:')){const [,nid,v]=k.split(':');S.facts[nid]={0:v,1:v};}
     if(k.startsWith('open:')){openRef(k.slice(5));return;}
     S.tri[id]=label==='Decline'||label==='Keep it stopped'?'declined':'done: '+label.toLowerCase();renderAll();return;}
-  if(b.dataset.do){const k=b.dataset.do;if(k==='today'){S.tab='today';renderEditor();return;}if(k==='openfilters'){S.side='tree';S.layout.side=true;applyLayout();renderActivity();renderSide();return;}if(k==='openchannel'){setEnt('us');S.ptab='channel';S.layout.panel=true;applyLayout();renderActivity();renderSide();renderPanel();return;}if(k==='opendocs'){setEnt('acc');S.layout.panel=true;applyLayout();renderActivity();renderSide();renderPanel();return;}if(k==='slicesave'){const f=curF();S.slices=S.slices||SLICE0.slice();if(S.slices.some(x=>sameF(x.f,f))){toast('That slice is already saved.');return;}const nm=[S.seg?segBy(S.seg).name:'all segments',S.stF||null,S.stage?STAGE[S.stage]:null,S.downOnly?'stuck':null].filter(Boolean).join(' · ');S.slices.push({id:'s'+Date.now(),nm:nm,why:'saved by you in W'+S.t,f:f});renderSide();toast('Slice saved: '+nm);return;}if(k==='resetscope'){S.seg=null;S.job='';S.stF='';S.stage='';S.downOnly=false;renderAll();return;}if(k==='focuscard'){S.tab='today';renderEditor();const f=document.querySelector('#todayview .focus');f&&f.scrollIntoView({block:'nearest'});return;}if(false){S.layout.agent=true;applyLayout();const f=document.querySelector('.focus');f&&f.scrollIntoView({block:'nearest'});f&&f.animate([{outline:'2px solid var(--focus)'},{outline:'2px solid transparent'}],{duration:600});return;}if(k==='showtx'){S.seg='price';S.downOnly=true;if(S.tab!=='map'){S.tab='map';renderEditor();}S.sel=null;renderAll();zoomToFeature(statesF.find(f=>f.abbr==='TX'));return;}
+  if(b.dataset.do){const k=b.dataset.do;if(k==='today'){S.agView=S.agView==='today'?null:'today';renderAgent();return;}if(k==='alarm'){S.agView=S.agView==='alarm'?null:'alarm';renderAgent();return;}if(k==='openfilters'){S.side='tree';S.layout.side=true;applyLayout();renderActivity();renderSide();return;}if(k==='openchannel'){setEnt('us');S.ptab='channel';S.layout.panel=true;applyLayout();renderActivity();renderSide();renderPanel();return;}if(k==='opendocs'){setEnt('acc');S.layout.panel=true;applyLayout();renderActivity();renderSide();renderPanel();return;}if(k==='slicesave'){const f=curF();S.slices=S.slices||SLICE0.slice();if(S.slices.some(x=>sameF(x.f,f))){toast('That slice is already saved.');return;}const nm=[S.seg?segBy(S.seg).name:'all segments',S.stF||null,S.stage?STAGE[S.stage]:null,S.downOnly?'stuck':null].filter(Boolean).join(' · ');S.slices.push({id:'s'+Date.now(),nm:nm,why:'saved by you in W'+S.t,f:f});renderSide();toast('Slice saved: '+nm);return;}if(k==='planclear'){S.plan=null;renderEditor();renderAllButMap();toast('Plan dropped. The moves it added are gone; the rest of the queue is untouched.');return;}if(k==='resetscope'){S.seg=null;S.job='';S.stF='';S.stage='';S.downOnly=false;renderAll();return;}if(k==='focuscard'){S.agView=null;renderAgent();const f=document.querySelector('#agbody .focus');f&&f.scrollIntoView({block:'nearest'});return;}if(false){S.layout.agent=true;applyLayout();const f=document.querySelector('.focus');f&&f.scrollIntoView({block:'nearest'});f&&f.animate([{outline:'2px solid var(--focus)'},{outline:'2px solid transparent'}],{duration:600});return;}if(k==='showtx'){S.seg='price';S.downOnly=true;if(S.tab!=='map'){S.tab='map';renderEditor();}S.sel=null;renderAll();zoomToFeature(statesF.find(f=>f.abbr==='TX'));return;}
     if(k==='showdfw'){S.seg=null;S.sel=null;if(S.tab!=='map'){S.tab='map';renderEditor();}renderAll();zoomTo(bx,by,7);return;}if(k.startsWith('open:'))openRef(k.slice(5));return;}
   if(b.dataset.fact){const [id,i,v]=b.dataset.fact.split(':');S.facts[id]=S.facts[id]||{};S.facts[id][i]=v;renderEditor();renderPanel();return;}
   if(b.dataset.factall){const [id,v]=b.dataset.factall.split(':');const n=MARKET.find(x=>x.id===id);S.facts[id]={all:v};n.facts.forEach((f,i)=>S.facts[id][i]=v);renderPanel();if(S.tab==='news:'+id)renderEditor();return;}
@@ -2487,9 +2599,9 @@ document.addEventListener('click',e=>{
     S.chat.push({u:1,t:'<span class="q">⧉ photo · a heavyset man in his fifties, badge reads “Hale &amp; Ortiz CPA”</span><br>Who is this, what did we talk about, and where did we leave it?'});
     S.chat.push({u:0,t:'This is <b>Tom Hale</b>, the external bookkeeper at Brightline Dental LLC (Plano, TX). His role in the deal is <b>pays</b>: Dr. Moss will not sign without his yes.<br>Last touch — a 6-minute call in W37, source Aircall: “$38K is a lot, right now we pay a freelancer $1,400 a month”.<br>Where it stands: the $38K MSA is waiting for a signature, and this objection is exactly what holds it — it is the constraint on the deal. A reply with the $1,400 against $3,170 with SLA and HIPAA arithmetic is already drafted. Their profile is open next to this.'});
     renderAgent();openRef('person:p-hale');return;}
+  if(b.dataset.sim){chooseScenario(+b.dataset.sim);return;}
   if(b.dataset.ask){ask(b.dataset.ask);return;}
   if(b.id==='addFact'){const v=$('myFact').value.trim();if(!v)return;MARKET.unshift({id:'u'+Date.now(),src:'me',when:'now',ttl:v,seg:S.seg||'cmp',st:null,hits:'hypothesis',facts:[v],url:'my note'});renderPanel();return;}
-  if(b.id==='play'){if(S.playing){clearInterval(S.playing);S.playing=null;return;}S.t=TMIN;renderAll();S.playing=setInterval(()=>{if(S.t>=NOW){clearInterval(S.playing);S.playing=null;return;}S.t++;renderAll();},750);}
 });
 document.addEventListener('auxclick',e=>{const b=e.target.closest('[data-tab]');if(e.button===1&&b&&b.dataset.tab!=='map'&&b.dataset.tab!=='sop'){const x=document.querySelector(`[data-close="${b.dataset.tab}"]`);x&&x.click();}});
 document.addEventListener('input',e=>{
@@ -2514,11 +2626,18 @@ function tipHide(){tip.hidden=true;}
 document.addEventListener('pointerover',e=>{const t=e.target.closest('[data-tip]');if(t)tipShow(e,t.dataset.tip);});
 document.addEventListener('pointerout',e=>{if(e.target.closest('[data-tip]'))tipHide();});
 
-function renderAllButMap(){renderFormula();renderScope();renderFilters();renderAlarm();renderActivity();renderSide();renderPanel();renderAgent();renderStatus();renderCrumbs();renderTabs();}
-function renderAlarm(){const on=agBy('seller').state==='paused';const el=$('alarmbar');el.hidden=!on;if(!on)return;
-  el.innerHTML=`<span class="k">▲ Hard stop</span><span class="t"><q>j.moss@… opted out on Sep 22, the agent sent follow-up #4</q> from outreach@bobroff-msp.io → Outreach stopped itself · law (CAN-SPAM)</span><span class="owner">owner paged: Nikolai Bobrov · push Sep 22, 14:05</span><button class="btn" data-open="agent:seller">Review it</button>`;}
-function renderAll(){renderFormula();renderScope();renderFilters();renderAlarm();renderActivity();renderSide();renderEditorLight();renderPanel();renderAgent();renderStatus();}
-function renderEditorLight(){if(S.primary==='map')renderMap();else if(S.primary==='today')renderToday();else if(S.primary==='db')renderDB();else $('sopview').innerHTML=renderSOP(ACCBY[S.sopAcc]);const src=S.source&&S.tabs.find(x=>x.id===S.source);if(src&&src.kind!=='msg')$('view2').innerHTML=renderSource(src);renderTabs();renderCrumbs();}
+function renderAllButMap(){renderFormula();renderFilters();renderActivity();renderSide();renderPanel();renderAgent();renderStatus();renderCrumbs();renderTabs();}
+/* Красная полоса внизу уехала сюда: «hard stop убрать в агента, чтобы он выскакивал
+   строкой именно в агенте» (Николай, 30.09, 02:23). Вместе с ней уехала и вкладка Today:
+   «Today — это справа» (20:43). Обе стали кнопками одной строки входов. */
+function alarmHTML(){
+  return `<div class="focus" style="border-color:var(--down);background:color-mix(in srgb,var(--down) 6%,var(--editor))">
+    <span class="k" style="color:var(--down)">Hard stop · the agent stopped itself</span>
+    <span class="t">Outreach sent follow-up #4 to j.moss@… after the Sep 22 opt-out</span>
+    <span class="d">From outreach@bobroff-msp.io. The never-do fired on a law (CAN-SPAM), so the agent stopped without asking. Owner paged: Nikolai Bobrov, push Sep 22, 14:05.</span>
+    <div class="btns"><button class="btn" data-open="agent:seller">Review it</button><button class="lnk" data-tri="t-seller|resume|Resume">Put it back to work</button></div></div>`;}
+function renderAll(){renderFormula();renderFilters();renderActivity();renderSide();renderEditorLight();renderPanel();renderAgent();renderStatus();}
+function renderEditorLight(){if(S.primary==='map')renderMap();else if(S.primary==='db')renderDB();else $('sopview').innerHTML=renderSOP(ACCBY[S.sopAcc]);const src=S.source&&S.tabs.find(x=>x.id===S.source);if(src&&src.kind!=='msg')$('view2').innerHTML=renderSource(src);renderTabs();renderCrumbs();}
 
 applyLayout();
 if(S.layout.panelRight)document.querySelector('.g3').classList.remove('hgut');
