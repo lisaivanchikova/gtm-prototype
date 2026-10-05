@@ -43,6 +43,12 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:1px solid var(--accent);outline-offset:-1px}
 input,select,textarea{font:inherit;color:var(--fg);background:var(--input);border:1px solid var(--border);border-radius:4px;padding:4px 7px}
 .num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.pav{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;flex:none;border-radius:50%;background:var(--side);border:1px solid var(--border);overflow:hidden;color:var(--fg3)}
+.pav svg{width:13px;height:13px}
+.pav img{width:100%;height:100%;object-fit:cover}
+.pav.up{box-shadow:0 0 0 1.5px var(--up)} .pav.warn{box-shadow:0 0 0 1.5px var(--warn)} .pav.down{box-shadow:0 0 0 1.5px var(--down)}
+.pav.big{width:30px;height:30px} .pav.big svg{width:19px;height:19px}
+.pav.mid{width:24px;height:24px} .pav.mid svg{width:15px;height:15px}
 .gl{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;flex:none;color:var(--fg3)}
 .gl svg{width:100%;height:100%}
 .gl.up{color:var(--up)} .gl.warn{color:var(--warn)} .gl.down{color:var(--down)}
@@ -1140,7 +1146,15 @@ function faceSVG(nm){
    +(glass?`<g fill="none" stroke="#2a2320" stroke-width="1.3" opacity=".85"><rect x="13.1" y="14.7" width="5.4" height="4.8" rx="1.6"/><rect x="21.5" y="14.7" width="5.4" height="4.8" rx="1.6"/><path d="M18.5 17h3"/></g>`:'')
    +`</svg>`;}
 /* mine — наш человек: тот же портрет, но с кольцом «это мы» */
-function face(nm,cls='',mine=false){return gl('person',cls);}
+/* Аватарка физического лица остаётся (Лиза, 05.10): «там будут потом фотографии
+   100%, потому что важно видеть, что это за человек» — Николай запоминает людей
+   визуально. Поэтому это не значок типа, а круглая рамка под фото: пока пустая,
+   как в профиле соцсети. Состояние показывает кольцо вокруг, а не заливка, —
+   иначе фото пришлось бы перекрашивать. Робот остаётся квадратным знаком:
+   это единственное различие, которое Николай оставил значкам. */
+function face(nm,cls='',mine=false,photo=null){
+  return `<span class="pav ${cls}" title="${esc(nm||'')}">`
+    +(photo?`<img src="${photo}" alt="">`:GLYPH.person)+`</span>`;}
 
 /* Агент: у каждого свой глиф своего дела. Форма (квадрат) говорит «это агент». */
 const AGICON={
@@ -1311,7 +1325,7 @@ function renderSide(){
       h+=`<div class="grp2">People</div>`;
       h+=rule(`showing <b>${ppl.length}</b> · people at accounts where someone owes a move${S.ef.role?' · role: '+esc(S.ef.role):''}`);
       h+=ppl.map(x=>`<button class="row ${S.sel&&S.sel.id===x.id?'on':''}" data-open="person:${x.id}" data-tip="${esc(x.nm+' · '+x.title+' · '+x.acc.name+' · '+((personWorth(x.id)||{eff:{}}).eff.l||''))}">
-        ${face(x.nm)}<span class="nm">${esc(x.nm)}</span>
+        ${face(x.nm,(personWorth(x.id)||{eff:{}}).eff.c||'')}<span class="nm">${esc(x.nm)}</span>
         <span class="rt"><span class="role">${esc(x.role)}</span> <span class="num ${(personWorth(x.id)||{eff:{}}).eff.c||'flat'}">${usd((personWorth(x.id)||{money:0}).money)}</span></span></button>`).join('');
       h+=`<button class="dbopen" data-open="db:person"><b>Everything — ${int(allAcc.length*3)} people</b> <i>as a filterable table ↗</i></button>`;
     }
@@ -1883,7 +1897,7 @@ function personWorth(pid){
 }
 function renderMsg(pid){const p=personById(pid),a=ACCBY[p.acc],M=MSGS[pid]||peopleActs(a,S.t).filter(x=>x.p.id===pid).map(x=>({me:false,src:p.src.toLowerCase()==='gmail'?'gmail':p.src.toLowerCase()==='linkedin'?'linkedin':'aircall',act:x.act,txt:x.txt,w:S.t}));
   const draft=pid==='p-hale'?'Tom, you pay $1,400/mo for one freelancer today. Our $3,170/mo covers 24/7 monitoring, HIPAA audit prep and a 1-hour SLA. Can I show the side-by-side in 15 minutes?':pid==='p-diaz'?'Karen, quick one: is Dr. Moss waiting for anything from us before the audit prep?':'';
-  return `<div class="doc"><div class="doch">${face(p.nm,'big')}<div><h2>${esc(p.nm)}</h2><div class="muted">${esc(p.title)} · ${esc(a.name)} · role in the deal: <b>${p.role}</b></div><div class="note">source: ${esc(p.src)} · <a href="https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(p.nm)}" target="_blank" rel="noopener">LinkedIn \u2197</a></div></div></div>
+  return `<div class="doc"><div class="doch">${face(p.nm,'big '+((personWorth(pid)||{eff:{}}).eff.c||''))}<div><h2>${esc(p.nm)}</h2><div class="muted">${esc(p.title)} · ${esc(a.name)} · role in the deal: <b>${p.role}</b></div><div class="note">source: ${esc(p.src)} · <a href="https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(p.nm)}" target="_blank" rel="noopener">LinkedIn \u2197</a></div></div></div>
     <div class="thread">${M.map(m=>`<div class="msg ${m.me?'me':''}">${m.me?agAv(m.agent,'mid'):face(p.nm,'mid')}<div class="bub2"><div class="meta">${srcIc(m.src).replace('class="src"','class="av sq"')} ${m.me?'the '+agBy(m.agent).nm+' agent':esc(p.nm)} · W${m.w}${m.act?` · <span class="act">${m.act}</span>`:''}</div><div>${esc(m.txt)}</div></div></div>`).join('')||'<div class="note">No correspondence yet.</div>'}</div>
     <div class="compose"><div class="hdr">Agent draft</div><textarea id="draft" aria-label="Draft">${esc(draft)}</textarea><div class="btns"><button class="btn pri" data-send="${pid}">Send under my name</button><span class="note">Mail under a person’s name goes out only on that person’s click.</span></div></div></div>`;}
 function renderNews(id){const n=MARKET.find(x=>x.id===id),st=S.facts[id]||{};
@@ -2030,7 +2044,7 @@ function renderEcard(){
       ['ACV',usd(a.acv),'own'],
       ['Staff',a.emp,'enr'],
       ['Last touch',ago(e?e.w:S.t),'sys']],a.id)+
-      `<div class="hdr">People</div>`+peopleOf(a).map(p=>`<button class="row" data-open="person:${p.id}">${face(p.nm)}<span class="nm">${esc(p.nm)}</span><span class="rt">${p.role}</span></button>`).join('')+`<button class="btn" data-open="sop:${a.id}">Open the deal SOP</button>`;}
+      `<div class="hdr">People</div>`+peopleOf(a).map(p=>`<button class="row" data-open="person:${p.id}">${face(p.nm,(personWorth(p.id)||{eff:{}}).eff.c||'')}<span class="nm">${esc(p.nm)}</span><span class="rt">${p.role}</span></button>`).join('')+`<button class="btn" data-open="sop:${a.id}">Open the deal SOP</button>`;}
   else if(sel&&sel.type==='person'){const p=personById(sel.id),a=ACCBY[p.acc],w=personWorth(sel.id);
     h=`<div class="top">${face(p.nm,'big')}<div><h3>${esc(p.nm)}</h3><div class="sub">${esc(p.title)} · ${esc(a.name)}</div></div></div>`
       +params([['Role in the deal',p.role],['Moves ACV',`<span class="num">${usd(w?w.money:a.acv)}</span>`],['Which way',w?`<span class="${w.eff.c}">${w.eff.l}</span>`:'—'],['Channel',p.src]])
