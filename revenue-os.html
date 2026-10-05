@@ -410,9 +410,20 @@ body.focus-mode .ptabs{cursor:pointer}
 .ecard .top{display:flex;gap:10px;align-items:center}
 .ecard h3{margin:0;font-size:14px;font-weight:600}
 .ecard .sub{font-size:12px;color:var(--fg2)}
-.ecard .params{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-.ecard .params div{font-size:11px;color:var(--fg3)}
-.ecard .params b{display:block;font-family:var(--mono);font-size:13px;font-weight:500;color:var(--fg)}
+.ecard .params{display:grid;grid-template-columns:repeat(auto-fit,minmax(104px,1fr));gap:6px;min-width:0}
+.ecard .params>div{font-size:11px;color:var(--fg3);min-width:0}
+.ecard .params b{display:block;font-family:var(--mono);font-size:13px;font-weight:500;color:var(--fg);min-width:0;overflow-wrap:anywhere}
+/* Список полей — строки, а не сетка: ".ecard .params" перебивал ".flds" по
+   специфичности, и каждая строка «подпись · значение · политика · ×» вжималась
+   в половину карточки. Отсюда налезание и срез вторым столбцом. */
+.ecard .params.flds{display:flex;flex-direction:column;gap:0}
+/* Строка поля переносится целиком, если не влезает: подпись на первой строке,
+   значение с политикой на второй. Неразрывно только «стрелка + слово состояния» —
+   иначе знак отрывался от слова, а запрет переноса всей строки клал её на подпись. */
+.ecard .flds .fld{flex-wrap:wrap;row-gap:2px}
+.ecard .flds .fld b{display:inline;font-size:12px;text-align:right;margin-left:auto}
+.ecard .flds .fld b>*{white-space:nowrap}
+.ecard .flds .fk{font-size:11px}
 .feed{overflow:auto;padding:2px 0}
 .fi{display:grid;grid-template-columns:20px minmax(0,1fr) 104px 56px;gap:3px 10px;padding:7px 12px;border-bottom:1px solid var(--border);align-items:start;width:100%;text-align:left;position:relative;transition:background-color 80ms linear}
 .fi:hover{background:var(--hover)}
@@ -511,7 +522,6 @@ body.focus-mode .ptabs{cursor:pointer}
 .formula .fm{display:inline-flex;align-items:baseline;gap:4px;color:var(--fg2);padding:0 2px}
 .formula .fres i,.formula .fm i{font-style:normal;font-family:var(--ui);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--fg3);font-weight:500}
 .formula .fm b,.formula .fres b{font-weight:500;font-size:10.5px}
-.formula .fo{color:var(--fg3);padding:0 1px}
 .formula .fm.lim{color:var(--link);font-weight:600;border-bottom:1px solid var(--link)}
 .timeline{display:flex;align-items:center;gap:6px;padding-left:12px;font-size:11.5px;font-family:var(--mono);flex:none}
 .timeline .tarrow button{width:20px;height:20px;border-radius:4px;font-size:10px}
@@ -738,7 +748,7 @@ body.focus-mode .ptabs{cursor:pointer}
 .flds{display:flex;flex-direction:column;gap:0}
 .fld{display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid var(--border);font-size:12px}
 .fld .fk{color:var(--fg3);flex:1;min-width:0}
-.fld b{font-weight:600;color:var(--fg);text-align:right}
+.fld b{font-weight:600;color:var(--fg);text-align:right;min-width:0;overflow-wrap:anywhere}
 .fops{display:inline-flex;gap:3px;align-items:center;flex:none}
 .fpol{font-family:var(--mono);font-size:9px;letter-spacing:.08em;padding:1px 5px;border:1px solid var(--border);border-radius:3px;color:var(--fg3);background:var(--editor)}
 .fpol:hover{border-color:var(--accent);color:var(--fg)}
@@ -864,7 +874,9 @@ body.focus-mode .ptabs{cursor:pointer}
 .formula .fm i{font-size:10px;letter-spacing:0;text-transform:none;color:var(--fg3);font-weight:400;font-family:var(--ui)}
 .formula .fm .v{font-family:var(--mono);font-size:11px;color:var(--fg2)}
 .formula .fm b,.formula .fres b{font-family:var(--mono);font-size:9.5px;font-weight:500;opacity:.85}
-.formula .fo{color:var(--border);padding:0 3px;font-size:10px}
+/* Знаки = × + несут всю арифметику строки, а стояли цветом линии (--border)
+   и были невидимы. Правило здесь одно: второе такое же ниже перебивало первое. */
+.formula .fo{color:var(--fg2);padding:0 4px;font-size:12px;font-weight:600}
 .formula .fm.lim{color:var(--down);font-weight:500;border-bottom:0}
 .formula .fm.lim .v{color:var(--down);font-weight:650}
 .formula .fm.lim i{color:var(--down)}
@@ -1156,7 +1168,7 @@ function replyClass(txt,act){
   return null;}
 const MEET=[{id:'mt1',acc:'a0',who:'Dr. Jonathan Moss',w:38,when:'Thu 2:00 pm',ttl:'HIPAA dashboard demo \u00b7 30 min',st:['up','on the calendar']},
             {id:'mt2',acc:'a1',who:'Tom Hale',w:38,when:'not scheduled',ttl:'Price walkthrough: $1,400 freelancer vs $3,170 with an SLA',st:['warn','awaiting a yes']}];
-const BUILD='Oct 5, 21:10';   /* отметка сборки: единственное место, где она живёт */
+const BUILD='Oct 5, 21:35';   /* отметка сборки: единственное место, где она живёт */
 const S={t:NOW,seg:null,downOnly:false,sel:null,level:'segment',K:1,
   knob:{scout:2,qual:2,seller:2,pricer:1,service:1},profile:'owner',
   side:'tree',ent:'seg',agView:null,mapAcc:null,bn:0,sent:{},skin:'rev',ef:{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false},ptab:'market',job:'',stF:'',stage:'',primary:'map',source:null,orgOpen:false,sopAcc:'a0',tabs:[{id:'map',kind:'map',title:'Map'},{id:'sop',kind:'sop',title:'SOP'}],tab:'map',
