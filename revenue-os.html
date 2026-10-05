@@ -1343,7 +1343,7 @@ const FOPT={
   proc:()=>[['sale','Sale: interest → renewal'],['onb','Onboarding ≤ 7d'],['ren','Renewal and expansion']]};
 /* light — поле меняет только этот список и ленту; остальные пересчитывают формулу и карту */
 const FFLD={
-  seg:   {lbl:'Segment',get:()=>S.seg||'',       set:v=>{S.seg=v||null;}},
+  seg:   {lbl:'Segment',drill:1,get:()=>S.seg||'',set:v=>{pickSeg(v||null);}},
   job:   {lbl:'Job',    get:()=>S.job||'',       set:v=>{S.job=v;}},
   st:    {lbl:'State',  get:()=>S.stF||'',       set:v=>{S.stF=v;if(v&&S.tab==='map'){const f=statesF.find(x=>x.abbr===v);f&&zoomToFeature(f);}}},
   stage: {lbl:'Stage',  get:()=>S.stage||'',     set:v=>{S.stage=v;}},
@@ -1586,7 +1586,10 @@ function buildMapView(){
   ML.on('moveend',()=>{
     const z=ML.getZoom();S.K=z;
     if(S.mapAcc&&z<4.2){S.sel=null;S.mapAcc=null;}
-    const lv=S.mapAcc?'people':z>=4.2?'accounts':'segment';
+    /* Ступень задавалась только зумом — поэтому выбор сегмента в списке никуда не вёл:
+       пузырьки лишь фильтровались, а «дальше появляются юрлица» не происходило.
+       Выбранный сегмент — это и есть переход на вторую ступень. */
+    const lv=S.mapAcc?'people':(S.seg||z>=4.2)?'accounts':'segment';
     if(lv!==S.level){S.level=lv;
       /* уровень карты задаёт сущность только если внутри ничего не выбрано:
          иначе перелёт к юрлицу сбивал бы выбранный документ или поток */
@@ -1597,6 +1600,33 @@ function buildMapView(){
   $('zout').onclick=()=>ML.zoomOut();
 }
 function zoomTo(x,y,k){if(!ML)return;const ll=proj.invert([x,y]);if(ll)ML.flyTo({center:ll,zoom:kToZoom(k),duration:900});}
+/* Левая рейка — то же дерево списком, и она обязана вести карту так же, как клик
+   по пузырю: «дальше ты прям на карте можешь нажать на сегмент, появляются юрлица,
+   карта увеличивается» (30.09). Один вход на все три места выбора. */
+function zoomToSeg(id){
+  if(!ML||!statesF||!statesF.length)return;
+  const sts=new Set(ACC.filter(a=>a.seg===id&&stateAt(a,S.t)).map(a=>a.st));
+  const fs=statesF.filter(f=>sts.has(f.abbr));
+  if(!fs.length)return;
+  let X0=Infinity,Y0=Infinity,X1=-Infinity,Y1=-Infinity;
+  for(const f of fs){const [[x0,y0],[x1,y1]]=pathG.bounds(f);
+    X0=Math.min(X0,x0);Y0=Math.min(Y0,y0);X1=Math.max(X1,x1);Y1=Math.max(Y1,y1);}
+  const p1=proj.invert([X0,Y1]),p2=proj.invert([X1,Y0]);
+  if(!p1||!p2)return;
+  const bb=[[Math.min(p1[0],p2[0]),Math.min(p1[1],p2[1])],[Math.max(p1[0],p2[0]),Math.max(p1[1],p2[1])]];
+  const cam=ML.cameraForBounds?ML.cameraForBounds(bb,{padding:70}):null;
+  if(!cam){ML.fitBounds(bb,{padding:70,duration:900});return;}
+  /* сегмент раскинут на десять штатов — вписывание отдаляло бы карту. Лестница ведёт
+     вниз, а не вверх: центр переносим, но дальше, чем были, не уходим. */
+  ML.flyTo({center:cam.center,zoom:Math.max(cam.zoom,ML.getZoom()),duration:900});}
+function pickSeg(id,fly){
+  S.seg=id||null;S.sel=null;S.mapAcc=null;
+  S.level=id?'accounts':'segment';
+  setEnt(id?'acc':'seg');
+  renderAll();
+  if(fly===false)return;
+  if(id)zoomToSeg(id);
+  else if(ML)ML.flyTo({center:[-96,38.5],zoom:3.1,duration:700});}
 function zoomToFeature(f){if(!ML)return;const [[x0,y0],[x1,y1]]=pathG.bounds(f);
   const p1=proj.invert([x0,y1]),p2=proj.invert([x1,y0]);
   if(!p1||!p2){return;}
@@ -1638,7 +1668,7 @@ function renderMap(){
         b.style.fontSize=(r>30?11:9.5)+'px';
         b.innerHTML=`${x.g.abc}<i>${x.s.d>=0?'▲':'▼'}${Math.abs(x.s.d*100).toFixed(1)}</i>`;
         b.title=`${x.g.name} in ${c.f.properties.name} · market ${usd(x.s.v)} · ${int(x.s.n)} accounts · our ARR ${usd(x.s.end)} ${x.s.d>=0?'▲':'▼'} ${Math.abs(x.s.d*100).toFixed(1)} %`;
-        b.onclick=ev=>{ev.stopPropagation();S.seg=x.g.id;setEnt('seg');renderAllButMap();zoomToFeature(c.f);};
+        b.onclick=ev=>{ev.stopPropagation();pickSeg(x.g.id,false);zoomToFeature(c.f);};
         box.appendChild(b);});
       const ab=document.createElement('b');ab.className='ab';ab.textContent=c.f.abbr;box.appendChild(ab);
       mkMarker('bub',c.ll,box);});
@@ -2740,7 +2770,7 @@ function agScroll(){const b=$('agbody');if(!b)return;const turns=b.querySelector
 
 /* =================== status bar & palette =================== */
 function renderStatus(){const alarms=AGENTS.filter(a=>a.state==='paused').length;
-  $('status').innerHTML=`<button class="it" style="color:var(--link);font-weight:600" data-do="focuscard">⚠ Conv — the constraint</button><span class="sp"></span><span class="it">sources 7/7 in sync</span><span class="it faint" data-tip="When this version was published. If it is older than what you expect, the page came from cache — press Cmd+Shift+R.">build Oct 5, 16:56</span><span class="it">${esc($('profile').selectedOptions[0].text)}</span>`;}
+  $('status').innerHTML=`<button class="it" style="color:var(--link);font-weight:600" data-do="focuscard">⚠ Conv — the constraint</button><span class="sp"></span><span class="it">sources 7/7 in sync</span><span class="it faint" data-tip="When this version was published. If it is older than what you expect, the page came from cache — press Cmd+Shift+R.">build Oct 5, 17:07</span><span class="it">${esc($('profile').selectedOptions[0].text)}</span>`;}
 let palSel=0;
 function openPal(){$('pal').hidden=false;$('palIn').value='';palSel=0;renderPal();$('palIn').focus();}
 function renderPal(){const q=$('palIn').value.toLowerCase();const r=allEntities().filter(e=>!q||(e.t+' '+e.ty).toLowerCase().includes(q)).slice(0,30);S.palR=r;
@@ -2885,7 +2915,7 @@ document.addEventListener('click',e=>{
   if(b.dataset.close){const i=S.tabs.findIndex(t=>t.id===b.dataset.close);S.tabs.splice(i,1);if(S.tab===b.dataset.close)S.tab=S.tabs[Math.max(0,i-1)].id;renderEditor();return;}
   if(b.dataset.clearsel){S.sel=null;renderAll();return;}
   if(b.dataset.level){const l=b.dataset.level;if(l==='segment'){S.sel=null;if(ML)ML.flyTo({center:[-98.5,39.5],zoom:3.1,duration:800});}else if(l==='accounts'){S.sel=null;zoomToFeature(statesF.find(f=>f.abbr==='TX'));}else selectAcc(BRIGHT);return;}
-  if(b.dataset.seg!==undefined){S.seg=b.dataset.seg||null;renderAll();return;}
+  if(b.dataset.seg!==undefined){pickSeg(b.dataset.seg);return;}
   if(b.id==='fDown'){S.downOnly=!S.downOnly;renderAll();return;}
   if(b.dataset.knob){const [id,k]=b.dataset.knob.split(':');logAdd(id,`Dial: ${KNOB[S.knob[id]]} → ${KNOB[+k]} (${$('profile').selectedOptions[0].text})`,['flat','edited']);S.knob[id]=+k;renderAll();return;}
   if(b.dataset.tri){const [id,k,label]=b.dataset.tri.split('|');
