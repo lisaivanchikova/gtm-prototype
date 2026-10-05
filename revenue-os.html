@@ -832,6 +832,26 @@ body.focus-mode .ptabs{cursor:pointer}
 .mkorg .node.on i{filter:drop-shadow(0 0 3px var(--link))}
 .crumb[disabled]{opacity:.4;cursor:default}
 
+/* Нижняя строка — справка, а не приборная панель. Громким остаётся одно: ARR.
+   Терминальный вид давали сплошной моноширинный набор и прописные подписи у каждого
+   множителя — читались как лог, а не как формула. Подпись тихая, число моноширинное. */
+.statusbar{min-height:26px;font-size:11.5px;gap:0 12px}
+.formula{font-family:var(--ui);font-size:11px;gap:0 1px}
+.formula .fres{font-size:13.5px;font-weight:650;gap:5px;color:var(--fg)}
+.formula .fres i{font-size:9px;letter-spacing:.09em;text-transform:uppercase;color:var(--fg3);font-weight:500}
+.formula .fres .v{font-family:var(--mono);font-weight:650}
+.formula .fm{color:var(--fg3);gap:3px;padding:0 2px;align-items:baseline}
+.formula .fm i{font-size:10px;letter-spacing:0;text-transform:none;color:var(--fg3);font-weight:400;font-family:var(--ui)}
+.formula .fm .v{font-family:var(--mono);font-size:11px;color:var(--fg2)}
+.formula .fm b,.formula .fres b{font-family:var(--mono);font-size:9.5px;font-weight:500;opacity:.85}
+.formula .fo{color:var(--border);padding:0 3px;font-size:10px}
+.formula .fm.lim{color:var(--down);font-weight:500;border-bottom:0}
+.formula .fm.lim .v{color:var(--down);font-weight:650}
+.formula .fm.lim i{color:var(--down)}
+.timeline{font-size:11px;padding-left:10px;gap:5px}
+.timeline .tl{min-width:86px;color:var(--fg3)}
+.statusbar .it.bld{font-size:10px;color:var(--fg3);opacity:.6;letter-spacing:.02em}
+
 </style>
 
 <div class="app" id="app">
@@ -1046,6 +1066,7 @@ function replyClass(txt,act){
   return null;}
 const MEET=[{id:'mt1',acc:'a0',who:'Dr. Jonathan Moss',w:38,when:'Thu 2:00 pm',ttl:'HIPAA dashboard demo \u00b7 30 min',st:['up','on the calendar']},
             {id:'mt2',acc:'a1',who:'Tom Hale',w:38,when:'not scheduled',ttl:'Price walkthrough: $1,400 freelancer vs $3,170 with an SLA',st:['warn','awaiting a yes']}];
+const BUILD='Oct 5, 17:30';   /* отметка сборки: единственное место, где она живёт */
 const S={t:NOW,seg:null,downOnly:false,sel:null,level:'segment',K:1,
   knob:{scout:2,qual:2,seller:2,pricer:1,service:1},profile:'owner',
   side:'tree',ent:'seg',agView:null,mapAcc:null,bn:0,sent:{},skin:'rev',ef:{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false},ptab:'market',job:'',stF:'',stage:'',primary:'map',source:null,orgOpen:false,sopAcc:'a0',tabs:[{id:'map',kind:'map',title:'Map'},{id:'sop',kind:'sop',title:'SOP'}],tab:'map',
@@ -1796,10 +1817,10 @@ function selectNode(type,id){
    Верх освободился целиком: там остались только имя, поиск и кнопки панелей. */
 function renderFormula(){
   const F=formulaAt(S.t),P=formulaAt(S.t-WIN),ap=S.t>NOW?'\u2248':'';
-  const m=(n,v,d,cls)=>`<span class="fm ${cls||''}"><i>${n}</i>${ap}${v}${d?`<b>${d}</b>`:''}</span>`;
+  const m=(n,v,d,cls)=>`<span class="fm ${cls||''}"><i>${n}</i><span class="v">${ap}${v}</span>${d?`<b>${d}</b>`:''}</span>`;
   const dlt=(x,u,eps)=>{const s=dd(x,u,eps);return s&&s.trim()?s:'';};
   $('formula').innerHTML =
-    `<span class="fres"><i>${S.t>NOW?'ARR forecast':'ARR'}</i>${ap}${usd(F.end)}<b>${dlt(F.end/P.end-1,'%',.004)}</b></span>`
+    `<span class="fres"><i>${S.t>NOW?'ARR forecast':'ARR'}</i><span class="v">${ap}${usd(F.end)}</span><b>${dlt(F.end/P.end-1,'%',.004)}</b></span>`
     +`<span class="fo">=</span>`
     +m(`W${S.t-WIN}`,usd(F.start))+`<span class="fo">\u00d7</span>`
     +m('Retention',pct(F.ret),dlt(F.ret-P.ret,'pp',.002))
@@ -2790,7 +2811,7 @@ function agScroll(){const b=$('agbody');if(!b)return;const turns=b.querySelector
 
 /* =================== status bar & palette =================== */
 function renderStatus(){const alarms=AGENTS.filter(a=>a.state==='paused').length;
-  $('status').innerHTML=`<button class="it" style="color:var(--link);font-weight:600" data-do="focuscard">⚠ Conv — the constraint</button><span class="sp"></span><span class="it">sources 7/7 in sync</span><span class="it faint" data-tip="When this version was published. If it is older than what you expect, the page came from cache — press Cmd+Shift+R.">build Oct 5, 17:19</span><span class="it">${esc($('profile').selectedOptions[0].text)}</span>`;}
+  $('status').innerHTML=`<span class="it bld" data-tip="When this version was published. If it is older than what you expect, the page came from cache — press Cmd+Shift+R.">${BUILD}</span>`;}
 let palSel=0;
 function openPal(){$('pal').hidden=false;$('palIn').value='';palSel=0;renderPal();$('palIn').focus();}
 function renderPal(){const q=$('palIn').value.toLowerCase();const r=allEntities().filter(e=>!q||(e.t+' '+e.ty).toLowerCase().includes(q)).slice(0,30);S.palR=r;
