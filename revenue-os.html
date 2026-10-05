@@ -869,7 +869,7 @@ body.focus-mode .ptabs{cursor:pointer}
 .wk.on{border-color:var(--link);background:var(--accent-soft);color:var(--fg)}
 .wk.fc{opacity:.72}
 .wk.fc i{color:var(--link)}
-.wkq{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;padding-top:9px;border-top:1px solid var(--border)}
+.wkq{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:9px;padding-top:8px;border-top:1px solid var(--border)}
 .wkq button{background:none;border:1px solid var(--border);border-radius:12px;padding:2px 10px;color:var(--fg2);font-size:11px;cursor:pointer}
 .wkq button:hover{border-color:var(--fg3);color:var(--fg)}
 .wkq button.on{border-color:var(--link);color:var(--fg)}
@@ -898,7 +898,7 @@ body.focus-mode .ptabs{cursor:pointer}
 .cd.out{color:var(--fg3);opacity:.4}
 .calrow i{font-style:normal;font-size:9.5px;color:var(--fg3);padding-left:9px;white-space:nowrap}
 .calrow.fc i{color:var(--link)}
-.calnote{font-size:10px;color:var(--fg3);margin-top:8px;line-height:1.35}
+.calnote{font-size:10px;color:var(--fg3);line-height:1.35}
 
 </style>
 
@@ -1114,7 +1114,7 @@ function replyClass(txt,act){
   return null;}
 const MEET=[{id:'mt1',acc:'a0',who:'Dr. Jonathan Moss',w:38,when:'Thu 2:00 pm',ttl:'HIPAA dashboard demo \u00b7 30 min',st:['up','on the calendar']},
             {id:'mt2',acc:'a1',who:'Tom Hale',w:38,when:'not scheduled',ttl:'Price walkthrough: $1,400 freelancer vs $3,170 with an SLA',st:['warn','awaiting a yes']}];
-const BUILD='Oct 5, 18:10';   /* отметка сборки: единственное место, где она живёт */
+const BUILD='Oct 5, 18:15';   /* отметка сборки: единственное место, где она живёт */
 const S={t:NOW,seg:null,downOnly:false,sel:null,level:'segment',K:1,
   knob:{scout:2,qual:2,seller:2,pricer:1,service:1},profile:'owner',
   side:'tree',ent:'seg',agView:null,mapAcc:null,bn:0,sent:{},skin:'rev',ef:{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false},ptab:'market',job:'',stF:'',stage:'',primary:'map',source:null,orgOpen:false,sopAcc:'a0',tabs:[{id:'map',kind:'map',title:'Map'},{id:'sop',kind:'sop',title:'SOP'}],tab:'map',
@@ -1926,15 +1926,16 @@ function weekPopover(){
       cells+=`<span class="cd${d.getMonth()!==m?' out':''}">${d.getDate()}</span>`;}
     rows+=`<div class="calrow${w===S.t?' on':''}${w>NOW?' fc':''}${ok?'':' off'}"${ok?` data-week="${w}"`:''}>`
       +cells+`<i>${ok?'W'+w+(w===NOW?' · now':w>NOW?' · forecast':''):'no data'}</i></div>`;}
-  const q=(w,lbl)=>w>=TMIN&&w<=TMAX?`<button data-week="${w}" class="${w===S.t?'on':''}">${lbl}</button>`:'';
+  /* Единственный переход, которого нет в самом календаре: «сейчас» — это не дата,
+     которую помнишь, а состояние. Остальные прыжки календарь даёт сам. */
   return `<div class="wkpop" role="dialog" aria-label="Pick a week">
-    <div class="calh"><button class="calnav" data-calm="-1" ${curK<=minK?'disabled':''} aria-label="Previous month">‹</button>
+    <div class="calh"><button class="calnav" data-calm="-1" ${curK<=minK?`disabled data-tip="Earlier months hold no data — the model starts at ${wkd(TMIN)} 2026"`:''} aria-label="Previous month">‹</button>
       <b>${DN[m]} ${y}</b>
-      <button class="calnav" data-calm="1" ${curK>=maxK?'disabled':''} aria-label="Next month">›</button></div>
+      <button class="calnav" data-calm="1" ${curK>=maxK?`disabled data-tip="Later months hold no data — the model ends at ${wkd(TMAX)} 2026"`:''} aria-label="Next month">›</button></div>
     <div class="caldow">${['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(x=>`<span>${x}</span>`).join('')}<i></i></div>
     ${rows}
-    <div class="wkq">${q(NOW,'this week')}${q(NOW-4,'4 weeks back')}${q(TMIN,'earliest')}${q(TMAX,'end of forecast')}</div>
-    <div class="calnote">Click any day — the whole week it belongs to is picked. The model holds ${TMAX-TMIN+1} weeks; months outside it are not offered.</div>
+    <div class="wkq">${S.t===NOW?'':`<button data-week="${NOW}">back to this week</button>`}
+      <span class="calnote">Click any day — the whole week it belongs to is picked.</span></div>
   </div>`;
 }
 /* =================== SOP: service blueprint =================== */
