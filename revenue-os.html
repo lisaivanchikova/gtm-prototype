@@ -281,6 +281,8 @@ body.focus-mode .ptabs{cursor:pointer}
 .lvl button[aria-pressed="true"]{background:var(--fg);color:var(--editor)}
 .legend{position:absolute;left:10px;bottom:10px;display:flex;flex-wrap:wrap;gap:4px 12px;align-items:center;font-size:11px;color:var(--fg2);background:color-mix(in srgb,var(--editor) 90%,transparent);border:1px solid var(--border);border-radius:6px;padding:5px 9px;max-width:calc(100% - 70px)}
 .legend i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:4px;vertical-align:-1px}
+.legend s{display:inline-block;width:13px;height:13px;margin-right:4px;vertical-align:-2px;text-decoration:none}
+.legend s svg{width:13px;height:13px;display:block}
 .legend .grad{display:inline-block;width:90px;height:8px;border-radius:2px;background:linear-gradient(90deg,var(--down),color-mix(in srgb,var(--down) 35%,var(--land)),var(--land),color-mix(in srgb,var(--up) 35%,var(--land)),var(--up));vertical-align:-1px}
 .skins{display:inline-flex;flex:none;border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-right:8px}
 .skins button,.skins a{display:inline-flex;align-items:center;height:22px;padding:0 8px;font-size:10.5px;color:var(--fg3);white-space:nowrap;flex:none;text-decoration:none}
@@ -628,7 +630,10 @@ body.focus-mode .ptabs{cursor:pointer}
 .turn{display:flex;flex-direction:column;gap:6px}
 .turn .by{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600}
 .turn .by .faint{font-weight:400}
-.turn .bodyt{font-size:13px;line-height:1.5;padding-left:26px;display:flex;flex-direction:column;gap:8px}
+.turn .bodyt{font-size:13px;line-height:1.5;padding-left:26px}
+/* блочно, а не flex: во flex-контейнере каждый <b> внутри фразы становится
+   отдельной строкой и рвёт предложение — «This is / Tom Hale / , the bookkeeper…» */
+.turn .bodyt>.focus{margin:8px 0}
 .turn.user .bodyt{background:var(--hover);border-radius:6px;padding:6px 9px;margin-left:26px}
 .askbox{border:1px solid var(--border);border-radius:6px;background:var(--input);display:flex;flex-direction:column}
 .askbox:focus-within{border-color:var(--accent)}
@@ -1114,7 +1119,7 @@ function replyClass(txt,act){
   return null;}
 const MEET=[{id:'mt1',acc:'a0',who:'Dr. Jonathan Moss',w:38,when:'Thu 2:00 pm',ttl:'HIPAA dashboard demo \u00b7 30 min',st:['up','on the calendar']},
             {id:'mt2',acc:'a1',who:'Tom Hale',w:38,when:'not scheduled',ttl:'Price walkthrough: $1,400 freelancer vs $3,170 with an SLA',st:['warn','awaiting a yes']}];
-const BUILD='Oct 5, 18:15';   /* отметка сборки: единственное место, где она живёт */
+const BUILD='Oct 5, 19:40';   /* отметка сборки: единственное место, где она живёт */
 const S={t:NOW,seg:null,downOnly:false,sel:null,level:'segment',K:1,
   knob:{scout:2,qual:2,seller:2,pricer:1,service:1},profile:'owner',
   side:'tree',ent:'seg',agView:null,mapAcc:null,bn:0,sent:{},skin:'rev',ef:{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false},ptab:'market',job:'',stF:'',stage:'',primary:'map',source:null,orgOpen:false,sopAcc:'a0',tabs:[{id:'map',kind:'map',title:'Map'},{id:'sop',kind:'sop',title:'SOP'}],tab:'map',
@@ -1167,12 +1172,12 @@ const SRC={
   docusign:['DocuSign','#d4a017'],pandadoc:['PandaDoc','#1baf7a'],quickbooks:['QuickBooks','#2ca01c'],rmm:['RMM','#6b7280'],crm:['CRM','#7a4fd6'],pdf:['PDF','#e34948'],
   conf:['conference','#8a6fd6'],gmail:['Gmail','#d44638'],linkedin:['LinkedIn','#0a66c2'],aircall:['Aircall','#00b388'],teams:['Teams','#5b5fc7'],agent:['agent log','#7a4fd6']};
 const MARKET=[
-  {id:'m1',src:'sos',when:'2h',ttl:'214 new dental practices registered in DFW in September',seg:'cmp',st:'TX',hits:'Segment \u00d7',facts:['214 registrations Sep 1\u201323','up 18 % on August'],url:'sos.state.tx.us'},
-  {id:'m2',src:'hhs',when:'1d',ttl:'3 patient-data breaches at Texas dental practices in 30 days \u2014 neighbours now face a HIPAA audit',seg:'cmp',st:'TX',hits:'Reach \u00d7',facts:['3 incidents in the OCR registry','11,400 patients affected'],url:'ocrportal.hhs.gov'},
-  {id:'m3',src:'indeed',when:'1d',ttl:'38 \u201cIT support\u201d openings at companies under 50 staff in Plano and Frisco',seg:'dfm',st:'TX',hits:'Reach \u00d7',facts:['38 openings in 14 days','median salary $52K \u2014 more than we cost'],url:'indeed.com'},
-  {id:'m4',src:'fed',when:'3d',ttl:'CMMC Phase 2 paused as of Jul 13, 2026 \u2014 compliance demand from defense contractors will slow',seg:'cmp',st:null,hits:'Segment \u00d7',facts:['paused as of Jul 13, 2026','no Phase 2 dates announced'],url:'federalregister.gov'},
-  {id:'m5',src:'dbj',when:'4d',ttl:'A clinic group is buying 12 dental practices in DFW \u2014 they move to the group\u2019s IT',seg:'cmp',st:'TX',hits:'Segment \u00d7',facts:['12 practices in the deal','closing in Q4'],url:'bizjournals.com/dallas'},
-  {id:'m6',src:'ms',when:'6d',ttl:'Microsoft 365 prices up 5\u201333 % from Nov 1 \u2014 a reason for Price-first to count the whole IT bill',seg:'price',st:null,hits:'Conv \u00d7',facts:['plans up 5\u201333 %','effective Nov 1, 2026'],url:'microsoft.com'}];
+  {id:'m1',src:'sos',when:'2h',ttl:'214 new dental practices registered in DFW in September',seg:'cmp',st:'TX',hits:'Segment',facts:['214 registrations Sep 1\u201323','up 18 % on August'],url:'sos.state.tx.us'},
+  {id:'m2',src:'hhs',when:'1d',ttl:'3 patient-data breaches at Texas dental practices in 30 days \u2014 neighbours now face a HIPAA audit',seg:'cmp',st:'TX',hits:'Reach',facts:['3 incidents in the OCR registry','11,400 patients affected'],url:'ocrportal.hhs.gov'},
+  {id:'m3',src:'indeed',when:'1d',ttl:'38 \u201cIT support\u201d openings at companies under 50 staff in Plano and Frisco',seg:'dfm',st:'TX',hits:'Reach',facts:['38 openings in 14 days','median salary $52K \u2014 more than we cost'],url:'indeed.com'},
+  {id:'m4',src:'fed',when:'3d',ttl:'CMMC Phase 2 paused as of Jul 13, 2026 \u2014 compliance demand from defense contractors will slow',seg:'cmp',st:null,hits:'Segment',facts:['paused as of Jul 13, 2026','no Phase 2 dates announced'],url:'federalregister.gov'},
+  {id:'m5',src:'dbj',when:'4d',ttl:'A clinic group is buying 12 dental practices in DFW \u2014 they move to the group\u2019s IT',seg:'cmp',st:'TX',hits:'Segment',facts:['12 practices in the deal','closing in Q4'],url:'bizjournals.com/dallas'},
+  {id:'m6',src:'ms',when:'6d',ttl:'Microsoft 365 prices up 5\u201333 % from Nov 1 \u2014 a reason for Price-first to count the whole IT bill',seg:'price',st:null,hits:'Conv',facts:['plans up 5\u201333 %','effective Nov 1, 2026'],url:'microsoft.com'}];
 const DOCS={
   'd-nda':{acc:'a0',src:'docusign',kind:'NDA',ttl:'NDA signed by both sides',w:35,status:['up','signed'],act:'declaration'},
   'd-quest':{acc:'a0',src:'pdf',kind:'Questionnaire',ttl:'HIPAA security questionnaire completed: 14 seats, no MFA',w:36,status:['flat','received'],act:'assertion'},
@@ -1831,10 +1836,13 @@ function renderMap(){
     mkMarker('org',llOf(selA),box);
   }
 
-  $('legend').innerHTML=S.seg?`<span>ARR over 4 weeks</span><span class="grad"></span><span class="num">−4 % … +4 %</span><span>· size = $ of the segment market</span><span><i style="background:var(--agent);border-radius:1px;transform:rotate(45deg)"></i>us</span>`
-    :`<span>one bubble = one segment in one state</span><span>size = $ of its market there</span><span><i style="background:var(--up)"></i>▲ moving</span><span><i style="background:var(--down)"></i>▼ stuck ≥ 8d or a churn signal</span><span><i style="background:var(--flat)"></i>■ flat</span>${t>NOW?'<span>faded — forecast</span>':''}<span><i style="background:var(--agent);border-radius:1px;transform:rotate(45deg)"></i>us</span>`;
+  /* три ступени — три легенды. Ступень 3 раньше наследовала подпись второй и
+     описывала точки ARR, которых на ней нет: там люди, документы, СОП и агент. */
+  const legNode=k=>`<s>${GLYPH[k]}</s>`;
+  $('legend').innerHTML=S.mapAcc?`<span>${legNode('person')}person</span><span>${legNode('document')}document</span><span>${legNode('flow')}SOP</span><span>${legNode('agent')}agent</span><span>colour = state, the same as everywhere</span>`
+    :S.seg?`<span>ARR over 4 weeks</span><span class="grad"></span><span class="num">−4 % … +4 %</span><span>· size = $ of the segment market</span><span><i style="background:var(--agent);border-radius:1px;transform:rotate(45deg)"></i>us</span>`
+      :`<span>one bubble = one segment in one state</span><span>size = $ of its market there</span><span><i style="background:var(--up)"></i>▲ moving</span><span><i style="background:var(--down)"></i>▼ stuck ≥ 8d or a churn signal</span><span><i style="background:var(--flat)"></i>■ flat</span>${t>NOW?'<span>faded — forecast</span>':''}<span><i style="background:var(--agent);border-radius:1px;transform:rotate(45deg)"></i>us</span>`;
 }
-function scaleMarks(){}
 function selectAcc(a){S.sel={type:'acc',id:a.id};S.mapAcc=a.id;S.sopAcc=a.id;S.orgOpen=true;S.level='people';
   if(S.primary!=='map'||S.source){S.tab='map';renderEditor();}
   if(ML&&MLREADY)ML.flyTo({center:llOf(a),zoom:Math.max(ML.getZoom(),13),duration:900});
@@ -2212,7 +2220,7 @@ function feedItems(tab){
   const t=S.t,selA=S.sel&&S.sel.type==='acc'?ACCBY[S.sel.id]:null;
   if(tab==='market'){return MARKET.concat(S.addedFacts||[]).filter(n=>(!S.seg||n.seg===S.seg)&&(!(S.ef&&S.ef.newonly)||!S.facts[n.id])).map(n=>({src:n.src,ttl:n.ttl,mt:`<b class="due">moves ${n.hits}</b> · <b>${SRC[n.src][0]}</b> · ${n.url} · ${segBy(n.seg).name}${n.st?' · '+n.st:''}`,when:n.when,open:'news:'+n.id,av:`<span class="av sq">${segBy(n.seg).abc}</span>`,sig:!S.facts[n.id]&&!isCommon(n),
       status:isCommon(n)?['flat','common ground']:S.facts[n.id]?Object.values(S.facts[n.id]).includes('no')?['down','refuted by someone']:['up','verified']:null,
-      acts:`<button class="ib ok" data-factall="${n.id}:ok" aria-label="Confirm">✓</button><button class="ib no" data-factall="${n.id}:no" aria-label="Refute">✕</button><button class="ib" data-factall="${n.id}:x" aria-label="Drop">−</button><button class="ib" data-common="${n.id}" aria-label="Now common ground" data-tip="A signal is a deviation from the norm. What everyone already knows stops being a signal">≡</button><button class="ib" data-plus="${esc(n.ttl.slice(0,40))}" aria-label="Add your own fact">+</button>`,
+      acts:`<button class="ib ok" data-factall="${n.id}:ok" aria-label="Confirm">✓</button><button class="ib no" data-factall="${n.id}:no" aria-label="Refute">✕</button><button class="ib" data-factall="${n.id}:x" aria-label="Drop">−</button><button class="ib" data-common="${n.id}" aria-label="Now common ground" data-tip="A signal is a deviation from the norm. What everyone already knows stops being a signal">■</button><button class="ib" data-plus="${esc(n.ttl.slice(0,40))}" aria-label="Add your own fact">+</button>`,
       gone:S.facts[n.id]&&S.facts[n.id].all==='x'}));}
   if(tab==='flow'){
     const sv=S.sel; S.sel={type:'acc',id:(S.sel&&S.sel.type==='sop'?S.sel.id:S.sopAcc)};
@@ -2263,15 +2271,6 @@ function feedItems(tab){
    только как временное состояние фильтров и исчезал при перезагрузке. Срез — сохранённая
    область расчёта с именем и причиной: у Coffee пустой экран предлагает готовые кампании,
    то есть срез первичен, а не является побочным продуктом настройки. */
-const SLICE0=[
-  {id:'s-cmp',nm:'Compliance-first · TX',why:'the biggest contract value, HIPAA and CMMC audits',f:{seg:'cmp',stF:'TX'}},
-  {id:'s-price',nm:'Price-first · stuck',why:'where we are losing Conv right now',f:{seg:'price',downOnly:true}},
-  {id:'s-sign',nm:'Awaiting signature',why:'the move is a human’s, not an agent’s',f:{stage:'4'}}];
-const FKEYS=['seg','job','stF','stage','downOnly'];
-function curF(){const o={};FKEYS.forEach(k=>{const v=S[k];if(v)o[k]=v;});return o;}
-function sameF(a,b){return FKEYS.every(k=>String(a[k]||'')===String(b[k]||''));}
-function applyF(f){FKEYS.forEach(k=>{S[k]=k==='downOnly'?!!f[k]:(f[k]||(k==='seg'?null:''));});}
-function sliceCount(f){const sv=curF();applyF(f);const n=ACC.filter(a=>stateAt(a,S.t)&&inF(a)&&!filtered(a)).length;applyF(sv);return n;}
 const FPOL=[['auto','auto','the agent fills this in itself'],['sug','suggest','the agent suggests, a human confirms'],['off','off','the agent does not touch this field']];
 function fields(arr,scope){
   const hid=S.hidden[scope]||{};
@@ -2423,7 +2422,7 @@ function renderPanel(){
   $('feed').classList.toggle('dense',S.dense!==false);
   const nCom=S.ptab==='market'?MARKET.concat(S.addedFacts||[]).filter(n=>(!S.seg||n.seg===S.seg)&&isCommon(n)).length:0;
   const head=`<div class="subrule"><span>showing <b>${items.length}</b> of ${V.all.length} · ${FEEDWHY[S.ptab][V.mode==='sig'?0:1]}${nCom?` · <b>${nCom}</b> became common ground`+`` :''}</span>
-    <span class="pick"><button data-fmode="sig" aria-pressed="${V.mode==='sig'}" data-tip="Only the lines that need a move">needs a move</button><button data-fmode="all" aria-pressed="${V.mode==='all'}" data-tip="The whole slice, unfiltered">all</button></span>
+    ${V.sig.length&&V.sig.length<V.all.length?`<span class="pick"><button data-fmode="sig" aria-pressed="${V.mode==='sig'}" data-tip="Only the lines that need a move">needs a move</button><button data-fmode="all" aria-pressed="${V.mode==='all'}" data-tip="The whole slice, unfiltered">all</button></span>`:''}
     ${GLOSS[S.ptab]?`<span class="gloss">${GLOSS[S.ptab]}</span>`:''}</div>`;
   const add=S.ptab==='market'?`<div class="addfact"><input id="myFact" placeholder="Write a fact or a thought about the market…"><button class="btn" id="addFact">Add</button><button class="btn" data-importfacts="1" data-tip="Log what you heard at a conference in one batch: each fact with its source and unconfirmed">＋ facts from a conference</button></div>`
     :(S.noteFor?`<div class="addfact"><input id="myNote" placeholder="Add your own — a note under your name…" autofocus><button class="btn" id="addNote">Add</button><button class="ib" data-notecancel="1">×</button></div>`:'');
@@ -2610,7 +2609,7 @@ function renderAgent(){
     <div class="focus"><span class="k">Constraint · TOC</span><span class="t">${f.t}</span>
       ${fever()}
       <div class="btns"><button class="btn" data-do="today">Open the queue${nOpen?` · ${nOpen}`:''}</button></div></div>
-    <div class="note" style="margin-top:8px">The queue of moves and the analysis live in the centre, on the Today tab. Here I only flag things and answer questions.</div>
+    <div class="note" style="margin-top:8px">The queue opens right here, in this panel. Beyond that I flag things and answer questions.</div>
     `)+S.chat.map(m=>m.u?`<div class="turn user"><div class="by">${face(me,'',true)}${me}</div><div class="bodyt">${m.t}</div></div>`:turnA(m.t)).join('');
   renderAgAsk();}
 function renderAgAsk(){
@@ -2931,7 +2930,7 @@ function openRef(k){
 }
 function logAdd(ag,ttl,st){(S.extraLogs=S.extraLogs||[]).push({ag,w:NOW,ttl,st});}
 document.addEventListener('click',e=>{
-  const b=e.target.closest('[data-open],[data-side],[data-tab],[data-close],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-step],[data-plus],[data-newchat],[data-agundo],[data-weekpick],[data-week],[data-calm],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-f],[data-freset],[data-knobw],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepmv],[data-stepsel],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-skin],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-fmode],[data-dbsort],[data-dbmore],[data-dbkind],[data-slice],[data-mark],[data-note],[data-notecancel],[data-ent],[data-mail],[data-common],[data-importfacts],[data-nextbn],[data-influencer],[data-sim],#fDown,#addFact,#addNote');
+  const b=e.target.closest('[data-open],[data-side],[data-tab],[data-close],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-plus],[data-newchat],[data-agundo],[data-weekpick],[data-week],[data-calm],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-f],[data-freset],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepsel],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-fmode],[data-dbsort],[data-dbmore],[data-dbkind],[data-mailclear],[data-mark],[data-note],[data-notecancel],[data-ent],[data-mail],[data-common],[data-importfacts],[data-nextbn],[data-influencer],[data-sim],#fDown,#addFact,#addNote');
   if(!b){if(S.wkOpen&&!e.target.closest('.wkpop')){S.wkOpen=false;renderFilters();}return;}
   if(S.wkOpen&&!b.dataset.weekpick&&!b.dataset.week&&!b.dataset.calm&&!e.target.closest('.wkpop')){S.wkOpen=false;renderFilters();}
   if(b.dataset.pal)$('pal').hidden=true;
@@ -2939,7 +2938,6 @@ document.addEventListener('click',e=>{
   if(b.dataset.fmode){S.fmode=b.dataset.fmode;renderPanel();return;}
   if(b.dataset.dbsort){const k=b.dataset.dbsort,cur=S.dbSort||{};S.dbSort={k,d:cur.k===k?-cur.d:(k==='acv'||k==='last'||k==='mv'?-1:1)};renderDB();return;}
   if(b.dataset.dbmore){S.dbN=(S.dbN||50)+50;renderDB();return;}
-  if(b.dataset.slice){const x=(S.slices||[]).find(y=>y.id===b.dataset.slice);if(x){applyF(sameF(x.f,curF())?{}:x.f);renderAll();renderEditor();}return;}
   if(b.dataset.mark){const [ref,v]=b.dataset.mark.split('|');S.marks=S.marks||{};S.marks[ref]=S.marks[ref]===v?null:v;renderPanel();return;}
   if(b.dataset.note){S.noteFor=b.dataset.note;renderPanel();const i=$('myNote');if(i)i.focus();return;}
   if(b.dataset.notecancel){S.noteFor=null;renderPanel();return;}
@@ -2971,8 +2969,6 @@ document.addEventListener('click',e=>{
     toast('Step inserted. Name it and assign who runs it.');renderEditorLight();return;}
   if(b.dataset.stepdel!==undefined){const i=+b.dataset.stepdel;if(S.steps.length<=2)return;
     const st=S.steps[i];S.steps.splice(i,1);toast(`The “${st.a}” step was removed from the process.`);renderEditorLight();return;}
-  if(b.dataset.stepmv){const [i,d]=b.dataset.stepmv.split(':').map(Number);const j=i+d;
-    if(j<0||j>=S.steps.length)return;const x=S.steps[i];S.steps[i]=S.steps[j];S.steps[j]=x;renderEditorLight();return;}
   if(b.dataset.stepsel!==undefined){if(e.target.closest('.shname'))return;S.sopStep=+b.dataset.stepsel;renderEditorLight();return;}
   if(b.dataset.stepreset){S.steps=JSON.parse(JSON.stringify(STEPS0));toast('The process is back to its six original steps.');renderEditorLight();return;}
   if(b.dataset.setag!==undefined){const i=+b.dataset.setag;const opts=[...AGENTS.map(g=>g.id),'sign'];
@@ -3025,10 +3021,6 @@ document.addEventListener('click',e=>{
       logAdd(id,`Warm: dial → ${KNOB[S.knobW[id]]}`,['flat','edited']);
       toast('An agent never writes to a warm contact on its own: that mail goes out under your name. The dial never goes above Approve.');}
     renderAll();return;}
-  if(b.dataset.knobw){const [id,k]=b.dataset.knobw.split(':');
-    if(+k>1){toast('An agent does not write to a warm contact on its own: that mail goes out under your name, and your reputation pays.');return;}
-    logAdd(id,`Warm: ${KNOB[S.knobW[id]]} → ${KNOB[+k]}`,['flat','edited']);S.knobW[id]=+k;renderAll();return;}
-  if(b.dataset.step){S.t=Math.max(TMIN,Math.min(TMAX,S.t+ +b.dataset.step));renderAll();return;}
   if(b.dataset.plus!==undefined){setEnt('seg');renderPanel();const i=$('myFact');i.value='on “'+b.dataset.plus+'…”: ';i.focus();return;}
   if(b.dataset.open){openRef(b.dataset.open);return;}
   if(b.dataset.ent){const k=b.dataset.ent;
@@ -3047,6 +3039,7 @@ document.addEventListener('click',e=>{
   if(b.dataset.tab){S.tab=b.dataset.tab;renderEditor();return;}
   if(b.dataset.close){const i=S.tabs.findIndex(t=>t.id===b.dataset.close);S.tabs.splice(i,1);if(S.tab===b.dataset.close)S.tab=S.tabs[Math.max(0,i-1)].id;renderEditor();return;}
   if(b.dataset.clearsel){S.sel=null;renderAll();return;}
+  if(b.dataset.mailclear){S.mail=null;renderPanel();return;}
   /* Крошки — та же лестница, что клики по карте: «Segments» и «Accounts» раньше
      улетали в произвольные места (Техас, Brightline) и при выбранном сегменте вообще
      ничего не меняли — ступень выводилась из зума. Теперь они её задают. */
@@ -3067,7 +3060,7 @@ document.addEventListener('click',e=>{
     if(k.startsWith('fact:')){const [,nid,v]=k.split(':');S.facts[nid]={0:v,1:v};}
     if(k.startsWith('open:')){openRef(k.slice(5));return;}
     S.tri[id]=label==='Decline'||label==='Keep it stopped'?'declined':'done: '+label.toLowerCase();renderAll();return;}
-  if(b.dataset.do){const k=b.dataset.do;if(k==='today'){S.agView=S.agView==='today'?null:'today';renderAgent();return;}if(k==='alarm'){S.agView=S.agView==='alarm'?null:'alarm';renderAgent();return;}if(k==='openfilters'){S.side='tree';S.layout.side=true;applyLayout();renderActivity();renderSide();return;}if(k==='openchannel'){setEnt('us');S.ptab='channel';S.layout.panel=true;applyLayout();renderActivity();renderSide();renderPanel();return;}if(k==='opendocs'){setEnt('acc');S.layout.panel=true;applyLayout();renderActivity();renderSide();renderPanel();return;}if(k==='slicesave'){const f=curF();S.slices=S.slices||SLICE0.slice();if(S.slices.some(x=>sameF(x.f,f))){toast('That slice is already saved.');return;}const nm=[S.seg?segBy(S.seg).name:'all segments',S.stF||null,S.stage?STAGE[S.stage]:null,S.downOnly?'stuck':null].filter(Boolean).join(' · ');S.slices.push({id:'s'+Date.now(),nm:nm,why:'saved by you in W'+S.t,f:f});renderSide();toast('Slice saved: '+nm);return;}if(k==='planclear'){S.plan=null;renderEditor();renderAllButMap();toast('Plan dropped. The moves it added are gone; the rest of the queue is untouched.');return;}if(k==='resetscope'){S.seg=null;S.job='';S.stF='';S.stage='';S.downOnly=false;renderAll();return;}if(k==='focuscard'){S.agView=null;renderAgent();const f=document.querySelector('#agbody .focus');f&&f.scrollIntoView({block:'nearest'});return;}if(false){S.layout.agent=true;applyLayout();const f=document.querySelector('.focus');f&&f.scrollIntoView({block:'nearest'});f&&f.animate([{outline:'2px solid var(--focus)'},{outline:'2px solid transparent'}],{duration:600});return;}if(k==='showtx'){S.seg='price';S.downOnly=true;if(S.tab!=='map'){S.tab='map';renderEditor();}S.sel=null;renderAll();zoomToFeature(statesF.find(f=>f.abbr==='TX'));return;}
+  if(b.dataset.do){const k=b.dataset.do;if(k==='today'){S.agView=S.agView==='today'?null:'today';renderAgent();return;}if(k==='alarm'){S.agView=S.agView==='alarm'?null:'alarm';renderAgent();return;}if(k==='openfilters'){S.side='tree';S.layout.side=true;applyLayout();renderActivity();renderSide();return;}if(k==='openchannel'){setEnt('us');S.ptab='channel';S.layout.panel=true;applyLayout();renderActivity();renderSide();renderPanel();return;}if(k==='opendocs'){setEnt('acc');S.layout.panel=true;applyLayout();renderActivity();renderSide();renderPanel();return;}if(k==='planclear'){S.plan=null;renderEditor();renderAllButMap();toast('Plan dropped. The moves it added are gone; the rest of the queue is untouched.');return;}if(k==='resetscope'){S.seg=null;S.job='';S.stF='';S.stage='';S.downOnly=false;renderAll();return;}if(k==='focuscard'){S.agView=null;renderAgent();const f=document.querySelector('#agbody .focus');f&&f.scrollIntoView({block:'nearest'});return;}if(false){S.layout.agent=true;applyLayout();const f=document.querySelector('.focus');f&&f.scrollIntoView({block:'nearest'});f&&f.animate([{outline:'2px solid var(--focus)'},{outline:'2px solid transparent'}],{duration:600});return;}if(k==='showtx'){S.seg='price';S.downOnly=true;if(S.tab!=='map'){S.tab='map';renderEditor();}S.sel=null;renderAll();zoomToFeature(statesF.find(f=>f.abbr==='TX'));return;}
     if(k==='showdfw'){S.seg=null;S.sel=null;if(S.tab!=='map'){S.tab='map';renderEditor();}renderAll();zoomTo(bx,by,7);return;}if(k.startsWith('open:'))openRef(k.slice(5));return;}
   if(b.dataset.fact){const [id,i,v]=b.dataset.fact.split(':');S.facts[id]=S.facts[id]||{};S.facts[id][i]=v;renderEditor();renderPanel();return;}
   if(b.dataset.factall){const [id,v]=b.dataset.factall.split(':');const n=MARKET.find(x=>x.id===id);S.facts[id]={all:v};n.facts.forEach((f,i)=>S.facts[id][i]=v);renderPanel();if(S.tab==='news:'+id)renderEditor();return;}
