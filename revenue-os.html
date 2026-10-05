@@ -879,6 +879,27 @@ body.focus-mode .ptabs{cursor:pointer}
 .statusbar{overflow:visible}
 .statusbar .formula{overflow:hidden;min-width:0}
 
+/* Календарь: дни сеткой, неделя — строка, подсвечивается целиком. */
+.wkpop{min-width:330px}
+.calh{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;font-size:12.5px}
+.calnav{width:24px;height:24px;border:1px solid var(--border);border-radius:12px;background:none;color:var(--fg2);cursor:pointer;font-size:12px;line-height:1}
+.calnav:hover:not([disabled]){border-color:var(--fg3);color:var(--fg)}
+.calnav[disabled]{opacity:.25;cursor:default}
+.caldow,.calrow{display:grid;grid-template-columns:repeat(7,30px) minmax(60px,1fr);align-items:center}
+.caldow{font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--fg3);padding:0 0 3px}
+.caldow span{text-align:center}
+.calrow{border:1px solid transparent;border-radius:7px;cursor:pointer;margin:1px 0}
+.calrow:hover:not(.off){background:var(--side);border-color:var(--fg3)}
+.calrow.on{border-color:var(--link);background:var(--accent-soft)}
+.calrow.off{opacity:.28;cursor:default}
+.calrow.fc{opacity:.8}
+.cd{text-align:center;font-size:12px;padding:5px 0;font-family:var(--mono);color:var(--fg2)}
+.calrow.on .cd{color:var(--fg)}
+.cd.out{color:var(--fg3);opacity:.4}
+.calrow i{font-style:normal;font-size:9.5px;color:var(--fg3);padding-left:9px;white-space:nowrap}
+.calrow.fc i{color:var(--link)}
+.calnote{font-size:10px;color:var(--fg3);margin-top:8px;line-height:1.35}
+
 </style>
 
 <div class="app" id="app">
@@ -1093,7 +1114,7 @@ function replyClass(txt,act){
   return null;}
 const MEET=[{id:'mt1',acc:'a0',who:'Dr. Jonathan Moss',w:38,when:'Thu 2:00 pm',ttl:'HIPAA dashboard demo \u00b7 30 min',st:['up','on the calendar']},
             {id:'mt2',acc:'a1',who:'Tom Hale',w:38,when:'not scheduled',ttl:'Price walkthrough: $1,400 freelancer vs $3,170 with an SLA',st:['warn','awaiting a yes']}];
-const BUILD='Oct 5, 18:05';   /* отметка сборки: единственное место, где она живёт */
+const BUILD='Oct 5, 18:10';   /* отметка сборки: единственное место, где она живёт */
 const S={t:NOW,seg:null,downOnly:false,sel:null,level:'segment',K:1,
   knob:{scout:2,qual:2,seller:2,pricer:1,service:1},profile:'owner',
   side:'tree',ent:'seg',agView:null,mapAcc:null,bn:0,sent:{},skin:'rev',ef:{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false},ptab:'market',job:'',stF:'',stage:'',primary:'map',source:null,orgOpen:false,sopAcc:'a0',tabs:[{id:'map',kind:'map',title:'Map'},{id:'sop',kind:'sop',title:'SOP'}],tab:'map',
@@ -1883,20 +1904,37 @@ function renderFilters(){
 }
 /* Календарь недель по тому диапазону, который реально есть в модели. Недели вне его
    не показываем вовсе: пустой календарь на год выглядел бы как ответ, не являясь им. */
+function weekStart(w){const d=new Date(2026,8,14);d.setDate(d.getDate()+(w-NOW)*7);return d;}
+function weekOfDate(d){return TMIN+Math.floor((d-weekStart(TMIN))/(7*864e5));}
+/* Настоящий календарь: понедельник–воскресенье, дни сеткой, неделя подсвечивается
+   целиком строкой. Месяцы ограничены тем, что есть в модели, — пустые не листаем. */
 function weekPopover(){
-  const months=[];
-  for(let w=TMIN;w<=TMAX;w++){
-    const d=new Date(2026,8,14+(w-NOW)*7), k=d.getFullYear()+'-'+d.getMonth();
-    let m=months.find(x=>x.k===k);
-    if(!m){m={k,nm:DN[d.getMonth()]+' '+d.getFullYear(),ws:[]};months.push(m);}
-    m.ws.push(w);}
+  const cur=weekStart(S.t);
+  const m=S.calM==null?cur.getMonth():S.calM, y=S.calY==null?cur.getFullYear():S.calY;
+  const lo=weekStart(TMIN), hi=weekStart(TMAX); hi.setDate(hi.getDate()+6);
+  const key=(yy,mm)=>yy*12+mm;
+  const minK=key(lo.getFullYear(),lo.getMonth()), maxK=key(hi.getFullYear(),hi.getMonth()), curK=key(y,m);
+  const first=new Date(y,m,1), back=(first.getDay()+6)%7, start=new Date(y,m,1-back);
+  const last=new Date(y,m+1,0);
+  let rows='';
+  for(let r=0;r<6;r++){
+    const d0=new Date(start); d0.setDate(start.getDate()+r*7);
+    if(d0>last)break;
+    const w=weekOfDate(d0), ok=w>=TMIN&&w<=TMAX;
+    let cells='';
+    for(let i2=0;i2<7;i2++){const d=new Date(d0); d.setDate(d0.getDate()+i2);
+      cells+=`<span class="cd${d.getMonth()!==m?' out':''}">${d.getDate()}</span>`;}
+    rows+=`<div class="calrow${w===S.t?' on':''}${w>NOW?' fc':''}${ok?'':' off'}"${ok?` data-week="${w}"`:''}>`
+      +cells+`<i>${ok?'W'+w+(w===NOW?' · now':w>NOW?' · forecast':''):'no data'}</i></div>`;}
   const q=(w,lbl)=>w>=TMIN&&w<=TMAX?`<button data-week="${w}" class="${w===S.t?'on':''}">${lbl}</button>`:'';
   return `<div class="wkpop" role="dialog" aria-label="Pick a week">
-    <div class="wkh"><b>Pick a week</b><span class="faint">the model holds ${TMAX-TMIN+1} weeks · ${wkd(TMIN)} — ${wkd(TMAX)} 2026</span></div>
-    <div class="wkcal">${months.map(m=>`<div class="wkm"><div class="wkmn">${esc(m.nm)}</div>`
-      +m.ws.map(w=>`<button class="wk${w===S.t?' on':''}${w>NOW?' fc':''}" data-week="${w}">${esc(wkd(w))}<i>W${w}${w===NOW?' · now':w>NOW?' · forecast':''}</i></button>`).join('')
-      +`</div>`).join('')}</div>
-    <div class="wkq">${q(NOW,'now')}${q(NOW-4,'4 weeks back')}${q(TMIN,'earliest')}${q(TMAX,'end of forecast')}</div>
+    <div class="calh"><button class="calnav" data-calm="-1" ${curK<=minK?'disabled':''} aria-label="Previous month">‹</button>
+      <b>${DN[m]} ${y}</b>
+      <button class="calnav" data-calm="1" ${curK>=maxK?'disabled':''} aria-label="Next month">›</button></div>
+    <div class="caldow">${['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(x=>`<span>${x}</span>`).join('')}<i></i></div>
+    ${rows}
+    <div class="wkq">${q(NOW,'this week')}${q(NOW-4,'4 weeks back')}${q(TMIN,'earliest')}${q(TMAX,'end of forecast')}</div>
+    <div class="calnote">Click any day — the whole week it belongs to is picked. The model holds ${TMAX-TMIN+1} weeks; months outside it are not offered.</div>
   </div>`;
 }
 /* =================== SOP: service blueprint =================== */
@@ -2892,9 +2930,9 @@ function openRef(k){
 }
 function logAdd(ag,ttl,st){(S.extraLogs=S.extraLogs||[]).push({ag,w:NOW,ttl,st});}
 document.addEventListener('click',e=>{
-  const b=e.target.closest('[data-open],[data-side],[data-tab],[data-close],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-step],[data-plus],[data-newchat],[data-agundo],[data-weekpick],[data-week],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-f],[data-freset],[data-knobw],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepmv],[data-stepsel],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-skin],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-fmode],[data-dbsort],[data-dbmore],[data-dbkind],[data-slice],[data-mark],[data-note],[data-notecancel],[data-ent],[data-mail],[data-common],[data-importfacts],[data-nextbn],[data-influencer],[data-sim],#fDown,#addFact,#addNote');
+  const b=e.target.closest('[data-open],[data-side],[data-tab],[data-close],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-step],[data-plus],[data-newchat],[data-agundo],[data-weekpick],[data-week],[data-calm],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-f],[data-freset],[data-knobw],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepmv],[data-stepsel],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-skin],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-fmode],[data-dbsort],[data-dbmore],[data-dbkind],[data-slice],[data-mark],[data-note],[data-notecancel],[data-ent],[data-mail],[data-common],[data-importfacts],[data-nextbn],[data-influencer],[data-sim],#fDown,#addFact,#addNote');
   if(!b){if(S.wkOpen&&!e.target.closest('.wkpop')){S.wkOpen=false;renderFilters();}return;}
-  if(S.wkOpen&&!b.dataset.weekpick&&!b.dataset.week&&!e.target.closest('.wkpop')){S.wkOpen=false;renderFilters();}
+  if(S.wkOpen&&!b.dataset.weekpick&&!b.dataset.week&&!b.dataset.calm&&!e.target.closest('.wkpop')){S.wkOpen=false;renderFilters();}
   if(b.dataset.pal)$('pal').hidden=true;
   if(b.dataset.dense!==undefined){S.dense=b.dataset.dense==='1';renderPanel();return;}
   if(b.dataset.fmode){S.fmode=b.dataset.fmode;renderPanel();return;}
@@ -2919,8 +2957,12 @@ document.addEventListener('click',e=>{
       m.t=m.t.replace('<button class="lnk" '+mark,'<span class="faint">rolled back</span>');});
     S.chat.push({u:0,t:'Rolled back — '+esc(e.txt.split('.')[0])+'. The model is as it was, and the line is gone from the log.'});
     renderAll();return;}
-  if(b.dataset.weekpick){S.wkOpen=!S.wkOpen;renderFilters();return;}
+  if(b.dataset.weekpick){S.wkOpen=!S.wkOpen;S.calM=null;S.calY=null;renderFilters();return;}
   if(b.dataset.week){S.t=+b.dataset.week;S.wkOpen=false;renderAll();return;}
+  if(b.dataset.calm){const cur=weekStart(S.t);
+    let m=(S.calM==null?cur.getMonth():S.calM)+(+b.dataset.calm), y=S.calY==null?cur.getFullYear():S.calY;
+    if(m<0){m=11;y--;} if(m>11){m=0;y++;}
+    S.calM=m;S.calY=y;renderFilters();return;}
   if(b.dataset.newchat){S.chat=[];renderAgent();return;}
   /* ===== ДОБАВЛЕНО: правка SOP ===== */
   if(b.dataset.stepadd!==undefined){const i=+b.dataset.stepadd;
