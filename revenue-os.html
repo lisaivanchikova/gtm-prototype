@@ -1319,22 +1319,65 @@ $('tAgent').onclick=()=>{S.layout.agent=!S.layout.agent;applyLayout();};
 /* =================== sidebar views =================== */
 function attnList(seg){return ACC.filter(a=>a.seg===seg&&stateAt(a,S.t)).sort((x,y)=>(y.feat-x.feat)||(momentum(x,S.t)-momentum(y,S.t))).slice(0,6);}
 function accRow(a,ind=2){const m=momentum(a,S.t),e=stateAt(a,S.t);return `<button class="row ${S.sel&&S.sel.id===a.id?'on':''}" data-open="acc:${a.id}" style="padding-left:${ind*12}px"><span class="tw"></span>${logo(a,'sq')}<span class="nm" title="${esc(a.name)}">${esc(a.name)}</span><span class="rt"><span class="${mcls(m)}">${arrow(m)}</span> ${e?STAGE[e.s]:''}</span></button>`;}
+/* ===== A8 · один компонент фильтров на все сущности =====
+   «Найдите самый лучший в мире формат отражения фильтров, он должен быть униформным…
+   все блоки должны начинаться с блока фильтров униформных» (Николай, 30.09).
+   Поле описывается данными — метка, откуда берётся, куда кладётся, какие значения.
+   Как его показать, решает компонент, а не автор экрана: пока значения умещаются в пару строк —
+   чипами, иначе списком. Один заголовок, один сброс, один вид выбранного. */
+const FOPT={
+  seg:()=>[['','all']].concat(SEGS.map(g=>[g.id,g.abc+' · '+g.name,'Core job: “'+g.job+'” · NAICS '+g.naics.join(', ')])),
+  job:()=>JOBS.map(([k,t])=>[k,t]),
+  st:()=>[['','all states']].concat([...new Set(ACC.map(a=>a.st))].sort().map(x=>[x,x])),
+  stage:()=>[['','all stages']].concat([1,2,3,4,5,6,7,8].map(k=>[String(k),STAGE[k]])),
+  role:()=>[['','all'],['decides','decides','has the last word'],['champions','champions','moves the deal inside the company'],['pays','pays','approves the budget and signs the invoice']],
+  src:()=>[['','all'],['gmail','email'],['linkedin','LinkedIn'],['aircall','call'],['teams','meeting'],['quickbooks','invoice']],
+  dkind:()=>[['','all']].concat([...new Set(Object.values(DOCS).map(d=>d.kind))].map(k=>[k,k])),
+  astate:()=>[['','all'],['active','running'],['awaiting','waiting on a human'],['paused','stopped']],
+  proc:()=>[['sale','Sale: interest → renewal'],['onb','Onboarding ≤ 7d'],['ren','Renewal and expansion']]};
+/* light — поле меняет только этот список и ленту; остальные пересчитывают формулу и карту */
+const FFLD={
+  seg:   {lbl:'Segment',get:()=>S.seg||'',       set:v=>{S.seg=v||null;}},
+  job:   {lbl:'Job',    get:()=>S.job||'',       set:v=>{S.job=v;}},
+  st:    {lbl:'State',  get:()=>S.stF||'',       set:v=>{S.stF=v;if(v&&S.tab==='map'){const f=statesF.find(x=>x.abbr===v);f&&zoomToFeature(f);}}},
+  stage: {lbl:'Stage',  get:()=>S.stage||'',     set:v=>{S.stage=v;}},
+  role:  {lbl:'Role in the deal',light:1,get:()=>S.ef.role||'',  set:v=>{S.ef.role=v;}},
+  src:   {lbl:'Channel',light:1,get:()=>S.ef.src||'',            set:v=>{S.ef.src=v;}},
+  dkind: {lbl:'Kind',   light:1,get:()=>S.ef.dkind||'',          set:v=>{S.ef.dkind=v;}},
+  astate:{lbl:'State',  light:1,get:()=>S.ef.astate||'',         set:v=>{S.ef.astate=v;}},
+  proc:  {lbl:'Process',light:1,keep:1,get:()=>S.ef.proc||'sale',set:v=>{S.ef.proc=v||'sale';}},
+  newonly:{lbl:'unverified facts only',hint:'the formula does not count them yet',type:'tog',get:()=>!!S.ef.newonly,set:v=>{S.ef.newonly=v;}},
+  down:   {lbl:'stuck or leaving only',hint:'▼ no movement, or a churn signal',type:'tog',get:()=>!!S.downOnly,set:v=>{S.downOnly=v;}}};
+const FSET={seg:['seg','job','newonly'],acc:['seg','job','st','stage','down'],ppl:['role','src'],
+            flow:['proc','stage'],doc:['dkind','seg'],ag:['astate'],us:['astate']};
+function filterBar(ent){
+  S.ef=S.ef||{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false};
+  const keys=FSET[ent]||FSET.acc, flds=keys.map(k=>[k,FFLD[k]]).filter(x=>x[1]);
+  const set=flds.some(([k,f])=>f.keep?false:(f.type==='tog'?f.get():!!f.get()));
+  const wide=flds.some(([k,f])=>!f.light);
+  const row=([k,f])=>{
+    if(f.type==='tog')return `<label class="fchk"><input type="checkbox" data-ftog="${k}" ${f.get()?'checked':''}><span>${esc(f.lbl)}${f.hint?`<i>${esc(f.hint)}</i>`:''}</span></label>`;
+    const opts=(FOPT[k]||(()=>[]))(), cur=String(f.get());
+    const chars=opts.reduce((n,o)=>n+String(o[1]).length,0);
+    if(opts.length<=9&&chars<=64)   /* чипами, пока они умещаются в пару строк; иначе список */
+      return `<div class="fl"><span>${esc(f.lbl)}</span><div class="chips">`
+        +opts.map(o=>`<button class="fchip" data-f="${esc(k+':'+o[0])}" aria-pressed="${cur===String(o[0])}"${o[2]?` data-tip="${esc(o[2])}"`:''}>${esc(o[1])}</button>`).join('')+`</div></div>`;
+    return `<div class="fl"><span>${esc(f.lbl)}</span><select data-fsel="${k}">`
+      +opts.map(o=>`<option value="${esc(String(o[0]))}" ${cur===String(o[0])?'selected':''}>${esc(o[1])}</option>`).join('')+`</select></div>`;};
+  return `<div class="sfilt"><div class="hdr">Filters · ${wide?'the formula, the map and the feed recalculate':'this list and the feed below'}`
+    +(set?` <button class="fchip" data-freset="${ent}" data-tip="Back to everything">reset</button>`:'')+`</div>`
+    +flds.map(row).join('')+`</div>`;
+}
 function renderSide(){
   $('sideTitle').textContent=S.side==='tree'?(ENTNM[S.ent]||'Segments'):'Profile';let h='';
   if(S.side==='tree'){
     const ent=S.ent||'seg', tt=S.t;
     S.ef=S.ef||{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false};
     const rule=(x,i)=>`<div class="subrule"><span>${x}</span>${i?`<i>${i}</i>`:''}</div>`;
-    const chips=(label,name,opts,cur)=>`<div class="fl"><span>${esc(label)}</span><div class="chips">`+
-      opts.map(([v,nm,tip])=>`<button class="fchip" data-ef="${name}:${v}" aria-pressed="${cur===v}"${tip?` data-tip="${esc(tip)}"`:''}>${esc(nm)}</button>`).join('')+`</div></div>`;
 
     /* ---------- СЕГМЕНТЫ ---------- */
     if(ent==='seg'){
-      h+=`<div class="sfilt">`
-        +chips('Segment','seg',[['','all']].concat(SEGS.map(g=>[g.id,g.abc+' · '+g.name,'Core job: “'+g.job+'” · NAICS '+g.naics.join(', ')])),S.seg||'')
-        +`<div class="fl"><span>Job</span><select id="fJob">${JOBS.map(([k,x])=>`<option value="${k}" ${S.job===k?'selected':''}>${x}</option>`).join('')}</select></div>`
-        +`<label class="fchk"><input type="checkbox" id="fNew" ${S.ef.newonly?'checked':''}><span>unverified facts only<i>the formula does not count them yet</i></span></label>`
-        +`</div>`;
+      h+=filterBar('seg');
       h+=`<div class="grp2">Segments · ${SEGS.length}</div>`;
       h+=SEGS.map(g=>{const M=segMetrics(g);
         return `<button class="row ${S.seg===g.id?'on':''}" data-seg="${g.id}" data-tip="${esc('Core job: “'+g.job+'” · '+int(M.N)+' accounts · market '+usd(M.mkt))}">
@@ -1345,7 +1388,7 @@ function renderSide(){
 
     /* ---------- ЮРЛИЦА ---------- */
     else if(ent==='acc'){
-      h+=filtersHTML();
+      h+=filterBar('acc');
       const MODES={attn:['need a decision','stuck, leaving, or asking for a human'],
                    work:['in play','from the first touch to the signature']};
       const mode=S.treeMode==='work'?'work':'attn';
@@ -1367,9 +1410,7 @@ function renderSide(){
 
     /* ---------- ЛЮДИ ---------- */
     else if(ent==='ppl'){
-      const SRCF=[['','all'],['gmail','email'],['linkedin','LinkedIn'],['aircall','call'],['teams','meeting'],['quickbooks','invoice']];
-      const ROLEF=[['','all'],['decides','decides','has the last word'],['champions','champions','moves the deal inside the company'],['pays','pays','approves the budget and signs the invoice']];
-      h+=`<div class="sfilt">`+chips('Role in the deal','role',ROLEF,S.ef.role)+chips('Channel','src',SRCF,S.ef.src)+`</div>`;
+      h+=filterBar('ppl');
       const allAcc=ACC.filter(a=>stateAt(a,tt)&&inF(a));
       const base=allAcc.filter(a=>momentum(a,tt)<0).sort((x,y)=>(y.feat-x.feat)||(y.acv-x.acv)).slice(0,6);
       let ppl=base.flatMap(a=>peopleOf(a).map(x=>({...x,acc:a})));
@@ -1384,11 +1425,7 @@ function renderSide(){
 
     /* ---------- ПОТОКИ ---------- */
     else if(ent==='flow'){
-      const PROC=[['sale','Sale: interest → renewal'],['onb','Onboarding ≤ 7d'],['ren','Renewal and expansion']];
-      h+=`<div class="sfilt">`
-        +`<div class="fl"><span>Stage</span><select id="fStage"><option value="">all stages</option>${[1,2,3,4,5,6,7,8].map(k=>`<option value="${k}" ${S.stage==k?'selected':''}>${STAGE[k]}</option>`).join('')}</select></div></div>`;
-      h+=`<div class="grp2">Processes · ${PROC.length}</div>`;
-      h+=PROC.map(([k,nm])=>`<button class="row ${(S.ef.proc||'sale')===k?'on':''}" data-flow="${k}"><span class="av sq">⎇</span><span class="nm">${esc(nm)}</span></button>`).join('');
+      h+=filterBar('flow');
       const opened=ACCBY[S.sopAcc];
       h+=`<div class="grp2">Open on</div>`;
       h+=`<button class="row on" data-open="sop:${S.sopAcc}">${logo(opened,'sq')}<span class="nm">${esc(opened.name)}</span><span class="rt"><span class="stg">${STAGE[(stateAt(opened,tt)||{s:1}).s]}</span></span></button>`;
@@ -1396,8 +1433,7 @@ function renderSide(){
 
     /* ---------- ДОКУМЕНТЫ (под потоками) ---------- */
     else if(ent==='doc'){
-      const KIND=[['','all']].concat([...new Set(Object.values(DOCS).map(d=>d.kind))].map(k=>[k,k]));
-      h+=`<div class="sfilt">`+chips('Kind','dkind',KIND,S.ef.dkind||'')+`</div>`;
+      h+=filterBar('doc');
       let ds=Object.entries(DOCS).filter(([id,d])=>d.w<=Math.max(tt,NOW)&&(!S.ef.dkind||d.kind===S.ef.dkind)
         &&(!S.seg||ACCBY[d.acc].seg===S.seg)).sort((a,b)=>b[1].w-a[1].w);
       h+=`<div class="grp2">Documents</div>`;
@@ -1412,8 +1448,7 @@ function renderSide(){
        я даже не понимаю. Это абсолютно одна и та же сущность… я бы назвал это team»
        (Николай, 30.09, 18:49). Различает их только знак: человек или робот. */
     else {
-      const ST=[['','all'],['active','running'],['awaiting','waiting on a human'],['paused','stopped']];
-      h+=`<div class="sfilt">`+chips('State','astate',ST,S.ef.astate)+`</div>`;
+      h+=filterBar('ag');
       h+=`<button class="row us" data-open="us"><span class="av sq bot">${ICONS.mark}</span><span class="nm">Bobroff MSP</span><span class="rt">${OURS.length} people · ${AGENTS.length} agents</span></button>`;
       h+=`<div class="grp2">Team \u00b7 ${OURS.length} people, ${AGENTS.length} agents</div>`;
       for(const o of OURS){
@@ -1741,17 +1776,6 @@ function renderFilters(){
   $('timebar').innerHTML=`<span class="tarrow"><button data-step="-1" aria-label="One week back">◄</button></span><span class="tarrow"><button data-step="1" aria-label="One week forward">►</button></span>
 <span class="tl">${S.t>NOW?'forecast · ':''}W${S.t} · ${wkd(S.t)}</span><span class="tnote" title="${note}">${note}</span>`;
 }
-function filtersHTML(){
-  const sts=[...new Set(ACC.map(a=>a.st))].sort();
-  const on=S.seg||S.job||S.stF||S.stage||S.downOnly;
-  return `<div class="sfilt"><div class="hdr">Filters · the formula, the map and the feed recalculate${on?` <button class="fchip" data-do="resetscope" data-tip="Back to everything">reset</button>`:''}</div>
-    <div class="fl"><span>Segment</span><div class="chips"><button class="fchip" data-seg="" aria-pressed="${!S.seg}">all</button>${SEGS.map(g=>`<button class="fchip" data-seg="${g.id}" aria-pressed="${S.seg===g.id}" data-tip="Core job: “${g.job}” · NAICS ${g.naics.join(', ')}">${g.abc} · ${g.name}</button>`).join('')}</div></div>
-    <div class="fl"><span>Job</span><select id="fJob">${JOBS.map(([k,t])=>`<option value="${k}" ${S.job===k?'selected':''}>${t}</option>`).join('')}</select></div>
-    <div class="fl"><span>State</span><select id="fSt"><option value="">all states</option>${sts.map(x=>`<option ${S.stF===x?'selected':''}>${x}</option>`).join('')}</select></div>
-    <div class="fl"><span>Stage</span><select id="fStage"><option value="">all stages</option>${[1,2,3,4,5,6,7,8].map(k=>`<option value="${k}" ${S.stage==k?'selected':''}>${STAGE[k]}</option>`).join('')}</select></div>
-    <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="fdown" ${S.downOnly?'checked':''}> ▼ stuck or leaving only</label></div>`;
-}
-
 /* =================== SOP: service blueprint =================== */
 /* ===== ДОБАВЛЕНО: КПД шага, сбой, разбор и правка правил ===== */
 /* КПД шага — свойство когорты той сделки, что открыта, а не текущего глобального фильтра.
@@ -2512,7 +2536,7 @@ function ask(q){if(!q.trim())return;S.chat.push({u:1,t:esc(q)});
 
 /* =================== status bar & palette =================== */
 function renderStatus(){const alarms=AGENTS.filter(a=>a.state==='paused').length;
-  $('status').innerHTML=`<button class="it" style="color:var(--link);font-weight:600" data-do="focuscard">⚠ Conv — the constraint</button><span class="sp"></span><span class="it">sources 7/7 in sync</span><span class="it faint" data-tip="When this version was published. If it is older than what you expect, the page came from cache — press Cmd+Shift+R.">build Oct 5, 16:22</span><span class="it">${esc($('profile').selectedOptions[0].text)}</span>`;}
+  $('status').innerHTML=`<button class="it" style="color:var(--link);font-weight:600" data-do="focuscard">⚠ Conv — the constraint</button><span class="sp"></span><span class="it">sources 7/7 in sync</span><span class="it faint" data-tip="When this version was published. If it is older than what you expect, the page came from cache — press Cmd+Shift+R.">build Oct 5, 16:38</span><span class="it">${esc($('profile').selectedOptions[0].text)}</span>`;}
 let palSel=0;
 function openPal(){$('pal').hidden=false;$('palIn').value='';palSel=0;renderPal();$('palIn').focus();}
 function renderPal(){const q=$('palIn').value.toLowerCase();const r=allEntities().filter(e=>!q||(e.t+' '+e.ty).toLowerCase().includes(q)).slice(0,30);S.palR=r;
@@ -2547,7 +2571,7 @@ function openRef(k){
 }
 function logAdd(ag,ttl,st){(S.extraLogs=S.extraLogs||[]).push({ag,w:NOW,ttl,st});}
 document.addEventListener('click',e=>{
-  const b=e.target.closest('[data-open],[data-side],[data-tab],[data-close],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-step],[data-plus],[data-newchat],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-knobw],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepmv],[data-stepsel],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-skin],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-fmode],[data-dbsort],[data-dbmore],[data-dbkind],[data-slice],[data-mark],[data-note],[data-notecancel],[data-ent],[data-ef],[data-flow],[data-mail],[data-common],[data-importfacts],[data-nextbn],[data-influencer],[data-sim],#fDown,#addFact,#addNote');
+  const b=e.target.closest('[data-open],[data-side],[data-tab],[data-close],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-step],[data-plus],[data-newchat],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-f],[data-freset],[data-knobw],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepmv],[data-stepsel],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-skin],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-fmode],[data-dbsort],[data-dbmore],[data-dbkind],[data-slice],[data-mark],[data-note],[data-notecancel],[data-ent],[data-mail],[data-common],[data-importfacts],[data-nextbn],[data-influencer],[data-sim],#fDown,#addFact,#addNote');
   if(!b)return;
   if(b.dataset.pal)$('pal').hidden=true;
   if(b.dataset.dense!==undefined){S.dense=b.dataset.dense==='1';renderPanel();return;}
@@ -2633,8 +2657,14 @@ document.addEventListener('click',e=>{
   if(b.dataset.ent){const k=b.dataset.ent;
     if(S.ent===k&&S.layout.side){S.layout.side=false;}else{S.ent=k;S.side='tree';S.layout.side=true;S.ptab=ENTFEED[k];S.mail=null;}
     applyLayout();renderActivity();renderSide();renderPanel();return;}
-  if(b.dataset.ef){const [k,v]=b.dataset.ef.split(':');S.ef[k]=S.ef[k]===v?'':v;renderSide();renderPanel();return;}
-  if(b.dataset.flow){S.ef.proc=b.dataset.flow;renderSide();return;}
+  /* A8: один обработчик на все фильтры — поле само знает, куда класть и что перерисовать */
+  if(b.dataset.f){const i=b.dataset.f.indexOf(':'),k=b.dataset.f.slice(0,i),v=b.dataset.f.slice(i+1);
+    const f=FFLD[k];if(!f)return;
+    f.set(String(f.get())===v&&!f.keep?'':v);
+    if(f.light){renderSide();renderPanel();}else renderAll();return;}
+  if(b.dataset.freset!==undefined){let wide=false;
+    (FSET[b.dataset.freset]||[]).forEach(k=>{const f=FFLD[k];if(!f||f.keep)return;f.set(f.type==='tog'?false:'');if(!f.light)wide=true;});
+    if(wide)renderAll();else{renderSide();renderPanel();}return;}
   if(b.dataset.mail){S.mail=b.dataset.mail;S.ptab='channel';renderSide();renderPanel();return;}
   if(b.dataset.side){if(S.side===b.dataset.side&&S.layout.side){S.layout.side=false;}else{S.side=b.dataset.side;S.layout.side=true;}applyLayout();renderActivity();renderSide();return;}
   if(b.dataset.tab){S.tab=b.dataset.tab;renderEditor();return;}
@@ -2700,7 +2730,9 @@ document.addEventListener('drop',e=>{if(DRAGI==null)return;const c=e.target.clos
     toast(`The “${x.a}” stage moved to position ${j+1}.`);renderEditorLight();}
   DRAGI=null;});
 document.addEventListener('dragend',()=>{DRAGI=null;document.querySelectorAll('.rst').forEach(x=>{x.draggable=false;x.classList.remove('dragging','dropto');});});
-document.addEventListener('change',e=>{if(e.target.id==='fStage'){S.stage=e.target.value;renderAll();}if(e.target.id==='fJob'){S.job=e.target.value;renderAll();}if(e.target.id==='fSt'){S.stF=e.target.value;renderAll();if(S.stF&&S.tab==='map'){const f=statesF.find(x=>x.abbr===S.stF);f&&zoomToFeature(f);}}if(e.target.name==='fseg'){S.seg=e.target.value||null;renderAll();}if(e.target.id==='fdown'){S.downOnly=e.target.checked;renderAll();}if(e.target.id==='fNew'){S.ef.newonly=e.target.checked;renderAll();}});
+document.addEventListener('change',e=>{const d=e.target.dataset||{};
+  if(d.fsel){const f=FFLD[d.fsel];if(f){f.set(e.target.value);if(f.light){renderSide();renderPanel();}else renderAll();}return;}
+  if(d.ftog){const f=FFLD[d.ftog];if(f){f.set(e.target.checked);if(f.light){renderSide();renderPanel();}else renderAll();}return;}});
 addEventListener('resize',()=>{applyLayout();});
 $('ptabs').addEventListener('click',e=>{if(document.body.classList.contains('focus-mode')&&!e.target.closest('button')){S.pinFeed=true;document.body.classList.remove('focus-mode');}});
 $('profile').addEventListener('change',e=>{S.profile=e.target.value;S.chat=[];
