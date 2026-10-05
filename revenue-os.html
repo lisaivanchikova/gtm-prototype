@@ -767,6 +767,58 @@ body.focus-mode .ptabs{cursor:pointer}
 .mailrow .lim{font-variant-numeric:tabular-nums;color:var(--fg3)}
 .warmb{width:34px;height:4px;border-radius:2px;background:color-mix(in srgb,var(--fg3) 25%,transparent);overflow:hidden;flex:none}
 .warmb i{display:block;height:100%;background:var(--up)}
+/* ===== C2 · конструктор воронок: рейка этапов, шарики по людям =====
+   Разведка в polish/C2-RESEARCH.md. Порядок задаётся положением, не стрелками;
+   «+» живёт в промежутке между этапами, как у Zapier и Pipedrive. */
+.rail,.prow{display:grid;grid-template-columns:230px repeat(var(--sn,6),minmax(104px,1fr))}
+.rail{align-items:stretch;margin-top:4px}
+.rlab{display:flex;align-items:flex-end;padding:0 8px 9px;font-size:11px;color:var(--fg3)}
+.rst{position:relative;border:1px solid var(--border);border-radius:9px;margin:0 4px;padding:8px 9px;display:flex;flex-direction:column;gap:3px;background:var(--side);cursor:pointer;min-width:0}
+.rst:hover{border-color:var(--fg3)}
+.rst.sel{box-shadow:inset 0 0 0 2px var(--link);border-color:var(--link)}
+.rst.done{opacity:.7}
+.rst.next{opacity:.55}
+.rst.now{background:var(--bg);border-color:var(--warn)}
+.rst.stuck{background:var(--bg);border-color:var(--down)}
+.rsn{font-weight:650;font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rss{font-size:10.5px;color:var(--fg3)}
+.rst.stuck .rss{color:var(--down);font-weight:600}
+.rst.now .rss{color:var(--warn);font-weight:600}
+.rsy{display:block;height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:2px}
+.rsy i{display:block;height:100%}
+.rsp{font-size:10px;color:var(--fg3)}
+.rsp.ybad{color:var(--down)}
+.rgap{position:absolute;left:-11px;top:14px;width:19px;height:19px;border-radius:50%;border:1px solid var(--border);background:var(--bg);color:var(--fg2);font-size:11px;line-height:1;cursor:pointer;z-index:3;display:flex;align-items:center;justify-content:center;padding:0}
+.rgap:hover{border-color:var(--link);color:var(--link)}
+.rgap.last{left:auto;right:-11px}
+.rsops{display:flex;align-items:center;gap:7px;margin-top:3px}
+.rgrip{cursor:grab;color:var(--fg3);font-size:13px;letter-spacing:-1px;user-select:none}
+.rdel{border:0;background:none;color:var(--fg3);cursor:pointer;font-size:14px;line-height:1;padding:0 2px}
+.rdel:hover{color:var(--down)}
+.rdel[disabled]{opacity:.3;cursor:default}
+.rst.dragging{opacity:.35}
+.rst.dropto{border-color:var(--link);border-style:dashed}
+.shname{-webkit-user-drag:none}
+.rsel{margin:11px 0 6px;border:1px solid var(--border);border-radius:9px;padding:9px 11px;background:var(--side);display:flex;flex-direction:column;gap:5px}
+.rselh{display:flex;gap:9px;align-items:center;font-size:12.5px;flex-wrap:wrap}
+.pgh{margin:12px 0 2px;font-size:11px;color:var(--fg3)}
+.prow{border-top:1px solid var(--border);align-items:center}
+.pwho{display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto;column-gap:7px;align-items:center;padding:6px 8px;font-size:12px;min-width:0}
+.pwho>:first-child{grid-row:1/3}
+.pnm{font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prole{color:var(--fg3);font-size:10.5px;line-height:1.3}
+.pc{text-align:center;padding:5px 0;min-width:0}
+.pc.sel{background:var(--side)}
+.dt{border:0;background:none;cursor:pointer;font-size:13px;line-height:1;padding:3px 6px;border-radius:5px;color:var(--fg3)}
+.dt:hover{background:var(--border)}
+.dt.up,.dt.done{color:var(--up)}
+.dt.warn{color:var(--warn)}
+.dt.down{color:var(--down);font-size:12px}
+.dt.flat{color:var(--fg2)}
+.dt.done{opacity:.55}
+.dt.none{cursor:default;opacity:.5}
+.dt.none:hover{background:none}
+
 </style>
 
 <div class="app" id="app">
@@ -1710,11 +1762,15 @@ function stepYield(i,scopeAcc){
   i=st.stage-1;
   if(i>=4)return null;            /* стадии 5-6 — это база, там мера Retention, а не КПД */
   const seg=scopeAcc?scopeAcc.seg:(S.seg||null);
+  /* когорта, а не два независимых счёта: из тех, кто вошёл в этап внутри окна,
+     сколько ушло дальше — и уже после входа. Иначе выход бывает больше входа. */
   const at=t=>{let inn=0,out=0;const lo=t-WIN;
     for(const a of ACC){if(seg?a.seg!==seg:!inF(a))continue;if(filtered(a))continue;
-      if(a.ev.some(e=>e.s===i+1&&e.w>lo&&e.w<=t))inn++;
-      if(a.ev.some(e=>e.s===i+2&&e.s<=6&&e.w>lo&&e.w<=t))out++;}
-    return {inn,out,r:Math.min(1,inn?out/inn:0)};};
+      const ein=a.ev.find(e=>e.s===i+1&&e.w>lo&&e.w<=t);
+      if(!ein)continue;
+      inn++;
+      if(a.ev.some(e=>e.s===i+2&&e.s<=6&&e.w>=ein.w&&e.w<=t))out++;}
+    return {inn,out,r:inn?out/inn:0};};
   const n=at(S.t),p=at(Math.max(TMIN+WIN,S.t-WIN));
   return {inn:n.inn,out:n.out,r:n.r,d:n.r-p.r};
 }
@@ -1793,74 +1849,96 @@ function renderSOP(a){
   const t=Math.min(S.t,NOW),e=stateAt(a,t)||{s:1},P=peopleOf(a),bright=a===BRIGHT,acts=peopleActs(a,t);
   const cur=e.s>=7?Math.max(1,(a.ev.filter(x=>x.s<7).pop()||{s:1}).s):Math.min(e.s,6);
   const ST=S.steps,N=ST.length;
-  const card=(cls,who,whoAv,act,txt,open)=>`<button class="card ${cls}" title="${esc(who+': '+String(txt).replace(/<[^>]+>/g,''))}" ${open?`data-open="${open}"`:''}><span class="who">${whoAv}${esc(who)}</span>${act?`<span class="act">${act}</span>`:''}<span class="t">${txt}</span></button>`;
-  const pv=p=>face(p.nm),bot=ini=>`<span class="av bot">${ini}</span>`,hum=n=>face(n,'',true);
-  const now=i=>ST[i].stage===cur, past=i=>ST[i].stage&&ST[i].stage<cur;
-  const dash='<span class="faint">—</span>', empty='<span class="faint" style="font-size:11px">your own step — no data for it yet</span>';
-  /* содержимое привязано к стадии, а не к номеру колонки: шаги можно переставлять */
-  const BR=[{1:['expressive','“our IT guy left, audit in November”'],2:['request','“send pricing for 14 seats”'],3:['request','“what is it with a discount?”'],5:['forecast','first value in ≤ 7d'],6:['forecast','renewal in 36 months']},
-            {2:['assertion','“we need it before the audit”'],3:['silence','silent 9d — Dr. Moss will not move without her'],5:['forecast','onboarding the office']},
-            {3:['expressive','“$38K is a lot, the freelancer is $1,400/mo”'],4:'MISS'}];
-  let lanes=P.map((p,pi)=>ST.map((st,i)=>{
-    if(!st.stage)return empty;
-    if(bright){const B=(BR[pi]||{})[st.stage];
-      if(B==='MISS')return card('miss','Missing',pv(p),'','Tom Hale’s yes: Dr. Moss will not sign without it','person:'+p.id);
-      return B?card(B[0]==='forecast'?'fc':'client',p.nm,pv(p),B[0],B[1],B[0]==='forecast'?null:'person:'+p.id):dash;}
-    const x=acts[pi];if(now(i)&&x&&x.act)return card('client',p.nm,pv(p),x.act,esc(x.txt+(x.act==='silence'?' '+x.days+'d':'')),'person:'+p.id);
-    return past(i)?'<span class="faint">done</span>':dash;}));
-  const MFB={1:['✉ email ↓↑','p-moss'],2:['☎ 30-min demo ↕','p-moss'],3:['📄 PandaDoc offer ↑ · opened 3×','p-hale'],4:['✍ MSA in DocuSign ↑ · 2 signatures pending','p-hale','miss'],5:['⎈ SLA report ↑ · invoice ↑',null],6:['✉ renewal meeting',null]};
-  const MFG={1:['✉ email'],2:['☎ call'],3:['📄 offer'],4:['✍ MSA'],5:['⎈ SLA · invoice'],6:['✉ renewal']};
-  const MF=ST.map(st=>!st.stage?null:bright?MFB[st.stage]:(st.stage<=cur?[MFG[st.stage][0],P[0].id]:null));
-  const AG1={1:['Scout','S','assertion','first touch: HIPAA-ready IT','scout'],2:['Qualifier','Q','request','4 questions → segment A','qual'],
-             3:['Pricing','P','promise',bright?'v1 $38K · v2 −8 % waiting on a human':'offer from the catalogue','pricer'],5:['Service','Sv','promise','SLA 99.5 %, invoiced monthly','service']};
-  const us0=ST.map((st,i)=>{if(!st.stage)return dash;const g=AG1[st.stage];return g?card('agentc',g[0],bot(g[1]),g[2],g[3],'agent:'+g[4]):dash;});
-  const us1=ST.map((st,i)=>{if(!st.stage)return dash;
-    if(st.stage===2)return card('agentc','Outreach',bot('O'),'assertion',bright?'promised Dentrix ⚠ stopped':'demo and follow-up','agent:seller');
-    if(st.stage===3)return card('humanc','Counsel',hum('Counsel'),'','the “not an offer until countersigned” clause',null);
-    if(st.stage===4)return card('humanc','Lisa',hum('Lisa'),'declaration','signing the MSA — only a human with the authority','doc:d-msa');
-    if(st.stage===6)return card('humanc','Nikolai',hum('Nikolai'),'','renewal meeting',null);
-    return dash;});
-  const cellCls=i=>now(i)?'now':'';
-  const loopPos={1:0,2:0,3:1,4:2,5:3,6:3}[cur];
-  const newN=ST.filter(x=>x.stage&&x.stage<=4).length, baseN=ST.filter(x=>x.stage&&x.stage>=5).length, freeN=N-newN-baseN;
-  const ops=i=>S.sopEdit?`<span class="shops"><button data-stepmv="${i}:-1" data-tip="Move the step left" ${i===0?'disabled':''}>‹</button><button data-stepmv="${i}:1" data-tip="Move the step right" ${i===N-1?'disabled':''}>›</button><button data-stepadd="${i}" data-tip="Insert your own step to the right">＋</button><button data-stepdel="${i}" data-tip="Remove the step" ${N<=2?'disabled':''}>×</button></span>`:'';
-  const nm=(i,f)=>S.sopEdit?`<span class="shname" contenteditable="true" data-rename="${i}:${f}" spellcheck="false">${esc(ST[i][f])}</span>`:esc(ST[i][f]);
-  let h=`<style>.pgrid,.states{grid-template-columns:150px repeat(${N},minmax(160px,1fr))}.pgrid>div:nth-child(${N+1}n){border-right:0}</style>
-    <div class="bpmn"><div class="bph"><h2>Deal SOP · ${esc(a.name)}</h2><span class="chip acc">${STAGE[e.s]}</span><span class="muted">${esc(a.city)}, ${a.st} · ${segBy(a.seg).name} · ${usd(a.acv)}</span></div>
-    <div class="loop"><span class="faint">action loop (Winograd–Flores):</span>${['request','promise','performance','acceptance'].map((x,i)=>`<span class="s ${i===loopPos?'on':''}">${x}</span>`).join('→')}<span class="faint">· a speech act is a message after which an obligation changed</span></div>
+  /* ===== C2 · воронка слева направо: рейка этапов =====
+     «Здесь просто воронка слева направо, сразу же под СОПом. И слева просто имена
+     и шарики» (Николай, 30.09, 17:00). Разведка: polish/C2-RESEARCH.md — никто
+     не просит человека рисовать стрелки; порядок задаётся положением этапа. */
+  const ART={1:['✉ first email','p'],2:['☎ 30-min demo','p'],3:['📄 offer in PandaDoc','p'],4:['✍ MSA in DocuSign','doc:d-msa'],5:['⎈ SLA report · invoice',null],6:['✉ renewal meeting',null]};
+  const isStuck=stuck(a,e,t);
+  const stState=i=>{const st=ST[i];
+    if(!st.stage)return ['own','your own step'];
+    if(st.stage<cur)return ['done','✓ passed'];
+    if(st.stage===cur)return isStuck?['stuck','stuck '+daysIn(e,t)+'d']:['now','here now'];
+    return ['next','not reached'];};
+  const selI=(S.sopStep!=null&&S.sopStep>=0&&S.sopStep<N)?S.sopStep:Math.max(0,ST.findIndex(x=>x.stage===cur));
+  /* узкое место — самый низкий КПД среди этапов, где кто-то вообще прошёл:
+     «визуально здесь надо что-то придумать, чтобы было понятно, где мы косячим» (14:31) */
+  const RS=ST.map((st,i)=>st.stage?stepYield(i,a):null).filter(y=>y&&y.inn).map(y=>y.r);
+  const minR=RS.length>1?Math.min.apply(null,RS):null;
+  const ins=(i,last)=>S.sopEdit?`<button class="rgap${last?' last':''}" data-stepadd="${i}" data-tip="${last?'Add a stage at the end':'Insert a stage here'}">＋</button>`:'';
+  const rail=`<div class="rail"><div class="rlab">the funnel · left to right</div>`+ST.map((st,i)=>{
+      const s=stState(i),y=st.stage?stepYield(i,a):null,bad=y&&y.inn&&(y.d<-.15||minR!=null&&y.r<=minR);
+      return `<div class="rst ${s[0]}${i===selI?' sel':''}" data-stepsel="${i}">${ins(i-1)}${i===N-1?ins(N-1,1):''}`
+        +`<span class="rsn">${S.sopEdit?`<span class="shname" contenteditable="true" data-rename="${i}:a" spellcheck="false">${esc(st.a)}</span>`:esc(st.a)}</span>`
+        +`<span class="rss">${esc(s[1])}</span>`
+        +(y&&!y.inn?`<span class="rsp">no deals passed here in 4 weeks</span>`
+           :y?`<span class="rsy"><i style="width:${Math.min(100,y.r*100)}%;background:${bad?'var(--down)':'var(--up)'}"></i></span><span class="rsp${bad?' ybad':''}">${int(y.inn)} → ${int(y.out)} · ${pct(y.r,0)}${bad?' ▼':''}</span>`
+           :st.stage?`<span class="rsp">base · Retention ${pct(formulaAt(S.t).ret)}</span>`
+                    :`<span class="rsp">your own step — no data yet</span>`)
+        +(S.sopEdit?`<span class="rsops"><span class="rgrip" data-tip="Drag to move the stage">⠿</span><button class="rdel" data-stepdel="${i}" data-tip="Remove the stage" ${N<=2?'disabled':''}>×</button></span>`:'')
+        +`</div>`;}).join('')+`</div>`;
+  /* выбранный этап — вся его начинка здесь, а не шестью строками в сетке:
+     «keep the node itself clean and move detailed settings into a sidebar» */
+  const SS=ART[(ST[selI]||{}).stage]||null, SST=stState(selI);
+  const strip=`<div class="rsel"><div class="rselh"><b>${esc((ST[selI]||{}).a||'—')}</b>`
+    +`<span class="faint">we: ${esc((ST[selI]||{}).b||'—')}</span>`
+    +`<span class="chip ${SST[0]==='stuck'?'down':SST[0]==='now'?'warn':'flat'}">${esc(SST[1])}</span>`
+    +(SS?`<button class="mf" ${SS[1]?`data-open="${SS[1]==='p'?'person:'+P[0].id:SS[1]}"`:''} data-tip="The artifact that moves at this stage — open it">${SS[0]}</button>`:'')
+    +`</div>${stepRuleCell(selI)}</div>`;
+  /* ===== шарики: кто за какой этап в ответе и где не сделал ===== */
+  const GL={down:'⚠',warn:'○',none:'·'};
+  const DOT=(k,open,tip)=>`<button class="dt ${k}" ${open?`data-open="${open}"`:''} data-tip="${esc(tip)}">${GL[k]||'●'}</button>`;
+  const prow=(av,nm,role,cells)=>`<div class="prow"><div class="pwho">${av}<span class="pnm">${esc(nm)}</span><span class="prole">${esc(role)}</span></div>`
+    +cells.map((c,i)=>`<div class="pc${i===selI?' sel':''}">${c}</div>`).join('')+`</div>`;
+  const cRows=P.map((p,pi)=>{const L=personLight(a,p,pi);
+    const cells=ST.map(st=>{
+      if(!st.stage||st.stage>cur)return DOT('none',null,'not reached');
+      if(st.stage<cur)return DOT('done','person:'+p.id,'done');
+      return DOT(L[0],'person:'+p.id,L[1]);});
+    return prow(face(p.nm,L[0]),p.nm,p.role+' · '+L[1],cells);}).join('');
+  const agIds=[];ST.forEach(st=>{if(st.ag&&st.ag!=='sign'&&agIds.indexOf(st.ag)<0)agIds.push(st.ag);});
+  let oRows=agIds.map(id=>{const g=agBy(id);if(!g)return '';
+    const sc=ASTATE[g.state][0],lbl=ASTATE[g.state][1].replace(/^\S+\s/,'');
+    const cells=ST.map(st=>{
+      if(st.ag!==id)return DOT('none',null,'not its stage');
+      if(st.stage&&st.stage<cur)return DOT('done','agent:'+id,'done');
+      if(!st.stage||st.stage===cur)return DOT(sc,'agent:'+id,lbl);
+      return DOT('none','agent:'+id,'not reached');});
+    return prow(agAv(id,sc),g.nm,'agent · '+lbl,cells);}).join('');
+  const signI=ST.findIndex(x=>x.stage===4);
+  if(signI>=0)oRows+=prow(face('Lisa','',true),'Lisa','signs · an agent cannot',
+    ST.map((st,i)=>i!==signI?DOT('none',null,'not her stage')
+      :cur>4?DOT('done','doc:d-msa','signed')
+      :cur===4?DOT('warn','doc:d-msa','waiting on her signature')
+      :DOT('none','doc:d-msa','not reached')));
+  /* «Зелёный, зелёный, красный — значит нет бай-ина. Ищем человека, который может
+     повлиять, добавляем его сюда» (25.09, 56:00) */
+  const bl=P.map((p,i)=>[p,personLight(a,p,i)]).filter(x=>x[1][0]==='down')[0];
+  const inf=(S.infl||{})[a.id];
+  const iRow=!bl?''
+    :!inf?`<div class="prow"><div class="pwho"><span class="pnm">Who can reach them</span><span class="prole">nobody added yet</span></div>`
+      +`<div class="pc" style="grid-column:span ${N};text-align:left;padding-left:4px"><button class="btn" data-influencer="${a.id}" data-tip="The agent will find someone who can reach this person">Find someone who can reach ${esc(bl[0].nm)}</button> <span class="faint" style="font-size:11px">a red dot means no buy-in: the move is not to push harder, but to come in through someone they listen to.</span></div></div>`
+    :prow(face(inf.nm),inf.nm,'reaches '+bl[0].nm+' · added by you',
+      ST.map(st=>st.stage===4?DOT('up',null,inf.why):DOT('none',null,'—')));
+  let h=`<div class="bpmn" style="--sn:${N}">
+    <div class="bph"><h2>Deal SOP · ${esc(a.name)}</h2><span class="chip acc">${STAGE[e.s]}</span><span class="muted">${esc(a.city)}, ${a.st} · ${segBy(a.seg).name} · ${usd(a.acv)}</span></div>
     <div class="sopbar">
       <span class="modesw"><button data-sopmode="0" aria-pressed="${!S.sopEdit}">Read</button><button data-sopmode="1" aria-pressed="${S.sopEdit}">Edit</button></span>
-      <span>${S.sopEdit?'Edit a step name right in its header. ‹ › move a step, ＋ inserts your own, × removes it. Below: what the agent checks at this step, how much freedom it has, and where that ends.':'This is the read view. To build or change the process, turn on Edit.'}</span>
-      ${S.sopEdit?`<button class="lnk" data-stepreset="1" data-tip="Back to the six original steps">reset the process</button>`:''}
+      <span>${S.sopEdit?'Rename a stage right on it. ⠿ drags it to another place, ＋ in the gap inserts one, × removes it.':'Six stages, left to right. Click one — below it: who runs it, how much freedom it has, what it checks.'}</span>
+      ${S.sopEdit?`<button class="lnk" data-stepreset="1" data-tip="Back to the six original stages">reset the funnel</button>`:''}
     </div>
-    ${!inF(a)?`<div class="outscope">${esc(a.name)} is outside the current scope${S.seg?' “'+esc(segBy(S.seg).name)+'”':''} — the percentages below are computed over its own segment “${esc(segBy(a.seg).name)}”, not over the scope.</div>`:''}
-    <div class="pgrid">
-      <div class="lh"><small>client ↑ · us ↓</small></div>${ST.map((st,i)=>`<div class="sh ${now(i)?'now':''}">${nm(i,'a')} / ${nm(i,'b')}${now(i)?' · now':''}${ops(i)}</div>`).join('')}
-      <div class="yh">Step yield<small style="display:block;color:var(--fg3);font-size:10px">over segment<br>${esc(segBy(a.seg).name)}</small></div>${ST.map((st,i)=>{const y=stepYield(i,a);
-        if(!st.stage)return `<div class="yc"><span class="faint" style="font-size:11px">new step</span></div>`;
-        if(!y){const R=formulaAt(S.t).ret;return `<div class="yc"><div class="ynum"><span>base</span><b>Retention ${pct(R)}</b></div></div>`;}
-        const bad=y.d<-.15;return `<div class="yc"><div class="ynum"><span>${int(y.inn)} → ${int(y.out)}</span><b class="${bad?'ybad':''}">${pct(y.r,0)}${bad?' ▼':''}</b></div><div class="ybar"><i style="width:${Math.min(100,y.r*100)}%;background:${bad?'var(--down)':'var(--up)'}"></i></div></div>`;}).join('')}
-      <div class="pool">Client · ${esc(a.name)} <small>BPMN pool · their people and their speech</small></div>
-      ${lanes.map((ln,pi)=>{const L=personLight(a,P[pi],pi);
-        return `<div class="lh"><span class="pl ${L[0]}" data-tip="${esc(L[1])}"></span>${esc(P[pi].nm)}<small>${P[pi].role} · ${esc(L[1])}</small></div>`+ln.map((x,i)=>`<div class="${cellCls(i)}">${x}</div>`).join('');}).join('')}
-      ${(()=>{const bl=P.map((p,i)=>[p,personLight(a,p,i)]).filter(x=>x[1][0]==='down')[0];
-        if(!bl)return '';
-        const inf=(S.infl||{})[a.id];
-        if(!inf)return `<div class="lh">Who can reach them<small>nobody added yet</small></div><div style="grid-column:span ${N}"><button class="btn" data-influencer="${a.id}" data-tip="The agent will find someone who can reach this person">Find someone who can reach ${esc(bl[0].nm)}</button> <span class="faint" style="font-size:11px">a red lane means no buy-in. The move is not to push harder, but to come in through someone they listen to.</span></div>`;
-        return `<div class="lh"><span class="pl up"></span>${esc(inf.nm)}<small>added by you · reaches ${esc(bl[0].nm)}</small></div>`+ST.map((st,i)=>`<div class="${cellCls(i)}">${st.stage===4?card('client',inf.nm,face(inf.nm),'request','introduces you to '+bl[0].nm+' · '+esc(inf.why),null):dash}</div>`).join('');})()}
-      <div class="iface lab">Interface<small class="faint" style="font-weight:400">meetings, email, documents</small></div>${MF.map((m,i)=>`<div class="iface ${cellCls(i)}">${m?`<button class="mf ${m[2]||''}" ${m[1]?`data-open="person:${m[1]}"`:''} data-tip="The connection: how it changed — open the conversation log">${m[0]}</button>`:''}</div>`).join('')}
-      <div class="pool">Us · Bobroff MSP <small>BPMN pool · agents and people</small></div>
-      <div class="lh">Agents<small>frontstage and backstage</small></div>${us0.map((x,i)=>`<div class="${cellCls(i)}">${x}</div>`).join('')}
-      <div class="lh">People and agents<small>only a human signs</small></div>${us1.map((x,i)=>`<div class="${cellCls(i)}">${x}</div>`).join('')}
-      <div class="lh">Step rule<small>${S.sopEdit?'editable':'what the agent checks'}</small></div>${ST.map((st,i)=>`<div class="${cellCls(i)}" style="gap:6px">${stepRuleCell(i)}</div>`).join('')}
-    </div>
+    ${!inF(a)?`<div class="outscope">${esc(a.name)} is outside the current scope${S.seg?' “'+esc(segBy(S.seg).name)+'”':''} — the percentages are computed over its own segment “${esc(segBy(a.seg).name)}”, not over the scope.</div>`:''}
+    ${rail}
+    ${strip}
+    <div class="pgh">who owes the move · one dot per stage · ⚠ blocked here · ○ waiting on them · ● moving</div>
+    ${cRows}${oRows}${iRow}
     ${fixPanel()}
-    <div class="states"><span class="faint" style="padding:0 8px">state of the account</span>${ST.map((st,i)=>`<span style="text-align:center" class="${now(i)?'cur':''}">${st.stage?STAGE[st.stage]:'your own step'}${now(i)?' ●':''}</span>`).join('')}
-      <span></span>${newN?`<span class="br" style="grid-column:span ${newN}">new: Reach × Conv × ACV</span>`:''}${baseN?`<span class="br" style="grid-column:span ${baseN}">base: Retention</span>`:''}${freeN?`<span class="br" style="grid-column:span ${freeN}">your own steps</span>`:''}</div>
     ${e.s===7?`<div class="note">✕ lost: ${esc(a.reason||'—')}</div>`:''}
-    <div class="bnote"><span style="color:var(--link);font-weight:600">Constraint on this deal:</span><span>${bright?'the signature is waiting on Tom Hale (pays). The move: answer the price objection — a $1,400/mo freelancer against $3,170/mo with an SLA and HIPAA.':stuck(a,e,S.t)?'stage “'+STAGE[e.s]+'”: silent for '+daysIn(e,S.t)+'d.':'none — the deal is moving.'}</span></div></div>`;
+    <div class="bnote"><span style="color:var(--link);font-weight:600">Constraint on this deal:</span><span>${bright?'the signature is waiting on Tom Hale (pays). The move: answer the price objection — a $1,400/mo freelancer against $3,170/mo with an SLA and HIPAA.':isStuck?'stage “'+STAGE[e.s]+'”: silent for '+daysIn(e,t)+'d.':'none — the deal is moving.'}</span></div>
+    <div class="bnote"><span class="faint" style="font-size:11px">The log of this deal is the feed below — every event of ${esc(a.name)} in one time.</span></div></div>`;
   return h;
 }
+
 /* =================== documents, messages, news, org =================== */
 function renderDoc(id){const d=DOCS[id],a=ACCBY[d.acc],st=S.docs[id]||{};const P=peopleOf(a);
   const isMSA=d.kind==='MSA',canSign=S.profile==='owner';
@@ -2434,7 +2512,7 @@ function ask(q){if(!q.trim())return;S.chat.push({u:1,t:esc(q)});
 
 /* =================== status bar & palette =================== */
 function renderStatus(){const alarms=AGENTS.filter(a=>a.state==='paused').length;
-  $('status').innerHTML=`<button class="it" style="color:var(--link);font-weight:600" data-do="focuscard">⚠ Conv — the constraint</button><span class="sp"></span><span class="it">sources 7/7 in sync</span><span class="it faint" data-tip="When this version was published. If it is older than what you expect, the page came from cache — press Cmd+Shift+R.">build Oct 5, 15:40</span><span class="it">${esc($('profile').selectedOptions[0].text)}</span>`;}
+  $('status').innerHTML=`<button class="it" style="color:var(--link);font-weight:600" data-do="focuscard">⚠ Conv — the constraint</button><span class="sp"></span><span class="it">sources 7/7 in sync</span><span class="it faint" data-tip="When this version was published. If it is older than what you expect, the page came from cache — press Cmd+Shift+R.">build Oct 5, 16:22</span><span class="it">${esc($('profile').selectedOptions[0].text)}</span>`;}
 let palSel=0;
 function openPal(){$('pal').hidden=false;$('palIn').value='';palSel=0;renderPal();$('palIn').focus();}
 function renderPal(){const q=$('palIn').value.toLowerCase();const r=allEntities().filter(e=>!q||(e.t+' '+e.ty).toLowerCase().includes(q)).slice(0,30);S.palR=r;
@@ -2469,7 +2547,7 @@ function openRef(k){
 }
 function logAdd(ag,ttl,st){(S.extraLogs=S.extraLogs||[]).push({ag,w:NOW,ttl,st});}
 document.addEventListener('click',e=>{
-  const b=e.target.closest('[data-open],[data-side],[data-tab],[data-close],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-step],[data-plus],[data-newchat],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-knobw],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepmv],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-skin],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-fmode],[data-dbsort],[data-dbmore],[data-dbkind],[data-slice],[data-mark],[data-note],[data-notecancel],[data-ent],[data-ef],[data-flow],[data-mail],[data-common],[data-importfacts],[data-nextbn],[data-influencer],[data-sim],#fDown,#addFact,#addNote');
+  const b=e.target.closest('[data-open],[data-side],[data-tab],[data-close],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-step],[data-plus],[data-newchat],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-knobw],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepmv],[data-stepsel],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-skin],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-fmode],[data-dbsort],[data-dbmore],[data-dbkind],[data-slice],[data-mark],[data-note],[data-notecancel],[data-ent],[data-ef],[data-flow],[data-mail],[data-common],[data-importfacts],[data-nextbn],[data-influencer],[data-sim],#fDown,#addFact,#addNote');
   if(!b)return;
   if(b.dataset.pal)$('pal').hidden=true;
   if(b.dataset.dense!==undefined){S.dense=b.dataset.dense==='1';renderPanel();return;}
@@ -2494,6 +2572,7 @@ document.addEventListener('click',e=>{
     const st=S.steps[i];S.steps.splice(i,1);toast(`The “${st.a}” step was removed from the process.`);renderEditorLight();return;}
   if(b.dataset.stepmv){const [i,d]=b.dataset.stepmv.split(':').map(Number);const j=i+d;
     if(j<0||j>=S.steps.length)return;const x=S.steps[i];S.steps[i]=S.steps[j];S.steps[j]=x;renderEditorLight();return;}
+  if(b.dataset.stepsel!==undefined){if(e.target.closest('.shname'))return;S.sopStep=+b.dataset.stepsel;renderEditorLight();return;}
   if(b.dataset.stepreset){S.steps=JSON.parse(JSON.stringify(STEPS0));toast('The process is back to its six original steps.');renderEditorLight();return;}
   if(b.dataset.setag!==undefined){const i=+b.dataset.setag;const opts=[...AGENTS.map(g=>g.id),'sign'];
     const cur=S.steps[i].ag;S.steps[i].ag=opts[(opts.indexOf(cur)+1)%opts.length];
@@ -2607,6 +2686,20 @@ document.addEventListener('input',e=>{
   if(e.target.dataset&&e.target.dataset.rename){const [i,f]=e.target.dataset.rename.split(':');
     const v=e.target.textContent.replace(/\s+/g,' ').trim();if(v)S.steps[+i][f]=v;}
 });
+/* перенос этапа воронки ручкой ⠿: draggable включается только при захвате за ручку,
+   иначе он отбирает выделение у contenteditable-имени */
+let DRAGI=null;
+document.addEventListener('mousedown',e=>{const g=e.target.closest&&e.target.closest('.rgrip');if(!g)return;const c=g.closest('.rst');if(c)c.draggable=true;});
+document.addEventListener('dragstart',e=>{const c=e.target.closest&&e.target.closest('.rst');if(!c||!c.draggable)return;
+  DRAGI=+c.dataset.stepsel;c.classList.add('dragging');if(e.dataTransfer){e.dataTransfer.effectAllowed='move';try{e.dataTransfer.setData('text/plain',String(DRAGI));}catch(_){}}});
+document.addEventListener('dragover',e=>{if(DRAGI==null)return;const c=e.target.closest&&e.target.closest('.rst');if(!c)return;e.preventDefault();c.classList.add('dropto');});
+document.addEventListener('dragleave',e=>{const c=e.target.closest&&e.target.closest('.rst');c&&c.classList.remove('dropto');});
+document.addEventListener('drop',e=>{if(DRAGI==null)return;const c=e.target.closest&&e.target.closest('.rst');if(!c)return;e.preventDefault();
+  const j=+c.dataset.stepsel;
+  if(j!==DRAGI&&S.steps[DRAGI]){const x=S.steps.splice(DRAGI,1)[0];S.steps.splice(j,0,x);S.sopStep=j;
+    toast(`The “${x.a}” stage moved to position ${j+1}.`);renderEditorLight();}
+  DRAGI=null;});
+document.addEventListener('dragend',()=>{DRAGI=null;document.querySelectorAll('.rst').forEach(x=>{x.draggable=false;x.classList.remove('dragging','dropto');});});
 document.addEventListener('change',e=>{if(e.target.id==='fStage'){S.stage=e.target.value;renderAll();}if(e.target.id==='fJob'){S.job=e.target.value;renderAll();}if(e.target.id==='fSt'){S.stF=e.target.value;renderAll();if(S.stF&&S.tab==='map'){const f=statesF.find(x=>x.abbr===S.stF);f&&zoomToFeature(f);}}if(e.target.name==='fseg'){S.seg=e.target.value||null;renderAll();}if(e.target.id==='fdown'){S.downOnly=e.target.checked;renderAll();}if(e.target.id==='fNew'){S.ef.newonly=e.target.checked;renderAll();}});
 addEventListener('resize',()=>{applyLayout();});
 $('ptabs').addEventListener('click',e=>{if(document.body.classList.contains('focus-mode')&&!e.target.closest('button')){S.pinFeed=true;document.body.classList.remove('focus-mode');}});
