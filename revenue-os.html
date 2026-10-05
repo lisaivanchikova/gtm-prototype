@@ -851,6 +851,34 @@ body.focus-mode .ptabs{cursor:pointer}
 .timeline .tl{min-width:86px;color:var(--fg3)}
 .statusbar .it.bld{font-size:10px;color:var(--fg3);opacity:.6;letter-spacing:.02em}
 
+/* Выбор недели календарём. Всплывает над строкой, потому что строка — у самого низа. */
+.timeline{position:relative}
+.timeline .tl{display:inline-flex;align-items:center;gap:5px;background:none;border:1px solid transparent;border-radius:6px;padding:2px 7px;color:var(--fg2);font-family:var(--mono);font-size:11px;cursor:pointer}
+.timeline .tl:hover{border-color:var(--border);color:var(--fg)}
+.timeline .tl[aria-expanded="true"]{border-color:var(--link);color:var(--fg)}
+.timeline .tl .cv{font-style:normal;font-size:9px;color:var(--fg3)}
+.wkpop{position:absolute;bottom:calc(100% + 7px);left:0;z-index:60;background:var(--editor);border:1px solid var(--border);border-radius:10px;box-shadow:0 12px 34px rgba(0,0,0,.45);padding:11px 12px;min-width:430px;font-family:var(--ui)}
+.wkh{display:flex;flex-direction:column;gap:2px;margin-bottom:9px;font-size:12.5px}
+.wkh .faint{font-size:10.5px}
+.wkcal{display:flex;gap:14px;align-items:flex-start}
+.wkm{display:flex;flex-direction:column;gap:3px;min-width:96px}
+.wkmn{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--fg3);margin-bottom:2px}
+.wk{display:flex;flex-direction:column;align-items:flex-start;gap:1px;background:none;border:1px solid transparent;border-radius:6px;padding:3px 7px;color:var(--fg2);font-size:11.5px;cursor:pointer;text-align:left;white-space:nowrap}
+.wk i{font-style:normal;font-size:9.5px;color:var(--fg3)}
+.wk:hover{border-color:var(--fg3);color:var(--fg)}
+.wk.on{border-color:var(--link);background:var(--accent-soft);color:var(--fg)}
+.wk.fc{opacity:.72}
+.wk.fc i{color:var(--link)}
+.wkq{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;padding-top:9px;border-top:1px solid var(--border)}
+.wkq button{background:none;border:1px solid var(--border);border-radius:12px;padding:2px 10px;color:var(--fg2);font-size:11px;cursor:pointer}
+.wkq button:hover{border-color:var(--fg3);color:var(--fg)}
+.wkq button.on{border-color:var(--link);color:var(--fg)}
+
+/* Строка обрезала всё, что из неё выходит, — и календарь был не кликабелен мышью,
+   хотя программный клик проходил. Обрезку оставляем только самой формуле. */
+.statusbar{overflow:visible}
+.statusbar .formula{overflow:hidden;min-width:0}
+
 </style>
 
 <div class="app" id="app">
@@ -1065,7 +1093,7 @@ function replyClass(txt,act){
   return null;}
 const MEET=[{id:'mt1',acc:'a0',who:'Dr. Jonathan Moss',w:38,when:'Thu 2:00 pm',ttl:'HIPAA dashboard demo \u00b7 30 min',st:['up','on the calendar']},
             {id:'mt2',acc:'a1',who:'Tom Hale',w:38,when:'not scheduled',ttl:'Price walkthrough: $1,400 freelancer vs $3,170 with an SLA',st:['warn','awaiting a yes']}];
-const BUILD='Oct 5, 17:56';   /* отметка сборки: единственное место, где она живёт */
+const BUILD='Oct 5, 18:05';   /* отметка сборки: единственное место, где она живёт */
 const S={t:NOW,seg:null,downOnly:false,sel:null,level:'segment',K:1,
   knob:{scout:2,qual:2,seller:2,pricer:1,service:1},profile:'owner',
   side:'tree',ent:'seg',agView:null,mapAcc:null,bn:0,sent:{},skin:'rev',ef:{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false},ptab:'market',job:'',stF:'',stage:'',primary:'map',source:null,orgOpen:false,sopAcc:'a0',tabs:[{id:'map',kind:'map',title:'Map'},{id:'sop',kind:'sop',title:'SOP'}],tab:'map',
@@ -1849,8 +1877,27 @@ function pickMoney(){
 }
 function renderFilters(){
   const note=S.t>=36?(S.t>NOW?'forecast with no changes · the cheap channel was switched on in W36':'the cheap channel was switched on in W36 → Conv ▼'):'before the cheap channel';
-  $('timebar').innerHTML=`<span class="tarrow"><button data-step="-1" aria-label="One week back">◄</button></span><span class="tarrow"><button data-step="1" aria-label="One week forward">►</button></span>
-<span class="tl">${S.t>NOW?'forecast · ':''}W${S.t} · ${wkd(S.t)}</span><span class="tnote" title="${note}">${note}</span>`;
+  /* Стрелки по неделе за клик — «а если надо посмотреть за прошлый год, листать
+     500 раз?» (Лиза, 05.10). Период выбирается в календаре. */
+  $('timebar').innerHTML=`<button class="tl" data-weekpick="1" aria-expanded="${!!S.wkOpen}" data-tip="Pick a week — the formula, the map and the feed recalculate to it">${S.t>NOW?'forecast · ':''}W${S.t} · ${wkd(S.t)} <i class="cv">▾</i></button><span class="tnote" title="${note}">${note}</span>${S.wkOpen?weekPopover():''}`;
+}
+/* Календарь недель по тому диапазону, который реально есть в модели. Недели вне его
+   не показываем вовсе: пустой календарь на год выглядел бы как ответ, не являясь им. */
+function weekPopover(){
+  const months=[];
+  for(let w=TMIN;w<=TMAX;w++){
+    const d=new Date(2026,8,14+(w-NOW)*7), k=d.getFullYear()+'-'+d.getMonth();
+    let m=months.find(x=>x.k===k);
+    if(!m){m={k,nm:DN[d.getMonth()]+' '+d.getFullYear(),ws:[]};months.push(m);}
+    m.ws.push(w);}
+  const q=(w,lbl)=>w>=TMIN&&w<=TMAX?`<button data-week="${w}" class="${w===S.t?'on':''}">${lbl}</button>`:'';
+  return `<div class="wkpop" role="dialog" aria-label="Pick a week">
+    <div class="wkh"><b>Pick a week</b><span class="faint">the model holds ${TMAX-TMIN+1} weeks · ${wkd(TMIN)} — ${wkd(TMAX)} 2026</span></div>
+    <div class="wkcal">${months.map(m=>`<div class="wkm"><div class="wkmn">${esc(m.nm)}</div>`
+      +m.ws.map(w=>`<button class="wk${w===S.t?' on':''}${w>NOW?' fc':''}" data-week="${w}">${esc(wkd(w))}<i>W${w}${w===NOW?' · now':w>NOW?' · forecast':''}</i></button>`).join('')
+      +`</div>`).join('')}</div>
+    <div class="wkq">${q(NOW,'now')}${q(NOW-4,'4 weeks back')}${q(TMIN,'earliest')}${q(TMAX,'end of forecast')}</div>
+  </div>`;
 }
 /* =================== SOP: service blueprint =================== */
 /* ===== ДОБАВЛЕНО: КПД шага, сбой, разбор и правка правил ===== */
@@ -2845,8 +2892,9 @@ function openRef(k){
 }
 function logAdd(ag,ttl,st){(S.extraLogs=S.extraLogs||[]).push({ag,w:NOW,ttl,st});}
 document.addEventListener('click',e=>{
-  const b=e.target.closest('[data-open],[data-side],[data-tab],[data-close],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-step],[data-plus],[data-newchat],[data-agundo],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-f],[data-freset],[data-knobw],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepmv],[data-stepsel],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-skin],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-fmode],[data-dbsort],[data-dbmore],[data-dbkind],[data-slice],[data-mark],[data-note],[data-notecancel],[data-ent],[data-mail],[data-common],[data-importfacts],[data-nextbn],[data-influencer],[data-sim],#fDown,#addFact,#addNote');
-  if(!b)return;
+  const b=e.target.closest('[data-open],[data-side],[data-tab],[data-close],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-step],[data-plus],[data-newchat],[data-agundo],[data-weekpick],[data-week],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-f],[data-freset],[data-knobw],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepmv],[data-stepsel],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-skin],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-fmode],[data-dbsort],[data-dbmore],[data-dbkind],[data-slice],[data-mark],[data-note],[data-notecancel],[data-ent],[data-mail],[data-common],[data-importfacts],[data-nextbn],[data-influencer],[data-sim],#fDown,#addFact,#addNote');
+  if(!b){if(S.wkOpen&&!e.target.closest('.wkpop')){S.wkOpen=false;renderFilters();}return;}
+  if(S.wkOpen&&!b.dataset.weekpick&&!b.dataset.week&&!e.target.closest('.wkpop')){S.wkOpen=false;renderFilters();}
   if(b.dataset.pal)$('pal').hidden=true;
   if(b.dataset.dense!==undefined){S.dense=b.dataset.dense==='1';renderPanel();return;}
   if(b.dataset.fmode){S.fmode=b.dataset.fmode;renderPanel();return;}
@@ -2871,6 +2919,8 @@ document.addEventListener('click',e=>{
       m.t=m.t.replace('<button class="lnk" '+mark,'<span class="faint">rolled back</span>');});
     S.chat.push({u:0,t:'Rolled back — '+esc(e.txt.split('.')[0])+'. The model is as it was, and the line is gone from the log.'});
     renderAll();return;}
+  if(b.dataset.weekpick){S.wkOpen=!S.wkOpen;renderFilters();return;}
+  if(b.dataset.week){S.t=+b.dataset.week;S.wkOpen=false;renderAll();return;}
   if(b.dataset.newchat){S.chat=[];renderAgent();return;}
   /* ===== ДОБАВЛЕНО: правка SOP ===== */
   if(b.dataset.stepadd!==undefined){const i=+b.dataset.stepadd;
