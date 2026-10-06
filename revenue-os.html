@@ -1195,7 +1195,7 @@ function replyClass(txt,act){
   return null;}
 const MEET=[{id:'mt1',acc:'a0',who:'Dr. Jonathan Moss',w:38,when:'Thu 2:00 pm',ttl:'HIPAA dashboard demo \u00b7 30 min',st:['up','on the calendar']},
             {id:'mt2',acc:'a1',who:'Tom Hale',w:38,when:'not scheduled',ttl:'Price walkthrough: $1,400 freelancer vs $3,170 with an SLA',st:['warn','awaiting a yes']}];
-const BUILD='Oct 6, 17:10';   /* отметка сборки: единственное место, где она живёт */
+const BUILD='Oct 6, 17:45';   /* отметка сборки: единственное место, где она живёт */
 const S={t:NOW,seg:null,downOnly:false,sel:null,level:'segment',K:1,
   knob:{scout:2,qual:2,seller:2,pricer:1,service:1},profile:'owner',
   side:'tree',ent:'seg',agView:null,mapAcc:null,bn:0,sent:{},skin:'rev',ef:{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false},ptab:'market',job:'',stF:'',stage:'',primary:'map',source:null,orgOpen:false,sopAcc:'a0',tabs:[{id:'map',kind:'map',ref:null,title:'Map'},{id:'acc',kind:'org',ref:'a0',title:'Account'},{id:'person',kind:'msg',ref:'p-hale',title:'Person'},{id:'flow',kind:'sop',ref:'a0',title:'Workflow'},{id:'doc',kind:'doc',ref:'d-msa',title:'Document'}],tab:'map',
@@ -2275,7 +2275,7 @@ function renderSOP(a){
   const inf=(S.infl||{})[a.id];
   const iRow=!bl?''
     :!inf?`<div class="prow"><div class="pwho"><span class="pnm">Who can reach them</span><span class="prole">nobody added yet</span></div>`
-      +`<div class="pc" style="grid-column:span ${N};text-align:left;padding-left:4px"><button class="btn" data-influencer="${a.id}" data-tip="The agent will find someone who can reach this person">Find someone who can reach ${esc(bl[0].nm)}</button> <span class="faint" style="font-size:11px">a red dot means no buy-in: the move is not to push harder, but to come in through someone they listen to.</span></div></div>`
+      +`<div class="pc" style="grid-column:span ${N};text-align:left;padding-left:4px"><button class="btn" data-influencer="${a.id}" data-tip="The agent will find someone who can reach this person">Find someone who can reach ${esc(bl[0].nm)}</button></div></div>`
     :prow(face(inf.nm),inf.nm,'reaches '+bl[0].nm+' · added by you',
       ST.map(st=>st.stage===4?DOT('up',null,inf.why):DOT('none',null,'—')));
   let h=`<div class="bpmn" style="--sn:${N}">
@@ -2389,7 +2389,7 @@ function renderAgentTab(id){const g=agBy(id),own=OURS.find(o=>o.id===g.owner);co
     <div class="hdr">Autonomy — how much freedom</div><div class="btns">${KNOB.map((k,i)=>`<button class="btn ${S.knob[id]===i?'pri':''}" data-knob="${id}:${i}">${k}</button>`).join('')}</div>
     <div class="hdr">Never-do — where that freedom ends</div><div class="paper">Never: ${STOPS[id][0]}.</div>
     ${g.state==='paused'?`<div class="btns"><button class="btn" data-tri="t-seller|resume|Resume">Put it back to work</button><span class="note">Stopped by a hard stop. ${esc(own.nm)} decides.</span></div>`:''}
-    <div class="hdr">Action log \u00b7 what it did without me</div><div class="facts">${logs.map(l=>`<div class="fact"><div class="grow"><div>${esc(l.ttl)}</div><div class="note">W${l.w}</div></div><span class="chip ${l.st[0]}">${esc(l.st[1])}</span></div>`).join('')||'<div class="note">No entries.</div>'}</div></div>`;}
+    <div class="hdr">Action log</div><div class="facts">${logs.map(l=>`<div class="fact"><div class="grow"><div>${esc(l.ttl)}</div><div class="note">W${l.w}</div></div><span class="chip ${l.st[0]}">${esc(l.st[1])}</span></div>`).join('')||'<div class="note">No entries.</div>'}</div></div>`;}
 function renderDraft(id){
   const B=BNS().find(x=>x.id===id)||bnCur(), D=B.draft;
   const per=personById(D.to)||{nm:'—',role:'—',title:''}, a=ACCBY[D.acc];
