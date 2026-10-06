@@ -52,7 +52,7 @@ input,select,textarea{font:inherit;color:var(--fg);background:var(--input);borde
 .gl{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;flex:none;color:var(--fg3)}
 .gl svg{width:100%;height:100%}
 .gl.up{color:var(--up)} .gl.warn{color:var(--warn)} .gl.down{color:var(--down)}
-.gl.agent{color:var(--agent)} .gl.agent.down{color:var(--down)} .gl.agent.warn{color:var(--warn)}
+.gl.agent{color:var(--flat)} .gl.agent.up{color:var(--up)} .gl.agent.down{color:var(--down)} .gl.agent.warn{color:var(--warn)}
 .gl.big{width:26px;height:26px} .gl.mid{width:21px;height:21px}
 .agentry{display:flex;flex-wrap:wrap;gap:6px;padding:8px 12px 0}
 .agentry button{height:26px;padding:0 10px;border:1px solid var(--border);border-radius:8px;font-size:11px;color:var(--fg2);display:flex;align-items:center;gap:6px}
@@ -127,7 +127,7 @@ q{quotes:"«" "»"}
 .av{flex:none;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;font-size:10px;font-weight:600;color:var(--fg2);background:transparent;border:1px solid var(--border);width:16px;height:16px}
 .av.hum{background:var(--human);border-color:var(--human);color:var(--title)}
 .av.sq{border-radius:4px}
-.av.bot{border-radius:4px;background:var(--agent);border-color:var(--agent);color:#fff}
+.av.bot{border-radius:4px;background:var(--flat);border-color:var(--flat);color:var(--editor)}
 .av.big{width:40px;height:40px;font-size:13px}
 .av.mid{width:28px;height:28px;font-size:11px}
 .av.lg{overflow:hidden;padding:2px;background:transparent}
@@ -139,7 +139,7 @@ q{quotes:"«" "»"}
 .av.pf.hum{background:var(--border);border-color:var(--human)}
 .naics{font-family:var(--mono);font-size:11px;color:var(--fg3)}
 .chip{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:0 6px;height:17px;border-radius:8px;border:1px solid currentColor;white-space:nowrap;letter-spacing:.02em}
-.chip.up{color:var(--up)} .chip.down{color:var(--down)} .chip.flat{color:var(--flat)} .chip.warn{color:var(--warn)} .chip.acc{color:var(--accent)} .chip.agent{color:var(--agent)}
+.chip.up{color:var(--up)} .chip.down{color:var(--down)} .chip.flat{color:var(--flat)} .chip.warn{color:var(--warn)} .chip.acc{color:var(--accent)} .chip.agent{color:var(--fg2)}
 .search{padding:6px 12px}
 .search input{width:100%}
 /* складывающиеся разделы дерева */
@@ -310,7 +310,7 @@ body.focus-mode .ptabs{cursor:pointer}
 .mkorg .ln{position:absolute;height:1px;background:var(--fg3);opacity:.7;transform-origin:0 50%}
 .mkorg .node.doc i{width:13px;height:16px;border-radius:4px 2px 2px 0;background:var(--fg3)}
 .mkorg .node.flow i{width:16px;height:16px;border-radius:4px;background:var(--fg3)}
-.mkorg .node.bot i{border-radius:4px;background:var(--agent)}
+.mkorg .node.bot i{border-radius:4px;background:var(--flat)}
 .mkorg .node.up i{background:var(--up)} .mkorg .node.down i{background:var(--down)} .mkorg .node.warn i{background:var(--warn)}
 .zbtn{position:absolute;right:10px;bottom:28px;display:flex;flex-direction:column;border:1px solid var(--border);border-radius:8px;overflow:hidden;background:var(--editor)}
 .zbtn button{width:28px;height:26px;text-align:center;font-size:13px;color:var(--fg2)}
@@ -339,7 +339,7 @@ body.focus-mode .ptabs{cursor:pointer}
 .card.miss .t{color:var(--fg)}
 .card.fc{border-style:dashed;opacity:.7}
 .card.doc{border-left:3px solid var(--st4)}
-.card.agentc{border-left:3px solid var(--agent)}
+.card.agentc{border-left:3px solid var(--border)}
 .card.humanc{border-left:3px solid var(--human)}
 .card.client{border-left:3px solid var(--fg3)}
 .act{font-size:11px;font-weight:600;letter-spacing:.03em;padding:0 5px;border-radius:4px;background:var(--hover);color:var(--fg2);align-self:flex-start}
@@ -736,7 +736,7 @@ body.focus-mode .ptabs{cursor:pointer}
 .agrow .agk{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding-left:26px;margin-top:3px}
 .agrow .cw{font-size:10px;color:var(--fg3);cursor:help}
 .agrow .stops{font-family:var(--mono);font-size:10px;color:var(--down);border:1px solid var(--down);border-radius:4px;padding:0 4px;cursor:help}
-.av.bot.ag{background:transparent;border:1px solid var(--agent);color:var(--agent);padding:2px}
+.av.bot.ag{background:transparent;border:1px solid var(--flat);color:var(--flat);padding:2px}
 .av.bot.ag svg{width:100%;height:100%}
 .av.bot.ag.down{border-color:var(--down);color:var(--down)}
 .av.bot.ag.warn{border-color:var(--warn);color:var(--warn)}
@@ -855,7 +855,7 @@ body.focus-mode .ptabs{cursor:pointer}
 .mkorg .node i{width:19px;height:19px;border-radius:0;background:none;border:0;color:var(--fg2);display:flex;align-items:center;justify-content:center}
 .mkorg .node i svg{width:19px;height:19px;display:block}
 .mkorg .node.doc i,.mkorg .node.flow i,.mkorg .node.bot i{width:19px;height:19px;border-radius:0;background:none}
-.mkorg .node.bot i{color:var(--agent)}
+.mkorg .node.bot i{color:var(--flat)}
 .mkorg .node.up i{background:none;color:var(--up)}
 .mkorg .node.down i{background:none;color:var(--down)}
 .mkorg .node.warn i{background:none;color:var(--warn)}
@@ -1196,7 +1196,7 @@ function replyClass(txt,act){
   return null;}
 const MEET=[{id:'mt1',acc:'a0',who:'Dr. Jonathan Moss',w:38,when:'Thu 2:00 pm',ttl:'HIPAA dashboard demo \u00b7 30 min',st:['up','on the calendar']},
             {id:'mt2',acc:'a1',who:'Tom Hale',w:38,when:'not scheduled',ttl:'Price walkthrough: $1,400 freelancer vs $3,170 with an SLA',st:['warn','awaiting a yes']}];
-const BUILD='Oct 6, 14:55';   /* отметка сборки: единственное место, где она живёт */
+const BUILD='Oct 6, 15:30';   /* отметка сборки: единственное место, где она живёт */
 const S={t:NOW,seg:null,downOnly:false,sel:null,level:'segment',K:1,
   knob:{scout:2,qual:2,seller:2,pricer:1,service:1},profile:'owner',
   side:'tree',ent:'seg',agView:null,mapAcc:null,bn:0,sent:{},skin:'rev',ef:{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false},ptab:'market',job:'',stF:'',stage:'',primary:'map',source:null,orgOpen:false,sopAcc:'a0',tabs:[{id:'map',kind:'map',ref:null,title:'Map'},{id:'acc',kind:'org',ref:'a0',title:'Account'},{id:'person',kind:'msg',ref:'p-hale',title:'Person'},{id:'flow',kind:'sop',ref:'a0',title:'Workflow'},{id:'doc',kind:'doc',ref:'d-msa',title:'Document'}],tab:'map',
@@ -2215,7 +2215,9 @@ function renderSOP(a){
     if(st.stage<cur)return ['done','✓ passed'];
     if(st.stage===cur)return isStuck?['stuck','stuck '+daysIn(e,t)+'d']:['now','here now'];
     return ['next','not reached'];};
-  const selI=(S.sopStep!=null&&S.sopStep>=0&&S.sopStep<N)?S.sopStep:Math.max(0,ST.findIndex(x=>x.stage===cur));
+  /* Начинка этапа «пускай всплывает только при нажатии на определённый шаг» (Лиза, 06.10).
+     Без выбора в области остаются две вещи: рейка сверху и таблица людей снизу. */
+  const selI=(S.sopStep!=null&&S.sopStep>=0&&S.sopStep<N)?S.sopStep:-1;
   /* узкое место — самый низкий КПД среди этапов, где кто-то вообще прошёл:
      «визуально здесь надо что-то придумать, чтобы было понятно, где мы косячим» (14:31) */
   const RS=ST.map((st,i)=>st.stage?stepYield(i,a):null).filter(y=>y&&y.inn).map(y=>y.r);
@@ -2234,8 +2236,8 @@ function renderSOP(a){
         +`</div>`;}).join('')+`</div>`;
   /* выбранный этап — вся его начинка здесь, а не шестью строками в сетке:
      «keep the node itself clean and move detailed settings into a sidebar» */
-  const SS=ART[(ST[selI]||{}).stage]||null, SST=stState(selI);
-  const strip=`<div class="rsel"><div class="rselh"><b>${esc((ST[selI]||{}).a||'—')}</b>`
+  const SS=selI<0?null:(ART[(ST[selI]||{}).stage]||null), SST=selI<0?['','']:stState(selI);
+  const strip=selI<0?'':`<div class="rsel"><div class="rselh"><b>${esc((ST[selI]||{}).a||'—')}</b>`
     +`<span class="faint">we: ${esc((ST[selI]||{}).b||'—')}</span>`
     +`<span class="chip ${SST[0]==='stuck'?'down':SST[0]==='now'?'warn':'flat'}">${esc(SST[1])}</span>`
     +(SS?`<button class="mf" ${SS[1]?`data-open="${SS[1]==='p'?'person:'+P[0].id:SS[1]}"`:''} data-tip="The artifact that moves at this stage — open it">${SS[0]}</button>`:'')
@@ -3278,7 +3280,8 @@ document.addEventListener('click',e=>{
     toast('Step inserted. Name it and assign who runs it.');renderEditorLight();return;}
   if(b.dataset.stepdel!==undefined){const i=+b.dataset.stepdel;if(S.steps.length<=2)return;
     const st=S.steps[i];S.steps.splice(i,1);toast(`The “${st.a}” step was removed from the process.`);renderEditorLight();return;}
-  if(b.dataset.stepsel!==undefined){if(e.target.closest('.shname'))return;S.sopStep=+b.dataset.stepsel;renderEditorLight();return;}
+  if(b.dataset.stepsel!==undefined){if(e.target.closest('.shname'))return;
+    const i=+b.dataset.stepsel; S.sopStep=(S.sopStep===i)?null:i; renderEditorLight();return;}
   if(b.dataset.stepreset){S.steps=JSON.parse(JSON.stringify(STEPS0));toast('The process is back to its six original steps.');renderEditorLight();return;}
   if(b.dataset.setag!==undefined){const i=+b.dataset.setag;const opts=[...AGENTS.map(g=>g.id),'sign'];
     const cur=S.steps[i].ag;S.steps[i].ag=opts[(opts.indexOf(cur)+1)%opts.length];
