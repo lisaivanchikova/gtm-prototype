@@ -1168,7 +1168,7 @@ function replyClass(txt,act){
   return null;}
 const MEET=[{id:'mt1',acc:'a0',who:'Dr. Jonathan Moss',w:38,when:'Thu 2:00 pm',ttl:'HIPAA dashboard demo \u00b7 30 min',st:['up','on the calendar']},
             {id:'mt2',acc:'a1',who:'Tom Hale',w:38,when:'not scheduled',ttl:'Price walkthrough: $1,400 freelancer vs $3,170 with an SLA',st:['warn','awaiting a yes']}];
-const BUILD='Oct 5, 21:35';   /* отметка сборки: единственное место, где она живёт */
+const BUILD='Oct 6, 11:50';   /* отметка сборки: единственное место, где она живёт */
 const S={t:NOW,seg:null,downOnly:false,sel:null,level:'segment',K:1,
   knob:{scout:2,qual:2,seller:2,pricer:1,service:1},profile:'owner',
   side:'tree',ent:'seg',agView:null,mapAcc:null,bn:0,sent:{},skin:'rev',ef:{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false},ptab:'market',job:'',stF:'',stage:'',primary:'map',source:null,orgOpen:false,sopAcc:'a0',tabs:[{id:'map',kind:'map',title:'Map'},{id:'sop',kind:'sop',title:'SOP'}],tab:'map',
@@ -2325,10 +2325,15 @@ function feedItems(tab){
   if(tab==='account'){
     const selD=S.sel&&S.sel.type==='doc'?S.sel.id:null;
     let items=Object.entries(DOCS).filter(([id,d])=>(selD?id===selD:(!selA||d.acc===selA.id))&&d.w<=Math.max(t,NOW)).map(([id,d])=>({src:d.src,ttl:`${ACCBY[d.acc].name}: ${d.ttl}`,mt:`<b>${SRC[d.src][0]}</b> · ${d.kind}<span class="act"> · ${d.act}</span>`,when:ago(d.w),open:'doc:'+id,av:logo(ACCBY[d.acc],'sq'),sig:(S.docs[id]&&S.docs[id].us)?false:(d.status[0]==='down'||d.status[0]==='warn'),status:S.docs[id]&&S.docs[id].us?['up','signed by us']:d.status,w:d.w}));
-    if(!selA&&!selD){const gen=ACC.filter(a=>!a.feat&&inF(a)&&momentum(a,t)<0).slice(0,14).map(a=>{const e=stateAt(a,t);const kind=e.s===3?['pandadoc',`Offer ${usd(a.acv)} opened, not signed`,'promise']:e.s===2?['pdf','Qualification questionnaire filled in, no reply','assertion']:e.s===1?['crm','First touch, no reply','request']:isActive(e)?['quickbooks',`Invoice ${a.payW?(t-a.payW)*7+5:5}d overdue`,'request']:['crm',`Lost: ${a.reason||'—'}`,'declaration'];return {src:kind[0],ttl:`${a.name}: ${kind[1]}`,mt:`<b>${SRC[kind[0]][0]}</b> · ${a.city}, ${a.st}<span class="act"> · ${kind[2]}</span>`,when:ago(e.w),open:'acc:'+a.id,av:logo(a,'sq'),sig:stuck(a,e,t),status:['down',stuck(a,e,t)?'silent '+daysIn(e,t)+'d':'▼'],w:e.w};});items=items.concat(gen);}
+    /* Документы заведены не у всех: у аккаунта без них строка состояния сделки — единственный лог. */
+    {const genSrc=(!selA&&!selD)?ACC.filter(a=>!a.feat&&inF(a)&&momentum(a,t)<0).slice(0,14):(selA&&!items.length&&stateAt(selA,t)?[selA]:[]);
+     const gen=genSrc.map(a=>{const e=stateAt(a,t);const kind=e.s===3?['pandadoc',`Offer ${usd(a.acv)} opened, not signed`,'promise']:e.s===2?['pdf','Qualification questionnaire filled in, no reply','assertion']:e.s===1?['crm','First touch, no reply','request']:isActive(e)?['quickbooks',`Invoice ${a.payW?(t-a.payW)*7+5:5}d overdue`,'request']:['crm',`Lost: ${a.reason||'—'}`,'declaration'];return {src:kind[0],ttl:`${a.name}: ${kind[1]}`,mt:`<b>${SRC[kind[0]][0]}</b> · ${a.city}, ${a.st}<span class="act"> · ${kind[2]}</span>`,when:ago(e.w),open:'acc:'+a.id,av:logo(a,'sq'),sig:stuck(a,e,t),status:['down',stuck(a,e,t)?'silent '+daysIn(e,t)+'d':'▼'],w:e.w};});items=items.concat(gen);}
     return items.sort((x,y)=>y.w-x.w);}
   if(tab==='people'){
-    let src=selA?[selA]:[BRIGHT,HALE,...ACC.filter(a=>!a.feat&&inF(a)&&momentum(a,t)<0).slice(0,8)];
+    /* Выбран человек — источником обязан стать ЕГО аккаунт, иначе его собственные
+       реплики не порождаются и лента пуста. «Почему-то лога нету» (Николай, 06.10, 08:20). */
+    const selP=S.sel&&S.sel.type==='person'?personById(S.sel.id):null, selPA=selP&&ACCBY[selP.acc];
+    let src=selPA?[selPA]:selA?[selA]:[BRIGHT,HALE,...ACC.filter(a=>!a.feat&&inF(a)&&momentum(a,t)<0).slice(0,8)];
     const out=[];for(const a of src){for(const x of peopleActs(a,Math.min(t,NOW))){if(!x.act)continue;if(S.sel&&S.sel.type==='person'&&S.sel.id!==x.p.id)continue;
       const sk=x.p.src==='LinkedIn'?'linkedin':x.p.src==='Aircall'?'aircall':x.p.src==='Teams'?'teams':x.p.src==='QuickBooks'?'quickbooks':'gmail';
       const rc=replyClass(x.txt,x.act),R=rc?RCLASS[rc]:null;
@@ -2352,6 +2357,14 @@ function feedItems(tab){
         mt:`<b class="due">get it to a conversation</b> · meeting · ${ACCBY[m.acc].name} · ${esc(m.when)}`,
         when:ago(m.w),open:'person:'+(m.acc==='a0'?'p-moss':'p-hale'),av:face(m.who),sig:true,status:m.st,
         acts:`<button class="ib" data-brief="${m.id}" data-tip="Pull together the context for this conversation">Briefing</button>`});}
+    /* Человек, с которым ещё не разговаривали, — не пустой экран, а строка «пока молчание».
+       Пустота читается как поломка: «ничего не происходит, непонятно» (Николай, 06.10, 08:20). */
+    if(selP&&!out.length&&selPA)
+      out.push({src:selP.src==='LinkedIn'?'linkedin':selP.src==='Aircall'?'aircall':'gmail',
+        ttl:`${selP.nm} — ${selP.role} — no conversation yet`,
+        mt:`<b>${esc(selPA.name)}</b> · ${esc(selP.title||'')}<span class="act"> · not connected</span>`,
+        when:'',open:'person:'+selP.id,av:face(selP.nm),role:selP.role,sig:false,
+        status:['flat','never written to']});
     return out;}
   if(tab==='channel'){
     const selA=S.sel&&S.sel.type==='acc'?S.sel.id:null;
