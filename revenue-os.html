@@ -1195,7 +1195,7 @@ function replyClass(txt,act){
   return null;}
 const MEET=[{id:'mt1',acc:'a0',who:'Dr. Jonathan Moss',w:38,when:'Thu 2:00 pm',ttl:'HIPAA dashboard demo \u00b7 30 min',st:['up','on the calendar']},
             {id:'mt2',acc:'a1',who:'Tom Hale',w:38,when:'not scheduled',ttl:'Price walkthrough: $1,400 freelancer vs $3,170 with an SLA',st:['warn','awaiting a yes']}];
-const BUILD='Oct 6, 17:45';   /* отметка сборки: единственное место, где она живёт */
+const BUILD='Oct 6, 18:15';   /* отметка сборки: единственное место, где она живёт */
 const S={t:NOW,seg:null,downOnly:false,sel:null,level:'segment',K:1,
   knob:{scout:2,qual:2,seller:2,pricer:1,service:1},profile:'owner',
   side:'tree',ent:'seg',agView:null,mapAcc:null,bn:0,sent:{},skin:'rev',ef:{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false},ptab:'market',job:'',stF:'',stage:'',primary:'map',source:null,orgOpen:false,sopAcc:'a0',tabs:[{id:'map',kind:'map',ref:null,title:'Map'},{id:'acc',kind:'org',ref:'a0',title:'Account'},{id:'person',kind:'msg',ref:'p-hale',title:'Person'},{id:'flow',kind:'sop',ref:'a0',title:'Workflow'},{id:'doc',kind:'doc',ref:'d-msa',title:'Document'}],tab:'map',
@@ -1693,7 +1693,7 @@ function allEntities(){
 /* Пять рабочих областей закреплены навсегда. «Они постоянно висят… области просто так
    не исчезают и не появляются» (Николай, 06.10, Telegram). Каждая помнит свой последний
    объект: «тот старый, на которого я до этого кликнул, он будет в этом view висеть» (20:12:40). */
-const VIEWOF={map:'map',today:'map',sop:'flow',camp:'flow',db:'acc',org:'acc',msg:'person',agent:'person',doc:'doc',draft:'doc',news:'doc'};
+const VIEWOF={map:'map',today:'map',sop:'flow',camp:'flow',db:'acc',org:'acc',msg:'person',agent:'person',ourp:'person',doc:'doc',draft:'doc',news:'doc'};
 function setView(kind,id){const v=VIEWOF[kind]; if(!v)return null;
   const tb=S.tabs.find(x=>x.id===v); if(v!=='map'){tb.kind=kind;tb.ref=id;} return v;}
 function openTab(kind,id,title){const v=setView(kind,id); if(!v)return; S.tab=v; renderEditor();}
@@ -1701,7 +1701,7 @@ function viewLabel(t){
   const cut=s=>String(s||'').split(' ')[0];
   if(t.id==='map')return ['Map',''];
   if(t.id==='acc')return ['Account', t.kind==='db'?(t.ref==='acc'?'all accounts':'all people'):(t.ref==='us'?'us':cut((ACCBY[t.ref]||{}).name))];
-  if(t.id==='person')return ['Person', t.kind==='agent'?cut((agBy(t.ref)||{}).nm):cut((personById(t.ref)||{}).nm)];
+  if(t.id==='person')return ['Person', t.kind==='agent'?cut((agBy(t.ref)||{}).nm):t.kind==='ourp'?cut((OURS.find(o=>o.id===t.ref)||{}).nm):cut((personById(t.ref)||{}).nm)];
   if(t.id==='flow')return ['Workflow', t.kind==='camp'?cut((segBy(t.ref)||{}).name):cut((ACCBY[t.ref]||{}).name)];
   return ['Document', t.kind==='draft'?'draft':t.kind==='news'?'fact':((DOCS[t.ref]||{}).kind||'')];}
 function renderTabs(){
@@ -1709,7 +1709,16 @@ function renderTabs(){
   $('tabs').innerHTML=S.tabs.map(t=>{const [nm,sub]=viewLabel(t);
     return `<div class="tabb" role="tab" aria-selected="${S.tab===t.id}"><button data-tab="${t.id}"><span class="ic">${ic[t.id]}</span> ${esc(nm)}${sub?`<span class="sub">${esc(sub)}</span>`:''}</button></div>`;}).join('');
 }
-function renderSource(t){if(t.kind==='org')return t.ref==='us'?renderOrg():renderAccView(ACCBY[t.ref]);
+function renderOurPerson(id){const o=OURS.find(x=>x.id===id);if(!o)return '<div class="note">Not found.</div>';
+  const ags=AGENTS.filter(a=>a.owner===id), steps=OURSIDE.filter(x=>x.nm===o.nm);
+  return `<div class="doc"><div class="doch">${face(o.nm,'big',true)}<div><h2>${esc(o.nm)}</h2>
+      <div class="muted">${esc(o.title)}${o.boss?' · reports to '+esc((OURS.find(x=>x.id===o.boss)||{}).nm||''):''}</div></div></div>
+    <div class="hdr">Answers for</div>
+    <div class="facts">${ags.map(a=>`<button class="fact" data-open="agent:${a.id}"><div class="grow"><div>${esc(a.nm)}</div><div class="note">${esc(a.title)}</div></div><span class="chip ${ASTATE[a.state][0]}">${ASTATE[a.state][1]}</span></button>`).join('')||'<div class="note">No agents.</div>'}</div>
+    <div class="hdr">Owns in the workflow</div>
+    <div class="facts">${steps.map(s=>`<div class="fact"><div class="grow"><div>${esc(STAGE[s.stage])}</div><div class="note">${esc(s.what)}</div></div></div>`).join('')||'<div class="note">No stage of its own.</div>'}</div></div>`;}
+function renderSource(t){if(t.kind==='ourp')return renderOurPerson(t.ref);
+  if(t.kind==='org')return t.ref==='us'?renderOrg():renderAccView(ACCBY[t.ref]);
   if(t.kind==='draft')return renderDraft(t.ref);if(t.kind==='doc')return renderDoc(t.ref);if(t.kind==='msg')return renderMsg(t.ref);if(t.kind==='news')return renderNews(t.ref);if(t.kind==='org')return renderOrg();if(t.kind==='agent')return renderAgentTab(t.ref);return '';}
 function renderEditor(){
   const t=S.tabs.find(x=>x.id===S.tab)||S.tabs[0];
@@ -1722,7 +1731,7 @@ function renderEditor(){
   }else{S.primary='src';S.source=t.id;
     /* Левая и лента идут за центром: «это просто дублирование», если они смотрят
        в разные стороны (Николай, 25.09). */
-    const follow={doc:'acc',msg:'ppl',news:'seg',agent:'ag',org:t.ref==='us'?'us':'acc',draft:'ppl'}[t.kind];
+    const follow={doc:'acc',msg:'ppl',news:'seg',agent:'ag',ourp:'ag',org:t.ref==='us'?'us':'acc',draft:'ppl'}[t.kind];
     if(follow)setEnt(follow);}
   renderTabs();
   if(!MAPEL)buildMapView();
@@ -2428,7 +2437,7 @@ function renderAccView(a){
       <div class="orgrow">${rest.map(card).join('')}</div></div>
     <div class="grp2">Workflow and its documents</div>${wf}</div>`;}
 function renderOrg(){
-  const card=(p,cls)=>`<button class="orgcard" data-open="${p.kind==='human'?'us':'agent:'+p.id}">${p.kind==='human'?face(p.nm,'mid',true):agAv(p.id,'mid')}<span class="grow"><b>${esc(p.nm)}</b><span class="r">${esc(p.title)}</span>${p.kind!=='human'?`<span class="r">${KNOB[S.knob[p.id]]} · ${esc(OURS.find(o=>o.id===p.owner).nm)} answers for it</span><span class="chip ${ASTATE[p.state][0]}">${ASTATE[p.state][1]}</span>`:''}</span></button>`;
+  const card=(p,cls)=>`<button class="orgcard" data-open="${p.kind==='human'?'ourp:'+p.id:'agent:'+p.id}">${p.kind==='human'?face(p.nm,'mid',true):agAv(p.id,'mid')}<span class="grow"><b>${esc(p.nm)}</b><span class="r">${esc(p.title)}</span>${p.kind!=='human'?`<span class="r">${KNOB[S.knob[p.id]]} · ${esc(OURS.find(o=>o.id===p.owner).nm)} answers for it</span><span class="chip ${ASTATE[p.state][0]}">${ASTATE[p.state][1]}</span>`:''}</span></button>`;
   return `<div class="org">    <div class="orgrow">${card(OURS[0])}</div><div class="orgline"></div>
     <div class="orgrow">${OURS.slice(1).map(p=>card(p)).join('')}</div><div class="orgline"></div>
     <div class="orgrow">${AGENTS.map(a=>card({...a,kind:'agent'})).join('')}</div>
@@ -3238,6 +3247,7 @@ function openRef(k){
   if(type==='news'){setEnt('seg');openTab('news',id,MARKET.find(n=>n.id===id).ttl.slice(0,28)+'…');renderAllButMap();return;}
   if(type==='sop'){S.sopAcc=id;S.sel={type:'acc',id};S.mapAcc=id;setView('org',id);openTab('sop',id);setEnt('flow');syncFilters();renderAllButMap();return;}
   if(type==='agent'){S.sel={type:'agent',id};setEnt('ag');openTab('agent',id,'Agent · '+agBy(id).nm);renderAllButMap();return;}
+  if(type==='ourp'){setEnt('ag');S.sel=null;openTab('ourp',id);renderAllButMap();return;}
   if(type==='us'){openTab('org','us','Us · people and agents');setEnt('us');S.sel=null;renderAllButMap();return;}
   if(type==='db'){S.dbKind=id;S.dbN=50;S.dbSort=null;openTab('db',id,'Database · '+(id==='acc'?'accounts':'people'));return;}
 }
