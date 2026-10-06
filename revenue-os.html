@@ -1196,7 +1196,7 @@ function replyClass(txt,act){
   return null;}
 const MEET=[{id:'mt1',acc:'a0',who:'Dr. Jonathan Moss',w:38,when:'Thu 2:00 pm',ttl:'HIPAA dashboard demo \u00b7 30 min',st:['up','on the calendar']},
             {id:'mt2',acc:'a1',who:'Tom Hale',w:38,when:'not scheduled',ttl:'Price walkthrough: $1,400 freelancer vs $3,170 with an SLA',st:['warn','awaiting a yes']}];
-const BUILD='Oct 6, 15:30';   /* отметка сборки: единственное место, где она живёт */
+const BUILD='Oct 6, 16:05';   /* отметка сборки: единственное место, где она живёт */
 const S={t:NOW,seg:null,downOnly:false,sel:null,level:'segment',K:1,
   knob:{scout:2,qual:2,seller:2,pricer:1,service:1},profile:'owner',
   side:'tree',ent:'seg',agView:null,mapAcc:null,bn:0,sent:{},skin:'rev',ef:{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false},ptab:'market',job:'',stF:'',stage:'',primary:'map',source:null,orgOpen:false,sopAcc:'a0',tabs:[{id:'map',kind:'map',ref:null,title:'Map'},{id:'acc',kind:'org',ref:'a0',title:'Account'},{id:'person',kind:'msg',ref:'p-hale',title:'Person'},{id:'flow',kind:'sop',ref:'a0',title:'Workflow'},{id:'doc',kind:'doc',ref:'d-msa',title:'Document'}],tab:'map',
@@ -2549,17 +2549,20 @@ function renderEcard(){
      открыто в центре, вместе с кнопкой «открыть то, что открыто». Лента — отделение
      сигнала от шума, описание объекта не сигнал. Остаётся только сводка среза,
      когда ничего не выбрано: она своего не повторяет. */
-  const t=S.t,sel=S.sel,tab=S.ptab;let h='';
+  const t=S.t,tab=S.ptab;
+  /* Карточка обязана соответствовать тому, что открыто. Выбор живёт дольше, чем раздел:
+     можно выбрать документ, а потом уйти в People — и карточка показывала бы документ
+     рядом с лентой речевых актов. Выбор учитывается, только если он той же природы,
+     что и лента под ним. */
+  const SELTAB={acc:['account','flow'],person:['people','flow'],doc:['account'],sop:['flow'],agent:['agents']};
+  const sel=(S.sel&&(SELTAB[S.sel.type]||[]).includes(tab))?S.sel:null;let h='';
   const pb=document.querySelector('.pbody');
   /* Карточку сняли в проходе 5 как дубль центра. После 30.09 центр при выборе узла
      не меняется, поэтому карточка — единственное место, где объект описан.
      Дубль остаётся только если человек сам открыл этот же объект рабочей областью. */
-  const csrc=S.source&&S.tabs.find(x=>x.id===S.source);
-  const dup=csrc&&sel&&(
-    (sel.type==='person'&&(csrc.kind==='msg'||csrc.kind==='draft')&&csrc.ref===sel.id)||
-    (sel.type==='acc'&&csrc.kind==='doc'&&DOCS[csrc.ref]&&DOCS[csrc.ref].acc===sel.id)||
-    (sel.type==='agent'&&csrc.kind==='agent'&&csrc.ref===sel.id));
-  if(dup){$('ecard').innerHTML='';$('ecard').hidden=true;if(pb)pb.classList.add('nocard');return;}
+  /* Правило «не дублировать центр» снято: области теперь постоянны, и карточка пряталась
+     бы почти всегда. «Карточка остаться, лог остаться, здесь просто идут сообщения
+     подряд с ним» (Николай, 06.10, 11:23). */
   $('ecard').hidden=false;if(pb)pb.classList.remove('nocard');
   const params=arr=>`<div class="params">${arr.map(([k,v])=>`<div>${k}<b>${v}</b></div>`).join('')}</div>`;
   if(sel&&sel.type==='acc'){const a=ACCBY[sel.id],e=stateAt(a,t),m=momentum(a,t);
