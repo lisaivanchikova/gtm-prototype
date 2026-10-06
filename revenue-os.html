@@ -246,7 +246,9 @@ body.focus-mode .ptabs{cursor:pointer}
 .tabb[aria-selected="true"]{background:var(--tab-on);color:var(--fg);border-top-color:var(--accent)}
 .tabb .x{width:18px;height:18px;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;color:var(--fg3);font-size:13px}
 .tabb .x:hover{background:var(--hover);color:var(--fg)}
-.tabb .ic{font-size:11px}
+.tabb .ic{display:inline-flex;width:14px;height:14px;vertical-align:-2px;color:var(--fg3)}
+.tabb .ic svg{width:14px;height:14px;display:block}
+.tabb button[aria-current],.tabb[aria-selected="true"] .ic{color:inherit}
 .crumbs[hidden]{display:none}
 .crumbs{height:24px;display:flex;align-items:center;gap:8px;padding-inline:12px;font-size:11px;color:var(--fg2);border-bottom:1px solid var(--border);flex:none;white-space:nowrap;overflow:hidden}
 .crumbs b{color:var(--fg);font-weight:600}
@@ -1225,7 +1227,7 @@ function replyClass(txt,act){
   return null;}
 const MEET=[{id:'mt1',acc:'a0',who:'Dr. Jonathan Moss',w:38,when:'Thu 2:00 pm',ttl:'HIPAA dashboard demo \u00b7 30 min',st:['up','on the calendar']},
             {id:'mt2',acc:'a1',who:'Tom Hale',w:38,when:'not scheduled',ttl:'Price walkthrough: $1,400 freelancer vs $3,170 with an SLA',st:['warn','awaiting a yes']}];
-const BUILD='Oct 6, 18:00';   /* отметка сборки: единственное место, где она живёт */
+const BUILD='Oct 6, 18:20';   /* отметка сборки: единственное место, где она живёт */
 const S={t:NOW,seg:null,downOnly:false,sel:null,level:'segment',K:1,
   knob:{scout:2,qual:2,seller:2,pricer:1,service:1},profile:'head',
   side:'tree',ent:'seg',agView:null,mapAcc:null,bn:0,sent:{},skin:'rev',ef:{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false},ptab:'market',job:'',stF:'',stage:'',primary:'map',source:null,orgOpen:false,sopAcc:'a0',tabs:[{id:'map',kind:'map',ref:null,title:'Map'},{id:'acc',kind:'org',ref:'a0',title:'Account'},{id:'person',kind:'msg',ref:'p-hale',title:'Person'},{id:'flow',kind:'sop',ref:'a0',title:'Workflow'},{id:'doc',kind:'doc',ref:'d-msa',title:'Document'}],tab:'map',
@@ -1393,6 +1395,9 @@ const GLYPH={
   /* ромб со стрелкой насквозь: «квадрат слишком похож на прямоугольник, можно взять
      ромб» (Николай, 05.10). Ромб — это шаг процесса, стрелка — что он ведёт дальше. */
   flow:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3.4 20.6 12 12 20.6 3.4 12z"/><path d="M7.8 12h8.4"/><path d="M13.8 9.8 16.2 12l-2.4 2.2"/></svg>',
+  /* У карты знака не было, и полоска вкладок рисовала текстовые символы мимо таблицы.
+     Шар с меридианом: карта — это место, а не род объекта, но знак ей тоже нужен. */
+  map:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17"/><ellipse cx="12" cy="12" rx="4" ry="8.5"/></svg>',
   segment:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3.5 20.5 8 12 12.5 3.5 8z"/><path d="M3.5 12.5 12 17l8.5-4.5M3.5 16.5 12 21l8.5-4.5"/></svg>'};
 /* Один вызов на все места. cls несёт состояние: up · warn · down · пусто. */
 function gl(kind,cls=''){return `<span class="gl ${kind} ${cls}">${GLYPH[kind]||GLYPH.person}</span>`;}
@@ -1755,7 +1760,10 @@ function viewLabel(t){
   if(t.id==='flow')return ['Workflow', t.kind==='camp'?cut((segBy(t.ref)||{}).name):cut((ACCBY[t.ref]||{}).name)];
   return ['Document', t.kind==='draft'?'draft':t.kind==='news'?'fact':((DOCS[t.ref]||{}).kind||'')];}
 function renderTabs(){
-  const ic={map:'◎',acc:'⌂',person:'☺',flow:'⎇',doc:'▤'};
+  /* Один знак на один тип, одинаковый везде (решение 8). Полоска вкладок держала
+     собственный набор текстовых символов — другой, чем на карте, в списках и
+     в карточках. «Почему тут иконки другие везде» (Лиза, 06.10). */
+  const ic={map:GLYPH.map,acc:GLYPH.account,person:GLYPH.person,flow:GLYPH.flow,doc:GLYPH.document};
   $('tabs').innerHTML=S.tabs.map(t=>{const [nm,sub]=viewLabel(t);
     return `<div class="tabb" role="tab" aria-selected="${S.tab===t.id}"><button data-tab="${t.id}"><span class="ic">${ic[t.id]}</span> ${esc(nm)}${sub?`<span class="sub">${esc(sub)}</span>`:''}</button></div>`;}).join('');
 }
@@ -2971,7 +2979,13 @@ function renderAgent(){
   if(S.agView==='today'){$('agbody').innerHTML=todayHTML();renderAgAsk();return;}
   if(S.agView==='alarm'){$('agbody').innerHTML=alarmHTML();renderAgAsk();return;}
   const p=S.profile,f=focusFor(p),tri=triageFor(p);
-  const who={owner:'job \u2014 grow revenue',sdr:'job \u2014 get my people to a signature'}[p];
+  /* Подпись агента — Core Job роли, по одной на каждую из пяти. После переименования
+     профиля owner → head здесь осталась старая пара и выдавала undefined. */
+  const who={head:'job \u2014 grow revenue',
+    sdr:'job \u2014 book a qualified meeting',
+    ae:'job \u2014 get an offer signed',
+    csm:'job \u2014 hand over without loss and get paid',
+    gtm:'job \u2014 keep the agents inside their rules'}[p]||'job \u2014 grow revenue';
   const me={owner:'Nikolai Bobrov',sdr:'Dana Whitfield'}[p];
   const turnA=(html)=>`<div class="turn"><div class="by"><span class="av bot">${ICONS.bot}</span>My agent <span class="faint">· ${who}</span></div><div class="bodyt">${html}</div></div>`;
   const nOpen=tri.filter(x=>!S.tri[x.id]).length;
