@@ -956,7 +956,6 @@ body.focus-mode .ptabs{cursor:pointer}
 .frow button.fx:hover{color:var(--fg)}
 .frow.fchk{cursor:pointer}
 .frow.fchk input{margin-left:auto}
-.sfilt .fhint{padding:0 12px 6px 12px;color:var(--fg3);font-size:10px}
 
 .dblink{display:block;width:100%;text-align:left;padding:10px 12px;margin-top:6px;background:none;border:0;
   border-top:1px solid var(--border);color:var(--accent);font:inherit;font-size:11px;cursor:pointer}
@@ -1196,7 +1195,7 @@ function replyClass(txt,act){
   return null;}
 const MEET=[{id:'mt1',acc:'a0',who:'Dr. Jonathan Moss',w:38,when:'Thu 2:00 pm',ttl:'HIPAA dashboard demo \u00b7 30 min',st:['up','on the calendar']},
             {id:'mt2',acc:'a1',who:'Tom Hale',w:38,when:'not scheduled',ttl:'Price walkthrough: $1,400 freelancer vs $3,170 with an SLA',st:['warn','awaiting a yes']}];
-const BUILD='Oct 6, 16:40';   /* отметка сборки: единственное место, где она живёт */
+const BUILD='Oct 6, 17:10';   /* отметка сборки: единственное место, где она живёт */
 const S={t:NOW,seg:null,downOnly:false,sel:null,level:'segment',K:1,
   knob:{scout:2,qual:2,seller:2,pricer:1,service:1},profile:'owner',
   side:'tree',ent:'seg',agView:null,mapAcc:null,bn:0,sent:{},skin:'rev',ef:{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false},ptab:'market',job:'',stF:'',stage:'',primary:'map',source:null,orgOpen:false,sopAcc:'a0',tabs:[{id:'map',kind:'map',ref:null,title:'Map'},{id:'acc',kind:'org',ref:'a0',title:'Account'},{id:'person',kind:'msg',ref:'p-hale',title:'Person'},{id:'flow',kind:'sop',ref:'a0',title:'Workflow'},{id:'doc',kind:'doc',ref:'d-msa',title:'Document'}],tab:'map',
@@ -1545,8 +1544,8 @@ const FFLD={
   dkind: {lbl:'Kind',   light:1,get:()=>S.ef.dkind||'',          set:v=>{S.ef.dkind=v;}},
   astate:{lbl:'State',  light:1,get:()=>S.ef.astate||'',         set:v=>{S.ef.astate=v;}},
   proc:  {lbl:'Process',light:1,keep:1,get:()=>S.ef.proc||'sale',set:v=>{S.ef.proc=v||'sale';}},
-  newonly:{lbl:'unverified facts only',hint:'the formula does not count them yet',type:'tog',get:()=>!!S.ef.newonly,set:v=>{S.ef.newonly=v;}},
-  down:   {lbl:'stuck or leaving only',hint:'▼ no movement, or a churn signal',type:'tog',get:()=>!!S.downOnly,set:v=>{S.downOnly=v;}}};
+  newonly:{lbl:'unverified facts only',hint:'while unconfirmed, these facts stay out of the formula',type:'tog',get:()=>!!S.ef.newonly,set:v=>{S.ef.newonly=v;}},
+  down:   {lbl:'stuck or leaving only',hint:'no movement for 8 days, or a churn signal',type:'tog',get:()=>!!S.downOnly,set:v=>{S.downOnly=v;}}};
 const FSET={seg:['seg','job','newonly'],acc:['seg','job','st','stage','down'],ppl:['role','src'],
             flow:['proc','stage'],doc:['dkind','seg'],ag:['astate'],us:['astate']};
 function filterBar(ent){
@@ -1560,8 +1559,7 @@ function filterBar(ent){
      Эталон — карточка Sourcing Hub: строка на фильтр, подпись слева, значение справа,
      × сбрасывает поле, Clear all сверху. Чипы столбиком занимали половину колонки. */
   const row=([k,f])=>{
-    if(f.type==='tog')return `<label class="frow fchk"><span class="fk">${esc(f.lbl)}</span><input type="checkbox" data-ftog="${k}" ${f.get()?'checked':''}></label>`
-      +(f.hint?`<div class="fhint">${esc(f.hint)}</div>`:'');
+    if(f.type==='tog')return `<label class="frow fchk"${f.hint?` data-tip="${esc(f.hint)}"`:''}><span class="fk">${esc(f.lbl)}</span><input type="checkbox" data-ftog="${k}" ${f.get()?'checked':''}></label>`;
     const opts=(FOPT[k]||(()=>[]))(), cur=String(f.get()), on=!f.keep&&!!f.get();
     return `<div class="frow"><span class="fk">${esc(f.lbl)}</span><select class="fv" data-fsel="${k}">`
       +opts.map(o=>`<option value="${esc(String(o[0]))}" ${cur===String(o[0])?'selected':''}>${esc(o[1])}</option>`).join('')
