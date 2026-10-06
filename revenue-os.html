@@ -1196,7 +1196,7 @@ function replyClass(txt,act){
   return null;}
 const MEET=[{id:'mt1',acc:'a0',who:'Dr. Jonathan Moss',w:38,when:'Thu 2:00 pm',ttl:'HIPAA dashboard demo \u00b7 30 min',st:['up','on the calendar']},
             {id:'mt2',acc:'a1',who:'Tom Hale',w:38,when:'not scheduled',ttl:'Price walkthrough: $1,400 freelancer vs $3,170 with an SLA',st:['warn','awaiting a yes']}];
-const BUILD='Oct 6, 14:20';   /* отметка сборки: единственное место, где она живёт */
+const BUILD='Oct 6, 14:55';   /* отметка сборки: единственное место, где она живёт */
 const S={t:NOW,seg:null,downOnly:false,sel:null,level:'segment',K:1,
   knob:{scout:2,qual:2,seller:2,pricer:1,service:1},profile:'owner',
   side:'tree',ent:'seg',agView:null,mapAcc:null,bn:0,sent:{},skin:'rev',ef:{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false},ptab:'market',job:'',stF:'',stage:'',primary:'map',source:null,orgOpen:false,sopAcc:'a0',tabs:[{id:'map',kind:'map',ref:null,title:'Map'},{id:'acc',kind:'org',ref:'a0',title:'Account'},{id:'person',kind:'msg',ref:'p-hale',title:'Person'},{id:'flow',kind:'sop',ref:'a0',title:'Workflow'},{id:'doc',kind:'doc',ref:'d-msa',title:'Document'}],tab:'map',
@@ -1679,8 +1679,9 @@ function renderSide(){
   if(S.side==='tree'){const cut=h.indexOf('<div class="grp2"');if(cut>0)h=h.slice(0,cut);
     /* Дерево он просил «отсюда куда-то либо в рабочее пространство перенести» (06.10, 05:22) —
        перенести, а не стереть. Полный список живёт таблицей в рабочей области, вход одной строкой. */
-    const dbk={seg:'acc',acc:'acc',ppl:'person',doc:'acc',flow:'acc'}[S.ent];
-    if(dbk)h+=`<button class="dblink" data-open="db:${dbk}">Everything as a table ↗</button>`;}
+    const dbk={seg:'acc',acc:'acc',ppl:'person',doc:'doc',flow:'acc'}[S.ent];
+    if(dbk)h+=`<button class="dblink" data-open="db:${dbk}">Everything as a table ↗</button>`;
+    else if(S.ent==='ag'||S.ent==='us')h+=`<button class="dblink" data-open="us">Our people and agents ↗</button>`;}
   $('side').innerHTML=h;
 }
 function allEntities(){
@@ -1718,7 +1719,7 @@ function renderEditor(){
     if(t.kind==='db')S.dbKind=t.ref;
     if(t.kind==='sop')S.sopAcc=t.ref;
     S.campSeg=t.kind==='camp'?t.ref:null;
-    setEnt({sop:'flow',camp:'ppl',db:S.dbKind==='person'?'ppl':'acc'}[t.kind]||S.ent);
+    setEnt({sop:'flow',camp:'ppl',db:S.dbKind==='person'?'ppl':S.dbKind==='doc'?'doc':'acc'}[t.kind]||S.ent);
   }else{S.primary='src';S.source=t.id;
     /* Левая и лента идут за центром: «это просто дублирование», если они смотрят
        в разные стороны (Николай, 25.09). */
@@ -2693,7 +2694,8 @@ function renderPanel(){
    то же решение, что у Attio, Clarify и Breakcold (приёмы 100, 75, 51). */
 const DBCOLS={
   acc:[['nm','Account'],['last','Last touch'],['touch','Wrote'],['stg','Stage'],['mv','Movement'],['acv','ACV'],['seg','Segment'],['loc','City, state']],
-  person:[['nm','Person'],['last','Last touch'],['acc','Account'],['role','Role in the deal'],['title','Title'],['src','Channel']]};
+  person:[['nm','Person'],['last','Last touch'],['acc','Account'],['role','Role in the deal'],['title','Title'],['src','Channel']],
+  doc:[['nm','Document'],['acc','Account'],['kind','Kind'],['stt','State'],['last','Age'],['src','Where it lives']]};
 /* «Писали» отвечает на работу №2: дотянуться, не задев тех, кому уже писали.
    Остывание — 30 дней после последнего касания, как у Skyp (период остывания перед повторным входом). */
 const COOL=30;
@@ -2707,6 +2709,13 @@ function dbRows(kind){
       mv:momentum(a,t),acv:a.acv,last:e?(t-e.w)*7:9999,touch:e?(t-e.w)*7:9999};});
     if(q)r=r.filter(x=>(x.nm+' '+x.loc+' '+x.seg+' '+x.stg+' '+touchState(x.touch)[0]).toLowerCase().includes(q));
     return r;}
+  if(kind==='doc'){
+    let r=Object.entries(DOCS).filter(([id,d])=>{const a=ACCBY[d.acc];return a&&inF(a)&&d.w<=Math.max(t,NOW);})
+      .map(([id,d])=>{const a=ACCBY[d.acc];return {id:'docnode:'+id,a,d,
+        nm:d.ttl.length>52?d.ttl.slice(0,52)+'…':d.ttl,acc:a.name,kind:d.kind,
+        stt:d.status?d.status[1]:'—',src:SRC[d.src]?SRC[d.src][0]:d.src,last:(Math.max(t,NOW)-d.w)*7};});
+    if(q)r=r.filter(x=>(x.nm+' '+x.acc+' '+x.kind+' '+x.stt).toLowerCase().includes(q));
+    return r;}
   let r=[];
   for(const a of base){const e=stateAt(a,t);
     for(const pp of peopleOf(a))r.push({id:'person:'+pp.id,a,p:pp,
@@ -2716,13 +2725,14 @@ function dbRows(kind){
 function renderDB(){
   const kind=DBCOLS[S.dbKind]?S.dbKind:'acc',cols=DBCOLS[kind];
   const sort=S.dbSort||{k:kind==='acc'?'acv':'nm',d:kind==='acc'?-1:1};
-  const total=ACC.filter(a=>stateAt(a,S.t)).length*(kind==='acc'?1:3);
+  const total=kind==='doc'?Object.keys(DOCS).length:ACC.filter(a=>stateAt(a,S.t)).length*(kind==='acc'?1:3);
   let rows=dbRows(kind);
   rows.sort((x,y)=>{const a=x[sort.k],b=y[sort.k];
     return (typeof a==='number'?(a-b):String(a).localeCompare(String(b),'ru'))*sort.d;});
   const n=S.dbN||50,page=rows.slice(0,n);
   const cell=(r,k)=>{
-    if(k==='nm')return `<td class="nm">${kind==='acc'?logo(r.a,'sq'):face(r.nm)}${esc(r.nm)}</td>`;
+    if(k==='nm')return `<td class="nm">${kind==='acc'?logo(r.a,'sq'):kind==='doc'?logo(r.a,'sq'):face(r.nm)}${esc(r.nm)}</td>`;
+    if(k==='stt')return `<td><span class="chip ${r.d&&r.d.status?r.d.status[0]:''}">${esc(r.stt)}</span></td>`;
     if(k==='mv')return `<td class="num ${mcls(r.mv)}">${arrow(r.mv)}</td>`;
     if(k==='acv')return `<td class="num">${usd(r.acv)}</td>`;
     if(k==='last')return `<td class="num">${r.last>=9999?'—':r.last+'d'}</td>`;
@@ -2730,10 +2740,10 @@ function renderDB(){
     if(k==='role')return `<td><span class="role">${esc(r.role)}</span></td>`;
     return `<td title="${esc(String(r[k]))}">${esc(String(r[k]))}</td>`;};
   $('dbview').innerHTML=
-    `<div class="dbh"><div class="r1"><h3>Database · ${kind==='acc'?'accounts':'people'}</h3>
+    `<div class="dbh"><div class="r1"><h3>Database · ${kind==='acc'?'accounts':kind==='doc'?'documents':'people'}</h3>
       <span class="cnt">showing ${int(page.length)} of ${int(rows.length)}${rows.length<total?` · filtered down from ${int(total)}`:''}</span>
-      <input id="dbQ" placeholder="${kind==='acc'?'Name, city, stage…':'Name, account, role…'}" value="${esc(S.dbQ||'')}">
-      <span class="pick"><button data-dbkind="acc" aria-pressed="${kind==='acc'}">accounts</button><button data-dbkind="person" aria-pressed="${kind==='person'}">people</button></span></div>
+      <input id="dbQ" placeholder="${kind==='acc'?'Name, city, stage…':kind==='doc'?'Title, account, kind…':'Name, account, role…'}" value="${esc(S.dbQ||'')}">
+      <span class="pick"><button data-dbkind="acc" aria-pressed="${kind==='acc'}">accounts</button><button data-dbkind="person" aria-pressed="${kind==='person'}">people</button><button data-dbkind="doc" aria-pressed="${kind==='doc'}">documents</button></span></div>
       <div class="note">The list on the left holds only what needs a move. Everything lives here; the filters on the left recalculate this table and the formula above it.</div></div>
     <table class="db"><thead><tr>${cols.map(([k,t])=>`<th data-dbsort="${k}">${t}${sort.k===k?` <span class="ar">${sort.d>0?'▲':'▼'}</span>`:''}</th>`).join('')}</tr></thead>
     <tbody>${page.map(r=>`<tr data-open="${r.id}">${cols.map(([k])=>cell(r,k)).join('')}</tr>`).join('')||`<tr><td colspan="${cols.length}" style="padding:16px;color:var(--fg3)">Nothing matches these filters.</td></tr>`}</tbody></table>
@@ -3210,6 +3220,8 @@ function openRef(k){
     openTab('draft',B.id,'Draft · '+(personById(B.draft.to)||{nm:''}).nm.split(' ').slice(-1)[0]);
     setEnt('ppl');S.sel={type:'person',id:B.draft.to};renderAllButMap();return;}
   if(type==='docnode'){const d=DOCS[id];S.mapAcc=d.acc;S.orgOpen=true;selectNode('doc',id);
+    /* С карты клик только подсвечивает; из списка или таблицы — открывает документ. */
+    if(S.tab!=='map'){openTab('doc',id);renderAllButMap();}
     if(ML&&MLREADY&&S.primary==='map')ML.flyTo({center:llOf(ACCBY[d.acc]),zoom:Math.max(ML.getZoom(),13),duration:700});return;}
   if(type==='acc'){selectAcc(ACCBY[id]);return;}
   if(type==='seg'){S.seg=S.seg===id?null:id;setEnt('seg');S.sel=null;S.level='segment';
