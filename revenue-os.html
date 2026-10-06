@@ -175,6 +175,14 @@ q{quotes:"«" "»"}
 .tdbn .s{font-size:11px;color:var(--fg2);margin-bottom:8px}
 .tdbn .btns{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 /* дериватив: только сведение, поэтому ни рамки, ни кнопок */
+.tddrill{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 0 8px;font-size:11px}
+.tddrill .k{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--fg3)}
+.tddrill .s{color:var(--fg3)}
+.tddrill .drill{font-size:11px;padding:2px 8px;border-radius:4px;border:1px solid var(--border);
+  background:none;color:var(--fg2);cursor:pointer}
+.tddrill .drill:hover{border-color:var(--accent);color:var(--fg)}
+.tddrill .drill.down{border-color:var(--down);color:var(--down)}
+.tddrill .drill.warn{border-color:var(--warn);color:var(--warn)}
 .tdnext{padding:0 0 10px;font-size:11px;color:var(--fg3)}
 .tdnext .k{display:block;font-size:10px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:3px}
 .tdnext ol{margin:0;padding-left:18px}
@@ -1109,6 +1117,13 @@ const AGENTS=[
   {id:'seller',nm:'Outreach',title:'correspondence, demos, follow-up',owner:'h-nik',works:'h-sdr',owns:[3],state:'paused'},
   {id:'pricer',nm:'Pricing',title:'assembles the offer and the price',owner:'h-nik',owns:[3],state:'awaiting'},
   {id:'service',nm:'Service',title:'onboarding, SLA, invoices',owner:'h-liza',owns:[5,6],state:'active'}];
+/* «Я кликаю в SDR, и например автоматизация не даёт нужного качества, сломались
+   агенты. Тогда я попадаю в агентов, и вижу, что здесь агенты сломаны» (Николай,
+   06.10, 23:01). Чтобы проваливаться от ограничения вниз, у агента должна быть роль,
+   в чьём отрезке процесса он работает. */
+const AGROLE={scout:'SDR',qual:'SDR',seller:'SDR',pricer:'AE',service:'CSM'};
+function agentsOfRole(r){return AGENTS.filter(a=>AGROLE[a.id]===r);}
+function roleBroken(r){return agentsOfRole(r).filter(a=>a.state==='paused'||a.state==='error'||a.state==='awaiting');}
 const KNOB=['Suggest','Approve','Auto'];
 const STOPS={scout:['never writes to anyone who opted out; \u2264 3 touches a week',0],qual:['never passes a deal on without an answer about price',0],seller:['never promises anything outside the catalogue',2],pricer:['a discount above 12 % goes to a human',1],service:['never cuts a client off for non-payment on its own',0]};
 const JOBS=[['','all jobs'],['hipaa','pass a HIPAA audit'],['ftc','meet FTC Safeguards'],['dfm','hand off IT entirely'],['price','cut the IT bill']];
@@ -1200,7 +1215,7 @@ function replyClass(txt,act){
   return null;}
 const MEET=[{id:'mt1',acc:'a0',who:'Dr. Jonathan Moss',w:38,when:'Thu 2:00 pm',ttl:'HIPAA dashboard demo \u00b7 30 min',st:['up','on the calendar']},
             {id:'mt2',acc:'a1',who:'Tom Hale',w:38,when:'not scheduled',ttl:'Price walkthrough: $1,400 freelancer vs $3,170 with an SLA',st:['warn','awaiting a yes']}];
-const BUILD='Oct 6, 17:25';   /* отметка сборки: единственное место, где она живёт */
+const BUILD='Oct 6, 17:35';   /* отметка сборки: единственное место, где она живёт */
 const S={t:NOW,seg:null,downOnly:false,sel:null,level:'segment',K:1,
   knob:{scout:2,qual:2,seller:2,pricer:1,service:1},profile:'owner',
   side:'tree',ent:'seg',agView:null,mapAcc:null,bn:0,sent:{},skin:'rev',ef:{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false},ptab:'market',job:'',stF:'',stage:'',primary:'map',source:null,orgOpen:false,sopAcc:'a0',tabs:[{id:'map',kind:'map',ref:null,title:'Map'},{id:'acc',kind:'org',ref:'a0',title:'Account'},{id:'person',kind:'msg',ref:'p-hale',title:'Person'},{id:'flow',kind:'sop',ref:'a0',title:'Workflow'},{id:'doc',kind:'doc',ref:'d-msa',title:'Document'}],tab:'map',
@@ -1540,6 +1555,7 @@ const FOPT={
   src:()=>[['','all'],['gmail','email'],['linkedin','LinkedIn'],['aircall','call'],['teams','meeting'],['quickbooks','invoice']],
   dkind:()=>[['','all']].concat([...new Set(Object.values(DOCS).map(d=>d.kind))].map(k=>[k,k])),
   astate:()=>[['','all'],['active','running'],['awaiting','waiting on a human'],['paused','stopped']],
+  arole:()=>[['','all roles']].concat([...new Set(Object.values(AGROLE))].map(r=>[r,r])),
   proc:()=>[['sale','Sale: interest → renewal'],['onb','Onboarding ≤ 7d'],['ren','Renewal and expansion']]};
 /* light — поле меняет только этот список и ленту; остальные пересчитывают формулу и карту */
 const FFLD={
@@ -1551,11 +1567,12 @@ const FFLD={
   src:   {lbl:'Channel',light:1,get:()=>S.ef.src||'',            set:v=>{S.ef.src=v;}},
   dkind: {lbl:'Kind',   light:1,get:()=>S.ef.dkind||'',          set:v=>{S.ef.dkind=v;}},
   astate:{lbl:'State',  light:1,get:()=>S.ef.astate||'',         set:v=>{S.ef.astate=v;}},
+  arole: {lbl:'Role',   light:1,get:()=>S.ef.arole||'',          set:v=>{S.ef.arole=v;}},
   proc:  {lbl:'Process',light:1,keep:1,get:()=>S.ef.proc||'sale',set:v=>{S.ef.proc=v||'sale';}},
   newonly:{lbl:'unverified facts only',hint:'while unconfirmed, these facts stay out of the formula',type:'tog',get:()=>!!S.ef.newonly,set:v=>{S.ef.newonly=v;}},
   down:   {lbl:'stuck or leaving only',hint:'no movement for 8 days, or a churn signal',type:'tog',get:()=>!!S.downOnly,set:v=>{S.downOnly=v;}}};
 const FSET={seg:['seg','job','newonly'],acc:['seg','job','st','stage','down'],ppl:['role','src'],
-            flow:['proc','stage'],doc:['dkind','seg'],ag:['astate'],us:['astate']};
+            flow:['proc','stage'],doc:['dkind','seg'],ag:['arole','astate'],us:['arole','astate']};
 function filterBar(ent){
   S.ef=S.ef||{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false};
   const keys=FSET[ent]||FSET.acc, allf=keys.map(k=>[k,FFLD[k]]).filter(x=>x[1]);
@@ -2519,7 +2536,7 @@ function feedItems(tab){
       return {src:'gmail',ttl:`${a?a.name:'—'} · ${d.who} — ${d.sub}`,
         mt:`<b>${esc(m.adr)}</b> · ${esc(m.kind)}`,
         when:ago(d.w),open:a?'acc:'+d.acc:null,av:a?logo(a,'sq'):`<span class="av sq">✉</span>`,sig:d.k!=='ok',status:d.k==='ok'?null:[c[1],c[0]],w:d.w,mail:d.mail};});}
-  if(tab==='agents'){const f=S.sel&&S.sel.type==='agent'?S.sel.id:null;return LOGS.concat(S.extraLogs||[]).filter(l=>(!f||l.ag===f)&&l.w<=Math.max(t,NOW)).sort((x,y)=>y.w-x.w).map(l=>({src:'agent',ttl:`${agBy(l.ag)?agBy(l.ag).nm:'A human'}: ${l.ttl}`,mt:`answered for by <b>${esc(OURS.find(o=>o.id===(agBy(l.ag)||{owner:'h-nik'}).owner).nm)}</b> · autonomy: ${agBy(l.ag)?KNOB[S.knob[l.ag]]:'—'}`,when:ago(l.w),open:'agent:'+l.ag,av:agAv(l.ag),sig:true,status:l.st}));}
+  if(tab==='agents'){const f=S.sel&&S.sel.type==='agent'?S.sel.id:null,rf=S.ef&&S.ef.arole;return LOGS.concat(S.extraLogs||[]).filter(l=>(!f||l.ag===f)&&(!rf||AGROLE[l.ag]===rf)&&l.w<=Math.max(t,NOW)).sort((x,y)=>y.w-x.w).map(l=>({src:'agent',ttl:`${agBy(l.ag)?agBy(l.ag).nm:'A human'}: ${l.ttl}`,mt:`answered for by <b>${esc(OURS.find(o=>o.id===(agBy(l.ag)||{owner:'h-nik'}).owner).nm)}</b> · autonomy: ${agBy(l.ag)?KNOB[S.knob[l.ag]]:'—'}`,when:ago(l.w),open:'agent:'+l.ag,av:agAv(l.ag),sig:true,status:l.st}));}
 }
 /* Работа №1 кончается тем, что «список под тезис отобран». До сих пор этот список жил
    только как временное состояние фильтров и исчезал при перезагрузке. Срез — сохранённая
@@ -2815,6 +2832,12 @@ function todayHTML(){
       <span class="k">The constraint${L.length>1?` · ${i+1} of ${L.length}`:''}</span>
       <div class="t">${esc(B.t)}</div>
       <div class="s">${esc(B.d)}</div>
+      ${B.role?(()=>{const brk=roleBroken(B.role),ag=B.agent?agBy(B.agent):null;
+        return `<div class="tddrill"><span class="k">sits with</span>`
+          +`<button class="drill" data-role="${B.role}">${B.role}</button>`
+          +(brk.length?`<span class="s">${brk.length} of ${agentsOfRole(B.role).length} agents need a human</span>`:`<span class="s">agents running clean</span>`)
+          +(ag?`<button class="drill ${ASTATE[ag.state][0]}" data-open="agent:${ag.id}">${esc(ag.nm)}</button>`:'')
+          +`</div>`;})():''}
       <div class="btns">${(B.draft?[['Open the draft','open:draft:'+B.id],['Show it on the map','showtx']]
         :[['Open the Brightline SOP','open:sop:a0'],['Show it on the map','showtx']])
         .map(([t,k],j)=>`<button class="${j===0?'btn pri':'lnk'}" data-do="${k}">${t}</button>`).join('')}</div>
@@ -2889,19 +2912,19 @@ function priceLead(){const a=ACC.filter(x=>x.seg==='price'&&stateAt(x,S.t)&&inF(
 function BNS(){
   const pl=priceLead(), plp=pl?peopleOf(pl):[];
   return [
-  {id:'bn-hale',m:'ACV',money:38000,
+  {id:'bn-hale',role:'AE',agent:null,m:'ACV',money:38000,
    t:'The Brightline $38K signature is held by Tom Hale — he pays',
    d:'The biggest open deal. Dr. Moss will not sign without his yes, and the objection is “$1,400 to a freelancer against $3,170 with an SLA”.',
    draft:{to:'p-hale',ch:'email',acc:'a0',
      subj:'Re: 14 seats — what $3,170 covers that a freelancer does not',
      body:'Tom, here is the plain arithmetic.\n\nA freelancer at $1,400/mo is one person\u2019s time, with no cover and no committed response time.\nOur $3,170/mo is 24/7 with a 99.5 % SLA, a HIPAA access log, and a ready package for the November audit.\n\nOne failed audit costs more than a year of the difference. Happy to walk through the numbers in 20 minutes on Thursday — or send a one-pager instead, whichever suits you.'}},
-  {id:'bn-reach',m:'Reach',money:0,
+  {id:'bn-reach',role:'SDR',agent:'seller',m:'Reach',money:0,
    t:`Price-first: ${int(31787)} accounts, 0.2 % reach — we are barely touching it`,
    d:'The largest segment by account count and the cheapest way in. I pulled the first one: who decides, who pays, and where we found them.',
    draft:{to:plp[0]?plp[0].id:'p-moss',ch:'WhatsApp',acc:pl?pl.id:'a0',
      subj:`WhatsApp · ${plp[0]?plp[0].nm:''} (decides) and ${plp[2]?plp[2].nm:''} (pays)`,
      body:(plp[0]?plp[0].nm.split(' ')[0]:'')+', hello. I run IT for clinics and offices in your metro.\n\nOne question: if your IT vendor vanished for a week tomorrow, what stops first?\n\nIf it is patient intake, I can show how that is covered for $3,170/mo with a 15-minute response. If nothing stops, I will not take your time.'}},
-  {id:'bn-qual',m:'Conv',money:0,
+  {id:'bn-qual',role:'SDR',agent:'qual',m:'Conv',money:0,
    t:'The Qualifier has been letting Price-first through unscreened since W36',
    d:'The check “a budget or a price range is named” is off and the dial sits on Auto. That is where the Conv drop comes from.',
    fix:true}];
@@ -3325,7 +3348,7 @@ function openRef(k){
 }
 function logAdd(ag,ttl,st){(S.extraLogs=S.extraLogs||[]).push({ag,w:NOW,ttl,st});}
 document.addEventListener('click',e=>{
-  const b=e.target.closest('[data-open],[data-side],[data-tab],[data-close],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-feeddown],[data-plus],[data-newchat],[data-agundo],[data-weekpick],[data-week],[data-calm],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-f],[data-freset],[data-fclr],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepsel],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-fmode],[data-dbsort],[data-dbmore],[data-dbkind],[data-camp],[data-campsel],[data-campoff],[data-inwin],[data-stuck],[data-mailclear],[data-mark],[data-note],[data-notecancel],[data-ent],[data-mail],[data-common],[data-importfacts],[data-nextbn],[data-influencer],[data-sim],#fDown,#addFact,#addNote');
+  const b=e.target.closest('[data-open],[data-side],[data-tab],[data-close],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-feeddown],[data-plus],[data-newchat],[data-agundo],[data-weekpick],[data-week],[data-calm],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-f],[data-freset],[data-fclr],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepsel],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-fmode],[data-dbsort],[data-dbmore],[data-dbkind],[data-camp],[data-campsel],[data-campoff],[data-inwin],[data-stuck],[data-mailclear],[data-mark],[data-note],[data-notecancel],[data-ent],[data-mail],[data-common],[data-importfacts],[data-nextbn],[data-influencer],[data-sim],[data-role],#fDown,#addFact,#addNote');
   if(!b){if(S.wkOpen&&!e.target.closest('.wkpop')){S.wkOpen=false;renderFilters();}return;}
   if(S.wkOpen&&!b.dataset.weekpick&&!b.dataset.week&&!b.dataset.calm&&!e.target.closest('.wkpop')){S.wkOpen=false;renderFilters();}
   if(b.dataset.pal)$('pal').hidden=true;
@@ -3435,6 +3458,9 @@ document.addEventListener('click',e=>{
     if(wide)renderAll();else{renderSide();renderPanel();}return;}
   if(b.dataset.mail){S.mail=b.dataset.mail;S.ptab='channel';renderSide();renderPanel();return;}
   if(b.dataset.side){if(S.side===b.dataset.side&&S.layout.side){S.layout.side=false;}else{S.side=b.dataset.side;S.layout.side=true;}applyLayout();renderActivity();renderSide();return;}
+  /* Провал от ограничения к роли: раздел агентов, сузленный до её агентов. */
+  if(b.dataset.role){S.ef=S.ef||{};S.ef.arole=b.dataset.role;S.sel=null;setEnt('ag');renderAll();
+    toast('Agents of the '+b.dataset.role+' — the broken ones are flagged.');return;}
   if(b.dataset.tab){S.tab=b.dataset.tab;renderEditor();return;}
   /* Закрывать нечего: пять областей постоянны. */
   if(b.dataset.clearsel){S.sel=null;renderAll();return;}
