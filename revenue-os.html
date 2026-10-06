@@ -1260,7 +1260,7 @@ function replyClass(txt,act){
   return null;}
 const MEET=[{id:'mt1',acc:'a0',who:'Dr. Jonathan Moss',w:38,when:'Thu 2:00 pm',ttl:'HIPAA dashboard demo \u00b7 30 min',st:['up','on the calendar']},
             {id:'mt2',acc:'a1',who:'Tom Hale',w:38,when:'not scheduled',ttl:'Price walkthrough: $1,400 freelancer vs $3,170 with an SLA',st:['warn','awaiting a yes']}];
-const BUILD='Oct 6, 18:45';   /* отметка сборки: единственное место, где она живёт */
+const BUILD='Oct 6, 19:30';   /* отметка сборки: единственное место, где она живёт */
 const S={t:NOW,seg:null,downOnly:false,sel:null,level:'segment',K:1,
   knob:{scout:2,qual:2,seller:2,pricer:1,service:1},profile:'head',
   side:'tree',ent:'seg',agView:null,mapAcc:null,bn:0,sent:{},skin:'rev',ef:{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false},ptab:'market',job:'',stF:'',stage:'',primary:'map',source:null,orgOpen:false,sopAcc:'a0',tabs:[{id:'map',kind:'map',ref:null,title:'Map'},{id:'acc',kind:'org',ref:'a0',title:'Account'},{id:'person',kind:'msg',ref:'p-hale',title:'Person'},{id:'flow',kind:'sop',ref:'a0',title:'Workflow'},{id:'doc',kind:'doc',ref:'d-msa',title:'Document'}],tab:'map',
@@ -1835,7 +1835,7 @@ function renderEditor(){
   $('mapwrap').style.display=S.primary==='map'?'':'none';
   $('sopview').style.display=S.primary==='sop'?'':'none';
   $('dbview').style.display=S.primary==='db'?'block':'none';
-  if(S.primary==='sop')$('sopview').innerHTML=S.campSeg?renderCamp(S.campSeg):renderSOP(ACCBY[S.sopAcc]);
+  if(S.primary==='sop')paintCentre();
   else if(S.primary==='db')renderDB();
   else renderMap();
   const src=S.source&&S.tabs.find(x=>x.id===S.source);
@@ -3085,7 +3085,9 @@ function renderAgent(){
     ae:'job \u2014 get an offer signed',
     csm:'job \u2014 hand over without loss and get paid',
     gtm:'job \u2014 keep the agents inside their rules'}[p]||'job \u2014 grow revenue';
-  const me={owner:'Nikolai Bobrov',sdr:'Dana Whitfield'}[p];
+  /* Профилей пять, людей в OURS пять, но это разные пятёрки: AE и GTM Eng — роли без
+     своего человека. Выдумывать им имя нельзя, поэтому подписываемся ролью. */
+  const me={head:'Nikolai Bobrov',sdr:'Dana Whitfield',csm:'Ops director'}[p]||WHOM[p]||'Me';
   const turnA=(html)=>`<div class="turn"><div class="by"><span class="av bot">${ICONS.bot}</span>My agent <span class="faint">· ${who}</span></div><div class="bodyt">${html}</div></div>`;
   const nOpen=tri.filter(x=>!S.tri[x.id]).length;
   $('agbody').innerHTML=turnA(`<span>The thing that matters right now is one constraint. The rest can wait.</span>
@@ -3445,7 +3447,7 @@ function ask(q){if(!q.trim())return;S.chat.push({u:1,t:esc(q)});
       +(sc.can.length?`<div class="note" style="margin-top:6px">From here I can: ${sc.can.map(esc).join(' · ')}. Tell me and I change the model, not the wording.</div>`:'')});
     renderAll();agScroll();return;}
   const ed=agentEdit(q);                       /* E2: сначала правка модели */
-  if(ed){S.chat.push({u:0,t:ed});renderAll();agScroll();return;}
+  if(ed){S.chat.push({u:0,t:typeof ed==='string'?ed:ed.t});renderAll();agScroll();return;}
   const rich=answerRich(q);
   S.chat.push(rich?{u:0,t:rich.t}:{u:0,t:esc(answer(q))});renderAgent();agScroll();}
 function agScroll(){const b=$('agbody');if(!b)return;const turns=b.querySelectorAll('.turn');
@@ -3721,7 +3723,10 @@ function alarmHTML(){
     <span class="d">From outreach@bobroff-msp.io. The never-do fired on a law (CAN-SPAM), so the agent stopped without asking. Owner paged: Nikolai Bobrov, push Sep 22, 14:05.</span>
     <div class="btns"><button class="btn" data-open="agent:seller">Review it</button><button class="lnk" data-tri="t-seller|resume|Resume">Put it back to work</button></div></div>`;}
 function renderAll(){renderFormula();renderFilters();renderActivity();renderSide();renderEditorLight();renderPanel();renderAgent();renderStatus();}
-function renderEditorLight(){if(S.primary==='map')renderMap();else if(S.primary==='db')renderDB();else $('sopview').innerHTML=renderSOP(ACCBY[S.sopAcc]);const src=S.source&&S.tabs.find(x=>x.id===S.source);if(src&&src.kind!=='msg')$('view2').innerHTML=renderSource(src);renderTabs();renderCrumbs();}
+/* Одно правило — одно место. Раньше центр рисовали двое, и лёгкий путь не знал
+   про кампанию: разговор с агентом сбрасывал её на СОП. */
+function paintCentre(){$('sopview').innerHTML=S.campSeg?renderCamp(S.campSeg):renderSOP(ACCBY[S.sopAcc]);}
+function renderEditorLight(){if(S.primary==='map')renderMap();else if(S.primary==='db')renderDB();else paintCentre();const src=S.source&&S.tabs.find(x=>x.id===S.source);if(src&&src.kind!=='msg')$('view2').innerHTML=renderSource(src);renderTabs();renderCrumbs();}
 
 applyLayout();
 if(S.layout.panelRight)document.querySelector('.g3').classList.remove('hgut');
