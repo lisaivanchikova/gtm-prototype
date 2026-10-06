@@ -939,6 +939,23 @@ body.focus-mode .ptabs{cursor:pointer}
 .tabb[aria-selected="true"] button .sub{color:var(--fg2)}
 .wfrow{margin-bottom:6px}
 .wfrow .row.sub .nm{padding-left:14px;color:var(--fg2)}
+
+/* Фильтры: одна строка на поле — подпись слева, значение справа, × сбрасывает.
+   Образец — карточка FILTERS в Lusin Sourcing Hub (кадр shots-05-10-walk2/t190.jpg). */
+.sfilt .hdr{display:flex;align-items:center;justify-content:space-between;font-size:10px;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--fg3);padding:10px 12px 6px}
+.sfilt .fclr{background:none;border:0;color:var(--accent);font:inherit;font-size:11px;cursor:pointer;padding:0}
+.sfilt .fclr:hover{text-decoration:underline}
+.frow{display:flex;align-items:center;gap:8px;min-height:30px;padding:0 6px 0 12px;border-top:1px solid var(--border)}
+.frow .fk{color:var(--fg2);font-size:11px;white-space:nowrap}
+.frow .fv{margin-left:auto;max-width:62%;background:none;border:0;color:var(--fg);font:inherit;font-size:11px;
+  font-weight:600;text-align:right;text-align-last:right;cursor:pointer;padding:4px 0}
+.frow .fv:focus-visible{outline:2px solid var(--focus);outline-offset:2px;border-radius:4px}
+.frow .fx{width:18px;text-align:center;color:var(--fg3);background:none;border:0;cursor:pointer;font-size:11px}
+.frow button.fx:hover{color:var(--fg)}
+.frow.fchk{cursor:pointer}
+.frow.fchk input{margin-left:auto}
+.sfilt .fhint{padding:0 12px 6px 12px;color:var(--fg3);font-size:10px}
 </style>
 
 <div class="app" id="app">
@@ -1174,7 +1191,7 @@ function replyClass(txt,act){
   return null;}
 const MEET=[{id:'mt1',acc:'a0',who:'Dr. Jonathan Moss',w:38,when:'Thu 2:00 pm',ttl:'HIPAA dashboard demo \u00b7 30 min',st:['up','on the calendar']},
             {id:'mt2',acc:'a1',who:'Tom Hale',w:38,when:'not scheduled',ttl:'Price walkthrough: $1,400 freelancer vs $3,170 with an SLA',st:['warn','awaiting a yes']}];
-const BUILD='Oct 6, 12:40';   /* отметка сборки: единственное место, где она живёт */
+const BUILD='Oct 6, 13:25';   /* отметка сборки: единственное место, где она живёт */
 const S={t:NOW,seg:null,downOnly:false,sel:null,level:'segment',K:1,
   knob:{scout:2,qual:2,seller:2,pricer:1,service:1},profile:'owner',
   side:'tree',ent:'seg',agView:null,mapAcc:null,bn:0,sent:{},skin:'rev',ef:{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false},ptab:'market',job:'',stF:'',stage:'',primary:'map',source:null,orgOpen:false,sopAcc:'a0',tabs:[{id:'map',kind:'map',ref:null,title:'Map'},{id:'acc',kind:'org',ref:'a0',title:'Account'},{id:'person',kind:'msg',ref:'p-hale',title:'Person'},{id:'flow',kind:'sop',ref:'a0',title:'Workflow'},{id:'doc',kind:'doc',ref:'d-msa',title:'Document'}],tab:'map',
@@ -1507,21 +1524,25 @@ function filterBar(ent){
   const wide=flds.some(([k,f])=>!f.light);
   /* Подпись поля, повторяющая заголовок панели, — мусор: «сегмент выше». */
   const dup=l=>String(l).toLowerCase().replace(/s$/,'')===String(ENTNM[ent]||'').toLowerCase().replace(/s$/,'');
+  /* «Так же, как у Lusin, по каждому из интересующих блоков, в том же виде» (06.10, 05:22).
+     Эталон — карточка Sourcing Hub: строка на фильтр, подпись слева, значение справа,
+     × сбрасывает поле, Clear all сверху. Чипы столбиком занимали половину колонки. */
   const row=([k,f])=>{
-    if(f.type==='tog')return `<label class="fchk"><input type="checkbox" data-ftog="${k}" ${f.get()?'checked':''}><span>${esc(f.lbl)}${f.hint?`<i>${esc(f.hint)}</i>`:''}</span></label>`;
-    const opts=(FOPT[k]||(()=>[]))(), cur=String(f.get());
-    const chars=opts.reduce((n,o)=>n+String(o[1]).length,0);
-    if(opts.length<=9&&chars<=64)   /* чипами, пока они умещаются в пару строк; иначе список */
-      return `<div class="fl">${dup(f.lbl)?'':`<span>${esc(f.lbl)}</span>`}<div class="chips">`
-        +opts.map(o=>`<button class="fchip" data-f="${esc(k+':'+o[0])}" aria-pressed="${cur===String(o[0])}"${o[2]?` data-tip="${esc(o[2])}"`:''}>${esc(o[1])}</button>`).join('')+`</div></div>`;
-    return `<div class="fl"><span>${esc(f.lbl)}</span><select data-fsel="${k}">`
-      +opts.map(o=>`<option value="${esc(String(o[0]))}" ${cur===String(o[0])?'selected':''}>${esc(o[1])}</option>`).join('')+`</select></div>`;};
+    if(f.type==='tog')return `<label class="frow fchk"><span class="fk">${esc(f.lbl)}</span><input type="checkbox" data-ftog="${k}" ${f.get()?'checked':''}></label>`
+      +(f.hint?`<div class="fhint">${esc(f.hint)}</div>`:'');
+    const opts=(FOPT[k]||(()=>[]))(), cur=String(f.get()), on=!f.keep&&!!f.get();
+    return `<div class="frow"><span class="fk">${esc(f.lbl)}</span><select class="fv" data-fsel="${k}">`
+      +opts.map(o=>`<option value="${esc(String(o[0]))}" ${cur===String(o[0])?'selected':''}>${esc(o[1])}</option>`).join('')
+      +`</select>${on?`<button class="fx" data-fclr="${k}" aria-label="Clear ${esc(f.lbl)}">×</button>`:'<span class="fx"></span>'}</div>`;};
   return `<div class="sfilt"><div class="hdr">Filters`
-    +(set?` <button class="fchip" data-freset="${ent}" data-tip="Back to everything">reset</button>`:'')+`</div>`
+    +(set?`<button class="fclr" data-freset="${ent}">Clear all</button>`:'')+`</div>`
     +flds.map(row).join('')+`</div>`;
 }
 function renderSide(){
-  $('sideTitle').textContent=S.side==='tree'?(ENTNM[S.ent]||'Segments'):'Profile';let h='';
+  /* «Вот здесь “Segment” — это вообще удалить, сегмент выше» (06.10, 00:43):
+     над фильтрами стояло четыре заголовка подряд. Остался один — внутри карточки. */
+  $('sideTitle').textContent=S.side==='tree'?'':'Profile';
+  $('sideTitle').parentNode.style.display=S.side==='tree'?'none':'';let h='';
   if(S.side==='tree'){
     const ent=S.ent||'seg', tt=S.t;
     S.ef=S.ef||{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false};
@@ -1680,10 +1701,9 @@ function renderEditor(){
   $('groups').classList.toggle('src',!!src);
   /* «Один экран — один фокус». Документ 766 px не помещался в 384 px: лента съедала половину.
      Открыт исходник — лента сворачивается в полоску и поднимается кликом по заголовку. */
-  /* «И тогда здесь никогда не будет внизу что-то меняться — здесь всегда лог» (20:13:31).
-     Карточка и лента держатся во всех пяти областях, сворачивать их нечему. */
-  document.body.classList.remove('focus-mode');
-  if(!src)S.pinFeed=false;
+  /* «Она так и должна здесь висеть», если её «шторкой вниз не убрали» (06.10, 11:46).
+     Сама лента не исчезает никогда — свернуть её можно только руками. */
+  document.body.classList.toggle('focus-mode',!!S.feedDown);
   $('view2').innerHTML=src?renderSource(src):'';
   renderCrumbs();}
 function renderCrumbs(){const t=S.tabs.find(x=>x.id===S.tab)||S.tabs[0];let c='';
@@ -2601,7 +2621,7 @@ function renderPanel(){
   const mb=S.mail?MAIL.find(m=>m.id===S.mail):null;
   $('ptabs').innerHTML=`<span class="fname">${esc(FNAME[S.ptab]||'Feed')}</span>`
     +(mb?`<span class="faint" style="font-size:11px">${esc(mb.adr)}</span><button class="ib" data-mailclear="1">all mailboxes ×</button>`:'')
-    +`<span style="flex:1"></span><span class="dens" role="group" aria-label="Feed density"><button data-dense="1" aria-pressed="${S.dense!==false}" aria-label="Compact" data-tip="Compact: one line per event">≡</button><button data-dense="0" aria-pressed="${S.dense===false}" aria-label="Roomy" data-tip="Roomy: two lines per event">☰</button></span>${S.sel?`<button class="ib" data-clearsel="1">clear selection ×</button>`:''}`;
+    +`<span style="flex:1"></span><button class="ib" data-feeddown="1" aria-label="${S.feedDown?'Open the feed':'Pull the feed down'}" data-tip="${S.feedDown?'Pull the feed back up':'Pull the feed down — it stays there until you raise it'}">${S.feedDown?'▴':'▾'}</button><span class="dens" role="group" aria-label="Feed density"><button data-dense="1" aria-pressed="${S.dense!==false}" aria-label="Compact" data-tip="Compact: one line per event">≡</button><button data-dense="0" aria-pressed="${S.dense===false}" aria-label="Roomy" data-tip="Roomy: two lines per event">☰</button></span>${S.sel?`<button class="ib" data-clearsel="1">clear selection ×</button>`:''}`;
   renderEcard();
   const V=feedView(S.ptab), items=V.rows;
   $('feed').classList.toggle('dense',S.dense!==false);
@@ -3157,7 +3177,7 @@ function openRef(k){
 }
 function logAdd(ag,ttl,st){(S.extraLogs=S.extraLogs||[]).push({ag,w:NOW,ttl,st});}
 document.addEventListener('click',e=>{
-  const b=e.target.closest('[data-open],[data-side],[data-tab],[data-close],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-plus],[data-newchat],[data-agundo],[data-weekpick],[data-week],[data-calm],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-f],[data-freset],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepsel],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-fmode],[data-dbsort],[data-dbmore],[data-dbkind],[data-camp],[data-campsel],[data-campoff],[data-inwin],[data-stuck],[data-mailclear],[data-mark],[data-note],[data-notecancel],[data-ent],[data-mail],[data-common],[data-importfacts],[data-nextbn],[data-influencer],[data-sim],#fDown,#addFact,#addNote');
+  const b=e.target.closest('[data-open],[data-side],[data-tab],[data-close],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-feeddown],[data-plus],[data-newchat],[data-agundo],[data-weekpick],[data-week],[data-calm],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-f],[data-freset],[data-fclr],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepsel],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-fmode],[data-dbsort],[data-dbmore],[data-dbkind],[data-camp],[data-campsel],[data-campoff],[data-inwin],[data-stuck],[data-mailclear],[data-mark],[data-note],[data-notecancel],[data-ent],[data-mail],[data-common],[data-importfacts],[data-nextbn],[data-influencer],[data-sim],#fDown,#addFact,#addNote');
   if(!b){if(S.wkOpen&&!e.target.closest('.wkpop')){S.wkOpen=false;renderFilters();}return;}
   if(S.wkOpen&&!b.dataset.weekpick&&!b.dataset.week&&!b.dataset.calm&&!e.target.closest('.wkpop')){S.wkOpen=false;renderFilters();}
   if(b.dataset.pal)$('pal').hidden=true;
@@ -3258,6 +3278,9 @@ document.addEventListener('click',e=>{
     const f=FFLD[k];if(!f)return;
     f.set(String(f.get())===v&&!f.keep?'':v);
     if(f.light){renderSide();renderPanel();}else renderAll();return;}
+  if(b.dataset.feeddown){S.feedDown=!S.feedDown;renderEditor();return;}
+  if(b.dataset.fclr){const f=FFLD[b.dataset.fclr];if(f){f.set(f.type==='tog'?false:'');
+    if(f.light){renderSide();renderPanel();}else renderAll();}return;}
   if(b.dataset.freset!==undefined){let wide=false;
     (FSET[b.dataset.freset]||[]).forEach(k=>{const f=FFLD[k];if(!f||f.keep)return;f.set(f.type==='tog'?false:'');if(!f.light)wide=true;});
     if(wide)renderAll();else{renderSide();renderPanel();}return;}
@@ -3355,7 +3378,7 @@ document.addEventListener('change',e=>{const d=e.target.dataset||{};
   if(d.fsel){const f=FFLD[d.fsel];if(f){f.set(e.target.value);if(f.light){renderSide();renderPanel();}else renderAll();}return;}
   if(d.ftog){const f=FFLD[d.ftog];if(f){f.set(e.target.checked);if(f.light){renderSide();renderPanel();}else renderAll();}return;}});
 addEventListener('resize',()=>{applyLayout();});
-$('ptabs').addEventListener('click',e=>{if(document.body.classList.contains('focus-mode')&&!e.target.closest('button')){S.pinFeed=true;document.body.classList.remove('focus-mode');}});
+$('ptabs').addEventListener('click',e=>{if(S.feedDown&&!e.target.closest('button')){S.feedDown=false;renderEditor();}});
 $('profile').addEventListener('change',e=>{S.profile=e.target.value;S.chat=[];
   const h=ROLEHOME[S.profile];if(h){setEnt(h.ent);S.dbKind=h.db;}
   renderAll();});
