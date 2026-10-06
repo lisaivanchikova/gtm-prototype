@@ -259,6 +259,14 @@ body.focus-mode .ptabs{cursor:pointer}
 .timeline input{width:170px;padding:0;accent-color:var(--accent)}
 .timeline .tl{font-family:var(--ui);font-variant-numeric:tabular-nums;letter-spacing:0;font-size:11px;min-width:92px}
 .mapbox{position:relative;flex:1;min-height:260px;overflow:hidden;background:var(--water)}
+/* «Компании все отвалились» (Николай, 06.10, 07:40). Пустая карта молчала.
+   Пустой экран читается как поломка, поэтому он обязан назвать причину. */
+.mnone{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:3;
+  background:var(--editor);border:1px solid var(--border);border-radius:8px;
+  padding:12px 16px;text-align:center;max-width:320px;font-size:13px;color:var(--fg2)}
+.mnone b{display:block;color:var(--fg);font-weight:600;margin-bottom:4px}
+.mnone button{display:block;margin:8px auto 0;font-size:11px;padding:4px 10px;border-radius:4px;
+  border:1px solid var(--accent);background:none;color:var(--accent);cursor:pointer}
 .mapbox.future{background-image:repeating-linear-gradient(135deg,transparent 0 6px,color-mix(in srgb,var(--accent) 9%,transparent) 6px 12px)}
 #map{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:grab}
 #map:active{cursor:grabbing}
@@ -305,17 +313,6 @@ body.focus-mode .ptabs{cursor:pointer}
  background:color-mix(in srgb,var(--editor) 78%,transparent);color:var(--fg2)}
 .mk.sq{border-radius:4px;padding:0 7px;height:20px;width:auto}
 .mk.hq{background:var(--agent);width:15px;height:15px;transform:rotate(45deg);border-radius:4px}
-.mkorg{position:relative;width:0;height:0}
-.mkorg .node{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer}
-.mkorg .node i{width:16px;height:16px;border-radius:50%;background:var(--fg3);border:1.5px solid var(--editor);display:block}
-.mkorg .node.on{border-color:var(--accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 45%,transparent)}
-.mkorg .node.miss i{background:var(--down)}
-.mkorg .node span{font-size:10px;color:var(--fg);background:color-mix(in srgb,var(--editor) 88%,transparent);border:1px solid var(--border);border-radius:8px;padding:0 6px;white-space:nowrap}
-.mkorg .ln{position:absolute;height:1px;background:var(--fg3);opacity:.7;transform-origin:0 50%}
-.mkorg .node.doc i{width:13px;height:16px;border-radius:4px 2px 2px 0;background:var(--fg3)}
-.mkorg .node.flow i{width:16px;height:16px;border-radius:4px;background:var(--fg3)}
-.mkorg .node.bot i{border-radius:4px;background:var(--flat)}
-.mkorg .node.up i{background:var(--up)} .mkorg .node.down i{background:var(--down)} .mkorg .node.warn i{background:var(--warn)}
 .zbtn{position:absolute;right:10px;bottom:28px;display:flex;flex-direction:column;border:1px solid var(--border);border-radius:8px;overflow:hidden;background:var(--editor)}
 .zbtn button{width:28px;height:26px;text-align:center;font-size:13px;color:var(--fg2)}
 .zbtn button+button{border-top:1px solid var(--border)}
@@ -856,15 +853,6 @@ body.focus-mode .ptabs{cursor:pointer}
 
 /* Узлы на карте несут тот же знак, что списки (A9). Цвет состояния красит сам знак,
    а не подложку: иначе тип читался как «квадрат», «ещё квадрат», «прямоугольник». */
-.mkorg .node i{width:19px;height:19px;border-radius:0;background:none;border:0;color:var(--fg2);display:flex;align-items:center;justify-content:center}
-.mkorg .node i svg{width:19px;height:19px;display:block}
-.mkorg .node.doc i,.mkorg .node.flow i,.mkorg .node.bot i{width:19px;height:19px;border-radius:0;background:none}
-.mkorg .node.bot i{color:var(--flat)}
-.mkorg .node.up i{background:none;color:var(--up)}
-.mkorg .node.down i{background:none;color:var(--down)}
-.mkorg .node.warn i{background:none;color:var(--warn)}
-.mkorg .node.miss i{background:none;color:var(--down)}
-.mkorg .node.on i{filter:drop-shadow(0 0 3px var(--accent))}
 .crumb[disabled]{opacity:.4;cursor:default}
 
 /* Нижняя строка — справка, а не приборная панель. Громким остаётся одно: ARR.
@@ -1199,7 +1187,7 @@ function replyClass(txt,act){
   return null;}
 const MEET=[{id:'mt1',acc:'a0',who:'Dr. Jonathan Moss',w:38,when:'Thu 2:00 pm',ttl:'HIPAA dashboard demo \u00b7 30 min',st:['up','on the calendar']},
             {id:'mt2',acc:'a1',who:'Tom Hale',w:38,when:'not scheduled',ttl:'Price walkthrough: $1,400 freelancer vs $3,170 with an SLA',st:['warn','awaiting a yes']}];
-const BUILD='Oct 6, 19:20';   /* отметка сборки: единственное место, где она живёт */
+const BUILD='Oct 6, 17:05';   /* отметка сборки: единственное место, где она живёт */
 const S={t:NOW,seg:null,downOnly:false,sel:null,level:'segment',K:1,
   knob:{scout:2,qual:2,seller:2,pricer:1,service:1},profile:'owner',
   side:'tree',ent:'seg',agView:null,mapAcc:null,bn:0,sent:{},skin:'rev',ef:{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false},ptab:'market',job:'',stF:'',stage:'',primary:'map',source:null,orgOpen:false,sopAcc:'a0',tabs:[{id:'map',kind:'map',ref:null,title:'Map'},{id:'acc',kind:'org',ref:'a0',title:'Account'},{id:'person',kind:'msg',ref:'p-hale',title:'Person'},{id:'flow',kind:'sop',ref:'a0',title:'Workflow'},{id:'doc',kind:'doc',ref:'d-msa',title:'Document'}],tab:'map',
@@ -1453,8 +1441,8 @@ const ENTS=[
   ['ppl','People','e_ppl','who said what, and who needs an answer by when'],
   ['flow','Workflows','e_flow','the funnel of a deal: who owes what to whom to get a document signed'],
   ['doc','Documents','e_doc','what is signed, sent and owed \u2014 under the flow that produced it'],
-  ['ag','Team','bot','our people and our agents \u2014 one and the same kind of worker']];
-const ENTNM={seg:'Segments',acc:'Accounts',ppl:'People',flow:'Workflows',doc:'Documents',ag:'Team',us:'Team'};
+  ['ag','Agents','bot','our agents and the people who answer for them']];
+const ENTNM={seg:'Segments',acc:'Accounts',ppl:'People',flow:'Workflows',doc:'Documents',ag:'Agents',us:'Agents'};
 /* Правило Николая: лента следует за кнопкой слева. Значит у каждой кнопки
    своя лента, и ни одна лента не остаётся без входа. */
 const ENTFEED={seg:'market',acc:'account',ppl:'people',flow:'flow',doc:'account',ag:'agents',us:'agents'};
@@ -1529,7 +1517,10 @@ function accRow(a,ind=2){const m=momentum(a,S.t),e=stateAt(a,S.t);return `<butto
    чипами, иначе списком. Один заголовок, один сброс, один вид выбранного. */
 const FOPT={
   seg:()=>[['','all']].concat(SEGS.map(g=>[g.id,g.abc+' · '+g.name,'Core job: “'+g.job+'” · NAICS '+g.naics.join(', ')])),
-  job:()=>JOBS.map(([k,t])=>[k,t]),
+  /* Работа — не независимый фильтр, а свойство сегмента. Предлагать работу,
+     которой в выбранном сегменте нет, значит предлагать пустой экран:
+     восемь из двенадцати пар давали ноль компаний (Николай, 06.10, 07:40). */
+  job:()=>JOBS.filter(([k])=>!k||ACC.some(a=>(!S.seg||a.seg===S.seg)&&jobOf(a)===k)),
   st:()=>[['','all states']].concat([...new Set(ACC.map(a=>a.st))].sort().map(x=>[x,x])),
   stage:()=>[['','all stages']].concat([1,2,3,4,5,6,7,8].map(k=>[String(k),STAGE[k]])),
   role:()=>[['','all'],['decides','decides','has the last word'],['champions','champions','moves the deal inside the company'],['pays','pays','approves the budget and signs the invoice']],
@@ -1554,7 +1545,19 @@ const FSET={seg:['seg','job','newonly'],acc:['seg','job','st','stage','down'],pp
             flow:['proc','stage'],doc:['dkind','seg'],ag:['astate'],us:['astate']};
 function filterBar(ent){
   S.ef=S.ef||{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false};
-  const keys=FSET[ent]||FSET.acc, flds=keys.map(k=>[k,FFLD[k]]).filter(x=>x[1]);
+  const keys=FSET[ent]||FSET.acc, allf=keys.map(k=>[k,FFLD[k]]).filter(x=>x[1]);
+  /* Пред-проход. Два правила, оба из его слов.
+     «Являются ли эти фильтры важными» (06.10, 06:56): поле, в котором выбор один,
+     ничего не решает — его на экране нет. И значение, которого больше не предлагают,
+     снимается само, иначе экран остаётся пустым без объяснения. */
+  const OPT={};
+  for(const [k,f] of allf){
+    if(f.type==='tog')continue;
+    OPT[k]=(FOPT[k]||(()=>[]))();
+    const cur=String(f.get());
+    if(cur&&!OPT[k].some(o=>String(o[0])===cur))f.set('');
+  }
+  const flds=allf.filter(([k,f])=>f.type==='tog'||f.keep||OPT[k].filter(o=>String(o[0])!=='').length>=2);
   const set=flds.some(([k,f])=>f.keep?false:(f.type==='tog'?f.get():!!f.get()));
   const wide=flds.some(([k,f])=>!f.light);
   /* Подпись поля, повторяющая заголовок панели, — мусор: «сегмент выше». */
@@ -1564,7 +1567,7 @@ function filterBar(ent){
      × сбрасывает поле, Clear all сверху. Чипы столбиком занимали половину колонки. */
   const row=([k,f])=>{
     if(f.type==='tog')return `<label class="frow fchk"${f.hint?` data-tip="${esc(f.hint)}"`:''}><span class="fk">${esc(f.lbl)}</span><input type="checkbox" data-ftog="${k}" ${f.get()?'checked':''}></label>`;
-    const opts=(FOPT[k]||(()=>[]))(), cur=String(f.get()), on=!f.keep&&!!f.get();
+    const opts=OPT[k]||[], cur=String(f.get()), on=!f.keep&&!!f.get();
     return `<div class="frow"><span class="fk">${esc(f.lbl)}</span><select class="fv" data-fsel="${k}">`
       +opts.map(o=>`<option value="${esc(String(o[0]))}" ${cur===String(o[0])?'selected':''}>${esc(o[1])}</option>`).join('')
       +`</select>${on?`<button class="fx" data-fclr="${k}" aria-label="Clear ${esc(f.lbl)}">×</button>`:'<span class="fx"></span>'}</div>`;};
@@ -1783,6 +1786,7 @@ function buildMapView(){
     <div class="mapbox" id="mapbox">
       <div id="mlmap"></div>
       <div class="legend" id="legend"></div>
+      <div class="mnone" id="mnone" hidden></div>
       <div class="zbtn"><button id="zin" aria-label="Zoom in">+</button><button id="zout" aria-label="Zoom out">−</button></div>
     </div></div>`;
   MAPEL=$('mapview');
@@ -1879,6 +1883,13 @@ function renderMap(){
   /* --- юрлица точками на слое: их сотни, это работа карты, не DOM --- */
   const vis=seg?[]:ACC.filter(a=>{const e=stateAt(a,t);if(!e||!inF(a))return false;
     if(e.s>=7&&t-e.w>=3)return false;if(S.downOnly&&momentum(a,t)>=0)return false;return true;});
+  {const box=$('mnone');
+   /* Пузыри сегментов — сумма юрлиц, поэтому пусто на обоих уровнях одинаково. */
+   if(box){const empty=!ACC.some(a=>!a.feat&&inF(a));
+     box.hidden=!empty;
+     if(empty)box.innerHTML='<b>No companies match these filters.</b>'
+       +ACC.filter(a=>!a.feat).length+' companies in all.'
+       +'<button data-freset="'+S.ent+'">Clear all filters</button>';}}
   const clustered=!seg&&z<5.6&&!(S.sel&&S.sel.type==='acc');
   const pts=clustered?[]:vis;
   const src=ML.getSource('accsrc');
@@ -1935,65 +1946,31 @@ function renderMap(){
   /* На каком юрлице стоит карта — отдельное состояние от того, что выбрано внутри него.
      Иначе выбор человека, документа или потока гасил бы всю органеграмму. */
   const selA=S.mapAcc?ACCBY[S.mapAcc]:null;
-  if(selA&&S.orgOpen){
-    const P=peopleOf(selA),miss=selA===BRIGHT?2:-1;
-    const box=document.createElement('div');box.className='mkorg';
-    const pos=[[0,-64],[-62,-30],[62,-30]];
-    pos.forEach(q=>{const ln=document.createElement('i');ln.className='ln';
-      const len=Math.hypot(q[0],q[1]+14),ang=Math.atan2(q[1]+14,q[0])*180/Math.PI;
-      ln.style.width=len+'px';ln.style.left='0px';ln.style.top='-14px';ln.style.transform=`rotate(${ang}deg)`;
-      box.appendChild(ln);});
-    P.forEach((p,i)=>{const n=document.createElement('div');
-      const pl=personLight(selA,p,i);
-      n.className='node '+(pl[0]||'')+(i===miss?' miss':'')+(S.sel&&S.sel.type==='person'&&S.sel.id===p.id?' on':'');
-      n.style.left=pos[i][0]+'px';n.style.top=pos[i][1]+'px';
-      /* фигурка человека: круглая голова и полукруг-тельце — тот же знак, что в списках */
-      n.innerHTML=`<span>${esc(p.nm.split(' ').slice(-1)[0])} · ${esc(p.role.split(' ')[0])}</span><i>${GLYPH.person}</i>`;
-      n.title=`${p.nm} — ${p.role} · ${pl[1]}${i===miss?' · the signature is waiting on their yes':''} → conversation log`;
-      n.onclick=ev=>{ev.stopPropagation();selectNode('person',p.id);};
-      box.appendChild(n);});
-
-    /* «Сверху органеграмма, снизу документы, слева значок workflows» (Николай, 21:50).
-       Цвет узла — его состояние, тот же язык, что и у юрлиц на карте. */
-    const mkNode=(cls,x,y,label,tip,on,fn)=>{const n=document.createElement('div');
-      n.className='node '+cls+(on?' on':'');n.style.left=x+'px';n.style.top=y+'px';
-      /* знак берём из общей таблицы: на карте были два квадрата — поток и агент —
-         и голый кружок вместо человека, поэтому типы не различались */
-      const kind=/\bdoc\b/.test(cls)?'document':/\bflow\b/.test(cls)?'flow':/\bbot\b/.test(cls)?'agent':'person';
-      n.innerHTML=`<i>${GLYPH[kind]}</i><span>${esc(label)}</span>`;n.title=tip;
-      n.onclick=ev=>{ev.stopPropagation();fn();};box.appendChild(n);
-      const len=Math.hypot(x,y),ang=Math.atan2(y,x)*180/Math.PI;
-      const ln=document.createElement('i');ln.className='ln';ln.style.width=len+'px';ln.style.left='0px';ln.style.top='0px';
-      ln.style.transform=`rotate(${ang}deg)`;box.insertBefore(ln,box.firstChild);};
-
-    const docs=Object.entries(DOCS).filter(([id,d])=>d.acc===selA.id&&d.w<=Math.max(t,NOW)).slice(-3);
-    const dpos=[[-58,62],[0,74],[58,62]];
-    docs.forEach(([id,d],i)=>{const st=(S.docs[id]&&S.docs[id].us)?'up':d.status?d.status[0]:'flat';
-      mkNode('doc '+st,dpos[i][0],dpos[i][1],d.kind,
-        `${d.kind} · ${d.ttl}${d.status?' · '+d.status[1]:''} → the log of this document`,
-        S.sel&&S.sel.type==='doc'&&S.sel.id===id,()=>selectNode('doc',id));});
-
-    const e=stateAt(selA,t),stuckNow=e&&momentum(selA,t)<0;
-    mkNode('flow '+(stuckNow?'down':'up'),-96,10,'Workflow',
-      `The flow of this deal: who owes what to whom to get the document signed${e?' · stage “'+STAGE[e.s]+'”':''} → the log of this deal`,
-      S.sel&&S.sel.type==='sop'&&S.sel.id===selA.id,()=>selectNode('sop',selA.id));
-
-    const ag=AGENTS.find(g=>e&&g.owns.includes(e.s))||agBy('seller');
-    mkNode('bot'+(ag.state==='paused'?' down':ag.state==='awaiting'?' warn':''),96,10,ag.nm+' · agent',
-      `${ag.nm} — ${ag.title} · ${ASTATE[ag.state][1]} → what it did on this account`,
-      S.sel&&S.sel.type==='agent'&&S.sel.id===ag.id,()=>selectNode('agent',ag.id));
-    mkMarker('org',llOf(selA),box);
-  }
+  /* Веер вокруг точки компании снят. «Я не вижу смысла на карте-то отображать
+     органеграммы — она, наверное, лучше будет [в рабочей области]» (Николай,
+     06.10, 08:29). Оргсхема живёт в области Account, и клик по компании на карте
+     наводит на неё все пять областей. Карта вернулась к своей работе: где кто
+     находится и куда движутся деньги. */
 
   /* три ступени — три легенды. Ступень 3 раньше наследовала подпись второй и
      описывала точки ARR, которых на ней нет: там люди, документы, СОП и агент. */
-  const legNode=k=>`<s>${GLYPH[k]}</s>`;
-  $('legend').innerHTML=S.mapAcc?`<span>${legNode('person')}person</span><span>${legNode('document')}document</span><span>${legNode('flow')}workflow</span><span>${legNode('agent')}agent</span><span>colour = state, the same as everywhere</span>`
-    :S.seg?`<span>ARR over 4 weeks</span><span class="grad"></span><span class="num">−4 % … +4 %</span><span>· size = $ of the segment market</span><span><i style="background:var(--agent);border-radius:1px;transform:rotate(45deg)"></i>us</span>`
+  $('legend').innerHTML=S.seg?`<span>ARR over 4 weeks</span><span class="grad"></span><span class="num">−4 % … +4 %</span><span>· size = $ of the segment market</span><span><i style="background:var(--agent);border-radius:1px;transform:rotate(45deg)"></i>us</span>`
       :`<span>one bubble = one segment in one state</span><span>size = $ of its market there</span><span><i style="background:var(--up)"></i>▲ moving</span><span><i style="background:var(--down)"></i>▼ stuck ≥ 8d or a churn signal</span><span><i style="background:var(--flat)"></i>■ flat</span>${t>NOW?'<span>faded — forecast</span>':''}<span><i style="background:var(--agent);border-radius:1px;transform:rotate(45deg)"></i>us</span>`;
 }
+/* «Если мы куда-то перекликнули, то все экраны должны соответствовать рабочей
+   области» (Николай, 06.10, 11:18). Пять областей помнят свой объект — но когда
+   выбрана компания, помнить они обязаны ЕЁ человека и ЕЁ документ, иначе Person
+   говорит об одной компании, а Account о другой, и переключение выглядит так,
+   будто ничего не изменилось. */
+function pointAllViews(a){
+  setView('org',a.id); setView('sop',a.id);
+  const ppl=peopleOf(a), lead=ppl.find(p=>p.role==='decides')||ppl[0];
+  if(lead)setView('msg',lead.id);
+  const docs=Object.entries(DOCS).filter(([,d])=>d.acc===a.id).sort((x,y)=>y[1].w-x[1].w);
+  if(docs.length)setView('doc',docs[0][0]);
+}
 function selectAcc(a){S.sel={type:'acc',id:a.id};S.mapAcc=a.id;S.sopAcc=a.id;S.orgOpen=true;S.level='people';
-  setView('org',a.id);setView('sop',a.id);syncFilters();renderTabs();
+  pointAllViews(a);syncFilters();renderTabs();
   if(ML&&MLREADY)ML.flyTo({center:llOf(a),zoom:Math.max(ML.getZoom(),13),duration:900});
   setEnt('acc');renderAllButMap();renderMap();}
 function segMetrics(g){const sv=S.seg;S.seg=g.id;const a=formulaAt(S.t),b=formulaAt(Math.max(TMIN,S.t-WIN));S.seg=sv;
@@ -2046,7 +2023,7 @@ function renderFormula(){
   const m=(n,v,d,cls)=>`<span class="fm ${cls||''}"><i>${n}</i><span class="v">${ap}${v}</span>${d?`<b>${d}</b>`:''}</span>`;
   const dlt=(x,u,eps)=>{const s=dd(x,u,eps);return s&&s.trim()?s:'';};
   $('formula').innerHTML =
-    `<span class="fres"><i>${S.t>NOW?'ARR forecast':'ARR'}</i><span class="v">${ap}${usd(F.end)}</span><b>${dlt(F.end/P.end-1,'%',.004)}</b></span>`
+    `<span class="fres"><i>${S.t>NOW?'ARR forecast':'ARR'}</i><span class="v">${ap}${usd(F.end)}</span><b>${P.end?dlt(F.end/P.end-1,'%',.004):''}</b></span>`
     +`<span class="fo">=</span>`
     +m(`W${S.t-WIN}`,usd(F.start))+`<span class="fo">\u00d7</span>`
     +m('Retention',pct(F.ret),dlt(F.ret-P.ret,'pp',.002))
@@ -2355,10 +2332,29 @@ function renderCamp(seg){
 /* =================== documents, messages, news, org =================== */
 function renderDoc(id){const d=DOCS[id],a=ACCBY[d.acc],st=S.docs[id]||{};const P=peopleOf(a);
   const isMSA=d.kind==='MSA',canSign=S.profile==='owner';
-  const signers=isMSA?[[P[0].nm,'client · decides',st.client?'signed':'not signed'],['Nikolai Bobrov','us · the revenue owner signs · waiting since Monday',st.us?'signed':'not signed'],['The Pricing agent','cannot sign','—']]:[];
+  /* «По идее здесь должен документ отображаться — на подписи подаёт там или ещё что-то.
+     Я не понимаю, что такое» (Николай, 06.10, 10:33). Тело документа было видно, а где
+     он стоит — нет: подписанты показывались только у MSA. Теперь у каждого вида видно,
+     чей ход и чем документ закончится. */
+  const OWES={
+    'NDA':          ['sign it',               0,'signed by both sides'],
+    'Questionnaire':['fill it in and send back',1,'completed'],
+    'Offer v1':     ['sign it',               0,'signed'],
+    'Offer v2':     ['sign it',               0,'signed'],
+    'MSA':          ['sign it',               0,'signed by both sides'],
+    'Invoice':      ['pay it',                2,'paid'],
+    'SLA report':   ['read and accept it',    0,'accepted']};
+  const owe=OWES[d.kind]||['move it',0,'closed'];
+  const done=st.us||d.status[0]==='up';
+  const their=P[owe[1]]||P[0];
+  const ourTurn=/countersign|awaiting|our/i.test(d.status[1]||'')||(isMSA&&!st.us);
+  const signers=[
+    [their.nm, 'client · '+their.role+' · must '+owe[0], done?owe[2]:'waiting on them'],
+    ['Nikolai Bobrov','us · '+(ourTurn?'our move':'nothing owed'),st.us?'signed':(ourTurn?'waiting on us':'—')],
+    ['The '+(d.src==='quickbooks'?'Billing':'Pricing')+' agent','prepared it · cannot '+owe[0].split(' ')[0],'—']];
   return `<div class="doc"><div class="doch">${logo(a,'sq big')}<div><h2>${esc(d.kind)} · ${esc(a.name)}</h2><div class="muted">${srcIc(d.src).replace('class="src"','class="av sq"')} ${SRC[d.src][0]} · W${d.w} · <span class="chip ${d.status[0]}">${st.us?'signed by us':d.status[1]}</span> · speech act: ${d.act}</div></div></div>
     <div class="kv"><div><span>Amount</span><b>${usd(a.acv)}/year</b></div><div><span>Term</span><b>36 months</b></div><div><span>SLA</span><b>99.5 %</b></div><div><span>Seats</span><b>${a.emp}</b></div></div>
-    ${signers.length?`<div class="signers">${signers.map((s,i)=>`<div class="signer">${(i===2?agAv('pricer'):face(s[0],'',i===1))}<div class="grow"><div>${esc(s[0])}</div><div class="note">${s[1]}</div></div><span class="chip ${s[2]==='signed'?'up':s[2]==='—'?'flat':'warn'}">${s[2]}</span></div>`).join('')}</div>`:''}
+    ${`<div class="hdr">Where it stands</div><div class="signers">${signers.map((s,i)=>`<div class="signer">${(i===2?agAv('pricer'):face(s[0],'',i===1))}<div class="grow"><div>${esc(s[0])}</div><div class="note">${s[1]}</div></div><span class="chip ${s[2]==='signed'?'up':s[2]==='—'?'flat':'warn'}">${s[2]}</span></div>`).join('')}</div>`}
     <div class="paper" id="paper"><b>${isMSA?'Master Services Agreement':esc(d.kind)}</b> between Bobroff MSP LLC and ${esc(a.name)}.
       <h3>1. Services</h3>Managed IT: 24/7 monitoring, backup, HIPAA controls, support for ${a.emp} seats.
       <h3>2. Price</h3>${usd(a.acv)} per year, invoiced monthly, payable within 15 days.
@@ -2461,7 +2457,7 @@ function feedItems(tab){
     return out.sort((x,y)=>ageD(x)-ageD(y));}
   if(tab==='account'){
     const selD=S.sel&&S.sel.type==='doc'?S.sel.id:null;
-    let items=Object.entries(DOCS).filter(([id,d])=>(selD?id===selD:(!selA||d.acc===selA.id))&&d.w<=Math.max(t,NOW)).map(([id,d])=>({src:d.src,ttl:`${ACCBY[d.acc].name}: ${d.ttl}`,mt:`<b>${SRC[d.src][0]}</b> · ${d.kind}<span class="act"> · ${d.act}</span>`,when:ago(d.w),open:'doc:'+id,av:logo(ACCBY[d.acc],'sq'),sig:(S.docs[id]&&S.docs[id].us)?false:(d.status[0]==='down'||d.status[0]==='warn'),status:S.docs[id]&&S.docs[id].us?['up','signed by us']:d.status,w:d.w}));
+    let items=Object.entries(DOCS).filter(([id,d])=>(selD?id===selD:(selA?d.acc===selA.id:inF(ACCBY[d.acc])))&&d.w<=Math.max(t,NOW)).map(([id,d])=>({src:d.src,ttl:`${ACCBY[d.acc].name}: ${d.ttl}`,mt:`<b>${SRC[d.src][0]}</b> · ${d.kind}<span class="act"> · ${d.act}</span>`,when:ago(d.w),open:'doc:'+id,av:logo(ACCBY[d.acc],'sq'),sig:(S.docs[id]&&S.docs[id].us)?false:(d.status[0]==='down'||d.status[0]==='warn'),status:S.docs[id]&&S.docs[id].us?['up','signed by us']:d.status,w:d.w}));
     /* Документы заведены не у всех: у аккаунта без них строка состояния сделки — единственный лог. */
     {const genSrc=(!selA&&!selD)?ACC.filter(a=>!a.feat&&inF(a)&&momentum(a,t)<0).slice(0,14):(selA&&!items.length&&stateAt(selA,t)?[selA]:[]);
      const gen=genSrc.map(a=>{const e=stateAt(a,t);const kind=e.s===3?['pandadoc',`Offer ${usd(a.acv)} opened, not signed`,'promise']:e.s===2?['pdf','Qualification questionnaire filled in, no reply','assertion']:e.s===1?['crm','First touch, no reply','request']:isActive(e)?['quickbooks',`Invoice ${a.payW?(t-a.payW)*7+5:5}d overdue`,'request']:['crm',`Lost: ${a.reason||'—'}`,'declaration'];return {src:kind[0],ttl:`${a.name}: ${kind[1]}`,mt:`<b>${SRC[kind[0]][0]}</b> · ${a.city}, ${a.st}<span class="act"> · ${kind[2]}</span>`,when:ago(e.w),open:'acc:'+a.id,av:logo(a,'sq'),sig:stuck(a,e,t),status:['down',stuck(a,e,t)?'silent '+daysIn(e,t)+'d':'▼'],w:e.w};});items=items.concat(gen);}
