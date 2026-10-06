@@ -404,6 +404,19 @@ body.focus-mode .ptabs{cursor:pointer}
 .fact{display:flex;gap:8px;align-items:flex-start;border:1px solid var(--border);border-radius:8px;padding:8px 10px}
 .fact .grow{flex:1;display:flex;flex-direction:column;gap:4px}
 .org{padding:16px;display:flex;flex-direction:column;gap:12px;min-width:640px}
+.orgcols{display:flex;gap:16px;align-items:flex-start;justify-content:center;flex-wrap:wrap}
+.orgcol{display:flex;flex-direction:column;align-items:center;gap:0;min-width:0}
+.orgstem{width:1px;height:14px;background:var(--border)}
+.orgbots{display:flex;flex-direction:column;gap:6px;align-items:stretch}
+.orgbots.own{margin:8px auto 0;max-width:200px}
+/* Агент — не равный человеку узел, а его инструмент: карточка в одну строку,
+   иначе три агента под одним человеком заслоняют схему. */
+.orgcard.bot{padding:5px 8px;gap:7px;min-width:0;width:100%}
+.orgcard.bot .r{display:none}
+.orgcard.bot b{font-size:11px;font-weight:500}
+.orgcard.bot .chip{font-size:9px;padding:1px 5px;margin-left:auto}
+.orgcard.bot .grow{display:flex;align-items:center;gap:6px;min-width:0}
+.orgcol{max-width:200px}
 .orgrow{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
 .orgcard{border:1px solid var(--border);border-radius:8px;padding:8px 11px;display:flex;gap:8px;align-items:center;min-width:210px;background:var(--editor);text-align:left}
 .orgcard:hover{border-color:var(--fg3)}
@@ -1124,11 +1137,11 @@ const OURSIDE=[
   {stage:4,nm:'Nikolai Bobrov',what:'the revenue owner signs',wait:'waiting on his signature',warn:1,ref:'doc:d-msa'},
   {stage:5,nm:'Ops director',what:'owns the SLA',wait:'the SLA is on him'}];
 const AGENTS=[
-  {id:'scout',nm:'Scout',title:'finds accounts, makes the first touch',owner:'h-nik',works:'h-sdr',owns:[1],state:'active'},
-  {id:'qual',nm:'Qualifier',title:'screens against the segment\u2019s causal criteria',owner:'h-nik',owns:[2],state:'active'},
-  {id:'seller',nm:'Outreach',title:'correspondence, demos, follow-up',owner:'h-nik',works:'h-sdr',owns:[3],state:'paused'},
+  {id:'scout',nm:'Scout',title:'finds accounts, makes the first touch',owner:'h-sdr',works:'h-sdr',owns:[1],state:'active'},
+  {id:'qual',nm:'Qualifier',title:'screens against the segment\u2019s causal criteria',owner:'h-sdr',owns:[2],state:'active'},
+  {id:'seller',nm:'Outreach',title:'correspondence, demos, follow-up',owner:'h-sdr',works:'h-sdr',owns:[3],state:'paused'},
   {id:'pricer',nm:'Pricing',title:'assembles the offer and the price',owner:'h-nik',owns:[3],state:'awaiting'},
-  {id:'service',nm:'Service',title:'onboarding, SLA, invoices',owner:'h-liza',owns:[5,6],state:'active'}];
+  {id:'service',nm:'Service',title:'onboarding, SLA, invoices',owner:'h-ops',owns:[5,6],state:'active'}];
 /* «Я кликаю в SDR, и например автоматизация не даёт нужного качества, сломались
    агенты. Тогда я попадаю в агентов, и вижу, что здесь агенты сломаны» (Николай,
    06.10, 23:01). Чтобы проваливаться от ограничения вниз, у агента должна быть роль,
@@ -1227,7 +1240,7 @@ function replyClass(txt,act){
   return null;}
 const MEET=[{id:'mt1',acc:'a0',who:'Dr. Jonathan Moss',w:38,when:'Thu 2:00 pm',ttl:'HIPAA dashboard demo \u00b7 30 min',st:['up','on the calendar']},
             {id:'mt2',acc:'a1',who:'Tom Hale',w:38,when:'not scheduled',ttl:'Price walkthrough: $1,400 freelancer vs $3,170 with an SLA',st:['warn','awaiting a yes']}];
-const BUILD='Oct 6, 18:20';   /* отметка сборки: единственное место, где она живёт */
+const BUILD='Oct 6, 18:35';   /* отметка сборки: единственное место, где она живёт */
 const S={t:NOW,seg:null,downOnly:false,sel:null,level:'segment',K:1,
   knob:{scout:2,qual:2,seller:2,pricer:1,service:1},profile:'head',
   side:'tree',ent:'seg',agView:null,mapAcc:null,bn:0,sent:{},skin:'rev',ef:{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false},ptab:'market',job:'',stF:'',stage:'',primary:'map',source:null,orgOpen:false,sopAcc:'a0',tabs:[{id:'map',kind:'map',ref:null,title:'Map'},{id:'acc',kind:'org',ref:'a0',title:'Account'},{id:'person',kind:'msg',ref:'p-hale',title:'Person'},{id:'flow',kind:'sop',ref:'a0',title:'Workflow'},{id:'doc',kind:'doc',ref:'d-msa',title:'Document'}],tab:'map',
@@ -2495,11 +2508,25 @@ function renderAccView(a){
       <div class="orgrow">${rest.map(card).join('')}</div></div>
     <div class="grp2">Workflow and its documents</div>${wf}</div>`;}
 function renderOrg(){
-  const card=(p,cls)=>`<button class="orgcard" data-open="${p.kind==='human'?'ourp:'+p.id:'agent:'+p.id}">${p.kind==='human'?face(p.nm,'mid',true):agAv(p.id,'mid')}<span class="grow"><b>${esc(p.nm)}</b><span class="r">${esc(p.title)}</span>${p.kind!=='human'?`<span class="r">${KNOB[S.knob[p.id]]} · ${esc(OURS.find(o=>o.id===p.owner).nm)} answers for it</span><span class="chip ${ASTATE[p.state][0]}">${ASTATE[p.state][1]}</span>`:''}</span></button>`;
-  return `<div class="org">    <div class="orgrow">${card(OURS[0])}</div><div class="orgline"></div>
-    <div class="orgrow">${OURS.slice(1).map(p=>card(p)).join('')}</div><div class="orgline"></div>
-    <div class="orgrow">${AGENTS.map(a=>card({...a,kind:'agent'})).join('')}</div>
-    <div class="note" style="text-align:center">Click an agent and its action log opens below.</div></div>`;}
+  /* «Чтобы было видно, где сотрудники… и у них в подчинении свои какие-то агенты»
+     (Лиза, 06.10). Было три плоских ряда: начальник, все люди, все агенты скопом —
+     и по схеме нельзя было прочесть, кто чьим агентом управляет. Теперь колонка на
+     человека, агенты под своим. Это же отвечает на вопрос Николая «куда-то агенты
+     пропали»: они стоят там, где за них отвечают. */
+  const human=p=>`<button class="orgcard" data-open="ourp:${p.id}">${face(p.nm,'mid',true)}<span class="grow"><b>${esc(p.nm)}</b><span class="r">${esc(p.title)}</span></span></button>`;
+  const bot=a=>`<button class="orgcard bot" data-open="agent:${a.id}">${agAv(a.id,'mid')}<span class="grow"><b>${esc(a.nm)}</b><span class="r">${esc(a.title)}</span><span class="chip ${ASTATE[a.state][0]}">${ASTATE[a.state][1]}</span></span></button>`;
+  const boss=OURS[0], reports=OURS.slice(1);
+  const bossBots=AGENTS.filter(a=>a.owner===boss.id);
+  const col=p=>{const mine=AGENTS.filter(a=>a.owner===p.id);
+    return `<div class="orgcol">${human(p)}`
+      +(mine.length?`<div class="orgstem"></div><div class="orgbots">${mine.map(bot).join('')}</div>`:'')
+      +`</div>`;};
+  return `<div class="org">
+    <div class="orgrow">${human(boss)}</div>
+    ${bossBots.length?`<div class="orgbots own">${bossBots.map(bot).join('')}</div>`:''}
+    <div class="orgline"></div>
+    <div class="orgcols">${reports.map(col).join('')}</div>
+  </div>`;}
 
 /* =================== panel: three feeds + agents log, one uniform item =================== */
 function feedItems(tab){
