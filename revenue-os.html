@@ -284,6 +284,26 @@ body.focus-mode .ptabs{cursor:pointer}
 .mnone b{display:block;color:var(--fg);font-weight:600;margin-bottom:4px}
 .mnone button{display:block;margin:8px auto 0;font-size:11px;padding:4px 10px;border-radius:4px;
   border:1px solid var(--accent);background:none;color:var(--accent);cursor:pointer}
+.mkorg{position:relative;width:0;height:0}
+.mkorg .node{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer}
+.mkorg .node i{width:16px;height:16px;border-radius:50%;background:var(--fg3);border:1.5px solid var(--editor);display:block}
+.mkorg .node.on{border-color:var(--accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 45%,transparent)}
+.mkorg .node.miss i{background:var(--down)}
+.mkorg .node span{font-size:10px;color:var(--fg);background:color-mix(in srgb,var(--editor) 88%,transparent);border:1px solid var(--border);border-radius:8px;padding:0 6px;white-space:nowrap}
+.mkorg .ln{position:absolute;height:1px;background:var(--fg3);opacity:.7;transform-origin:0 50%}
+.mkorg .node.doc i{width:13px;height:16px;border-radius:4px 2px 2px 0;background:var(--fg3)}
+.mkorg .node.flow i{width:16px;height:16px;border-radius:4px;background:var(--fg3)}
+.mkorg .node.bot i{border-radius:4px;background:var(--flat)}
+.mkorg .node.up i{background:var(--up)} .mkorg .node.down i{background:var(--down)} .mkorg .node.warn i{background:var(--warn)}
+.mkorg .node i{width:19px;height:19px;border-radius:0;background:none;border:0;color:var(--fg2);display:flex;align-items:center;justify-content:center}
+.mkorg .node i svg{width:19px;height:19px;display:block}
+.mkorg .node.doc i,.mkorg .node.flow i,.mkorg .node.bot i{width:19px;height:19px;border-radius:0;background:none}
+.mkorg .node.bot i{color:var(--flat)}
+.mkorg .node.up i{background:none;color:var(--up)}
+.mkorg .node.down i{background:none;color:var(--down)}
+.mkorg .node.warn i{background:none;color:var(--warn)}
+.mkorg .node.miss i{background:none;color:var(--down)}
+.mkorg .node.on i{filter:drop-shadow(0 0 3px var(--accent))}
 .mapbox.future{background-image:repeating-linear-gradient(135deg,transparent 0 6px,color-mix(in srgb,var(--accent) 9%,transparent) 6px 12px)}
 #map{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:grab}
 #map:active{cursor:grabbing}
@@ -1240,7 +1260,7 @@ function replyClass(txt,act){
   return null;}
 const MEET=[{id:'mt1',acc:'a0',who:'Dr. Jonathan Moss',w:38,when:'Thu 2:00 pm',ttl:'HIPAA dashboard demo \u00b7 30 min',st:['up','on the calendar']},
             {id:'mt2',acc:'a1',who:'Tom Hale',w:38,when:'not scheduled',ttl:'Price walkthrough: $1,400 freelancer vs $3,170 with an SLA',st:['warn','awaiting a yes']}];
-const BUILD='Oct 6, 18:35';   /* отметка сборки: единственное место, где она живёт */
+const BUILD='Oct 6, 18:45';   /* отметка сборки: единственное место, где она живёт */
 const S={t:NOW,seg:null,downOnly:false,sel:null,level:'segment',K:1,
   knob:{scout:2,qual:2,seller:2,pricer:1,service:1},profile:'head',
   side:'tree',ent:'seg',agView:null,mapAcc:null,bn:0,sent:{},skin:'rev',ef:{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false},ptab:'market',job:'',stF:'',stage:'',primary:'map',source:null,orgOpen:false,sopAcc:'a0',tabs:[{id:'map',kind:'map',ref:null,title:'Map'},{id:'acc',kind:'org',ref:'a0',title:'Account'},{id:'person',kind:'msg',ref:'p-hale',title:'Person'},{id:'flow',kind:'sop',ref:'a0',title:'Workflow'},{id:'doc',kind:'doc',ref:'d-msa',title:'Document'}],tab:'map',
@@ -2017,15 +2037,67 @@ function renderMap(){
   /* На каком юрлице стоит карта — отдельное состояние от того, что выбрано внутри него.
      Иначе выбор человека, документа или потока гасил бы всю органеграмму. */
   const selA=S.mapAcc?ACCBY[S.mapAcc]:null;
-  /* Веер вокруг точки компании снят. «Я не вижу смысла на карте-то отображать
-     органеграммы — она, наверное, лучше будет [в рабочей области]» (Николай,
-     06.10, 08:29). Оргсхема живёт в области Account, и клик по компании на карте
-     наводит на неё все пять областей. Карта вернулась к своей работе: где кто
-     находится и куда движутся деньги. */
+  /* Третья ступень хребта: люди сверху, документы снизу, поток слева, агент справа.
+     Снималась 06.10 по реплике «не вижу смысла на карте органеграммы отображать»
+     (08:29) — сказанной неуверенно и тут же оставленной. Это элемент хребта, и
+     трогать его по такой реплике было нельзя: без него третья ступень — голая
+     точка на уличной карте. Возвращено.
+     Если решим убирать — только отдельным решением, не попутно. */
+  if(selA&&S.orgOpen){
+    const P=peopleOf(selA),miss=selA===BRIGHT?2:-1;
+    const box=document.createElement('div');box.className='mkorg';
+    const pos=[[0,-64],[-62,-30],[62,-30]];
+    pos.forEach(q=>{const ln=document.createElement('i');ln.className='ln';
+      const len=Math.hypot(q[0],q[1]+14),ang=Math.atan2(q[1]+14,q[0])*180/Math.PI;
+      ln.style.width=len+'px';ln.style.left='0px';ln.style.top='-14px';ln.style.transform=`rotate(${ang}deg)`;
+      box.appendChild(ln);});
+    P.forEach((p,i)=>{const n=document.createElement('div');
+      const pl=personLight(selA,p,i);
+      n.className='node '+(pl[0]||'')+(i===miss?' miss':'')+(S.sel&&S.sel.type==='person'&&S.sel.id===p.id?' on':'');
+      n.style.left=pos[i][0]+'px';n.style.top=pos[i][1]+'px';
+      /* фигурка человека: круглая голова и полукруг-тельце — тот же знак, что в списках */
+      n.innerHTML=`<span>${esc(p.nm.split(' ').slice(-1)[0])} · ${esc(p.role.split(' ')[0])}</span><i>${GLYPH.person}</i>`;
+      n.title=`${p.nm} — ${p.role} · ${pl[1]}${i===miss?' · the signature is waiting on their yes':''} → conversation log`;
+      n.onclick=ev=>{ev.stopPropagation();selectNode('person',p.id);};
+      box.appendChild(n);});
+
+    /* «Сверху органеграмма, снизу документы, слева значок workflows» (Николай, 21:50).
+       Цвет узла — его состояние, тот же язык, что и у юрлиц на карте. */
+    const mkNode=(cls,x,y,label,tip,on,fn)=>{const n=document.createElement('div');
+      n.className='node '+cls+(on?' on':'');n.style.left=x+'px';n.style.top=y+'px';
+      /* знак берём из общей таблицы: на карте были два квадрата — поток и агент —
+         и голый кружок вместо человека, поэтому типы не различались */
+      const kind=/\bdoc\b/.test(cls)?'document':/\bflow\b/.test(cls)?'flow':/\bbot\b/.test(cls)?'agent':'person';
+      n.innerHTML=`<i>${GLYPH[kind]}</i><span>${esc(label)}</span>`;n.title=tip;
+      n.onclick=ev=>{ev.stopPropagation();fn();};box.appendChild(n);
+      const len=Math.hypot(x,y),ang=Math.atan2(y,x)*180/Math.PI;
+      const ln=document.createElement('i');ln.className='ln';ln.style.width=len+'px';ln.style.left='0px';ln.style.top='0px';
+      ln.style.transform=`rotate(${ang}deg)`;box.insertBefore(ln,box.firstChild);};
+
+    const docs=Object.entries(DOCS).filter(([id,d])=>d.acc===selA.id&&d.w<=Math.max(t,NOW)).slice(-3);
+    const dpos=[[-58,62],[0,74],[58,62]];
+    docs.forEach(([id,d],i)=>{const st=(S.docs[id]&&S.docs[id].us)?'up':d.status?d.status[0]:'flat';
+      mkNode('doc '+st,dpos[i][0],dpos[i][1],d.kind,
+        `${d.kind} · ${d.ttl}${d.status?' · '+d.status[1]:''} → the log of this document`,
+        S.sel&&S.sel.type==='doc'&&S.sel.id===id,()=>selectNode('doc',id));});
+
+    const e=stateAt(selA,t),stuckNow=e&&momentum(selA,t)<0;
+    mkNode('flow '+(stuckNow?'down':'up'),-96,10,'Workflow',
+      `The flow of this deal: who owes what to whom to get the document signed${e?' · stage “'+STAGE[e.s]+'”':''} → the log of this deal`,
+      S.sel&&S.sel.type==='sop'&&S.sel.id===selA.id,()=>selectNode('sop',selA.id));
+
+    const ag=AGENTS.find(g=>e&&g.owns.includes(e.s))||agBy('seller');
+    mkNode('bot'+(ag.state==='paused'?' down':ag.state==='awaiting'?' warn':''),96,10,ag.nm+' · agent',
+      `${ag.nm} — ${ag.title} · ${ASTATE[ag.state][1]} → what it did on this account`,
+      S.sel&&S.sel.type==='agent'&&S.sel.id===ag.id,()=>selectNode('agent',ag.id));
+    mkMarker('org',llOf(selA),box);
+  }
 
   /* три ступени — три легенды. Ступень 3 раньше наследовала подпись второй и
      описывала точки ARR, которых на ней нет: там люди, документы, СОП и агент. */
-  $('legend').innerHTML=S.seg?`<span>ARR over 4 weeks</span><span class="grad"></span><span class="num">−4 % … +4 %</span><span>· size = $ of the segment market</span><span><i style="background:var(--agent);border-radius:1px;transform:rotate(45deg)"></i>us</span>`
+  const legNode=k=>`<s>${GLYPH[k]}</s>`;
+  $('legend').innerHTML=S.mapAcc?`<span>${legNode('person')}person</span><span>${legNode('document')}document</span><span>${legNode('flow')}workflow</span><span>${legNode('agent')}agent</span><span>colour = state, the same as everywhere</span>`
+    :S.seg?`<span>ARR over 4 weeks</span><span class="grad"></span><span class="num">−4 % … +4 %</span><span>· size = $ of the segment market</span><span><i style="background:var(--agent);border-radius:1px;transform:rotate(45deg)"></i>us</span>`
       :`<span>one bubble = one segment in one state</span><span>size = $ of its market there</span><span><i style="background:var(--up)"></i>▲ moving</span><span><i style="background:var(--down)"></i>▼ stuck ≥ 8d or a churn signal</span><span><i style="background:var(--flat)"></i>■ flat</span>${t>NOW?'<span>faded — forecast</span>':''}<span><i style="background:var(--agent);border-radius:1px;transform:rotate(45deg)"></i>us</span>`;
 }
 /* «Если мы куда-то перекликнули, то все экраны должны соответствовать рабочей
