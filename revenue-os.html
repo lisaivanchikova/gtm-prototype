@@ -169,6 +169,16 @@ q{quotes:"«" "»"}
 #dbview{display:none;height:100%;overflow:auto;background:var(--editor)}
 /* «Сегодня» — очередь ходов в центре. Три независимых разбора сошлись на том, что
    самое важное действие не может жить в 340-пиксельной колонке у края экрана. */
+.tdbn{border:1px solid var(--accent);border-radius:8px;padding:12px;margin:0 0 8px}
+.tdbn .k{display:block;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:6px}
+.tdbn .t{font-size:13px;font-weight:600;color:var(--fg);margin-bottom:4px}
+.tdbn .s{font-size:11px;color:var(--fg2);margin-bottom:8px}
+.tdbn .btns{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+/* дериватив: только сведение, поэтому ни рамки, ни кнопок */
+.tdnext{padding:0 0 10px;font-size:11px;color:var(--fg3)}
+.tdnext .k{display:block;font-size:10px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:3px}
+.tdnext ol{margin:0;padding-left:18px}
+.tdnext li{margin:1px 0;color:var(--fg2)}
 .tdempty{font-size:13px;color:var(--fg3);padding:8px 0}
 .tdh{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:4px}
 .tdh h2{margin:0;font-size:13px;font-weight:600}
@@ -500,7 +510,10 @@ body.focus-mode .ptabs{cursor:pointer}
 .tri.plan{box-shadow:inset 2px 0 0 var(--accent)}
 .scn{margin-top:8px;padding-top:8px;border-top:1px solid var(--border)}
 .scn:first-of-type{margin-top:4px;padding-top:0;border-top:0}
-.tri.now{border-color:var(--focus);background:color-mix(in srgb,var(--focus) 7%,var(--editor))}
+/* Акцентная рамка принадлежит ограничению и только ему: «в ТОС грамотно настроенная
+   система всегда имеет одно ограничение» (06.10, 22:16). Очередь — это то, что ждёт
+   тебя, а не узкое место системы, и спорить с ним по громкости она не должна. */
+.tri.now{background:color-mix(in srgb,var(--focus) 4%,var(--editor))}
 .tri.now .t{font-size:13px;font-weight:600;line-height:1.3}
 .tri .urg{font-family:var(--ui);font-variant-numeric:tabular-nums;letter-spacing:0;font-size:10px;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:var(--accent)}
 .tri.fyi{border-color:transparent;background:transparent;padding:4px 2px;gap:4px}
@@ -995,7 +1008,7 @@ body.focus-mode .ptabs{cursor:pointer}
       <div class="ask">
         <div class="sugg" id="sugg"></div>
         <div class="askbox">
-          <textarea id="askIn" rows="2" placeholder="Ask the agent about the system, or hand it a job…"></textarea>
+          <textarea id="askIn" rows="2" placeholder="Ask the agent, or @name a person to pass it on…"></textarea>
           <div class="askrow"><span class="ctx" id="askCtx"></span><select id="askMode" aria-label="Mode"><option>Ask</option><option>Assign</option></select><button class="send" id="askSend" aria-label="Send">➤</button></div>
         </div>
       </div>
@@ -1187,7 +1200,7 @@ function replyClass(txt,act){
   return null;}
 const MEET=[{id:'mt1',acc:'a0',who:'Dr. Jonathan Moss',w:38,when:'Thu 2:00 pm',ttl:'HIPAA dashboard demo \u00b7 30 min',st:['up','on the calendar']},
             {id:'mt2',acc:'a1',who:'Tom Hale',w:38,when:'not scheduled',ttl:'Price walkthrough: $1,400 freelancer vs $3,170 with an SLA',st:['warn','awaiting a yes']}];
-const BUILD='Oct 6, 17:05';   /* отметка сборки: единственное место, где она живёт */
+const BUILD='Oct 6, 17:25';   /* отметка сборки: единственное место, где она живёт */
 const S={t:NOW,seg:null,downOnly:false,sel:null,level:'segment',K:1,
   knob:{scout:2,qual:2,seller:2,pricer:1,service:1},profile:'owner',
   side:'tree',ent:'seg',agView:null,mapAcc:null,bn:0,sent:{},skin:'rev',ef:{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false},ptab:'market',job:'',stF:'',stage:'',primary:'map',source:null,orgOpen:false,sopAcc:'a0',tabs:[{id:'map',kind:'map',ref:null,title:'Map'},{id:'acc',kind:'org',ref:'a0',title:'Account'},{id:'person',kind:'msg',ref:'p-hale',title:'Person'},{id:'flow',kind:'sop',ref:'a0',title:'Workflow'},{id:'doc',kind:'doc',ref:'d-msa',title:'Document'}],tab:'map',
@@ -2775,26 +2788,52 @@ function allTriage(){
     .concat(((S.plan&&S.plan.extra)||[]).map(x=>({...x,own:'owner'})));
 }
 function todayHTML(){
-  const p=S.profile,f=focusFor(p),tri=allTriage();
-  const me=WHOM[p];
-  const who='moves across the whole team · yours are highlighted and pulled to the top';
+  const p=S.profile,tri=allTriage();
   const open=tri.filter(x=>!S.tri[x.id]);
-  const mineN=open.filter(x=>x.own===p).length;
   const pl=planIds();
-  const sorted=tri.slice().sort((a,b)=>(!!S.tri[a.id]-!!S.tri[b.id])||((b.own===p)-(a.own===p))||(URG[a.u||'soon']-URG[b.u||'soon']));
+  /* «В ТОС грамотно настроенная система всегда имеет одно ограничение, узкое место.
+     Максимум можно иметь второе-третье, которые подсвечиваются как дериватив… Это просто
+     информационная плашка» (Николай, 06.10, 22:16). Раньше здесь лежала плоская очередь,
+     где четыре карточки одинаково кричали «decide now», а метка стояла и секцией, и внутри
+     каждой карточки. Теперь ограничение одно, следующие — строкой без кнопок. */
+  const L=BNS(), i=Math.min(S.bn||0,L.length-1), B=L[i], nxt=L.slice(i+1,i+3);
+  const byMine=(a,b)=>(!!S.tri[a.id]-!!S.tri[b.id])||(URG[a.u||'soon']-URG[b.u||'soon']);
+  const mine=tri.filter(x=>x.own===p).sort(byMine);
+  const theirs=tri.filter(x=>x.own!==p).sort(byMine);
+
+  const row=x=>`<div class="tri ${x.u||'soon'} ${S.tri[x.id]?'done':''} ${pl.includes(x.id)?'plan':''}">`
+    +`<span class="t">${x.t}${x.own!==p?` <span class="owner">${esc(WHOM[x.own])}</span>`:''}`
+    +`${pl.includes(x.id)?'<span class="owner pl">from the plan</span>':''}</span>`
+    +`<span class="s">${x.f?`<b class="fmem">moves ${x.f}</b> · `:''}${x.s}${S.tri[x.id]?' · '+S.tri[x.id]:''}</span>`
+    +`${S.tri[x.id]||x.own!==p?'':`<div class="btns">${x.a.map(([t,k],j)=>`<button class="${j===0?'btn':'lnk'}" data-tri="${x.id}|${k}|${t}">${t}</button>`).join('')}</div>`}`
+    +`</div>`;
+
   return `<div class="tdwrap">
-    <div class="tdh"><h2>Today · the whole team</h2><span class="who">${esc(who)}</span></div>
-    <div class="subrule" style="padding:0 0 4px"><span>showing <b>${open.length}</b> move${open.length===1?'':'s'}, <b>${mineN}</b> of them yours · an agent cannot settle these: they need a signature, an authority or a judgement</span></div>
+    <div class="tdh"><h2>Today</h2></div>
+
+    <div class="tdbn">
+      <span class="k">The constraint${L.length>1?` · ${i+1} of ${L.length}`:''}</span>
+      <div class="t">${esc(B.t)}</div>
+      <div class="s">${esc(B.d)}</div>
+      <div class="btns">${(B.draft?[['Open the draft','open:draft:'+B.id],['Show it on the map','showtx']]
+        :[['Open the Brightline SOP','open:sop:a0'],['Show it on the map','showtx']])
+        .map(([t,k],j)=>`<button class="${j===0?'btn pri':'lnk'}" data-do="${k}">${t}</button>`).join('')}</div>
+    </div>
+
+    ${nxt.length?`<div class="tdnext"><span class="k">clear it and the next one is</span>
+      <ol>${nxt.map(n=>`<li>${esc(n.t)}</li>`).join('')}</ol></div>`:''}
 
     ${S.plan?`<div class="planbar"><span class="k">Plan · taken in W${S.plan.w} by the revenue owner</span>${p==='owner'?'<button class="lnk" data-do="planclear">Drop it</button>':''}<span class="t">${esc(S.plan.nm)}</span><span class="s">what it is worth by W${TMAX}: ARR <b class="num">${usd(S.plan.end)}</b>, Conv <b class="num">${pct(S.plan.conv)}</b> · ${planDone()} of ${pl.length} moves settled · <button class="lnk" data-ask="Simulate revenue scenarios">compare the scenarios again</button></span></div>`:''}
 
-    <div class="tdsec">Decide now</div>
-    ${open.length?`<div class="tdq">${sorted.map(x=>`<div class="tri ${x.u||'soon'} ${S.tri[x.id]?'done':''} ${x.own===p?'mine':''} ${pl.includes(x.id)?'plan':''}">${x.u==='now'&&!S.tri[x.id]?`<span class="urg">decide now${x.w?' · '+esc(x.w):''}</span>`:''}<span class="t">${x.t} <span class="owner ${x.own===p?'me':''}">${x.own===p?'your move':esc(WHOM[x.own])}</span>${pl.includes(x.id)?'<span class="owner pl">from the plan</span>':''}</span><span class="s">${x.f?`<b class="fmem">moves ${x.f}</b> · `:''}${x.s}${S.tri[x.id]?' · '+S.tri[x.id]:''}</span>${S.tri[x.id]?'':`<div class="btns">${x.a.map(([t,k],i)=>`<button class="${i===0?(x.u==='now'?'btn pri':'btn'):'lnk'}" data-tri="${x.id}|${k}|${t}">${t}</button>`).join('')}</div>`}</div>`).join('')}</div>`
-      :`<div class="tdempty">No moves — the agents are working on their own. Next run Monday 9:00. An empty queue does not get filled with news.</div>`}
+    ${mine.length?`<div class="tdsec">Your move · ${mine.filter(x=>!S.tri[x.id]).length}</div>
+      <div class="tdq">${mine.map(row).join('')}</div>`
+      :`<div class="tdempty">Nothing is waiting on you. Next run Monday 9:00.</div>`}
 
-    ${`<div class="tdsec">At risk · why</div>
-      <div class="subrule" style="padding:0 0 2px"><span>three of ${FEVER.length} chains where the buffer is burning faster than the path is being covered</span></div>
-      ${FEVER.slice(0,3).map(r=>`<button class="risk" ${r.open?`data-open="${r.open}"`:'data-do="showtx"'}><b>${esc(r.nm)}</b><span>${esc(r.why)}</span></button>`).join('')}`}
+    ${theirs.length?`<div class="tdsec">Waiting on someone else · ${theirs.filter(x=>!S.tri[x.id]).length}</div>
+      <div class="tdq">${theirs.map(row).join('')}</div>`:''}
+
+    <div class="tdsec">At risk · buffer burning faster than the path is covered</div>
+    ${FEVER.slice(0,3).map(r=>`<button class="risk" ${r.open?`data-open="${r.open}"`:'data-do="showtx"'}><b>${esc(r.nm)}</b><span>${esc(r.why)}</span></button>`).join('')}
   </div>`;}
 
 /* =================== agent: focus (ToC) + triage + chat, per profile =================== */
@@ -3198,8 +3237,41 @@ function answerRich(q){
   }
   return null;
 }
+/* «Там можно поставить хэштег-собачку, как в Слэке написать "отправить Вася" — это
+   отправляет агенту, агент переправляет Васе, или напрямую Васе» (Николай, 06.10, 1:02:04,
+   в ответ на предложение Карины заменить CRM общим чатом). Строка умела говорить только
+   с агентом, поэтому вкладка Клода оставалась удобнее. */
+function mentionDir(){
+  const out=[];
+  for(const o of OURS) out.push([o.nm,'us · '+o.title]);
+  const a=S.sel&&S.sel.type==='acc'?ACCBY[S.sel.id]:(S.mapAcc?ACCBY[S.mapAcc]:null);
+  if(a) for(const p of peopleOf(a)) out.push([p.nm,a.name+' · '+p.role]);
+  return out;
+}
 function ask(q){if(!q.trim())return;S.chat.push({u:1,t:esc(q)});
   const l=q.toLowerCase();
+  const at=q.indexOf('@');
+  if(at>=0){
+    /* Имя может быть из двух слов, а дальше идёт само сообщение. Поэтому не угадываем
+       границу по пробелу, а берём самое длинное имя из справочника, с которого
+       начинается хвост после «@». */
+    const tail=q.slice(at+1);
+    const dir=mentionDir();
+    let hit=null,used='';
+    for(const e of dir){
+      const nm=e[0], first=nm.split(' ')[0];
+      for(const cand of [nm,first]){
+        if(tail.toLowerCase().startsWith(cand.toLowerCase())&&cand.length>used.length){hit=e;used=cand;}
+      }
+    }
+    const men=[used?'@'+used:q.slice(at).split(/[\s,.;]/)[0], used||tail.split(/[\s,.;]/)[0]];
+    const body=(q.slice(0,at)+' '+tail.slice(used.length)).replace(/^[\s,.;—-]+|[\s]+$/g,'').trim();
+    S.chat.push({u:0,t: hit
+      ? `Sent to <b>${esc(hit[0])}</b> — ${esc(hit[1])}.`
+        +(body?`<div class="note" style="margin-top:4px">“${esc(body)}”</div>`:'')
+        +`<div class="note" style="margin-top:6px">I pass it on and keep the thread. If they do not answer in two days I come back to you.</div>`
+      : `I do not know a <b>${esc(men[1].trim())}</b> here. I can reach our team and the people of the account you have open — type <b>@</b> and the first letters.`});
+    renderAgent();return;}
   if(/what (can|do) you see|where am i|what are you looking at/.test(l)){
     const sc=agentScope();
     S.chat.push({u:0,t:`I am in <b>${esc(sc.label)}</b>. Here is what I have in front of me:`
