@@ -505,7 +505,17 @@ body.focus-mode .ptabs{cursor:pointer}
 .focus .k{font-family:var(--ui);font-variant-numeric:tabular-nums;letter-spacing:0;font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
 .focus .t{font-size:13px;font-weight:600}
 .focus .d{font-size:11px;color:var(--fg2)}
-.tri{border:1px solid var(--border);border-radius:8px;padding:8px 10px;display:flex;flex-direction:column;gap:8px;background:var(--editor)}
+/* «Вот эти плашки — просто ужас, столько визуального шума» (Николай про Today).
+   Шесть карточек с рамкой, заливкой и синей кнопкой каждая — это стена. Очередь
+   просматривают, чтобы выбрать одно: значит строка, а не карточка. Рамка и заливка
+   остались у ограничения — оно одно. */
+.tri{border:0;border-radius:0;padding:10px 0;display:grid;
+  grid-template-columns:1fr auto;grid-template-areas:'t a' 's a';gap:2px 10px;
+  background:none;border-bottom:1px solid var(--border);align-items:start}
+.tri:last-child{border-bottom:0}
+.tri .t{grid-area:t}
+.tri .s{grid-area:s}
+.tri .btns{grid-area:a;align-self:center;display:flex;gap:10px;align-items:center}
 .tri .t{font-size:13px}
 .tri .s{font-size:11px;color:var(--fg3)}
 .tri.done{opacity:.55}
@@ -521,7 +531,12 @@ body.focus-mode .ptabs{cursor:pointer}
 /* Акцентная рамка принадлежит ограничению и только ему: «в ТОС грамотно настроенная
    система всегда имеет одно ограничение» (06.10, 22:16). Очередь — это то, что ждёт
    тебя, а не узкое место системы, и спорить с ним по громкости она не должна. */
-.tri.now{background:color-mix(in srgb,var(--focus) 4%,var(--editor))}
+.tri.now .t{font-weight:600}
+/* синяя заливка кнопки — самый громкий элемент экрана; шесть таких и были шумом */
+.tri .btns .btn{background:none;border:1px solid var(--border);color:var(--fg2);
+  font-size:11px;padding:4px 10px;border-radius:4px;white-space:nowrap}
+.tri .btns .btn:hover{border-color:var(--accent);color:var(--fg)}
+.tri .btns .lnk{font-size:11px;color:var(--fg3)}
 .tri.now .t{font-size:13px;font-weight:600;line-height:1.3}
 .tri .urg{font-family:var(--ui);font-variant-numeric:tabular-nums;letter-spacing:0;font-size:10px;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:var(--accent)}
 .tri.fyi{border-color:transparent;background:transparent;padding:4px 2px;gap:4px}
@@ -985,10 +1000,7 @@ body.focus-mode .ptabs{cursor:pointer}
       <button class="lbtn" id="tAgent" aria-pressed="true" aria-label="Show or hide the agent" data-tip="Agent"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor"><rect x="1.5" y="2.5" width="13" height="11" rx="1.5"/><path d="M10.5 2.5v11"/></svg></button>
       
       <span class="skins" id="skins" role="group" aria-label="Display skin"></span>
-      <select class="profile" id="profile" aria-label="Signed in as">
-        <option value="owner">Revenue owner</option>
-        <option value="sdr">SDR</option>
-      </select>
+      <select class="profile" id="profile" aria-label="Signed in as"></select>
     </div>
   </header>
 
@@ -1215,9 +1227,9 @@ function replyClass(txt,act){
   return null;}
 const MEET=[{id:'mt1',acc:'a0',who:'Dr. Jonathan Moss',w:38,when:'Thu 2:00 pm',ttl:'HIPAA dashboard demo \u00b7 30 min',st:['up','on the calendar']},
             {id:'mt2',acc:'a1',who:'Tom Hale',w:38,when:'not scheduled',ttl:'Price walkthrough: $1,400 freelancer vs $3,170 with an SLA',st:['warn','awaiting a yes']}];
-const BUILD='Oct 6, 17:35';   /* отметка сборки: единственное место, где она живёт */
+const BUILD='Oct 6, 17:50';   /* отметка сборки: единственное место, где она живёт */
 const S={t:NOW,seg:null,downOnly:false,sel:null,level:'segment',K:1,
-  knob:{scout:2,qual:2,seller:2,pricer:1,service:1},profile:'owner',
+  knob:{scout:2,qual:2,seller:2,pricer:1,service:1},profile:'head',
   side:'tree',ent:'seg',agView:null,mapAcc:null,bn:0,sent:{},skin:'rev',ef:{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false},ptab:'market',job:'',stF:'',stage:'',primary:'map',source:null,orgOpen:false,sopAcc:'a0',tabs:[{id:'map',kind:'map',ref:null,title:'Map'},{id:'acc',kind:'org',ref:'a0',title:'Account'},{id:'person',kind:'msg',ref:'p-hale',title:'Person'},{id:'flow',kind:'sop',ref:'a0',title:'Workflow'},{id:'doc',kind:'doc',ref:'d-msa',title:'Document'}],tab:'map',
   facts:{},docs:{},tri:{},plan:null,chat:[],layout:{side:true,panel:true,agent:true,panelRight:false,swap:false},sopEdit:false,sopFix:null,steps:JSON.parse(JSON.stringify(STEPS0)),fieldPol:{},hidden:{},dnc:{},knobW:{scout:1,qual:1,seller:1,pricer:1,service:1},rules:JSON.parse(JSON.stringify(RULES0))};
 try{const L=JSON.parse(localStorage.getItem('revos-layout-v4')||'null');if(L)Object.assign(S.layout,L);}catch(e){}
@@ -1493,6 +1505,9 @@ function entBadge(k){
 const SKINS=[['rev','Revenue OS',null],
              ['gtm','GTM','https://app.lusin.ai'],
              ['crm','CRM','https://crm.lusin.ai']];
+/* Список ролей берётся из WHOM, иначе он расходится с утверждёнными пятью. */
+function renderProfiles(){const el=$('profile');if(!el)return;
+  el.innerHTML=Object.entries(WHOM).map(([k,nm])=>`<option value="${k}" ${S.profile===k?'selected':''}>${esc(nm)}</option>`).join('');}
 function renderSkins(){
   $('skins').innerHTML=SKINS.map(([k,nm,url])=>url
     ?`<a href="${url}" target="_blank" rel="noopener" data-tip="Opens ${nm} in a new tab — ${url.replace('https://','')}">${nm} ↗</a>`
@@ -1758,6 +1773,12 @@ function renderSource(t){if(t.kind==='ourp')return renderOurPerson(t.ref);
   if(t.kind==='org')return t.ref==='us'?renderOrg():renderAccView(ACCBY[t.ref]);
   if(t.kind==='draft')return renderDraft(t.ref);if(t.kind==='doc')return renderDoc(t.ref);if(t.kind==='msg')return renderMsg(t.ref);if(t.kind==='news')return renderNews(t.ref);if(t.kind==='org')return renderOrg();if(t.kind==='agent')return renderAgentTab(t.ref);return '';}
 function renderEditor(){
+  /* «Я ушла с map на person во views, но сбоку и снизу у меня всё ещё прошлое
+     отображение» (Лиза, 06.10). setEnt менял переменную, но левую колонку, ленту,
+     карточку и подсветку рейки никто не перерисовывал: их красит только renderAll,
+     а переключение вкладки звало один renderEditor. Его же правило: «все экраны
+     должны соответствовать рабочей области» (Николай, 11:18). */
+  const entWas=S.ent;
   const t=S.tabs.find(x=>x.id===S.tab)||S.tabs[0];
   if(t.id==='map'||t.id==='flow'||(t.id==='acc'&&t.kind==='db')){
     S.primary=t.id==='map'?'map':t.id==='flow'?'sop':'db';S.source=null;
@@ -1768,7 +1789,7 @@ function renderEditor(){
   }else{S.primary='src';S.source=t.id;
     /* Левая и лента идут за центром: «это просто дублирование», если они смотрят
        в разные стороны (Николай, 25.09). */
-    const follow={doc:'acc',msg:'ppl',news:'seg',agent:'ag',ourp:'ag',org:t.ref==='us'?'us':'acc',draft:'ppl'}[t.kind];
+    const follow={doc:'doc',msg:'ppl',news:'seg',agent:'ag',ourp:'ag',org:t.ref==='us'?'us':'acc',draft:'ppl'}[t.kind];
     if(follow)setEnt(follow);}
   renderTabs();
   if(!MAPEL)buildMapView();
@@ -1786,7 +1807,8 @@ function renderEditor(){
      Сама лента не исчезает никогда — свернуть её можно только руками. */
   document.body.classList.toggle('focus-mode',!!S.feedDown);
   $('view2').innerHTML=src?renderSource(src):'';
-  renderCrumbs();}
+  renderCrumbs();
+  if(S.ent!==entWas){renderActivity();renderSide();renderPanel();renderFormula();}}
 function renderCrumbs(){const t=S.tabs.find(x=>x.id===S.tab)||S.tabs[0];let c='';
   if(t.kind==='map'){c=[['segment','Segments'],['accounts','Accounts'],['people','People']].map(([k,n])=>`<button class="crumb ${S.level===k?'on':''}" data-level="${k}"${k==='people'&&!S.mapAcc?' disabled title="Pick a company first — this rung lives inside one"':''}>${n}</button>`).join('<span class="faint">›</span>')+(S.seg?` <span class="faint">·</span> ${segBy(S.seg).name}`:'')+(S.sel&&S.sel.type==='acc'?` <span class="faint">·</span> <b>${esc(ACCBY[S.sel.id].name)}</b>`:'');}
   else if(t.kind==='db')c=`Database <span class="faint">›</span> <b>${t.ref==='acc'?'accounts':'people'}</b> <span class="faint">·</span> ${S.seg?segBy(S.seg).name:'all segments'}`;
@@ -2361,7 +2383,7 @@ function renderCamp(seg){
 
 /* =================== documents, messages, news, org =================== */
 function renderDoc(id){const d=DOCS[id],a=ACCBY[d.acc],st=S.docs[id]||{};const P=peopleOf(a);
-  const isMSA=d.kind==='MSA',canSign=S.profile==='owner';
+  const isMSA=d.kind==='MSA',canSign=S.profile==='head';
   /* «По идее здесь должен документ отображаться — на подписи подаёт там или ещё что-то.
      Я не понимаю, что такое» (Николай, 06.10, 10:33). Тело документа было видно, а где
      он стоит — нет: подписанты показывались только у MSA. Теперь у каждого вида видно,
@@ -2799,10 +2821,16 @@ function renderDB(){
 /* Две роли. Николай 29.09: управленец и продавец — под них описываются все джобы.
    Всё, что раньше было отдельными профилями «операции» и «юрист», — это работы
    управленца: подпись и край свободы агента решает он. */
-const WHOM={owner:'Revenue owner',sdr:'SDR'};
+/* Пять ролей утверждены голосом на планёрке 06.10, 13:06: «вы же согласны, что ролей
+   не две, скорее всего. Давайте прямо сейчас их утвердим». Head и GTM Eng стоят
+   поперёк процесса и видят всю линию, SDR · AE · CSM — свой отрезок (24:18). */
+const WHOM={head:'Head',sdr:'SDR',ae:'AE',csm:'CSM',gtm:'GTM Eng'};
+const ROLESPAN={head:'the whole line',gtm:'the rules the agents run by',
+  sdr:'finding, qualifying, booking the meeting',ae:'discovery, offer, signature',
+  csm:'handover, first invoice, renewal'};
 function allTriage(){
   return Object.keys(WHOM).flatMap(k=>triageFor(k).map(x=>({...x,own:k})))
-    .concat(((S.plan&&S.plan.extra)||[]).map(x=>({...x,own:'owner'})));
+    .concat(((S.plan&&S.plan.extra)||[]).map(x=>({...x,own:'head'})));
 }
 function todayHTML(){
   const p=S.profile,tri=allTriage();
@@ -2846,7 +2874,7 @@ function todayHTML(){
     ${nxt.length?`<div class="tdnext"><span class="k">clear it and the next one is</span>
       <ol>${nxt.map(n=>`<li>${esc(n.t)}</li>`).join('')}</ol></div>`:''}
 
-    ${S.plan?`<div class="planbar"><span class="k">Plan · taken in W${S.plan.w} by the revenue owner</span>${p==='owner'?'<button class="lnk" data-do="planclear">Drop it</button>':''}<span class="t">${esc(S.plan.nm)}</span><span class="s">what it is worth by W${TMAX}: ARR <b class="num">${usd(S.plan.end)}</b>, Conv <b class="num">${pct(S.plan.conv)}</b> · ${planDone()} of ${pl.length} moves settled · <button class="lnk" data-ask="Simulate revenue scenarios">compare the scenarios again</button></span></div>`:''}
+    ${S.plan?`<div class="planbar"><span class="k">Plan · taken in W${S.plan.w} by the revenue owner</span>${p==='head'?'<button class="lnk" data-do="planclear">Drop it</button>':''}<span class="t">${esc(S.plan.nm)}</span><span class="s">what it is worth by W${TMAX}: ARR <b class="num">${usd(S.plan.end)}</b>, Conv <b class="num">${pct(S.plan.conv)}</b> · ${planDone()} of ${pl.length} moves settled · <button class="lnk" data-ask="Simulate revenue scenarios">compare the scenarios again</button></span></div>`:''}
 
     ${mine.length?`<div class="tdsec">Your move · ${mine.filter(x=>!S.tri[x.id]).length}</div>
       <div class="tdq">${mine.map(row).join('')}</div>`
@@ -2861,18 +2889,27 @@ function todayHTML(){
 
 /* =================== agent: focus (ToC) + triage + chat, per profile =================== */
 function triageFor(p){
-  if(p==='owner')return [
+  const T={
+  head:[
     {id:'t-sign',f:'ACV',u:'now',w:'waiting on you since Monday · 4d',t:'Sign the Brightline Dental MSA · $38K/year',s:'only a human signs · the client has not signed either',a:[['Open to sign','open:doc:d-msa']]},
-    {id:'t-knob',f:'Conv',u:'now',w:'broken for 6 weeks',t:'Turn the Qualifier dial: Auto \u2192 Approve',s:'lifts the constraint on the system \u00b7 the Conv forecast for W42 rises',a:[['Approve','knob'],['Decline','no']]},
-    {id:'t-dentrix',f:'Retention',u:'now',w:'the agent is held until you decide',t:'Outreach promised a Dentrix integration \u2014 outside the catalogue',s:'the never-do fired \u00b7 exposure to a claim',a:[['Open the thread','open:msg:p-moss']]},
-    {id:'t-cmmc',f:'Segment',u:'soon',t:'Market fact: CMMC Phase 2 is paused \u2014 lower the Compliance-first forecast?',s:'Federal Register \u00b7 moves Segment',a:[['Confirm','fact:m4:ok'],['Refute','fact:m4:no']]},
-    {id:'t-seller',f:'Reach',u:'soon',t:'Put Outreach back to work after the hard stop (CAN-SPAM)?',s:'the never-do \u201cno promises outside the catalogue\u201d fired 2\u00d7',a:[['Resume','resume'],['Keep it stopped','no']]},
-    {id:'t-inv',f:'Retention',u:'soon',t:'Hale & Ortiz CPA: invoice #1042 is 12d overdue',s:'the client promised to pay next week',a:[['Open the invoice','open:doc:d-inv']]}];
-  return [
-    {id:'t-diaz',f:'Conv',u:'now',w:'silent 9d',t:'Karen Diaz (Brightline) has been silent 9d \u2014 a reminder draft is ready',s:'Dr. Moss will not move without her',a:[['Open','open:msg:p-diaz']]},
-    {id:'t-hale',f:'Conv',u:'soon',t:'Tom Hale: \u201c$38K is a lot\u201d \u2014 a reply with the numbers is drafted',s:'clears the constraint on this deal',a:[['Open','open:msg:p-hale']]},
-    {id:'t-v2',f:'ACV',u:'soon',t:'Brightline offer v2 with an 8 % discount \u2014 approve it?',s:'a draft from the Pricing agent',a:[['Open','open:doc:d-offer2']]},
-    {id:'t-svc',f:'Retention',u:'fyi',t:'Service: 3 clients with no first value for over 14d',s:'an early churn signal',a:[['Show me','open:agent:service']]}];}
+    {id:'t-knob',f:'Conv',u:'now',w:'broken for 6 weeks',t:'Turn the Qualifier dial: Auto → Approve',s:'lifts the constraint on the system · the Conv forecast for W42 rises',a:[['Approve','knob'],['Decline','no']]},
+    {id:'t-cmmc',f:'Segment',u:'soon',t:'Market fact: CMMC Phase 2 is paused — lower the Compliance-first forecast?',s:'Federal Register · moves Segment',a:[['Confirm','fact:m4:ok'],['Refute','fact:m4:no']]},
+    {id:'t-seller',f:'Reach',u:'soon',t:'Put Outreach back to work after the hard stop (CAN-SPAM)?',s:'the never-do “no promises outside the catalogue” fired 2×',a:[['Resume','resume'],['Keep it stopped','no']]}],
+  sdr:[
+    {id:'t-diaz',f:'Conv',u:'now',w:'silent 9d',t:'Karen Diaz (Brightline) has been silent 9d — a reminder draft is ready',s:'Dr. Moss will not move without her',a:[['Open','open:msg:p-diaz']]},
+    {id:'t-hale',f:'Conv',u:'soon',t:'Tom Hale: “$38K is a lot” — a reply with the numbers is drafted',s:'clears the constraint on this deal',a:[['Open','open:msg:p-hale']]},
+    {id:'t-reach',f:'Reach',u:'soon',t:'Price-first: 31,787 accounts, 0.2 % reach — the segment is barely touched',s:'the biggest untouched pool · moves Reach',a:[['Show me','showtx']]}],
+  ae:[
+    {id:'t-v2',f:'ACV',u:'now',w:'a draft is waiting',t:'Brightline offer v2 with an 8 % discount — approve it?',s:'a draft from the Pricing agent · the discount is inside the limit',a:[['Open','open:doc:d-offer2']]},
+    {id:'t-payer',f:'Conv',u:'now',w:'offer → signature is the slowest step',t:'Tom Hale pays and is not in the thread',s:'43 % of offers reach signature against a plan of 60 %',a:[['Open the thread','open:msg:p-hale']]}],
+  csm:[
+    {id:'t-inv',f:'Retention',u:'now',w:'12d overdue',t:'Hale & Ortiz CPA: invoice #1042 is 12d overdue',s:'the client promised to pay next week',a:[['Open the invoice','open:doc:d-inv']]},
+    {id:'t-svc',f:'Retention',u:'soon',t:'Service: 3 clients with no first value for over 14d',s:'an early churn signal',a:[['Show me','open:agent:service']]}],
+  gtm:[
+    {id:'t-dentrix',f:'Retention',u:'now',w:'the agent is held until you decide',t:'Outreach promised a Dentrix integration — outside the catalogue',s:'the never-do fired · exposure to a claim',a:[['Open the thread','open:msg:p-moss']]},
+    {id:'t-qual',f:'Conv',u:'now',w:'unscreened since W36',t:'The Qualifier has been letting Price-first through unscreened',s:'Conv 36 → 12 % · the dial is on Auto',a:[['Open the agent','open:agent:qual']]},
+    {id:'t-seller2',f:'Reach',u:'soon',t:'Outreach is stopped after the hard stop — review the rule?',s:'the never-do fired 2× in a week',a:[['Open the agent','open:agent:seller']]}]};
+  return T[p]||T.head;}
 const FEVER=[
   {id:'pf',nm:'Price-first TX/FL',x:.40,y:.92,open:null,why:'Conv 36 → 12 %: the Qualifier lets deals through unscreened'},
   {id:'br',nm:'Brightline $38K',x:.62,y:.78,open:'sop:a0',why:'the signature is waiting on Tom Hale (pays)'},
@@ -2895,11 +2932,14 @@ function fever(){const W=300,H=150,pl=28,pb=20,pw=W-pl-8,ph=H-pb-8,X=v=>pl+v*pw,
     if(i<2)h+=`<text class="lab" x="${X(f.x)+(i===0?9:-9)}" y="${Y(f.y)+4}" text-anchor="${i===0?'start':'end'}">${esc(f.nm)}</text>`;});
   return h+'</svg>';}
 function focusFor(p){
-  if(p==='owner'){const B=bnCur();const L=BNS();
-    return {t:B.t,d:B.d+` Constraint ${(S.bn||0)+1} of ${L.length} \u2014 one at a time.`,
-      btn:B.draft?[['Open the draft','open:draft:'+B.id],['Show it on the map','showtx']]
-                 :[['Open the Brightline SOP','open:sop:a0'],['Show it on the map','showtx']]};}
-  return {t:'9 offers in DFW have been silent 8+ days',d:'The biggest is Brightline ($38K): waiting on Tom Hale (pays). Answer his objection \u2014 the rest can wait.',btn:[['Open the Brightline SOP','open:sop:a0'],['Show DFW','showdfw']]};}
+  /* «У account-менеджера своё ограничение в своей области… Head видит вместе с SDR одно
+     и то же, но AE видит только свой кусок» (Николай, 06.10, 24:18). */
+  const L=BNS(), rn=WHOM[p];
+  const mine=L.find(b=>b.role===rn);
+  const B=(p==='head'||p==='gtm')?L[Math.min(S.bn||0,L.length-1)]:(mine||L[Math.min(S.bn||0,L.length-1)]);
+  return {t:B.t,d:B.d+(p==='head'?` Constraint ${(S.bn||0)+1} of ${L.length} — one at a time.`:''),
+    btn:B.draft?[['Open the draft','open:draft:'+B.id],['Show it on the map','showtx']]
+               :[['Open the Brightline SOP','open:sop:a0'],['Show it on the map','showtx']]};}
 const URG={now:0,soon:1,fyi:2};
 
 /* ============ Цепочка узких мест с готовым ходом ============
@@ -3233,7 +3273,7 @@ function simScenarios(){
 function planIds(){return S.plan?S.plan.ids.concat(S.plan.extra.map(x=>x.id)):[];}
 function planDone(){return planIds().filter(id=>S.tri[id]).length;}
 function chooseScenario(i){
-  if(S.profile!=='owner'){toast('The plan is the revenue owner\u2019s call.');return;}
+  if(S.profile!=='head'){toast('The plan is the Head\u2019s call.');return;}
   const x=simScenarios()[i];if(!x)return;const n=x.ids.length+x.extra.length;
   S.plan={i:i,nm:x.nm,end:x.end,conv:x.conv,w:S.t,ids:x.ids.slice(),extra:x.extra.map(m=>({...m}))};
   logAdd('qual',`Plan chosen by the revenue owner: ${x.nm} \u2192 ${n} moves in the queue`,['flat','decision']);
@@ -3255,8 +3295,8 @@ function answerRich(q){
       S4.map((x,i)=>{const n=x.ids.length+x.extra.length,b=S4[0];
         const dA=i===0?'':i<2?(x.end===b.end?' <span class="faint">(same)</span>':` <span class="${x.end>b.end?'up':'down'}">${x.end>b.end?'+':'−'}${usd(Math.abs(x.end-b.end))}</span>`):'';
         const dC=i===0?'':i<2?` <span class="${x.conv>b.conv?'up':'down'}">${x.conv>b.conv?'+':'−'}${Math.abs((x.conv-b.conv)*100).toFixed(1)} pp</span>`:'';
-        return `<div class="scn">${i+1}. <b>${esc(x.nm)}</b> — ARR <span class="num">${usd(x.end)}</span>${dA}, Conv ${pct(x.conv)}${dC}<br><span class="faint">${esc(x.why)}</span>${S.profile==='owner'?`<div class="btns" style="margin-top:4px"><button class="${i===1?'btn pri':'btn'}" data-sim="${i}">Take this one · ${n} move${n===1?'':'s'}</button></div>`:''}</div>`;}).join('')+
-      `<div class="faint" style="margin-top:6px">Rows 1–2 are company-wide ARR; rows 3–4 are one segment’s contribution. Same formula as the one above. By W${TMAX} only Conv moves: a clean funnel shows up there first, and ARR follows it about a quarter later. ${S.profile==='owner'?'Taking one puts its moves in the centre — the machine does not change until you settle each move.':'Which one the company takes is the revenue owner’s call. You will see its moves in Today.'}</div>`};
+        return `<div class="scn">${i+1}. <b>${esc(x.nm)}</b> — ARR <span class="num">${usd(x.end)}</span>${dA}, Conv ${pct(x.conv)}${dC}<br><span class="faint">${esc(x.why)}</span>${S.profile==='head'?`<div class="btns" style="margin-top:4px"><button class="${i===1?'btn pri':'btn'}" data-sim="${i}">Take this one · ${n} move${n===1?'':'s'}</button></div>`:''}</div>`;}).join('')+
+      `<div class="faint" style="margin-top:6px">Rows 1–2 are company-wide ARR; rows 3–4 are one segment’s contribution. Same formula as the one above. By W${TMAX} only Conv moves: a clean funnel shows up there first, and ARR follows it about a quarter later. ${S.profile==='head'?'Taking one puts its moves in the centre — the machine does not change until you settle each move.':'Which one the company takes is the revenue owner’s call. You will see its moves in Today.'}</div>`};
   }
   return null;
 }
@@ -3581,7 +3621,7 @@ function renderEditorLight(){if(S.primary==='map')renderMap();else if(S.primary=
 
 applyLayout();
 if(S.layout.panelRight)document.querySelector('.g3').classList.remove('hgut');
-renderSkins();renderEditor();renderAll();
+renderProfiles();renderSkins();renderEditor();renderAll();
 </script>
 
 </body></html>
