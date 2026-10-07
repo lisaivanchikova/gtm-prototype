@@ -1272,7 +1272,7 @@ function replyClass(txt,act){
   return null;}
 const MEET=[{id:'mt1',acc:'a0',who:'Dr. Jonathan Moss',w:38,when:'Thu 2:00 pm',ttl:'HIPAA dashboard demo \u00b7 30 min',st:['up','on the calendar']},
             {id:'mt2',acc:'a1',who:'Tom Hale',w:38,when:'not scheduled',ttl:'Price walkthrough: $1,400 freelancer vs $3,170 with an SLA',st:['warn','awaiting a yes']}];
-const BUILD='Oct 7, 22:05';   /* отметка сборки: единственное место, где она живёт */
+const BUILD='Oct 7, 22:50';   /* отметка сборки: единственное место, где она живёт */
 const S={t:NOW,seg:null,downOnly:false,sel:null,level:'segment',K:1,
   knob:{scout:2,qual:2,seller:2,pricer:1,service:1},profile:'head',
   side:'tree',ent:'seg',agView:null,mapAcc:null,bn:0,sent:{},skin:'rev',ef:{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false},ptab:'market',job:'',stF:'',stage:'',primary:'map',source:null,orgOpen:false,sopAcc:'a0',lastRef:{},tabs:[{id:'map',kind:'map',ref:null,title:'Map'},{id:'acc',kind:'org',ref:'a0',title:'Account'},{id:'person',kind:'msg',ref:'p-hale',title:'Person'},{id:'flow',kind:'sop',ref:'a0',title:'Workflow'},{id:'doc',kind:'doc',ref:'d-msa',title:'Document'}],tab:'map',
@@ -1640,7 +1640,9 @@ const FFLD={
   newonly:{lbl:'unverified facts only',hint:'while unconfirmed, these facts stay out of the formula',type:'tog',get:()=>!!S.ef.newonly,set:v=>{S.ef.newonly=v;}},
   down:   {lbl:'stuck or leaving only',hint:'no movement for 8 days, or a churn signal',type:'tog',get:()=>!!S.downOnly,set:v=>{S.downOnly=v;}}};
 const FSET={seg:['seg','job','newonly'],acc:['seg','job','st','stage','down'],ppl:['role','src'],
-            flow:['proc','stage'],doc:['dkind','seg'],ag:['arole','astate'],us:['arole','astate']};
+            /* Сегмент — главный способ сузить поток: рассылка делается по сегменту,
+               и список обещает это прямо в подписи. */
+            flow:['seg','proc','stage'],doc:['dkind','seg'],ag:['arole','astate'],us:['arole','astate']};
 function filterBar(ent){
   S.ef=S.ef||{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false};
   const keys=FSET[ent]||FSET.acc, allf=keys.map(k=>[k,FFLD[k]]).filter(x=>x[1]);
@@ -1779,8 +1781,9 @@ function renderSide(){
   if(S.side==='tree'){const cut=h.indexOf('<div class="grp2"');if(cut>0)h=h.slice(0,cut);
     /* Дерево он просил «отсюда куда-то либо в рабочее пространство перенести» (06.10, 05:22) —
        перенести, а не стереть. Полный список живёт таблицей в рабочей области, вход одной строкой. */
-    const dbk={seg:'acc',acc:'acc',ppl:'person',doc:'doc',flow:'acc'}[S.ent];
-    if(dbk)h+=`<button class="dblink" data-open="db:${dbk}">Everything as a table ↗</button>`;
+    const dbk={seg:'acc',acc:'acc',ppl:'person',doc:'doc'}[S.ent];
+    if(S.ent==='flow')h+=`<button class="dblink" data-open="flowlist">All campaigns and deals ↗</button>`;
+    else if(dbk)h+=`<button class="dblink" data-open="db:${dbk}">Everything as a table ↗</button>`;
     else if(S.ent==='ag'||S.ent==='us')h+=`<button class="dblink" data-open="us">Our people, agents and mailboxes ↗</button>`;}
   $('side').innerHTML=h;
 }
@@ -1794,7 +1797,7 @@ function allEntities(){
 /* Пять рабочих областей закреплены навсегда. «Они постоянно висят… области просто так
    не исчезают и не появляются» (Николай, 06.10, Telegram). Каждая помнит свой последний
    объект: «тот старый, на которого я до этого кликнул, он будет в этом view висеть» (20:12:40). */
-const VIEWOF={map:'map',today:'map',sop:'flow',camp:'flow',db:'acc',org:'acc',msg:'person',agent:'person',ourp:'person',doc:'doc',draft:'doc',news:'doc'};
+const VIEWOF={map:'map',today:'map',sop:'flow',camp:'flow',flowlist:'flow',db:'acc',org:'acc',msg:'person',agent:'person',ourp:'person',doc:'doc',draft:'doc',news:'doc'};
 function setView(kind,id){const v=VIEWOF[kind]; if(!v)return null;
   const tb=S.tabs.find(x=>x.id===v); if(v!=='map'){tb.kind=kind;tb.ref=id;}
   /* Область Person делят две зоны, People и Agents; область Account — юрлица и «мы».
@@ -1809,7 +1812,7 @@ function openTab(kind,id,title){const v=setView(kind,id); if(!v)return; S.tab=v;
    «как отличить, хочу я фильтровать карту или открыть рассылку» (Лиза, 07.10).
    Хозяин один — центр. Зона ведёт в него, фильтры и лента идут за ним. */
 const ENTVIEW={seg:'map',acc:'acc',ppl:'person',flow:'flow',doc:'doc',ag:'person'};
-const ENTKIND={seg:['map','today'],acc:['org','db'],ppl:['msg'],flow:['sop','camp'],
+const ENTKIND={seg:['map','today'],acc:['org','db'],ppl:['msg'],flow:['sop','camp','flowlist'],
                doc:['doc','draft','news'],ag:['agent','ourp']};
 /* Ступень карты — тоже предмет: пузыри сегментов, точки юрлиц, люди вокруг одного. */
 const MAPENT={segment:'seg',accounts:'acc',people:'ppl'};
@@ -1877,6 +1880,7 @@ function renderEditor(){
     if(t.kind==='db')S.dbKind=t.ref;
     if(t.kind==='sop')S.sopAcc=t.ref;
     S.campSeg=t.kind==='camp'?t.ref:null;
+    S.flowList=t.kind==='flowlist';
     /* Кампания — поток, и живёт в зоне Workflows: иначе нажатие Workflows при
        открытой кампании подсвечивало People. Лента flow — это account и people
        вместе, так что люди кампании из неё не пропадают. */
@@ -3591,6 +3595,8 @@ document.addEventListener('keydown',e=>{if((e.metaKey||e.ctrlKey)&&e.key.toLower
 /* =================== routing =================== */
 function openRef(k){
   const [type,id,id2]=k.split(':');
+  if(type==='flowlist'){openTab('flowlist',null);setEnt('flow');renderAllButMap();return;}
+  if(type==='camp'){openTab('camp',id);S.campStep=1;setEnt('flow');renderAllButMap();return;}
   if(type==='draft'){const B=BNS().find(x=>x.id===id)||bnCur();
     openTab('draft',B.id,'Draft · '+(personById(B.draft.to)||{nm:''}).nm.split(' ').slice(-1)[0]);
     setEnt('ppl');S.sel={type:'person',id:B.draft.to};renderAllButMap();return;}
@@ -3848,7 +3854,42 @@ function alarmHTML(){
 function renderAll(){renderFormula();renderFilters();renderActivity();renderSide();renderEditorLight();renderPanel();renderAgent();renderStatus();}
 /* Одно правило — одно место. Раньше центр рисовали двое, и лёгкий путь не знал
    про кампанию: разговор с агентом сбрасывал её на СОП. */
-function paintCentre(){$('sopview').innerHTML=S.campSeg?renderCamp(S.campSeg):renderSOP(ACCBY[S.sopAcc]);}
+function paintCentre(){$('sopview').innerHTML=S.flowList?renderFlowList():S.campSeg?renderCamp(S.campSeg):renderSOP(ACCBY[S.sopAcc]);}
+/* «Я так и не увидела, где это делать» (Лиза, 07.10) — про настройку рассылки на целый
+   сегмент. Кнопка была: «Make a campaign for this segment» в подвале карточки под лентой.
+   Симулятор находил её за один клик и считал работу достижимой; человек туда не смотрит.
+   Прибор меряет достижимость, а не заметность, и это его предел.
+   Потоки двух видов — рассылка по сегменту и сделка по юрлицу — стоят теперь списком
+   в своей же области, как и договаривались: «вкладка помнит последний, зона показывает
+   оба». Отсюда же и создаётся новая рассылка. */
+function flowRows(){
+  const t=S.t;
+  const camps=SEGS.filter(g=>!S.seg||g.id===S.seg).map(g=>{
+    const pool=campPool(g.id), acc=ACC.filter(a=>a.seg===g.id&&stateAt(a,t));
+    return {id:'camp:'+g.id,nm:g.name,abc:g.abc,kind:'campaign',
+      reach:`${int(acc.length)} companies · ${int(pool.length)} people`,
+      stg:'ready to send',mv:null,acv:0};});
+  const deals=ACC.filter(a=>{const e=stateAt(a,t);return e&&e.s>=1&&e.s<=4&&inF(a);})
+    .sort((x,y)=>y.acv-x.acv)
+    .map(a=>{const e=stateAt(a,t);
+      return {id:'sop:'+a.id,nm:a.name,a,kind:'deal',
+        reach:`${peopleOf(a).length} people`,stg:STAGE[e.s],mv:momentum(a,t),acv:a.acv};});
+  return {camps,deals};}
+function renderFlowList(){
+  const {camps,deals}=flowRows(), rows=camps.concat(deals);
+  const row=r=>`<tr data-open="${r.id}">
+    <td class="nm">${r.kind==='campaign'?`<span class="av sq">${esc(r.abc)}</span>`:logo(r.a,'sq')}${esc(r.nm)}</td>
+    <td><span class="chip ${r.kind==='campaign'?'up':'flat'}">${r.kind}</span></td>
+    <td>${esc(r.reach)}</td>
+    <td>${esc(r.stg)}</td>
+    <td class="num ${r.mv==null?'':mcls(r.mv)}">${r.mv==null?'':arrow(r.mv)}</td>
+    <td class="num">${r.acv?usd(r.acv):'\u2014'}</td></tr>`;
+  return `<div class="dbh"><div class="r1"><h3>Workflows</h3>
+      <span class="cnt">${int(camps.length)} campaign${camps.length===1?'':'s'} \u00b7 ${int(deals.length)} deals in play${S.seg?' \u00b7 '+esc(segBy(S.seg).name):''}</span>
+      <button class="btn pri" data-camp="all">New campaign</button></div>
+      <div class="note">A campaign reaches a whole segment at once; a deal is one account\u2019s path to a signature. Both are workflows, so both live here. Pick a segment on the left and the list narrows to it.</div></div>
+    <table class="db"><thead><tr><th>Workflow</th><th>Kind</th><th>Reaches</th><th>Stage</th><th>Movement</th><th>ACV</th></tr></thead>
+    <tbody>${rows.map(row).join('')}</tbody></table>`;}
 function renderEditorLight(){if(S.primary==='map')renderMap();else if(S.primary==='db')renderDB();else paintCentre();const src=S.source&&S.tabs.find(x=>x.id===S.source);if(src&&src.kind!=='msg')$('view2').innerHTML=renderSource(src);renderTabs();renderCrumbs();}
 
 applyLayout();
