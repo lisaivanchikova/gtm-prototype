@@ -423,6 +423,9 @@ body.focus-mode .ptabs{cursor:pointer}
 .facts{display:flex;flex-direction:column;gap:8px}
 .fact{display:flex;gap:8px;align-items:flex-start;border:1px solid var(--border);border-radius:8px;padding:8px 10px}
 .fact .grow{flex:1;display:flex;flex-direction:column;gap:4px}
+.fact.mb{background:none;font:inherit;color:inherit;text-align:left;cursor:pointer;align-items:center}
+.fact.mb:hover{background:var(--hover)}
+.fact.mb .note{font-weight:400}
 .org{padding:16px;display:flex;flex-direction:column;gap:12px;min-width:640px}
 .orgcols{display:flex;gap:16px;align-items:flex-start;justify-content:center;flex-wrap:wrap}
 .orgcol{display:flex;flex-direction:column;align-items:center;gap:0;min-width:0}
@@ -1266,7 +1269,7 @@ function replyClass(txt,act){
   return null;}
 const MEET=[{id:'mt1',acc:'a0',who:'Dr. Jonathan Moss',w:38,when:'Thu 2:00 pm',ttl:'HIPAA dashboard demo \u00b7 30 min',st:['up','on the calendar']},
             {id:'mt2',acc:'a1',who:'Tom Hale',w:38,when:'not scheduled',ttl:'Price walkthrough: $1,400 freelancer vs $3,170 with an SLA',st:['warn','awaiting a yes']}];
-const BUILD='Oct 7, 20:55';   /* отметка сборки: единственное место, где она живёт */
+const BUILD='Oct 7, 21:30';   /* отметка сборки: единственное место, где она живёт */
 const S={t:NOW,seg:null,downOnly:false,sel:null,level:'segment',K:1,
   knob:{scout:2,qual:2,seller:2,pricer:1,service:1},profile:'head',
   side:'tree',ent:'seg',agView:null,mapAcc:null,bn:0,sent:{},skin:'rev',ef:{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false},ptab:'market',job:'',stF:'',stage:'',primary:'map',source:null,orgOpen:false,sopAcc:'a0',lastRef:{},tabs:[{id:'map',kind:'map',ref:null,title:'Map'},{id:'acc',kind:'org',ref:'a0',title:'Account'},{id:'person',kind:'msg',ref:'p-hale',title:'Person'},{id:'flow',kind:'sop',ref:'a0',title:'Workflow'},{id:'doc',kind:'doc',ref:'d-msa',title:'Document'}],tab:'map',
@@ -1527,7 +1530,10 @@ const ENTS=[
 const ENTNM={seg:'Segments',acc:'Accounts',ppl:'People',flow:'Workflows',doc:'Documents',ag:'Agents',us:'Agents'};
 /* Правило Николая: лента следует за кнопкой слева. Значит у каждой кнопки
    своя лента, и ни одна лента не остаётся без входа. */
-const ENTFEED={seg:'market',acc:'account',ppl:'people',flow:'flow',doc:'account',ag:'agents',us:'agents'};
+/* Лента «нас» — Channel: что ушло и что дошло. Журнал агента лежит в его карточке,
+   поэтому дублировать его лентой незачем, а ленте Channel до сих пор негде было
+   открыться: ни одна зона её не держала. */
+const ENTFEED={seg:'market',acc:'account',ppl:'people',flow:'flow',doc:'account',ag:'agents',us:'channel'};
 /* Роль не меняет ни зоны, ни дом. «А когда выбирает роль, например, юрист, у него
    будет срез по документам… а, например, у Карины узкое место: лид не ответил.
    Обрати внимание, вот здесь в ленте новостей, вот здесь у тебя вот эта кнопочка.
@@ -1759,11 +1765,7 @@ function renderSide(){
           ${agAv(a.id)}<span class="nm">${esc(a.nm)}</span>
           <span class="rt ${ASTATE[a.state][0]}">${ASTATE[a.state][1]}</span></button>`).join('');
       }
-      const mbad=MAIL.filter(m=>m.lim&&m.sent>=m.lim).length;
-      h+=`<div class="grp2">Our mailboxes · ${MAIL.length}</div>`;
-      h+=MAIL.map(m=>`<button class="row" data-mail="${m.id}"><span class="av sq">✉</span><span class="nm" title="${esc(m.adr)}">${esc(m.adr)}</span>
-        <span class="rt">${m.lim&&m.sent>=m.lim?'<span class="why down">quota spent</span>':`<span class="stg">${m.sent}/${m.lim||'—'}</span>`}</span></button>`).join('');
-      if(mbad)h+=rule(`<b class="down">${mbad} mailbox has spent its daily quota</b> — some mail will not go out today`);
+      /* Ящики переехали на страницу «мы»: списки живут в рабочей области, не здесь. */
     }
   } else {
     h=`<div class="filt"><div class="hdr">Signed in as</div><div>${esc($('profile').selectedOptions[0].text)}</div><div class="note">The agent on the right tunes its focus, its cards and its alarms to this person’s jobs. Switch profile in the top bar.</div></div>`;
@@ -1776,7 +1778,7 @@ function renderSide(){
        перенести, а не стереть. Полный список живёт таблицей в рабочей области, вход одной строкой. */
     const dbk={seg:'acc',acc:'acc',ppl:'person',doc:'doc',flow:'acc'}[S.ent];
     if(dbk)h+=`<button class="dblink" data-open="db:${dbk}">Everything as a table ↗</button>`;
-    else if(S.ent==='ag'||S.ent==='us')h+=`<button class="dblink" data-open="us">Our people and agents ↗</button>`;}
+    else if(S.ent==='ag'||S.ent==='us')h+=`<button class="dblink" data-open="us">Our people, agents and mailboxes ↗</button>`;}
   $('side').innerHTML=h;
 }
 function allEntities(){
@@ -2687,11 +2689,24 @@ function renderOrg(){
     return `<div class="orgcol">${human(p)}`
       +(mine.length?`<div class="orgstem"></div><div class="orgbots">${mine.map(bot).join('')}</div>`:'')
       +`</div>`;};
+  /* Ёмкость отправки — часть нашей машины, и стоит там же, где люди и агенты: ящиками
+     отправляют наши агенты, а отвечают за них наши люди. Список был в левой колонке и
+     пропал, когда списки ушли из неё в рабочую область — обрезка срезала его вместе
+     с деревом, и работа «держать инфраструктуру отправки живой» осталась без места. */
+  const mbad=MAIL.filter(m=>m.lim&&m.sent>=m.lim).length;
+  const mailbox=m=>`<button class="fact mb" data-mail="${m.id}" data-tip="${esc('What went out through '+m.adr+' — the feed below narrows to this mailbox')}">
+    <span class="grow"><b>mailbox ${esc(m.adr)}</b><span class="note">${esc(m.kind)} · warmed ${m.warm} %</span></span>
+    <span class="chip ${m.st[0]}">${m.lim?`${m.sent} / ${m.lim} today`:esc(m.st[1])}</span></button>`;
   return `<div class="org">
     <div class="orgrow">${human(boss)}</div>
     ${bossBots.length?`<div class="orgbots own">${bossBots.map(bot).join('')}</div>`:''}
     <div class="orgline"></div>
     <div class="orgcols">${reports.map(col).join('')}</div>
+    <div class="hdr">Our capacity to send${mbad?` — <b class="down">${mbad} mailbox has spent its daily limit</b>`:''}</div>
+    <div class="facts">${MAIL.map(mailbox).join('')}</div>
+    <div class="note">A mailbox sends up to its daily limit and no further: above it, mail stops
+      landing instead of going out. The feed below is every send across all of them — pick
+      a mailbox to narrow it to one.</div>
   </div>`;}
 
 /* =================== panel: three feeds + agents log, one uniform item =================== */
@@ -2854,7 +2869,9 @@ function renderEcard(){
     h=`<div class="top"><span class="av sq big">✉</span><div><h3>Channel · what landed</h3><div class="sub">four weeks of sending across every mailbox</div></div></div>`
       +params([['Sent',int(n)],['Landed',pct(n?ok/n:0,0)],['Bounced',int(bad)],['Opted out',int(out)],['Complaints',int(spam)]])
       +`<div class="hdr">By mailbox</div>`+MAIL.map(m=>{const r=rows.filter(d=>d.mail===m.id);const o2=r.filter(d=>d.k==='ok').length;
-        return `<div class="mailrow" style="padding-left:0"><span class="adr">${esc(m.adr)}</span>${m.warm<100?`<span class="warmb"><i style="width:${m.warm}%"></i></span>`:''}<span class="lim">${m.lim?m.sent+'/'+m.lim:'—'}</span><span class="chip ${r.length&&o2/r.length<.85?'down':'up'}">${r.length?pct(o2/r.length,0):'—'}</span></div>`;}).join('')
+        /* Прогрев и дневной лимит — это ёмкость, и она стоит в центре, на странице «мы».
+           Лента отвечает за историю: сколько через этот ящик дошло. Одна цифра — одно место. */
+        return `<div class="mailrow" style="padding-left:0"><span class="adr">${esc(m.adr)}</span><span class="chip ${r.length&&o2/r.length<.85?'down':'up'}">${r.length?pct(o2/r.length,0)+' landed':'nothing sent'}</span></div>`;}).join('')
       +`<div class="note">A complaint or an opt-out silences that person across every mailbox at once. The limit protects the account; it is not a quota to spend.</div>`;}
   else if(tab==='flow'){const a=ACCBY[S.sopAcc],e=stateAt(a,t),m=momentum(a,t),d=e?daysIn(e,t):0;
     h=`<div class="top">${logo(a,'sq big')}<div><h3>${esc(a.name)}</h3><div class="sub">the flow of one deal: who owes what to whom to get the document signed</div></div></div>`
