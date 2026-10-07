@@ -591,7 +591,10 @@ body.focus-mode .ptabs{cursor:pointer}
 .statusbar{background:var(--title);border-top:1px solid var(--border);display:flex;align-items:center;gap:0 14px;min-height:28px;font-size:11px;color:var(--fg2);overflow:hidden;white-space:nowrap;padding-right:4px}
 .statusbar .stat{display:flex;align-items:center;gap:0;min-width:0;overflow:hidden}
 .formula{display:flex;align-items:center;gap:0 3px;font-family:var(--ui);font-variant-numeric:tabular-nums;letter-spacing:0;font-size:11px;flex:none}
-.formula .fres{display:inline-flex;align-items:baseline;gap:4px;color:var(--fg);font-weight:600;font-size:11px}
+.formula .fres{display:inline-flex;align-items:baseline;gap:4px;color:var(--fg);font-weight:600;font-size:11px;background:none;border:0;font-family:inherit;cursor:pointer;padding:0 2px;border-bottom:1px solid transparent}
+.formula .fres:hover{border-bottom-color:var(--fg3)}
+.formula .fres:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.formula .fres.pointed{border-bottom-color:var(--accent)}
 .formula .fm{display:inline-flex;align-items:baseline;gap:4px;color:var(--fg2);padding:0 2px;background:none;border:0;font:inherit;cursor:pointer;border-bottom:1px solid transparent}
 /* Множитель — вход в работу, значит он обязан выглядеть нажимаемым. */
 .formula .fm:hover{color:var(--fg);border-bottom-color:var(--fg3)}
@@ -1269,7 +1272,7 @@ function replyClass(txt,act){
   return null;}
 const MEET=[{id:'mt1',acc:'a0',who:'Dr. Jonathan Moss',w:38,when:'Thu 2:00 pm',ttl:'HIPAA dashboard demo \u00b7 30 min',st:['up','on the calendar']},
             {id:'mt2',acc:'a1',who:'Tom Hale',w:38,when:'not scheduled',ttl:'Price walkthrough: $1,400 freelancer vs $3,170 with an SLA',st:['warn','awaiting a yes']}];
-const BUILD='Oct 7, 21:30';   /* отметка сборки: единственное место, где она живёт */
+const BUILD='Oct 7, 22:05';   /* отметка сборки: единственное место, где она живёт */
 const S={t:NOW,seg:null,downOnly:false,sel:null,level:'segment',K:1,
   knob:{scout:2,qual:2,seller:2,pricer:1,service:1},profile:'head',
   side:'tree',ent:'seg',agView:null,mapAcc:null,bn:0,sent:{},skin:'rev',ef:{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false},ptab:'market',job:'',stF:'',stage:'',primary:'map',source:null,orgOpen:false,sopAcc:'a0',lastRef:{},tabs:[{id:'map',kind:'map',ref:null,title:'Map'},{id:'acc',kind:'org',ref:'a0',title:'Account'},{id:'person',kind:'msg',ref:'p-hale',title:'Person'},{id:'flow',kind:'sop',ref:'a0',title:'Workflow'},{id:'doc',kind:'doc',ref:'d-msa',title:'Document'}],tab:'map',
@@ -2234,6 +2237,19 @@ document.addEventListener('mouseout',e=>{
 });
 function fmulAsk(k){
   const F=formulaAt(S.t), P=formulaAt(S.t-WIN), E=formulaAt(TMAX);
+  /* Итог спрашивают иначе, чем множитель: не «почему он такой», а «куда он придёт».
+     Ответ кончается ходом дальше — сравнением сценариев, у которого своего места
+     на экране нет и не должно быть: это разговор, а не экран. */
+  if(k==='arr'){
+    const d=E.end-F.end;
+    S.chat.push({u:1,t:esc('Where does revenue end up if we change nothing?')});
+    S.chat.push({u:0,t:`<b>ARR</b> is <b>${usd(F.end)}</b> today, ${usd(P.end)} a week ago.`
+      +`<div class="note" style="margin-top:6px">If nothing changes, by W${TMAX} it is <b>${usd(E.end)}</b> \u2014 ${d>=0?'up':'down'} ${usd(Math.abs(d))} from today. The limit sits on <b>Conv</b>: ${pct(F.conv)} now, ${pct(E.conv)} by then. The other multipliers hold.</div>`
+      +`<div class="btns" style="margin-top:6px"><button class="btn pri" data-ask="Compare the scenarios">Compare the ways to change it</button></div>`});
+    document.querySelectorAll('.formula .fm.pointed,.formula .fres.pointed').forEach(x=>x.classList.remove('pointed'));
+    const fr=document.querySelector('.formula .fres'); if(fr)fr.classList.add('pointed');
+    renderAgent(); agScroll(); return;
+  }
   const NM={ret:'Retention',seg:'Segment',reach:'Reach',conv:'Conv',acv:'ACV',week:'last week'};
   const nm=NM[k]||k;
   const now={ret:pct(F.ret),seg:int(F.N),reach:pct(F.reach,3),conv:pct(F.conv),acv:usd(F.acv),week:usd(F.start)}[k];
@@ -2250,7 +2266,7 @@ function fmulAsk(k){
   S.chat.push({u:0,t:`<b>${esc(nm)}</b> is <b>${esc(now)}</b>, was ${esc(was)} a week ago.`
     +`<div class="note" style="margin-top:6px">${WHY[k]||'No single cause \u2014 it moves with the others.'}</div>`
     +`<div class="note" style="margin-top:6px">If nothing changes, by W${TMAX} it is <b>${esc(end)}</b>.</div>`});
-  document.querySelectorAll('.formula .fm.pointed').forEach(x=>x.classList.remove('pointed'));
+  document.querySelectorAll('.formula .fm.pointed,.formula .fres.pointed').forEach(x=>x.classList.remove('pointed'));
   const el=document.querySelector(`.formula .fm[data-fmul="${k}"]`); if(el)el.classList.add('pointed');
   renderAgent(); agScroll();
 }
@@ -2262,7 +2278,9 @@ function renderFormula(){
   const m=(n,v,d,cls,key)=>`<button class="fm ${cls||''}" data-fmul="${key||n}"><i>${n}</i><span class="v">${ap}${v}</span>${d?`<b>${d}</b>`:''}</button>`;
   const dlt=(x,u,eps)=>{const s=dd(x,u,eps);return s&&s.trim()?s:'';};
   $('formula').innerHTML =
-    `<span class="fres"><i>${S.t>NOW?'ARR forecast':'ARR'}</i><span class="v">${ap}${usd(F.end)}</span><b>${P.end?dlt(F.end/P.end-1,'%',.004):''}</b></span>`
+    /* Итог — тоже вход, и самый частый: смотришь на цифру и спрашиваешь, куда она
+       придёт. Отсюда обе оставшиеся работы Head — прогноз и сравнение сценариев. */
+    `<button class="fres" data-fmul="arr" data-tip="Where this ends up if nothing changes \u2014 and the ways to change it"><i>${S.t>NOW?'ARR forecast':'ARR'}</i><span class="v">${ap}${usd(F.end)}</span><b>${P.end?dlt(F.end/P.end-1,'%',.004):''}</b></button>`
     +`<span class="fo">=</span>`
     +m(`W${S.t-WIN}`,usd(F.start),'','','week')+`<span class="fo">\u00d7</span>`
     +m('Retention',pct(F.ret),dlt(F.ret-P.ret,'pp',.002),'','ret')
