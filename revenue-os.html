@@ -1272,7 +1272,7 @@ function replyClass(txt,act){
   return null;}
 const MEET=[{id:'mt1',acc:'a0',who:'Dr. Jonathan Moss',w:38,when:'Thu 2:00 pm',ttl:'HIPAA dashboard demo \u00b7 30 min',st:['up','on the calendar']},
             {id:'mt2',acc:'a1',who:'Tom Hale',w:38,when:'not scheduled',ttl:'Price walkthrough: $1,400 freelancer vs $3,170 with an SLA',st:['warn','awaiting a yes']}];
-const BUILD='Oct 7, 22:50';   /* отметка сборки: единственное место, где она живёт */
+const BUILD='Oct 7, 23:40';   /* отметка сборки: единственное место, где она живёт */
 const S={t:NOW,seg:null,downOnly:false,sel:null,level:'segment',K:1,
   knob:{scout:2,qual:2,seller:2,pricer:1,service:1},profile:'head',
   side:'tree',ent:'seg',agView:null,mapAcc:null,bn:0,sent:{},skin:'rev',ef:{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false},ptab:'market',job:'',stF:'',stage:'',primary:'map',source:null,orgOpen:false,sopAcc:'a0',lastRef:{},tabs:[{id:'map',kind:'map',ref:null,title:'Map'},{id:'acc',kind:'org',ref:'a0',title:'Account'},{id:'person',kind:'msg',ref:'p-hale',title:'Person'},{id:'flow',kind:'sop',ref:'a0',title:'Workflow'},{id:'doc',kind:'doc',ref:'d-msa',title:'Document'}],tab:'map',
@@ -2588,7 +2588,28 @@ function renderCamp(seg){
     ${body}
     <div class="bnote"><span style="color:var(--accent);font-weight:600">What the agent needs from you:</span>
       <span>${S.camp&&S.camp.subj?'the line is set — “'+esc(S.camp.subj)+'”':'nothing is set yet. Ask the agent on the right to write the line and start it.'}</span></div>
+    ${campCapacity(pool.length-nOff,seg)}
     <div class="bnote"><span class="faint" style="font-size:11px">The log of this campaign is the feed below.</span></div></div>`;}
+/* Рассылку можно было собрать, но не запустить: экран кончался просьбой «попроси
+   агента словами». Работа «дотянуться до выбранных компаний» кончается тем, что
+   письма ушли, — значит на экране должны стоять ёмкость и запуск.
+   Ёмкость считается по ящикам, а не берётся из головы: дневной остаток — это то,
+   что ящики ещё могут отправить сегодня, и он же решает, за сколько дней уйдёт всё. */
+function sendCapacity(){
+  const cold=MAIL.filter(m=>m.lim>0);
+  const perDay=cold.reduce((s,m)=>s+m.lim,0);
+  const leftToday=cold.reduce((s,m)=>s+Math.max(0,m.lim-m.sent),0);
+  return {cold:cold.length,perDay,leftToday};}
+function campCapacity(n,seg){
+  const C=sendCapacity(), run=S.campRun&&S.campRun.seg===seg?S.campRun:null;
+  const days=C.perDay?Math.ceil(Math.max(0,n-C.leftToday)/C.perDay)+(C.leftToday?1:0):0;
+  if(run)return `<div class="bnote"><span style="color:var(--up);font-weight:600">Sending</span>
+    <span>started W${run.w} · <b>${int(run.today)}</b> went out today, <b>${int(run.queued)}</b> queued behind them.
+    The agent keeps to ${int(C.perDay)} a day across ${C.cold} mailboxes and stops on a reply.</span></div>`;
+  return `<div class="bnote"><span style="color:var(--accent);font-weight:600">Capacity:</span>
+    <span><b>${int(n)}</b> people · the mailboxes carry <b>${int(C.perDay)}</b> a day across ${C.cold} of them,
+    <b>${int(C.leftToday)}</b> left today${days?` · all of it goes out over about <b>${days}</b> day${days===1?'':'s'}`:''}.</span>
+    <button class="btn pri" data-camprun="${seg||'all'}" style="margin-left:auto">Start the send</button></div>`;}
 
 /* =================== documents, messages, news, org =================== */
 function renderDoc(id){const d=DOCS[id],a=ACCBY[d.acc],st=S.docs[id]||{};const P=peopleOf(a);
@@ -3621,7 +3642,7 @@ function openRef(k){
 }
 function logAdd(ag,ttl,st){(S.extraLogs=S.extraLogs||[]).push({ag,w:NOW,ttl,st});}
 document.addEventListener('click',e=>{
-  const b=e.target.closest('[data-fmul],[data-open],[data-side],[data-tab],[data-close],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-feeddown],[data-plus],[data-newchat],[data-agundo],[data-weekpick],[data-week],[data-calm],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-f],[data-freset],[data-fclr],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepsel],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-fmode],[data-dbsort],[data-dbmore],[data-dbkind],[data-camp],[data-campsel],[data-campoff],[data-inwin],[data-stuck],[data-mailclear],[data-mark],[data-note],[data-notecancel],[data-ent],[data-mail],[data-common],[data-importfacts],[data-nextbn],[data-influencer],[data-sim],[data-role],[data-triopen],#fDown,#addFact,#addNote');
+  const b=e.target.closest('[data-fmul],[data-open],[data-side],[data-tab],[data-close],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-feeddown],[data-plus],[data-newchat],[data-agundo],[data-weekpick],[data-week],[data-calm],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-f],[data-freset],[data-fclr],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepsel],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-fmode],[data-dbsort],[data-dbmore],[data-dbkind],[data-camp],[data-camprun],[data-campsel],[data-campoff],[data-inwin],[data-stuck],[data-mailclear],[data-mark],[data-note],[data-notecancel],[data-ent],[data-mail],[data-common],[data-importfacts],[data-nextbn],[data-influencer],[data-sim],[data-role],[data-triopen],#fDown,#addFact,#addNote');
   if(!b){if(S.wkOpen&&!e.target.closest('.wkpop')){S.wkOpen=false;renderFilters();}return;}
   if(S.wkOpen&&!b.dataset.weekpick&&!b.dataset.week&&!b.dataset.calm&&!e.target.closest('.wkpop')){S.wkOpen=false;renderFilters();}
   if(b.dataset.pal)$('pal').hidden=true;
@@ -3740,6 +3761,15 @@ document.addEventListener('click',e=>{
   /* Закрывать нечего: пять областей постоянны. */
   if(b.dataset.clearsel){S.sel=null;renderAll();return;}
   if(b.dataset.mailclear){S.mail=null;renderPanel();return;}
+  if(b.dataset.camprun){const seg=b.dataset.camprun;
+    const pool=campPool(seg==='all'?null:seg), off=S.campOff||{};
+    const n=pool.filter(x=>!off[x.id]).length, C=sendCapacity();
+    const today=Math.min(n,C.leftToday);
+    S.campRun={seg:seg==='all'?null:seg,w:S.t,today,queued:n-today};
+    logAdd('seller',`Campaign ${seg==='all'?'across all segments':'· '+segBy(seg).name}: ${n} people queued, ${today} went out today`,['up','started by a human']);
+    renderAllButMap();paintCentre();
+    toast(`The send is on. ${today} went out today, ${n-today} are queued — the mailboxes carry ${C.perDay} a day and the agent stops on a reply.`);
+    return;}
   if(b.dataset.camp){const s=b.dataset.camp;
     openTab('camp',s,'Campaign · '+(s==='all'?'all segments':segBy(s).name));
     S.campStep=1;renderAllButMap();return;}
