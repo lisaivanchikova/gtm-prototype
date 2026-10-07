@@ -589,7 +589,13 @@ body.focus-mode .ptabs{cursor:pointer}
 .statusbar .stat{display:flex;align-items:center;gap:0;min-width:0;overflow:hidden}
 .formula{display:flex;align-items:center;gap:0 3px;font-family:var(--ui);font-variant-numeric:tabular-nums;letter-spacing:0;font-size:11px;flex:none}
 .formula .fres{display:inline-flex;align-items:baseline;gap:4px;color:var(--fg);font-weight:600;font-size:11px}
-.formula .fm{display:inline-flex;align-items:baseline;gap:4px;color:var(--fg2);padding:0 2px}
+.formula .fm{display:inline-flex;align-items:baseline;gap:4px;color:var(--fg2);padding:0 2px;background:none;border:0;font:inherit;cursor:pointer;border-bottom:1px solid transparent}
+/* Множитель — вход в работу, значит он обязан выглядеть нажимаемым. */
+.formula .fm:hover{color:var(--fg);border-bottom-color:var(--fg3)}
+.formula .fm:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+/* Агент называет ограничение — множитель внизу отзывается, чтобы человек
+   один раз увидел, где это живёт, и дальше знал. */
+.formula .fm.pointed{color:var(--fg);border-bottom-color:var(--accent)}
 .formula .fres i,.formula .fm i{font-style:normal;font-family:var(--ui);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--fg3);font-weight:600}
 .formula .fm b,.formula .fres b{font-weight:600;font-size:10px}
 .formula .fm.lim{color:var(--accent);font-weight:600;border-bottom:1px solid var(--accent)}
@@ -1260,7 +1266,7 @@ function replyClass(txt,act){
   return null;}
 const MEET=[{id:'mt1',acc:'a0',who:'Dr. Jonathan Moss',w:38,when:'Thu 2:00 pm',ttl:'HIPAA dashboard demo \u00b7 30 min',st:['up','on the calendar']},
             {id:'mt2',acc:'a1',who:'Tom Hale',w:38,when:'not scheduled',ttl:'Price walkthrough: $1,400 freelancer vs $3,170 with an SLA',st:['warn','awaiting a yes']}];
-const BUILD='Oct 6, 19:30';   /* отметка сборки: единственное место, где она живёт */
+const BUILD='Oct 7, 17:10';   /* отметка сборки: единственное место, где она живёт */
 const S={t:NOW,seg:null,downOnly:false,sel:null,level:'segment',K:1,
   knob:{scout:2,qual:2,seller:2,pricer:1,service:1},profile:'head',
   side:'tree',ent:'seg',agView:null,mapAcc:null,bn:0,sent:{},skin:'rev',ef:{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false},ptab:'market',job:'',stF:'',stage:'',primary:'map',source:null,orgOpen:false,sopAcc:'a0',tabs:[{id:'map',kind:'map',ref:null,title:'Map'},{id:'acc',kind:'org',ref:'a0',title:'Account'},{id:'person',kind:'msg',ref:'p-hale',title:'Person'},{id:'flow',kind:'sop',ref:'a0',title:'Workflow'},{id:'doc',kind:'doc',ref:'d-msa',title:'Document'}],tab:'map',
@@ -2161,20 +2167,62 @@ function selectNode(type,id){
 /* «Формулу вот это, там, время — ну, в самый низ убрать… потому что это реально
    постоянно на виду должно быть, как справочная информация» (Николай, 30.09, 03:19).
    Верх освободился целиком: там остались только имя, поиск и кнопки панелей. */
+
+/* Четыре работы Head живут в строке формулы (JOBS.md, раскладка). Клик по множителю
+   спрашивает агента о нём: что его держит, когда сломался, что будет, если не трогать. */
+/* Второй способ узнать, что строка внизу живая: агент называет ограничение, и
+   множитель, о котором он говорит, отзывается. Человек видит связь один раз — и
+   дальше знает, куда нажимать. Без подсказок словами. */
+document.addEventListener('mouseover',e=>{
+  const f=e.target.closest&&e.target.closest('#agbody .focus');
+  if(!f)return;
+  const el=document.querySelector('.formula .fm.lim');
+  if(el)el.classList.add('pointed');
+});
+document.addEventListener('mouseout',e=>{
+  const f=e.target.closest&&e.target.closest('#agbody .focus');
+  if(!f)return;
+  document.querySelectorAll('.formula .fm.pointed').forEach(x=>x.classList.remove('pointed'));
+});
+function fmulAsk(k){
+  const F=formulaAt(S.t), P=formulaAt(S.t-WIN), E=formulaAt(TMAX);
+  const NM={ret:'Retention',seg:'Segment',reach:'Reach',conv:'Conv',acv:'ACV',week:'last week'};
+  const nm=NM[k]||k;
+  const now={ret:pct(F.ret),seg:int(F.N),reach:pct(F.reach,3),conv:pct(F.conv),acv:usd(F.acv),week:usd(F.start)}[k];
+  const was={ret:pct(P.ret),seg:int(P.N),reach:pct(P.reach,3),conv:pct(P.conv),acv:usd(P.acv),week:usd(P.start)}[k];
+  const end={ret:pct(E.ret),seg:int(E.N),reach:pct(E.reach,3),conv:pct(E.conv),acv:usd(E.acv),week:usd(E.start)}[k];
+  const WHY={
+    conv:'Offer \u2192 Signature is the slowest link: 43 % against a plan of 60 %. Every deal waits on a payer who is not in the thread.',
+    reach:'Scout has been pulling a cheap channel in TX and FL since W36, so the list grew faster than the answers.',
+    ret:'One account is late on an invoice and one SLA report is unread \u2014 both sit in the renewal window.',
+    acv:'Compliance-first carries the price; the other two segments pull the average down.',
+    seg:'The segment is as wide as the filters you left on the map.',
+    week:'This is where the week started \u2014 everything to the right of it is what we did since.'};
+  S.chat.push({u:1,t:esc('Why is '+nm+' where it is?')});
+  S.chat.push({u:0,t:`<b>${esc(nm)}</b> is <b>${esc(now)}</b>, was ${esc(was)} a week ago.`
+    +`<div class="note" style="margin-top:6px">${WHY[k]||'No single cause \u2014 it moves with the others.'}</div>`
+    +`<div class="note" style="margin-top:6px">If nothing changes, by W${TMAX} it is <b>${esc(end)}</b>.</div>`});
+  document.querySelectorAll('.formula .fm.pointed').forEach(x=>x.classList.remove('pointed'));
+  const el=document.querySelector(`.formula .fm[data-fmul="${k}"]`); if(el)el.classList.add('pointed');
+  renderAgent(); agScroll();
+}
 function renderFormula(){
   const F=formulaAt(S.t),P=formulaAt(S.t-WIN),ap=S.t>NOW?'\u2248':'';
-  const m=(n,v,d,cls)=>`<span class="fm ${cls||''}"><i>${n}</i><span class="v">${ap}${v}</span>${d?`<b>${d}</b>`:''}</span>`;
+  /* Четыре работы Head живут в этой строке, а не в центре: спуститься от упавшей
+     цифры до причины, сравнить сценарии, посчитать что будет если не менять,
+     отмотать назад. Поэтому множитель — не надпись, а вход. */
+  const m=(n,v,d,cls,key)=>`<button class="fm ${cls||''}" data-fmul="${key||n}"><i>${n}</i><span class="v">${ap}${v}</span>${d?`<b>${d}</b>`:''}</button>`;
   const dlt=(x,u,eps)=>{const s=dd(x,u,eps);return s&&s.trim()?s:'';};
   $('formula').innerHTML =
     `<span class="fres"><i>${S.t>NOW?'ARR forecast':'ARR'}</i><span class="v">${ap}${usd(F.end)}</span><b>${P.end?dlt(F.end/P.end-1,'%',.004):''}</b></span>`
     +`<span class="fo">=</span>`
-    +m(`W${S.t-WIN}`,usd(F.start))+`<span class="fo">\u00d7</span>`
-    +m('Retention',pct(F.ret),dlt(F.ret-P.ret,'pp',.002))
+    +m(`W${S.t-WIN}`,usd(F.start),'','','week')+`<span class="fo">\u00d7</span>`
+    +m('Retention',pct(F.ret),dlt(F.ret-P.ret,'pp',.002),'','ret')
     +`<span class="fo">+</span>`
-    +m(S.seg?segBy(S.seg).name:'Segment',int(F.N))+`<span class="fo">\u00d7</span>`
-    +m('Reach',pct(F.reach,3),dlt(F.reach-P.reach,'pp',.00001))+`<span class="fo">\u00d7</span>`
-    +m('Conv',pct(F.conv),dlt(F.conv-P.conv,'pp',.005),'lim')+`<span class="fo">\u00d7</span>`
-    +m('ACV',usd(F.acv),dlt(P.acv?F.acv/P.acv-1:0,'%',.02));
+    +m(S.seg?segBy(S.seg).name:'Segment',int(F.N),'','','seg')+`<span class="fo">\u00d7</span>`
+    +m('Reach',pct(F.reach,3),dlt(F.reach-P.reach,'pp',.00001),'','reach')+`<span class="fo">\u00d7</span>`
+    +m('Conv',pct(F.conv),dlt(F.conv-P.conv,'pp',.005),'lim','conv')+`<span class="fo">\u00d7</span>`
+    +m('ACV',usd(F.acv),dlt(P.acv?F.acv/P.acv-1:0,'%',.02),'','acv');
 }
 /* «А сколько конкретно вот этот человек внутри юрлица мне принёс?» (Николай, 25.09, 57:40).
    Формула отвечает не только на сегмент и юрлицо, но и на выбранного человека:
@@ -3102,18 +3150,11 @@ function renderAgAsk(){
   /* E1: плашка показывает не имя вкладки, а область, на которой агент считает ответ */
   $('askCtx').innerHTML='✆ '+esc(sc.label);
   $('askCtx').setAttribute('data-tip','What I can see from here: '+sc.sees.join(' · '));
-  const here={sop:['What can you see right now?',
-                   (sc.acc?`${(peopleOf(sc.acc)[1]||{}).nm} is the decision maker, not ${(peopleOf(sc.acc)[0]||{}).nm}`:'What can you see right now?'),
-                   'Add a stage called “security review”',
-                   'Set the dial on this stage to Approve'],
-              person:['What can you see right now?',(sc.person?`${sc.person.nm} pays, not champions`:'What can you see right now?'),'Add a stage called “buy-in”'],
-              agent:['What can you see right now?','Set the dial to Approve','Switch the budget check on'],
-              doc:['What can you see right now?','Who decides here?','Add a stage called “legal review”'],
-              database:['What can you see right now?','Why did Conv drop?'],
-              map:['What can you see right now?','Why did Conv drop?','Who has to sign Brightline?','Simulate revenue scenarios']}[sc.area]
-    ||['What can you see right now?','Why did Conv drop?'];
-  $('sugg').innerHTML=`<button data-photo="1" data-tip="You remember the face but not the conversation — drop in a photo or a business card">⧉ photo or business card</button>`
-    +here.map(s=>`<button data-ask="${esc(s)}" data-tip="${esc(sc.label)}">${esc(s)}</button>`).join('');}
+  /* Подсказки под строкой ввода убраны: «агент справа там внизу какие-то
+     бессмысленные подсказки» (Николай, 06.10, 18:53). Они предлагали человеку
+     слова вместо того, чтобы агент сам клал готовый ход. Осталась одна кнопка —
+     внести лицо или визитку, потому что это вход данных, а не подсказка. */
+  $('sugg').innerHTML=`<button data-photo="1" data-tip="You remember the face but not the conversation — drop in a photo or a business card">⧉ photo or business card</button>`;}
 /* ===== E1 · агент знает, в какой области я нахожусь =====
    «Я ему пишу вот сюда в чат… а он должен знать, что я нахожусь сейчас в окне СОПа,
    и оно активно» (Николай, 30.09, 17:15). Область — не строка для показа, а то,
@@ -3493,7 +3534,7 @@ function openRef(k){
 }
 function logAdd(ag,ttl,st){(S.extraLogs=S.extraLogs||[]).push({ag,w:NOW,ttl,st});}
 document.addEventListener('click',e=>{
-  const b=e.target.closest('[data-open],[data-side],[data-tab],[data-close],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-feeddown],[data-plus],[data-newchat],[data-agundo],[data-weekpick],[data-week],[data-calm],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-f],[data-freset],[data-fclr],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepsel],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-fmode],[data-dbsort],[data-dbmore],[data-dbkind],[data-camp],[data-campsel],[data-campoff],[data-inwin],[data-stuck],[data-mailclear],[data-mark],[data-note],[data-notecancel],[data-ent],[data-mail],[data-common],[data-importfacts],[data-nextbn],[data-influencer],[data-sim],[data-role],[data-triopen],#fDown,#addFact,#addNote');
+  const b=e.target.closest('[data-fmul],[data-open],[data-side],[data-tab],[data-close],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-feeddown],[data-plus],[data-newchat],[data-agundo],[data-weekpick],[data-week],[data-calm],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-f],[data-freset],[data-fclr],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepsel],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-fmode],[data-dbsort],[data-dbmore],[data-dbkind],[data-camp],[data-campsel],[data-campoff],[data-inwin],[data-stuck],[data-mailclear],[data-mark],[data-note],[data-notecancel],[data-ent],[data-mail],[data-common],[data-importfacts],[data-nextbn],[data-influencer],[data-sim],[data-role],[data-triopen],#fDown,#addFact,#addNote');
   if(!b){if(S.wkOpen&&!e.target.closest('.wkpop')){S.wkOpen=false;renderFilters();}return;}
   if(S.wkOpen&&!b.dataset.weekpick&&!b.dataset.week&&!b.dataset.calm&&!e.target.closest('.wkpop')){S.wkOpen=false;renderFilters();}
   if(b.dataset.pal)$('pal').hidden=true;
@@ -3607,6 +3648,9 @@ document.addEventListener('click',e=>{
   if(b.dataset.triopen){S.triOpen=(S.triOpen===b.dataset.triopen)?null:b.dataset.triopen;renderAgent();return;}
   if(b.dataset.role){S.ef=S.ef||{};S.ef.arole=b.dataset.role;S.sel=null;setEnt('ag');renderAll();
     toast('Agents of the '+b.dataset.role+' — the broken ones are flagged.');return;}
+  /* Множитель формулы — вход в четыре работы Head: от упавшей цифры к причине,
+     сценарии, прогноз, когда сломалось. Отвечает агент, а не отдельный экран. */
+  if(b.dataset.fmul){fmulAsk(b.dataset.fmul);return;}
   if(b.dataset.tab){S.tab=b.dataset.tab;renderEditor();return;}
   /* Закрывать нечего: пять областей постоянны. */
   if(b.dataset.clearsel){S.sel=null;renderAll();return;}
