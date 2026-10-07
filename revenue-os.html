@@ -1266,10 +1266,10 @@ function replyClass(txt,act){
   return null;}
 const MEET=[{id:'mt1',acc:'a0',who:'Dr. Jonathan Moss',w:38,when:'Thu 2:00 pm',ttl:'HIPAA dashboard demo \u00b7 30 min',st:['up','on the calendar']},
             {id:'mt2',acc:'a1',who:'Tom Hale',w:38,when:'not scheduled',ttl:'Price walkthrough: $1,400 freelancer vs $3,170 with an SLA',st:['warn','awaiting a yes']}];
-const BUILD='Oct 7, 17:10';   /* отметка сборки: единственное место, где она живёт */
+const BUILD='Oct 7, 19:40';   /* отметка сборки: единственное место, где она живёт */
 const S={t:NOW,seg:null,downOnly:false,sel:null,level:'segment',K:1,
   knob:{scout:2,qual:2,seller:2,pricer:1,service:1},profile:'head',
-  side:'tree',ent:'seg',agView:null,mapAcc:null,bn:0,sent:{},skin:'rev',ef:{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false},ptab:'market',job:'',stF:'',stage:'',primary:'map',source:null,orgOpen:false,sopAcc:'a0',tabs:[{id:'map',kind:'map',ref:null,title:'Map'},{id:'acc',kind:'org',ref:'a0',title:'Account'},{id:'person',kind:'msg',ref:'p-hale',title:'Person'},{id:'flow',kind:'sop',ref:'a0',title:'Workflow'},{id:'doc',kind:'doc',ref:'d-msa',title:'Document'}],tab:'map',
+  side:'tree',ent:'seg',agView:null,mapAcc:null,bn:0,sent:{},skin:'rev',ef:{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false},ptab:'market',job:'',stF:'',stage:'',primary:'map',source:null,orgOpen:false,sopAcc:'a0',lastRef:{},tabs:[{id:'map',kind:'map',ref:null,title:'Map'},{id:'acc',kind:'org',ref:'a0',title:'Account'},{id:'person',kind:'msg',ref:'p-hale',title:'Person'},{id:'flow',kind:'sop',ref:'a0',title:'Workflow'},{id:'doc',kind:'doc',ref:'d-msa',title:'Document'}],tab:'map',
   facts:{},docs:{},tri:{},plan:null,chat:[],layout:{side:true,panel:true,agent:true,panelRight:false,swap:false},sopEdit:false,sopFix:null,steps:JSON.parse(JSON.stringify(STEPS0)),fieldPol:{},hidden:{},dnc:{},knobW:{scout:1,qual:1,seller:1,pricer:1,service:1},rules:JSON.parse(JSON.stringify(RULES0))};
 try{const L=JSON.parse(localStorage.getItem('revos-layout-v4')||'null');if(L)Object.assign(S.layout,L);}catch(e){}
 if(window.innerWidth<1280&&!(()=>{try{return localStorage.getItem('revos-layout-v4')}catch(e){return null}})())S.layout.side=false;
@@ -1789,8 +1789,46 @@ function allEntities(){
    объект: «тот старый, на которого я до этого кликнул, он будет в этом view висеть» (20:12:40). */
 const VIEWOF={map:'map',today:'map',sop:'flow',camp:'flow',db:'acc',org:'acc',msg:'person',agent:'person',ourp:'person',doc:'doc',draft:'doc',news:'doc'};
 function setView(kind,id){const v=VIEWOF[kind]; if(!v)return null;
-  const tb=S.tabs.find(x=>x.id===v); if(v!=='map'){tb.kind=kind;tb.ref=id;} return v;}
+  const tb=S.tabs.find(x=>x.id===v); if(v!=='map'){tb.kind=kind;tb.ref=id;}
+  /* Область Person делят две зоны, People и Agents; область Account — юрлица и «мы».
+     Поэтому последний объект помнит зона, а не только область: уйдя к агенту и
+     вернувшись к людям, человек находит того человека, с которого ушёл. */
+  const z=id&&Object.keys(ENTKIND).find(k=>ENTVIEW[k]===v&&ENTKIND[k].includes(kind));
+  if(z)S.lastRef[z]=id;
+  return v;}
 function openTab(kind,id,title){const v=setView(kind,id); if(!v)return; S.tab=v; renderEditor();}
+/* Обратная сторона VIEWOF. Зона слева меняла фильтры и ленту, но не центр: нажатие
+   Workflows оставляло в центре карту. У экрана было два хозяина, отсюда вопрос
+   «как отличить, хочу я фильтровать карту или открыть рассылку» (Лиза, 07.10).
+   Хозяин один — центр. Зона ведёт в него, фильтры и лента идут за ним. */
+const ENTVIEW={seg:'map',acc:'acc',ppl:'person',flow:'flow',doc:'doc',ag:'person'};
+const ENTKIND={seg:['map','today'],acc:['org','db'],ppl:['msg'],flow:['sop','camp'],
+               doc:['doc','draft','news'],ag:['agent','ourp']};
+/* Ступень карты — тоже предмет: пузыри сегментов, точки юрлиц, люди вокруг одного. */
+const MAPENT={segment:'seg',accounts:'acc',people:'ppl'};
+/* Куда ведёт зона, если в её области лежит чужое. */
+const ENTDEF={acc:()=>['org',S.mapAcc||S.sopAcc||'a0'],ppl:()=>['msg',Object.keys(PEOPLE)[0]],
+              flow:()=>['sop',S.sopAcc||'a0'],doc:()=>['doc',Object.keys(DOCS)[0]],
+              ag:()=>['agent',AGENTS[0].id]};
+function fitsEnt(k,tb){
+  if(!(ENTKIND[k]||[]).includes(tb.kind))return false;
+  if(k==='acc'&&tb.kind==='org'&&tb.ref==='us')return false;   /* «мы» живут в зоне Agents */
+  if(k==='acc'&&tb.kind==='db')return S.dbKind!=='person'&&S.dbKind!=='doc';
+  return true;}
+function goEnt(k){
+  const v=ENTVIEW[k];
+  /* повторное нажатие той же зоны, когда она уже и слева, и в центре, — складывает колонку */
+  if(S.ent===k&&S.layout.side&&S.tab===v){S.layout.side=false;applyLayout();renderActivity();return;}
+  S.side='tree';S.layout.side=true;
+  /* Segments — это первая ступень карты: нажав её, человек видит сегменты, а не
+     точки внутри одного юрлица. Выбранный сегмент при этом остаётся фильтром. */
+  if(k==='seg'&&S.level!=='segment'){S.level='segment';S.sel=null;S.mapAcc=null;S.showAcc=false;}
+  if(v){const tb=S.tabs.find(x=>x.id===v);
+    /* область помнит свой последний объект; подставляем только если он чужой этой зоне */
+    if(tb&&!fitsEnt(k,tb)){const d=(ENTDEF[k]||(()=>null))();
+      if(d)setView(d[0],S.lastRef[k]||d[1]);}
+    S.tab=v;}
+  setEnt(k);applyLayout();renderEditor();renderAll();}
 function viewLabel(t){
   const cut=s=>String(s||'').split(' ')[0];
   if(t.id==='map')return ['Map',''];
@@ -1830,7 +1868,11 @@ function renderEditor(){
     if(t.kind==='db')S.dbKind=t.ref;
     if(t.kind==='sop')S.sopAcc=t.ref;
     S.campSeg=t.kind==='camp'?t.ref:null;
-    setEnt({sop:'flow',camp:'ppl',db:S.dbKind==='person'?'ppl':S.dbKind==='doc'?'doc':'acc'}[t.kind]||S.ent);
+    /* Кампания — поток, и живёт в зоне Workflows: иначе нажатие Workflows при
+       открытой кампании подсвечивало People. Лента flow — это account и people
+       вместе, так что люди кампании из неё не пропадают. */
+    setEnt({map:MAPENT[S.level]||'seg',today:'seg',sop:'flow',camp:'flow',
+            db:S.dbKind==='person'?'ppl':S.dbKind==='doc'?'doc':'acc'}[t.kind]||S.ent);
   }else{S.primary='src';S.source=t.id;
     /* Левая и лента идут за центром: «это просто дублирование», если они смотрят
        в разные стороны (Николай, 25.09). */
@@ -3628,9 +3670,7 @@ document.addEventListener('click',e=>{
     renderAll();return;}
   if(b.dataset.plus!==undefined){setEnt('seg');renderPanel();const i=$('myFact');i.value='on “'+b.dataset.plus+'…”: ';i.focus();return;}
   if(b.dataset.open){openRef(b.dataset.open);return;}
-  if(b.dataset.ent){const k=b.dataset.ent;
-    if(S.ent===k&&S.layout.side){S.layout.side=false;}else{S.ent=k;S.side='tree';S.layout.side=true;S.ptab=ENTFEED[k];S.mail=null;}
-    applyLayout();renderActivity();renderSide();renderPanel();return;}
+  if(b.dataset.ent){goEnt(b.dataset.ent);return;}
   /* A8: один обработчик на все фильтры — поле само знает, куда класть и что перерисовать */
   if(b.dataset.f){const i=b.dataset.f.indexOf(':'),k=b.dataset.f.slice(0,i),v=b.dataset.f.slice(i+1);
     const f=FFLD[k];if(!f)return;
