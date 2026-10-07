@@ -1272,7 +1272,7 @@ function replyClass(txt,act){
   return null;}
 const MEET=[{id:'mt1',acc:'a0',who:'Dr. Jonathan Moss',w:38,when:'Thu 2:00 pm',ttl:'HIPAA dashboard demo \u00b7 30 min',st:['up','on the calendar']},
             {id:'mt2',acc:'a1',who:'Tom Hale',w:38,when:'not scheduled',ttl:'Price walkthrough: $1,400 freelancer vs $3,170 with an SLA',st:['warn','awaiting a yes']}];
-const BUILD='Oct 7, 23:40';   /* отметка сборки: единственное место, где она живёт */
+const BUILD='Oct 8, 00:45';   /* отметка сборки: единственное место, где она живёт */
 const S={t:NOW,seg:null,downOnly:false,sel:null,level:'segment',K:1,
   knob:{scout:2,qual:2,seller:2,pricer:1,service:1},profile:'head',
   side:'tree',ent:'seg',agView:null,mapAcc:null,bn:0,sent:{},skin:'rev',ef:{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false},ptab:'market',job:'',stF:'',stage:'',primary:'map',source:null,orgOpen:false,sopAcc:'a0',lastRef:{},tabs:[{id:'map',kind:'map',ref:null,title:'Map'},{id:'acc',kind:'org',ref:'a0',title:'Account'},{id:'person',kind:'msg',ref:'p-hale',title:'Person'},{id:'flow',kind:'sop',ref:'a0',title:'Workflow'},{id:'doc',kind:'doc',ref:'d-msa',title:'Document'}],tab:'map',
@@ -2472,7 +2472,7 @@ function renderSOP(a){
      «визуально здесь надо что-то придумать, чтобы было понятно, где мы косячим» (14:31) */
   const RS=ST.map((st,i)=>st.stage?stepYield(i,a):null).filter(y=>y&&y.inn).map(y=>y.r);
   const minR=RS.length>1?Math.min.apply(null,RS):null;
-  const ins=(i,last)=>S.sopEdit?`<button class="rgap${last?' last':''}" data-stepadd="${i}" data-tip="${last?'Add a stage at the end':'Insert a stage here'}">＋</button>`:'';
+  const ins=(i,last)=>S.sopEdit?`<button class="rgap${last?' last':''}" data-stepadd="${i}" aria-label="${last?'Add a step at the end':'Insert a step here'}" data-tip="${last?'Add a stage at the end':'Insert a stage here'}">＋</button>`:'';
   const rail=`<div class="rail"><div></div>`+ST.map((st,i)=>{
       const s=stState(i),y=st.stage?stepYield(i,a):null,bad=y&&y.inn&&(y.d<-.15||minR!=null&&y.r<=minR);
       return `<div class="rst ${s[0]}${i===selI?' sel':''}" data-stepsel="${i}">${ins(i-1)}${i===N-1?ins(N-1,1):''}`
@@ -2526,7 +2526,7 @@ function renderSOP(a){
   const inf=(S.infl||{})[a.id];
   const iRow=!bl?''
     :!inf?`<div class="prow"><div class="pwho"><span class="pnm">Who can reach them</span><span class="prole">nobody added yet</span></div>`
-      +`<div class="pc" style="grid-column:span ${N};text-align:left;padding-left:4px"><button class="btn" data-influencer="${a.id}" data-tip="The agent will find someone who can reach this person">Find someone who can reach ${esc(bl[0].nm)}</button></div></div>`
+      +`<div class="pc" style="grid-column:span ${N};text-align:left;padding-left:4px"><button class="btn" data-influencer="${a.id}" aria-label="Bring in someone who can reach this person" data-tip="The agent will find someone who can reach this person">Find someone who can reach ${esc(bl[0].nm)}</button></div></div>`
     :prow(face(inf.nm),inf.nm,'reaches '+bl[0].nm+' · added by you',
       ST.map(st=>st.stage===4?DOT('up',null,inf.why):DOT('none',null,'—')));
   let h=`<div class="bpmn" style="--sn:${N}">
@@ -2666,9 +2666,38 @@ function personWorth(pid){
 }
 function renderMsg(pid){const p=personById(pid),a=ACCBY[p.acc],M=MSGS[pid]||peopleActs(a,S.t).filter(x=>x.p.id===pid).map(x=>({me:false,src:p.src.toLowerCase()==='gmail'?'gmail':p.src.toLowerCase()==='linkedin'?'linkedin':'aircall',act:x.act,txt:x.txt,w:S.t}));
   const draft=pid==='p-hale'?'Tom, you pay $1,400/mo for one freelancer today. Our $3,170/mo covers 24/7 monitoring, HIPAA audit prep and a 1-hour SLA. Can I show the side-by-side in 15 minutes?':pid==='p-diaz'?'Karen, quick one: is Dr. Moss waiting for anything from us before the audit prep?':'';
-  return `<div class="doc"><div class="doch">${face(p.nm,'big '+((personWorth(pid)||{eff:{}}).eff.c||''))}<div><h2>${esc(p.nm)}</h2><div class="muted">${esc(p.title)} · ${esc(a.name)} · role in the deal: <b>${p.role}</b></div><div class="note">source: ${esc(p.src)} · <a href="https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(p.nm)}" target="_blank" rel="noopener">LinkedIn \u2197</a></div></div></div>
+  return `<div class="doc"><div class="doch">${face(p.nm,'big '+((personWorth(pid)||{eff:{}}).eff.c||''))}<div><h2>${esc(p.nm)}</h2><div class="muted">${esc(p.title)} · ${esc(a.name)} · role in the deal: <b>${p.role}</b></div><div class="note">source: ${esc(p.src)} · <a href="https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(p.nm)}" target="_blank" rel="noopener">Find their profile ↗</a></div></div></div>
     <div class="thread">${M.map(m=>`<div class="msg ${m.me?'me':''}">${m.me?agAv(m.agent,'mid'):face(p.nm,'mid')}<div class="bub2"><div class="meta">${srcIc(m.src).replace('class="src"','class="av sq"')} ${m.me?'the '+agBy(m.agent).nm+' agent':esc(p.nm)} · W${m.w}${m.act?` · <span class="act">${m.act}</span>`:''}</div><div>${esc(m.txt)}</div></div></div>`).join('')||'<div class="note">No correspondence yet.</div>'}</div>
-    <div class="compose"><div class="hdr">Agent draft</div><textarea id="draft" aria-label="Draft">${esc(draft)}</textarea><div class="btns"><button class="btn pri" data-send="${pid}">Send under my name</button><span class="note">Mail under a person’s name goes out only on that person’s click.</span></div></div></div>`;}
+    ${renderChannels(pid)}
+    ${renderSlots(pid)}
+    <div class="compose"><div class="hdr">Agent draft</div><textarea id="draft" aria-label="Draft">${esc(draft)}</textarea><div class="btns"><button class="btn pri" data-send="${pid}">${S.chan&&S.chan[pid]?'Send by '+esc(CHAN[S.chan[pid]][0])+' under my name':'Send under my name'}</button><span class="note">Mail under a person’s name goes out only on that person’s click.</span></div></div></div>`;}
+/* Канал выбирался молча: письмо уходило почтой, даже если почта отбивалась. Работа
+   «выбрать канал, которым дойдёт» кончается тем, что канал назначен, — значит на
+   экране должен стоять выбор, а рядом с каждым каналом то, что о нём известно
+   из доставки, а не общие слова. */
+const CHAN={email:['email','gmail'],linkedin:['LinkedIn','linkedin'],whatsapp:['WhatsApp','aircall']};
+function chanState(pid,k){
+  if(k==='email'){const bad=DELIV.filter(d=>d.k!=='ok'&&d.who&&personById(pid)&&d.who.includes(personById(pid).nm.split(' ').slice(-1)[0]));
+    return bad.length?['down','bounced '+bad.length+'×']:['up','lands'];}
+  if(k==='linkedin')return ['flat','profile found'];
+  return ['warn','number not verified'];}
+function renderChannels(pid){
+  const cur=S.chan&&S.chan[pid];
+  return `<div class="hdr">Channel — how this one gets reached</div>
+    <div class="btns">${Object.keys(CHAN).map(k=>{const st=chanState(pid,k);
+      return `<button class="btn ${cur===k?'pri':''}" data-chan="${pid}:${k}" data-tip="${esc(st[1])}">${CHAN[k][0]} <span class="chip ${st[0]}">${esc(st[1])}</span></button>`;}).join('')}</div>
+    <div class="note">${cur?`Sending by <b>${esc(CHAN[cur][0])}</b> — the draft below goes out that way.`:'No channel chosen yet: the draft would go by email, and email is not always the one that lands.'}</div>`;}
+/* Работа SDR кончается не ответом, а разговором в календаре. Слоты предлагает агент,
+   закрепляет человек: встреча — обязательство, а обязательства агент не раздаёт. */
+const SLOTS=['Thu 14:00','Fri 10:00','Mon 09:30'];
+function renderSlots(pid){
+  const m=S.meet&&S.meet[pid];
+  if(m)return `<div class="hdr">The conversation</div>
+    <div class="bnote"><span style="color:var(--up);font-weight:600">On the calendar</span>
+    <span>${esc(m)} · 30 min · the agent sent the invite under your name and stopped following up.</span></div>`;
+  return `<div class="hdr">Bring it to a conversation</div>
+    <div class="btns">${SLOTS.map(x=>`<button class="btn" data-slot="${pid}:${esc(x)}">${esc(x)}</button>`).join('')}
+    <span class="note">Pick a slot and the agent sends the invite under your name.</span></div>`;}
 function renderNews(id){const n=MARKET.find(x=>x.id===id),st=S.facts[id]||{};
   return `<div class="doc"><div class="doch"><span class="av sq big">${SRC[n.src][0].slice(0,3)}</span><div><h2>${esc(n.ttl)}</h2><div class="muted">${SRC[n.src][0]} · ${n.url} · ${n.when} ago · segment ${segBy(n.seg).name}${n.st?' · '+n.st:''} · moves: <b>${n.hits}</b></div></div></div>
     <div class="hdr">Facts from the source — confirm, refute or drop them</div>
@@ -3642,7 +3671,7 @@ function openRef(k){
 }
 function logAdd(ag,ttl,st){(S.extraLogs=S.extraLogs||[]).push({ag,w:NOW,ttl,st});}
 document.addEventListener('click',e=>{
-  const b=e.target.closest('[data-fmul],[data-open],[data-side],[data-tab],[data-close],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-feeddown],[data-plus],[data-newchat],[data-agundo],[data-weekpick],[data-week],[data-calm],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-f],[data-freset],[data-fclr],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepsel],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-fmode],[data-dbsort],[data-dbmore],[data-dbkind],[data-camp],[data-camprun],[data-campsel],[data-campoff],[data-inwin],[data-stuck],[data-mailclear],[data-mark],[data-note],[data-notecancel],[data-ent],[data-mail],[data-common],[data-importfacts],[data-nextbn],[data-influencer],[data-sim],[data-role],[data-triopen],#fDown,#addFact,#addNote');
+  const b=e.target.closest('[data-fmul],[data-open],[data-side],[data-tab],[data-close],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-feeddown],[data-plus],[data-newchat],[data-agundo],[data-weekpick],[data-week],[data-calm],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-f],[data-freset],[data-fclr],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepsel],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-fmode],[data-dbsort],[data-dbmore],[data-dbkind],[data-camp],[data-camprun],[data-chan],[data-slot],[data-campsel],[data-campoff],[data-inwin],[data-stuck],[data-mailclear],[data-mark],[data-note],[data-notecancel],[data-ent],[data-mail],[data-common],[data-importfacts],[data-nextbn],[data-influencer],[data-sim],[data-role],[data-triopen],#fDown,#addFact,#addNote');
   if(!b){if(S.wkOpen&&!e.target.closest('.wkpop')){S.wkOpen=false;renderFilters();}return;}
   if(S.wkOpen&&!b.dataset.weekpick&&!b.dataset.week&&!b.dataset.calm&&!e.target.closest('.wkpop')){S.wkOpen=false;renderFilters();}
   if(b.dataset.pal)$('pal').hidden=true;
@@ -3761,6 +3790,19 @@ document.addEventListener('click',e=>{
   /* Закрывать нечего: пять областей постоянны. */
   if(b.dataset.clearsel){S.sel=null;renderAll();return;}
   if(b.dataset.mailclear){S.mail=null;renderPanel();return;}
+  if(b.dataset.chan){const [pid,k]=b.dataset.chan.split(':');
+    S.chan=S.chan||{};S.chan[pid]=S.chan[pid]===k?null:k;
+    const p=personById(pid);
+    logAdd('seller',`${p.nm}: channel set to ${CHAN[k][0]} (${chanState(pid,k)[1]})`,['flat','edited']);
+    renderEditor();renderAllButMap();
+    toast(`Sending by ${CHAN[k][0]} — ${chanState(pid,k)[1]}.`);return;}
+  if(b.dataset.slot){const [pid,when]=b.dataset.slot.split(':');
+    const slot=b.dataset.slot.slice(pid.length+1);
+    S.meet=S.meet||{};S.meet[pid]=slot;
+    const p=personById(pid);
+    logAdd('seller',`${p.nm}: meeting booked for ${slot} — invite sent under a human name`,['up','booked']);
+    renderEditor();renderAllButMap();
+    toast(`On the calendar: ${slot}. The agent sent the invite under your name and stopped the follow-up.`);return;}
   if(b.dataset.camprun){const seg=b.dataset.camprun;
     const pool=campPool(seg==='all'?null:seg), off=S.campOff||{};
     const n=pool.filter(x=>!off[x.id]).length, C=sendCapacity();
@@ -3797,14 +3839,20 @@ document.addEventListener('click',e=>{
     return;}
   if(b.dataset.seg!==undefined){pickSeg(b.dataset.seg);return;}
   if(b.id==='fDown'){S.downOnly=!S.downOnly;renderAll();return;}
-  if(b.dataset.knob){const [id,k]=b.dataset.knob.split(':');logAdd(id,`Dial: ${KNOB[S.knob[id]]} → ${KNOB[+k]} (${$('profile').selectedOptions[0].text})`,['flat','edited']);S.knob[id]=+k;renderAll();return;}
+  if(b.dataset.knob){const [id,k]=b.dataset.knob.split(':');logAdd(id,`Dial: ${KNOB[S.knob[id]]} → ${KNOB[+k]} (${$('profile').selectedOptions[0].text})`,['flat','edited']);S.knob[id]=+k;
+    S.ptab='agents';S.layout.panel=true;applyLayout();renderAll();return;}
   if(b.dataset.tri){const [id,k,label]=b.dataset.tri.split('|');
     if(k==='knob'){logAdd('qual','Dial: Auto → Approve (approved by Nikolai)',['flat','edited']);S.knob.qual=1;}
     if(k==='resume'){agBy('seller').state='active';logAdd('seller','Put back to work after the alarm was reviewed',['up','decision']);}
     if(k.startsWith('rule:')){const [,ag,rid]=k.split(':');const r=(S.rules[ag]||[]).find(x=>x.id===rid);if(r){r.on=true;logAdd(ag,`Rule \u201c${r.t}\u201d turned on (${$('profile').selectedOptions[0].text})`,['up','edited']);}}
     if(k.startsWith('fact:')){const [,nid,v]=k.split(':');S.facts[nid]={0:v,1:v};}
     if(k.startsWith('open:')){openRef(k.slice(5));return;}
-    S.tri[id]=label==='Decline'||label==='Keep it stopped'?'declined':'done: '+label.toLowerCase();renderAll();return;}
+    S.tri[id]=label==='Decline'||label==='Keep it stopped'?'declined':'done: '+label.toLowerCase();
+    /* Необратимый ход должен оставить видимый след, а не только исчезающее сообщение:
+       человек повернул ручку агенту или вернул его в строй — и не видел подтверждения,
+       потому что запись уходила в журнал агентов, а лента показывала другое.
+       Лента следует за предметом хода: предмет здесь — агент. */
+    setEnt('ag');S.ptab='agents';S.layout.panel=true;applyLayout();renderAll();return;}
   if(b.dataset.do){const k=b.dataset.do;if(k==='today'){S.agView=S.agView==='today'?null:'today';renderAgent();return;}if(k==='alarm'){S.agView=S.agView==='alarm'?null:'alarm';renderAgent();return;}if(k==='openfilters'){S.side='tree';S.layout.side=true;applyLayout();renderActivity();renderSide();return;}if(k==='openchannel'){setEnt('us');S.ptab='channel';S.layout.panel=true;applyLayout();renderActivity();renderSide();renderPanel();return;}if(k==='opendocs'){setEnt('acc');S.layout.panel=true;applyLayout();renderActivity();renderSide();renderPanel();return;}if(k==='planclear'){S.plan=null;renderEditor();renderAllButMap();toast('Plan dropped. The moves it added are gone; the rest of the queue is untouched.');return;}if(k==='resetscope'){S.seg=null;S.job='';S.stF='';S.stage='';S.downOnly=false;renderAll();return;}if(k==='focuscard'){S.agView=null;renderAgent();const f=document.querySelector('#agbody .focus');f&&f.scrollIntoView({block:'nearest'});return;}if(false){S.layout.agent=true;applyLayout();const f=document.querySelector('.focus');f&&f.scrollIntoView({block:'nearest'});f&&f.animate([{outline:'2px solid var(--focus)'},{outline:'2px solid transparent'}],{duration:600});return;}if(k==='showtx'){S.seg='price';S.downOnly=true;if(S.tab!=='map'){S.tab='map';renderEditor();}S.sel=null;renderAll();zoomToFeature(statesF.find(f=>f.abbr==='TX'));return;}
     if(k==='showdfw'){S.seg=null;S.sel=null;if(S.tab!=='map'){S.tab='map';renderEditor();}renderAll();zoomTo(bx,by,7);return;}if(k.startsWith('open:'))openRef(k.slice(5));return;}
   if(b.dataset.fact){const [id,i,v]=b.dataset.fact.split(':');S.facts[id]=S.facts[id]||{};S.facts[id][i]=v;renderEditor();renderPanel();return;}
