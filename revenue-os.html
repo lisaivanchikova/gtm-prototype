@@ -1266,7 +1266,7 @@ function replyClass(txt,act){
   return null;}
 const MEET=[{id:'mt1',acc:'a0',who:'Dr. Jonathan Moss',w:38,when:'Thu 2:00 pm',ttl:'HIPAA dashboard demo \u00b7 30 min',st:['up','on the calendar']},
             {id:'mt2',acc:'a1',who:'Tom Hale',w:38,when:'not scheduled',ttl:'Price walkthrough: $1,400 freelancer vs $3,170 with an SLA',st:['warn','awaiting a yes']}];
-const BUILD='Oct 7, 20:20';   /* отметка сборки: единственное место, где она живёт */
+const BUILD='Oct 7, 20:55';   /* отметка сборки: единственное место, где она живёт */
 const S={t:NOW,seg:null,downOnly:false,sel:null,level:'segment',K:1,
   knob:{scout:2,qual:2,seller:2,pricer:1,service:1},profile:'head',
   side:'tree',ent:'seg',agView:null,mapAcc:null,bn:0,sent:{},skin:'rev',ef:{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false},ptab:'market',job:'',stF:'',stage:'',primary:'map',source:null,orgOpen:false,sopAcc:'a0',lastRef:{},tabs:[{id:'map',kind:'map',ref:null,title:'Map'},{id:'acc',kind:'org',ref:'a0',title:'Account'},{id:'person',kind:'msg',ref:'p-hale',title:'Person'},{id:'flow',kind:'sop',ref:'a0',title:'Workflow'},{id:'doc',kind:'doc',ref:'d-msa',title:'Document'}],tab:'map',
@@ -1528,13 +1528,13 @@ const ENTNM={seg:'Segments',acc:'Accounts',ppl:'People',flow:'Workflows',doc:'Do
 /* Правило Николая: лента следует за кнопкой слева. Значит у каждой кнопки
    своя лента, и ни одна лента не остаётся без входа. */
 const ENTFEED={seg:'market',acc:'account',ppl:'people',flow:'flow',doc:'account',ag:'agents',us:'agents'};
-/* Роль не меняет зоны — зон шесть и их хватает любой роли. Роль меняет СРЕЗ внутри них.
-   «У него будет срез по документам… а у Карины узкое место — лид не ответил, вот здесь
-   в ленте» (Николай, 25.09). Управленец живёт сегментом и формулой, продавец — человеком
-   и сообщением. */
-/* Ключ — имя профиля из WHOM. Он был 'owner', а профиль зовётся 'head', поэтому
-   дом управленца не применялся никогда: смена роли оставляла чужой экран. */
-const ROLEHOME={head:{ent:'seg',db:'acc'},sdr:{ent:'ppl',db:'person'}};
+/* Роль не меняет ни зоны, ни дом. «А когда выбирает роль, например, юрист, у него
+   будет срез по документам… а, например, у Карины узкое место: лид не ответил.
+   Обрати внимание, вот здесь в ленте новостей, вот здесь у тебя вот эта кнопочка.
+   То есть интерфейс от этого не поменяется. Мы все смотрим на целостный мир»
+   (Николай, 25.09, 01:14). Кнопка одна и та же для всех и на том же месте; роль
+   меняет только то, на что агент показывает пальцем, и право на необратимый ход.
+   Разный дом по роли здесь был — и был ошибкой: он делал пути собственностью роли. */
 function setEnt(k){if(!k||S.ent===k){S.ptab=S.mail?'channel':ENTFEED[S.ent];return;}S.ent=k;S.ptab=ENTFEED[k];S.mail=null;}
 /* Бейдж обещает ровно то, что человек увидит, нажав кнопку: число строк,
    требующих хода, в ленте этой сущности. Одно число вместо трёх разных. */
@@ -2599,7 +2599,7 @@ function renderDoc(id){const d=DOCS[id],a=ACCBY[d.acc],st=S.docs[id]||{};const P
       <h3>7. Liability</h3>Limited to the fees paid over the preceding 12 months.
       <h3>Clause</h3>This is not an offer until countersigned by Bobroff MSP LLC.</div>
     <div class="btns"><button class="btn" data-edit="1">Edit</button>${isMSA?`<button class="btn pri" data-sign="${id}" ${canSign&&!st.us?'':'disabled'}>Sign as Nikolai Bobrov</button>`:''}${d.kind==='Offer v2'?`<button class="btn good" data-approve="${id}">Approve the agent’s draft</button><button class="btn bad" data-reject="${id}">Send it back to the agent</button>`:''}</div>
-    <div class="note">${isMSA?(canSign?'A signature is irreversible: only a human with the authority can give it. The agent prepares, the agent does not sign.':'This profile has no signing authority. Switch the profile to Lisa.'):'Opened from the account feed. An agent’s edits stay a draft until a human approves them.'}</div></div>`;}
+    <div class="note">${isMSA?(canSign?'A signature is irreversible: only a human with the authority can give it. The agent prepares, the agent does not sign.':'This profile has no signing authority. A signature is the revenue owner\u2019s, and only theirs \u2014 switch to that profile to give it.'):'Opened from the account feed. An agent’s edits stay a draft until a human approves them.'}</div></div>`;}
 /* JOB-024: «А сколько конкретно вот этот человек внутри юрлица мне принёс? Вот там три
    продавана… вот этот принёс вот столько-то» (Николай, 25.09). Выручку между людьми мы
    не делим — это была бы выдуманная атрибуция, и карточка работы прямо говорит, что она
@@ -3789,10 +3789,7 @@ document.addEventListener('change',e=>{const d=e.target.dataset||{};
 addEventListener('resize',()=>{applyLayout();});
 $('ptabs').addEventListener('click',e=>{if(S.feedDown&&!e.target.closest('button')){S.feedDown=false;renderEditor();}});
 $('profile').addEventListener('change',e=>{S.profile=e.target.value;S.chat=[];
-  /* Дом роли — это и зона, и центр. setEnt менял только зону, и оператор входил
-     в свою зону, но на экран управленца: «все экраны должны соответствовать
-     рабочей области» (Николай, 06.10, 11:18). */
-  const h=ROLEHOME[S.profile];if(h){S.dbKind=h.db;goEnt(h.ent);}
+  /* Экран остаётся тем же: меняется срез агента справа и право на подпись. */
   renderAll();});
 $('askSend').onclick=()=>{const i=$('askIn');ask(i.value);i.value='';};
 $('agHide').onclick=()=>{S.layout.agent=false;applyLayout();};
