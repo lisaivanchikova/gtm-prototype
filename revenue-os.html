@@ -1266,7 +1266,7 @@ function replyClass(txt,act){
   return null;}
 const MEET=[{id:'mt1',acc:'a0',who:'Dr. Jonathan Moss',w:38,when:'Thu 2:00 pm',ttl:'HIPAA dashboard demo \u00b7 30 min',st:['up','on the calendar']},
             {id:'mt2',acc:'a1',who:'Tom Hale',w:38,when:'not scheduled',ttl:'Price walkthrough: $1,400 freelancer vs $3,170 with an SLA',st:['warn','awaiting a yes']}];
-const BUILD='Oct 7, 19:40';   /* отметка сборки: единственное место, где она живёт */
+const BUILD='Oct 7, 20:20';   /* отметка сборки: единственное место, где она живёт */
 const S={t:NOW,seg:null,downOnly:false,sel:null,level:'segment',K:1,
   knob:{scout:2,qual:2,seller:2,pricer:1,service:1},profile:'head',
   side:'tree',ent:'seg',agView:null,mapAcc:null,bn:0,sent:{},skin:'rev',ef:{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false},ptab:'market',job:'',stF:'',stage:'',primary:'map',source:null,orgOpen:false,sopAcc:'a0',lastRef:{},tabs:[{id:'map',kind:'map',ref:null,title:'Map'},{id:'acc',kind:'org',ref:'a0',title:'Account'},{id:'person',kind:'msg',ref:'p-hale',title:'Person'},{id:'flow',kind:'sop',ref:'a0',title:'Workflow'},{id:'doc',kind:'doc',ref:'d-msa',title:'Document'}],tab:'map',
@@ -1532,7 +1532,9 @@ const ENTFEED={seg:'market',acc:'account',ppl:'people',flow:'flow',doc:'account'
    «У него будет срез по документам… а у Карины узкое место — лид не ответил, вот здесь
    в ленте» (Николай, 25.09). Управленец живёт сегментом и формулой, продавец — человеком
    и сообщением. */
-const ROLEHOME={owner:{ent:'seg',db:'acc'},sdr:{ent:'ppl',db:'person'}};
+/* Ключ — имя профиля из WHOM. Он был 'owner', а профиль зовётся 'head', поэтому
+   дом управленца не применялся никогда: смена роли оставляла чужой экран. */
+const ROLEHOME={head:{ent:'seg',db:'acc'},sdr:{ent:'ppl',db:'person'}};
 function setEnt(k){if(!k||S.ent===k){S.ptab=S.mail?'channel':ENTFEED[S.ent];return;}S.ent=k;S.ptab=ENTFEED[k];S.mail=null;}
 /* Бейдж обещает ровно то, что человек увидит, нажав кнопку: число строк,
    требующих хода, в ленте этой сущности. Одно число вместо трёх разных. */
@@ -1815,10 +1817,12 @@ function fitsEnt(k,tb){
   if(k==='acc'&&tb.kind==='org'&&tb.ref==='us')return false;   /* «мы» живут в зоне Agents */
   if(k==='acc'&&tb.kind==='db')return S.dbKind!=='person'&&S.dbKind!=='doc';
   return true;}
-function goEnt(k){
+/* toggle=true — человек нажал кнопку зоны: повторное нажатие складывает колонку.
+   Без него переход программный (смена роли, провал из ленты), и колонка не должна
+   схлопываться сама: на этом сломалась работа «увидеть, кто приносит деньги». */
+function goEnt(k,toggle){
   const v=ENTVIEW[k];
-  /* повторное нажатие той же зоны, когда она уже и слева, и в центре, — складывает колонку */
-  if(S.ent===k&&S.layout.side&&S.tab===v){S.layout.side=false;applyLayout();renderActivity();return;}
+  if(toggle&&S.ent===k&&S.layout.side&&S.tab===v){S.layout.side=false;applyLayout();renderActivity();return;}
   S.side='tree';S.layout.side=true;
   /* Segments — это первая ступень карты: нажав её, человек видит сегменты, а не
      точки внутри одного юрлица. Выбранный сегмент при этом остаётся фильтром. */
@@ -3670,7 +3674,7 @@ document.addEventListener('click',e=>{
     renderAll();return;}
   if(b.dataset.plus!==undefined){setEnt('seg');renderPanel();const i=$('myFact');i.value='on “'+b.dataset.plus+'…”: ';i.focus();return;}
   if(b.dataset.open){openRef(b.dataset.open);return;}
-  if(b.dataset.ent){goEnt(b.dataset.ent);return;}
+  if(b.dataset.ent){goEnt(b.dataset.ent,true);return;}
   /* A8: один обработчик на все фильтры — поле само знает, куда класть и что перерисовать */
   if(b.dataset.f){const i=b.dataset.f.indexOf(':'),k=b.dataset.f.slice(0,i),v=b.dataset.f.slice(i+1);
     const f=FFLD[k];if(!f)return;
@@ -3785,7 +3789,10 @@ document.addEventListener('change',e=>{const d=e.target.dataset||{};
 addEventListener('resize',()=>{applyLayout();});
 $('ptabs').addEventListener('click',e=>{if(S.feedDown&&!e.target.closest('button')){S.feedDown=false;renderEditor();}});
 $('profile').addEventListener('change',e=>{S.profile=e.target.value;S.chat=[];
-  const h=ROLEHOME[S.profile];if(h){setEnt(h.ent);S.dbKind=h.db;}
+  /* Дом роли — это и зона, и центр. setEnt менял только зону, и оператор входил
+     в свою зону, но на экран управленца: «все экраны должны соответствовать
+     рабочей области» (Николай, 06.10, 11:18). */
+  const h=ROLEHOME[S.profile];if(h){S.dbKind=h.db;goEnt(h.ent);}
   renderAll();});
 $('askSend').onclick=()=>{const i=$('askIn');ask(i.value);i.value='';};
 $('agHide').onclick=()=>{S.layout.agent=false;applyLayout();};
