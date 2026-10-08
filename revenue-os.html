@@ -664,6 +664,9 @@ table.runs td{padding:4px 8px 4px 0;border-top:1px solid color-mix(in srgb,var(-
 .cfmb .kvr{display:flex;justify-content:space-between;gap:12px}
 .cfmb .kvr b{color:var(--fg);font-weight:600;text-align:right}
 .cfmb .wrn{color:var(--warn)}
+.cfmr{display:flex;align-items:center;gap:8px;margin-top:2px}
+.cfmr>span{min-width:92px;color:var(--fg3)}
+.cfmr input,.cfmr select{flex:1;height:24px;font:inherit;font-size:11px;padding:0 6px;border-radius:4px;border:1px solid var(--border);background:var(--editor);color:var(--fg)}
 .cfmf{display:flex;justify-content:flex-end;gap:8px;padding:10px 14px;border-top:1px solid var(--border)}
 .pal{position:fixed;inset:0;z-index:40;display:flex;justify-content:center;align-items:flex-start;padding-top:24px;background:rgba(0,0,0,.18)}
 .pal[hidden]{display:none}
@@ -1340,7 +1343,7 @@ function replyClass(txt,act){
   return null;}
 const MEET=[{id:'mt1',acc:'a0',who:'Dr. Jonathan Moss',w:38,when:'Thu 2:00 pm',ttl:'HIPAA dashboard demo \u00b7 30 min',st:['up','on the calendar']},
             {id:'mt2',acc:'a1',who:'Tom Hale',w:38,when:'not scheduled',ttl:'Price walkthrough: $1,400 freelancer vs $3,170 with an SLA',st:['warn','awaiting a yes']}];
-const BUILD='Oct 8, 23:58';   /* отметка сборки: единственное место, где она живёт */
+const BUILD='Oct 9, 00:12';   /* отметка сборки: единственное место, где она живёт */
 const S={t:NOW,seg:null,downOnly:false,sel:null,level:'segment',K:1,
   knob:{scout:2,qual:2,seller:2,pricer:1,service:1},profile:'head',
   side:'tree',ent:'seg',agView:null,mapAcc:null,bn:0,sent:{},skin:'rev',ef:{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false},ptab:'market',job:'',stF:'',stage:'',primary:'map',source:null,orgOpen:false,sopAcc:'a0',lastRef:{},tabs:[{id:'map',kind:'map',ref:null,title:'Map'},{id:'acc',kind:'org',ref:'a0',title:'Account'},{id:'person',kind:'msg',ref:'p-hale',title:'Person'},{id:'flow',kind:'sop',ref:'a0',title:'Workflow'},{id:'doc',kind:'doc',ref:'d-msa',title:'Document'},{id:'agent',kind:'aglist',ref:null,title:'Agent'}],tab:'map',
@@ -1408,7 +1411,11 @@ function peopleActs(a,t){const e=stateAt(a,t),P=peopleOf(a);if(!e)return[];const
     6:[['promise','\u201crenewing for another year\u201d',x(dd)],['expressive','\u201cwe could not do this without you\u201d',x(dd+3)],['declaration','paid the invoice',x(dd%30)]],
     7:[['declaration',`lost: ${a.reason||'no reason given'}`,x(dd)],['silence','silent',dd],[null,'not connected',null]],
     8:[['declaration','we are terminating the contract',x(dd)],['expressive','\u201ctoo expensive for what we see\u201d',x(dd+10)],['silence','stopped paying',x(dd+20)]]}[e.s];
-  return P.map((p,i)=>({p,act:M[i][0],txt:M[i][1],days:M[i][2]}));}
+  /* Приписанных действий ровно три — по числу порождённых лиц. Человек, внесённый
+     руками, становится четвёртым, и выдумывать ему активность нельзя: у него её нет
+     ровно до первого касания. */
+  return P.map((p,i)=>{const m=M[i]||[null,p.byhand?'added by hand, no contact yet':'nothing on record',null];
+    return {p,act:m[0],txt:m[1],days:m[2]};});}
 
 /* =================== feeds (uniform item: source · entity · phrase · status · actions) =================== */
 const SRC={
@@ -1610,6 +1617,7 @@ function confirmAct(o){
   $('cfmB').innerHTML=(o.lines||[]).filter(Boolean).map(l=>Array.isArray(l)
     ?`<div class="kvr"><span>${esc(l[0])}</span><b>${esc(String(l[1]))}</b></div>`
     :`<div class="${/^!/.test(l)?'wrn':''}">${esc(String(l).replace(/^!/,''))}</div>`).join('');
+  if(o.html)$('cfmB').innerHTML+=o.html;
   const go=$('cfmGo');go.textContent=o.cta||'Do it';go.className='btn '+(o.danger?'bad':'pri');
   cfmGo=o.onOk;$('cfm').hidden=false;go.focus();}
 function cfmClose(){$('cfm').hidden=true;cfmGo=null;}
@@ -1618,7 +1626,12 @@ $('cfmGo').onclick=()=>{const f=cfmGo;cfmClose();if(f)f();};
 $('cfm').addEventListener('click',e=>{if(e.target.id==='cfm')cfmClose();});
 document.addEventListener('keydown',e=>{if($('cfm').hidden)return;
   if(e.key==='Escape'){e.preventDefault();cfmClose();}
-  if(e.key==='Enter'){e.preventDefault();$('cfmGo').click();}});
+  /* Enter подтверждает вопрос «да/нет», но не форму: в форме он создавал запись
+     с одним заполненным полем, пока человек ещё печатал. В полях он просто не
+     срабатывает — подтверждает кнопка. */
+  if(e.key==='Enter'){const t=e.target;
+    if(t&&t.closest&&t.closest('#cfmB')&&/^(INPUT|SELECT|TEXTAREA)$/.test(t.tagName))return;
+    e.preventDefault();$('cfmGo').click();}});
 function accPhrase(a,t){const e=stateAt(a,t);if(!e)return a.name;let s=`${a.name} · ${a.city}, ${a.st} · ${STAGE[e.s]} · ${usd(acvAt(a,t))}`;
   if(stuck(a,e,t))s+=` \u00b7 silent ${daysIn(e,t)}d`;
   if(isActive(e)){const pay=a.payW&&t>=a.payW,val=a.valW&&t>=a.valW&&t<a.valW+3;s+=` \u00b7 value ${val?'\u2715':'\u2713'} SLA \u2713 payment ${pay?'\u2715 '+((t-a.payW)*7+5)+'d':'\u2713'}`;}
@@ -1861,6 +1874,7 @@ function renderSide(){
 
     /* ---------- ЛЮДИ ---------- */
     else if(ent==='ppl'){
+      h+=`<div class="sfilt"><div class="hdr">New</div><div class="frow"><button class="btn" data-addp="1">Add a person by hand</button></div></div>`;
       h+=filterBar('ppl');
       const allAcc=ACC.filter(a=>stateAt(a,tt)&&inF(a));
       const base=allAcc.filter(a=>momentum(a,tt)<0).sort((x,y)=>(y.feat-x.feat)||(y.acv-x.acv)).slice(0,6);
@@ -2267,7 +2281,11 @@ function renderMap(){
   if(selA&&S.orgOpen){
     const P=peopleOf(selA),miss=selA===BRIGHT?2:-1;
     const box=document.createElement('div');box.className='mkorg';
-    const pos=[[0,-64],[-62,-30],[62,-30]];
+    /* Позиции были прибиты к трём порождённым лицам. Человек, внесённый руками,
+       становится четвёртым — и органеграмма падала. Веер считается по их числу. */
+    const pos=P.length<=3?[[0,-64],[-62,-30],[62,-30]].slice(0,P.length)
+      :P.map((_,i)=>{const a0=Math.PI*(0.15+0.7*(i/(P.length-1)));
+        return [Math.round(-Math.cos(a0)*78),Math.round(-30-Math.sin(a0)*38)];});
     pos.forEach(q=>{const ln=document.createElement('i');ln.className='ln';
       const len=Math.hypot(q[0],q[1]+14),ang=Math.atan2(q[1]+14,q[0])*180/Math.PI;
       ln.style.width=len+'px';ln.style.left='0px';ln.style.top='-14px';ln.style.transform=`rotate(${ang}deg)`;
@@ -3051,6 +3069,61 @@ function renderNext(pid){
         <button class="btn" data-nextclr="${pid}">Clear it</button></div>`
       :`<div class="btns">${NEXTS.map(([d,l])=>`<button class="btn" data-next="${pid}:${d}:${ch}">${esc(l)}</button>`).join('')}
         <span class="note">Nothing is scheduled. By ${esc(CHAN[ch]?CHAN[ch][0]:'email')} — the channel set above.</span></div>`);}
+/* ============ Человек, внесённый руками ============
+   Система писала про себя «nobody is added by hand», и для SDR это было отрицание
+   его работы: человека с конференции деть некуда. «Вчера познакомилась с Dr. Mara
+   Ellison — занеси её» (задача стенда, 08.10) выполнить было нечем.
+   Запись руками равна действию агента: у неё есть автор, время и место в журнале. */
+function addPersonDialog(){
+  const sts=[...new Set(ACC.filter(a=>stateAt(a,S.t)).map(a=>a.st))].sort();
+  const inds=[...new Set(ACC.map(a=>a.ind).filter(Boolean))].sort();
+  const accs=ACC.filter(a=>stateAt(a,S.t)).map(a=>a.name).sort();
+  /* Подпись поля должна быть и у поля, не только рядом: диктору нужен ярлык, а
+     прибору — намерение, по которому поле находится. */
+  /* Подпись поля должна быть и у поля, не только рядом: диктору нужен ярлык, а
+     прибору — намерение, по которому поле находится. Ярлык у поля бывает длиннее
+     видимой подписи: «Name» на экране и «Person name» для чтения, иначе он путается
+     со строкой агента «Ask the agent, or @name a person…». */
+  const row=(lbl,inner,aria)=>`<div class="cfmr"><span>${lbl}</span>${inner.replace('<input','<input aria-label="'+(aria||lbl)+'"').replace('<select','<select aria-label="'+(aria||lbl)+'"')}</div>`;
+  confirmAct({title:'Add a person by hand', cta:'Add them',
+    lines:['Whoever you met is not in the database yet. What is written here is yours, not the agent’s — it goes into the log under your name.'],
+    html:row('Name','<input id="apNm" placeholder="Dr. Mara Ellison" autocomplete="off">','Person name')
+      +row('Title','<input id="apTi" placeholder="owner, dentist" autocomplete="off">')
+      +row('Role',`<select id="apRo"><option value="decides">decides</option><option value="champions">champions</option><option value="pays">pays</option></select>`)
+      +row('Company',`<input id="apCo" list="apCoL" placeholder="an existing one, or a new name" autocomplete="off"><datalist id="apCoL">${accs.slice(0,400).map(n=>`<option value="${esc(n)}">`).join('')}</datalist>`)
+      +row('State',`<select id="apSt">${sts.map(x=>`<option value="${x}">${x}</option>`).join('')}</select>`)
+      +row('Industry',`<select id="apIn">${inds.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join('')}</select>`)
+      +row('Seats','<input id="apEm" type="number" min="1" placeholder="14">')
+      +row('Channel',`<select id="apCh"><option value="email">email</option><option value="linkedin">LinkedIn</option><option value="whatsapp">WhatsApp</option></select>`)
+      +row('Met at','<input id="apMt" placeholder="ASCII Edge 2026, hallway" autocomplete="off">')
+      +`<div class="note" style="margin-top:6px">State and industry apply only if the company is new. The list of states is the one the map already knows — a state outside it would have nowhere to be drawn.</div>`,
+    onOk:()=>addPersonByHand()});
+}
+function addPersonByHand(){
+  const g=id=>(($(id)||{}).value||'').trim();
+  const nm=g('apNm'); if(!nm){toast('A name is the one thing it cannot be added without.');return;}
+  const coNm=g('apCo')||'—';
+  let a=ACC.find(x=>x.name.toLowerCase()===coNm.toLowerCase());
+  let madeAcc=false;
+  if(!a){
+    const st=g('apSt'), metro=METROS.find(m=>m[1]===st)||METROS[0];
+    a=makeAcc({metro,seg:'cmp',name:coNm,city:metro[0],ind:g('apIn')||null,
+      emp:+g('apEm')||10, ev:[{s:1,w:S.t,d:0}]});
+    a.ind=g('apIn')||null; a.byhand=true; ACCBY[a.id]=a; madeAcc=true;}
+  /* У компании без собственного списка люди порождались из семени: если просто
+     дописать, сгенерированные исчезнут. Поэтому сначала закрепляем их как есть. */
+  if(!a.people)a.people=peopleOf(a).map(x=>({...x}));
+  const pid=a.id+'-h'+a.people.length;
+  const SRCNM={email:'Gmail',linkedin:'LinkedIn',whatsapp:'Aircall'};
+  const p={id:pid,nm,title:g('apTi')||'—',role:g('apRo')||'decides',src:SRCNM[g('apCh')]||'Gmail',
+           byhand:true,met:g('apMt')||null,by:$('profile').selectedOptions[0].text,w:S.t};
+  a.people.push(p); PEOPLE[pid]={...p,acc:a.id};
+  S.chan=S.chan||{}; S.chan[pid]=g('apCh')||'email';
+  logAdd('seller',`${nm} added by hand${madeAcc?' with a new account '+a.name:' at '+a.name}${p.met?' · met at '+p.met:''} (${p.by})`,['up','new person']);
+  selectAcc(a); openTab('msg',pid,'Profile · '+nm); setEnt('ppl'); S.sel={type:'person',id:pid};
+  renderAllButMap();
+  toast(`${nm} added from a card · ${a.name}${madeAcc?' (new account)':''} · W${S.t}. Logged under your name.`);
+}
 function renderSlots(pid){
   const m=S.meet&&S.meet[pid];
   if(m)return `<div class="bnote"><span style="color:var(--up);font-weight:600">On the calendar</span>
@@ -3496,7 +3569,7 @@ function renderDB(){
     `<div class="dbh"><div class="r1"><h3>Database · ${kind==='acc'?'accounts':kind==='doc'?'documents':'people'}</h3>
       <span class="cnt">showing ${int(page.length)} of ${int(rows.length)}${rows.length<total?` · filtered down from ${int(total)}`:''}</span>
       <input id="dbQ" placeholder="${kind==='acc'?'Name, city, stage…':kind==='doc'?'Title, account, kind…':'Name, account, role…'}" value="${esc(S.dbQ||'')}">
-      <span class="pick"><button data-dbkind="acc" aria-pressed="${kind==='acc'}">accounts</button><button data-dbkind="person" aria-pressed="${kind==='person'}">people</button><button data-dbkind="doc" aria-pressed="${kind==='doc'}">documents</button></span></div>
+      <span class="pick"><button data-dbkind="acc" aria-pressed="${kind==='acc'}">accounts</button><button data-dbkind="person" aria-pressed="${kind==='person'}">people</button><button data-dbkind="doc" aria-pressed="${kind==='doc'}">documents</button></span>${kind==='person'?`<button class="btn" data-addp="1">Add a person by hand</button>`:''}</div>
       <div class="note">The list on the left holds only what needs a move. Everything lives here; the filters on the left recalculate this table and the formula above it.</div></div>
     <table class="db"><thead><tr>${cols.map(([k,t])=>`<th data-dbsort="${k}">${t}${sort.k===k?` <span class="ar">${sort.d>0?'▲':'▼'}</span>`:''}</th>`).join('')}</tr></thead>
     <tbody>${page.map(r=>`<tr data-open="${r.id}">${cols.map(([k])=>cell(r,k)).join('')}</tr>`).join('')||`<tr><td colspan="${cols.length}" style="padding:16px;color:var(--fg3)">${esc(kind==='acc'?zeroLine():'Nothing matches these filters.')}</td></tr>`}</tbody></table>
@@ -4113,7 +4186,7 @@ function openRef(k){
 }
 function logAdd(ag,ttl,st){(S.extraLogs=S.extraLogs||[]).push({ag,w:NOW,ttl,st});}
 document.addEventListener('click',e=>{
-  const b=e.target.closest('[data-fmul],[data-open],[data-side],[data-tab],[data-close],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-feeddown],[data-plus],[data-newchat],[data-agundo],[data-weekpick],[data-week],[data-calm],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-f],[data-freset],[data-fclr],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepsel],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-fmode],[data-dbsort],[data-dbmore],[data-dbkind],[data-camp],[data-camprun],[data-chan],[data-slot],[data-next],[data-nextclr],[data-campsel],[data-campoff],[data-campblk],[data-campset],[data-campseq],[data-campbox],[data-camprunact],[data-inwin],[data-stuck],[data-mailclear],[data-mark],[data-note],[data-notecancel],[data-ent],[data-mail],[data-common],[data-importfacts],[data-nextbn],[data-influencer],[data-sim],[data-role],[data-triopen],#fDown,#addFact,#addNote');
+  const b=e.target.closest('[data-fmul],[data-open],[data-side],[data-tab],[data-close],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-feeddown],[data-plus],[data-newchat],[data-agundo],[data-weekpick],[data-week],[data-calm],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-f],[data-freset],[data-fclr],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepsel],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-fmode],[data-dbsort],[data-dbmore],[data-dbkind],[data-camp],[data-camprun],[data-chan],[data-slot],[data-next],[data-nextclr],[data-addp],[data-campsel],[data-campoff],[data-campblk],[data-campset],[data-campseq],[data-campbox],[data-camprunact],[data-inwin],[data-stuck],[data-mailclear],[data-mark],[data-note],[data-notecancel],[data-ent],[data-mail],[data-common],[data-importfacts],[data-nextbn],[data-influencer],[data-sim],[data-role],[data-triopen],#fDown,#addFact,#addNote');
   if(!b){if(S.wkOpen&&!e.target.closest('.wkpop')){S.wkOpen=false;renderFilters();}return;}
   if(S.wkOpen&&!b.dataset.weekpick&&!b.dataset.week&&!b.dataset.calm&&!e.target.closest('.wkpop')){S.wkOpen=false;renderFilters();}
   if(b.dataset.pal)$('pal').hidden=true;
@@ -4273,6 +4346,7 @@ document.addEventListener('click',e=>{
         onOk:set});
       return;}
     set();return;}
+  if(b.dataset.addp){addPersonDialog();return;}
   if(b.dataset.next){const [pid,d,ch]=b.dataset.next.split(':');
     const p=personById(pid);
     S.next=S.next||{}; S.next[pid]={d:+d,ch,by:'the agent'};
