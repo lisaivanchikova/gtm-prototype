@@ -428,14 +428,17 @@ body.focus-mode .ptabs{cursor:pointer}
 .btn:disabled{opacity:.45;cursor:not-allowed}
 .btns{display:flex;flex-wrap:wrap;gap:8px}
 .note{font-size:11px;color:var(--fg2)}
-.thread{display:flex;flex-direction:column;gap:8px}
+/* Переписка росла без предела, и всё, что под ней, уезжало за сгиб: стоило добавить
+   один блок — и кнопка отправки перестала быть видна. Длина разговора не должна
+   решать, видно ли органы работы. Прокручивается сама переписка, а не вся карточка. */
+.thread{display:flex;flex-direction:column;gap:8px;max-height:34vh;overflow:auto}
 .msg{display:flex;gap:8px;align-items:flex-start}
 .msg .bub2{border:1px solid var(--border);border-radius:8px;padding:8px 10px;max-width:560px;display:flex;flex-direction:column;gap:4px}
 .msg.me{flex-direction:row-reverse}
 .msg.me .bub2{background:var(--accent-soft)}
 .msg .meta{font-size:11px;color:var(--fg3);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .compose{display:flex;flex-direction:column;gap:8px}
-.compose textarea{min-height:70px;resize:vertical;width:100%}
+.compose textarea{min-height:48px;max-height:30vh;resize:vertical;width:100%}
 .facts{display:flex;flex-direction:column;gap:8px}
 /* Настройка рассылки: четыре блока в строку — кого, что, когда, чем. Раньше их не
    было вовсе: экран кампании кончался просьбой «попроси агента словами», и работа
@@ -1337,7 +1340,7 @@ function replyClass(txt,act){
   return null;}
 const MEET=[{id:'mt1',acc:'a0',who:'Dr. Jonathan Moss',w:38,when:'Thu 2:00 pm',ttl:'HIPAA dashboard demo \u00b7 30 min',st:['up','on the calendar']},
             {id:'mt2',acc:'a1',who:'Tom Hale',w:38,when:'not scheduled',ttl:'Price walkthrough: $1,400 freelancer vs $3,170 with an SLA',st:['warn','awaiting a yes']}];
-const BUILD='Oct 8, 23:47';   /* отметка сборки: единственное место, где она живёт */
+const BUILD='Oct 8, 23:58';   /* отметка сборки: единственное место, где она живёт */
 const S={t:NOW,seg:null,downOnly:false,sel:null,level:'segment',K:1,
   knob:{scout:2,qual:2,seller:2,pricer:1,service:1},profile:'head',
   side:'tree',ent:'seg',agView:null,mapAcc:null,bn:0,sent:{},skin:'rev',ef:{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false},ptab:'market',job:'',stF:'',stage:'',primary:'map',source:null,orgOpen:false,sopAcc:'a0',lastRef:{},tabs:[{id:'map',kind:'map',ref:null,title:'Map'},{id:'acc',kind:'org',ref:'a0',title:'Account'},{id:'person',kind:'msg',ref:'p-hale',title:'Person'},{id:'flow',kind:'sop',ref:'a0',title:'Workflow'},{id:'doc',kind:'doc',ref:'d-msa',title:'Document'},{id:'agent',kind:'aglist',ref:null,title:'Agent'}],tab:'map',
@@ -3007,6 +3010,7 @@ function renderMsg(pid){const p=personById(pid),a=ACCBY[p.acc],M=MSGS[pid]||peop
   return `<div class="doc"><div class="doch">${face(p.nm,'big '+((personWorth(pid)||{eff:{}}).eff.c||''))}<div><h2>${esc(p.nm)}</h2><div class="muted">${esc(p.title)} · ${esc(a.name)} · role in the deal: <b>${p.role}</b></div><div class="note">source: ${esc(p.src)} · <a href="https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(p.nm)}" target="_blank" rel="noopener">Find their profile ↗</a></div></div></div>
     <div class="thread">${M.map(m=>`<div class="msg ${m.me?'me':''}">${m.me?agAv(m.agent,'mid'):face(p.nm,'mid')}<div class="bub2"><div class="meta">${srcIc(m.src).replace('class="src"','class="av sq"')} ${m.me?'the '+agBy(m.agent).nm+' agent':esc(p.nm)} · W${m.w}${m.act?` · <span class="act">${m.act}</span>`:''}</div><div>${esc(m.txt)}</div></div></div>`).join('')||'<div class="note">No correspondence yet.</div>'}</div>
     ${renderChannels(pid)}
+    ${renderNext(pid)}
     ${renderSlots(pid)}
     <div class="compose"><div class="hdr">Agent draft</div><textarea id="draft" aria-label="Draft">${esc(draft)}</textarea><div class="btns cact"><button class="btn pri" data-send="${pid}">${S.chan&&S.chan[pid]?'Send by '+esc(CHAN[S.chan[pid]][0])+' under my name':'Send under my name'}</button><span class="note">Mail under a person’s name goes out only on that person’s click.</span></div></div></div>`;}
 /* Канал выбирался молча: письмо уходило почтой, даже если почта отбивалась. Работа
@@ -3028,13 +3032,30 @@ function renderChannels(pid){
 /* Работа SDR кончается не ответом, а разговором в календаре. Слоты предлагает агент,
    закрепляет человек: встреча — обязательство, а обязательства агент не раздаёт. */
 const SLOTS=['Thu 14:00','Fri 10:00','Mon 09:30'];
+/* В системе было только прошлое: LAST TOUCH. «Поставь первое письмо на завтра»
+   выполнить было нечем, а у Head половина работы живёт в сроках. Это первый шаг:
+   следующее касание по одному человеку. Месяц и квартал — отдельная работа. */
+const NEXTS=[[1,'tomorrow'],[3,'in 3 days'],[7,'next week'],[14,'in two weeks']];
+function nextTouch(pid){return (S.next&&S.next[pid])||null;}
+function nextWords(pid){const n=nextTouch(pid);if(!n)return null;
+  const lbl=(NEXTS.find(x=>x[0]===n.d)||[0,'in '+n.d+' days'])[1];
+  return lbl+' · '+(CHAN[n.ch]?CHAN[n.ch][0]:'email')+' · '+(n.by||'the agent');}
+function renderNext(pid){
+  const n=nextTouch(pid), ch=(S.chan&&S.chan[pid])||'email';
+  /* Два заголовка подряд на одной карточке — «Next touch» и «Bring it to a
+     conversation» — стоили 28px и вытолкнули кнопку отправки за дно области.
+     Один заголовок на оба органа: оба про то, что будет дальше. */
+  return `<div class="hdr">What happens next</div>`
+    +(n?`<div class="bnote"><span style="color:var(--up);font-weight:600">Scheduled</span>
+        <span>${esc(nextWords(pid))}. Nothing else goes to this person before then.</span>
+        <button class="btn" data-nextclr="${pid}">Clear it</button></div>`
+      :`<div class="btns">${NEXTS.map(([d,l])=>`<button class="btn" data-next="${pid}:${d}:${ch}">${esc(l)}</button>`).join('')}
+        <span class="note">Nothing is scheduled. By ${esc(CHAN[ch]?CHAN[ch][0]:'email')} — the channel set above.</span></div>`);}
 function renderSlots(pid){
   const m=S.meet&&S.meet[pid];
-  if(m)return `<div class="hdr">The conversation</div>
-    <div class="bnote"><span style="color:var(--up);font-weight:600">On the calendar</span>
+  if(m)return `<div class="bnote"><span style="color:var(--up);font-weight:600">On the calendar</span>
     <span>${esc(m)} · 30 min · the agent sent the invite under your name and stopped following up.</span></div>`;
-  return `<div class="hdr">Bring it to a conversation</div>
-    <div class="btns">${SLOTS.map(x=>`<button class="btn" data-slot="${pid}:${esc(x)}">${esc(x)}</button>`).join('')}
+  return `<div class="btns">${SLOTS.map(x=>`<button class="btn" data-slot="${pid}:${esc(x)}">${esc(x)}</button>`).join('')}
     <span class="note">Pick a slot and the agent sends the invite under your name.</span></div>`;}
 function renderNews(id){const n=MARKET.find(x=>x.id===id),st=S.facts[id]||{};
   return `<div class="doc"><div class="doch"><span class="av sq big">${SRC[n.src][0].slice(0,3)}</span><div><h2>${esc(n.ttl)}</h2><div class="muted">${SRC[n.src][0]} · ${n.url} · ${n.when} ago · segment ${segBy(n.seg).name}${n.st?' · '+n.st:''} · moves: <b>${n.hits}</b></div></div></div>
@@ -3419,7 +3440,7 @@ const DBCOLS={
   /* Признак, по которому отбирают, должен быть виден в строке — иначе отбор выглядит
      как фокус: «отрасль вшита в сегмент скрытым NAICS» (ходок, 08.10). */
   acc:[['nm','Account'],['last','Last touch'],['touch','Wrote'],['stg','Stage'],['mv','Movement'],['acv','ACV'],['ind','Industry'],['emp','Seats'],['seg','Segment'],['loc','City, state']],
-  person:[['nm','Person'],['last','Last touch'],['acc','Account'],['role','Role in the deal'],['title','Title'],['src','Channel']],
+  person:[['nm','Person'],['last','Last touch'],['next','Next touch'],['acc','Account'],['role','Role in the deal'],['title','Title'],['src','Channel']],
   doc:[['nm','Document'],['acc','Account'],['kind','Kind'],['stt','State'],['last','Age'],['src','Where it lives']]};
 /* «Писали» отвечает на работу №2: дотянуться, не задев тех, кому уже писали.
    Остывание — 30 дней после последнего касания, как у Skyp (период остывания перед повторным входом). */
@@ -3446,7 +3467,9 @@ function dbRows(kind){
   let r=[];
   for(const a of base){const e=stateAt(a,t);
     for(const pp of peopleOf(a))r.push({id:'person:'+pp.id,a,p:pp,
-      nm:pp.nm,acc:a.name,role:pp.role,title:pp.title,src:pp.src,last:e?(t-e.w)*7:9999});}
+      nm:pp.nm,acc:a.name,role:pp.role,title:pp.title,src:pp.src,last:e?(t-e.w)*7:9999,
+      /* Пусто — тоже значение: человек без назначенного касания и есть работа. */
+      next:nextWords(pp.id)||'—'});}
   if(q)r=r.filter(x=>(x.nm+' '+x.acc+' '+x.role+' '+x.title).toLowerCase().includes(q));
   return r;}
 function renderDB(){
@@ -4090,7 +4113,7 @@ function openRef(k){
 }
 function logAdd(ag,ttl,st){(S.extraLogs=S.extraLogs||[]).push({ag,w:NOW,ttl,st});}
 document.addEventListener('click',e=>{
-  const b=e.target.closest('[data-fmul],[data-open],[data-side],[data-tab],[data-close],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-feeddown],[data-plus],[data-newchat],[data-agundo],[data-weekpick],[data-week],[data-calm],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-f],[data-freset],[data-fclr],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepsel],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-fmode],[data-dbsort],[data-dbmore],[data-dbkind],[data-camp],[data-camprun],[data-chan],[data-slot],[data-campsel],[data-campoff],[data-campblk],[data-campset],[data-campseq],[data-campbox],[data-camprunact],[data-inwin],[data-stuck],[data-mailclear],[data-mark],[data-note],[data-notecancel],[data-ent],[data-mail],[data-common],[data-importfacts],[data-nextbn],[data-influencer],[data-sim],[data-role],[data-triopen],#fDown,#addFact,#addNote');
+  const b=e.target.closest('[data-fmul],[data-open],[data-side],[data-tab],[data-close],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-feeddown],[data-plus],[data-newchat],[data-agundo],[data-weekpick],[data-week],[data-calm],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-f],[data-freset],[data-fclr],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepsel],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-fmode],[data-dbsort],[data-dbmore],[data-dbkind],[data-camp],[data-camprun],[data-chan],[data-slot],[data-next],[data-nextclr],[data-campsel],[data-campoff],[data-campblk],[data-campset],[data-campseq],[data-campbox],[data-camprunact],[data-inwin],[data-stuck],[data-mailclear],[data-mark],[data-note],[data-notecancel],[data-ent],[data-mail],[data-common],[data-importfacts],[data-nextbn],[data-influencer],[data-sim],[data-role],[data-triopen],#fDown,#addFact,#addNote');
   if(!b){if(S.wkOpen&&!e.target.closest('.wkpop')){S.wkOpen=false;renderFilters();}return;}
   if(S.wkOpen&&!b.dataset.weekpick&&!b.dataset.week&&!b.dataset.calm&&!e.target.closest('.wkpop')){S.wkOpen=false;renderFilters();}
   if(b.dataset.pal)$('pal').hidden=true;
@@ -4250,6 +4273,16 @@ document.addEventListener('click',e=>{
         onOk:set});
       return;}
     set();return;}
+  if(b.dataset.next){const [pid,d,ch]=b.dataset.next.split(':');
+    const p=personById(pid);
+    S.next=S.next||{}; S.next[pid]={d:+d,ch,by:'the agent'};
+    logAdd('seller',`${p.nm}: next touch ${nextWords(pid)} (set by ${$('profile').selectedOptions[0].text})`,['up','scheduled']);
+    renderEditor();renderAllButMap();
+    toast(`Next touch for ${p.nm}: ${nextWords(pid)}.`);return;}
+  if(b.dataset.nextclr){const pid=b.dataset.nextclr,p=personById(pid);
+    if(S.next)delete S.next[pid];
+    logAdd('seller',`${p.nm}: next touch cleared (${$('profile').selectedOptions[0].text})`,['flat','edited']);
+    renderEditor();renderAllButMap();toast(`Nothing is scheduled for ${p.nm} now.`);return;}
   if(b.dataset.slot){const [pid,when]=b.dataset.slot.split(':');
     const slot=b.dataset.slot.slice(pid.length+1);
     S.meet=S.meet||{};S.meet[pid]=slot;
