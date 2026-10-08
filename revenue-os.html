@@ -1066,6 +1066,10 @@ table.runs td{padding:4px 8px 4px 0;border-top:1px solid color-mix(in srgb,var(-
   text-transform:uppercase;color:var(--fg3);padding:8px 12px 6px}
 .sfilt .fclr{background:none;border:0;color:var(--accent);font:inherit;font-size:11px;cursor:pointer;padding:0}
 .sfilt .fclr:hover{text-decoration:underline}
+.frng{margin-left:auto;display:flex;align-items:center;gap:4px}
+.frng input{width:48px;height:22px;font:inherit;font-size:11px;text-align:center;padding:0 4px;border-radius:4px;border:1px solid var(--border);background:var(--editor);color:var(--fg)}
+.frng input::placeholder{color:var(--fg3)}
+.frng i{color:var(--fg3);font-style:normal}
 .frow{display:flex;align-items:center;gap:8px;min-height:30px;padding:0 6px 0 12px;border-top:1px solid var(--border)}
 .frow .fk{color:var(--fg2);font-size:11px;white-space:nowrap}
 .frow .fv{margin-left:auto;max-width:62%;background:none;border:0;color:var(--fg);font:inherit;font-size:11px;
@@ -1172,8 +1176,19 @@ const ACC=[];
 function makeAcc(o){
   const m=o.metro, mi=METROS.indexOf(m), [px,py]=proj([m[2],m[3]]), ang=R()*Math.PI*2, rad=Math.sqrt(R())*(3+m[4]*1.1);
   const seg=SEGS.find(s=>s.id===o.seg);
-  const name=o.name||`${N1[rint(0,N1.length-1)]} ${N2[o.seg][rint(0,7)]} ${SUF[rint(0,4)]}`;
-  const a={id:'a'+ACC.length,seg:o.seg,mi,city:o.city||m[0],st:m[1],x:o.x??px+Math.cos(ang)*rad,y:o.y??py+Math.sin(ang)*rad,name,
+  /* Отрасль у каждой компании уже была — вторым словом её названия, из словаря по
+     сегменту. Не было её как поля, поэтому отобрать по ней было нечем: «отрасли нет
+     ни в одном фильтре» (ходок, 08.10). Решение Лизы: признак строится как поле
+     отбора в принципе, а клиники — это значения демо-данных, не устройство.
+     Порядок обращений к генератору сохранён ровно как был, иначе поехала бы вся база. */
+  let name=o.name, trade=null;
+  if(!name){const nm1=N1[rint(0,N1.length-1)]; trade=N2[o.seg][rint(0,7)]; const sfx=SUF[rint(0,4)];
+    name=`${nm1} ${trade} ${sfx}`;}
+  else trade=(N2[o.seg]||[]).find(t=>name.includes(t))||null;
+  const a={id:'a'+ACC.length,seg:o.seg,mi,city:o.city||m[0],st:m[1],ind:trade,
+    /* «есть ли свой айтишник» вывести не из чего: null значит «неизвестно», и экран
+       это говорит. Проставить значение всем 652 было бы выдуманным числом. */
+    itown:o.itown??null,x:o.x??px+Math.cos(ang)*rad,y:o.y??py+Math.sin(ang)*rad,name,
     acv:o.acv||Math.round(seg.acv*(0.7+R()*0.6)/500)*500,emp:o.emp||rint(6,60),ev:o.ev,cheap:!!o.cheap,payW:o.payW??null,valW:o.valW??null,reason:o.reason||null,
     people:o.people||null,seed:rint(1,1e6),hue:HUE[rint(0,7)],feat:!!o.feat};
   ACC.push(a);return a;
@@ -1184,6 +1199,9 @@ const BRIGHT=makeAcc({metro:mDal,seg:'cmp',name:'Brightline Dental LLC',city:'Pl
   ev:[{s:1,w:35,d:2},{s:2,w:36,d:3},{s:3,w:37,d:2},{s:4,w:40,d:1},{s:5,w:41,d:2}],
   people:[{id:'p-moss',nm:'Dr. Jonathan Moss',title:'owner, dentist',role:'decides',src:'Gmail'},{id:'p-diaz',nm:'Karen Diaz',title:'office manager',role:'champions',src:'LinkedIn'},{id:'p-hale',nm:'Tom Hale',title:'bookkeeper (external)',role:'pays',src:'Aircall'}]});
 BRIGHT.hue='#2a78d6';
+/* Единственное основание в данных: «Our IT guy left and nothing works» (Dr. Moss, W35).
+   Был свой, ушёл — значит сейчас своего нет. У остальных оснований нет, и поле пустое. */
+BRIGHT.itown='no';
 const HALE=makeAcc({metro:mTam,seg:'cmp',name:'Hale & Ortiz CPA',acv:31000,emp:22,x:hx,y:hy,feat:true,ev:[{s:5,w:18,d:1}],payW:37,
   people:[{id:'p-ortiz',nm:'Maria Ortiz',title:'partner',role:'decides',src:'Gmail'},{id:'p-vega',nm:'Luis Vega',title:'office manager',role:'champions',src:'Teams'},{id:'p-annh',nm:'Ann Hale',title:'controller',role:'pays',src:'QuickBooks'}]});
 HALE.hue='#4a3aa7';
@@ -1319,7 +1337,7 @@ function replyClass(txt,act){
   return null;}
 const MEET=[{id:'mt1',acc:'a0',who:'Dr. Jonathan Moss',w:38,when:'Thu 2:00 pm',ttl:'HIPAA dashboard demo \u00b7 30 min',st:['up','on the calendar']},
             {id:'mt2',acc:'a1',who:'Tom Hale',w:38,when:'not scheduled',ttl:'Price walkthrough: $1,400 freelancer vs $3,170 with an SLA',st:['warn','awaiting a yes']}];
-const BUILD='Oct 8, 22:39';   /* отметка сборки: единственное место, где она живёт */
+const BUILD='Oct 8, 23:47';   /* отметка сборки: единственное место, где она живёт */
 const S={t:NOW,seg:null,downOnly:false,sel:null,level:'segment',K:1,
   knob:{scout:2,qual:2,seller:2,pricer:1,service:1},profile:'head',
   side:'tree',ent:'seg',agView:null,mapAcc:null,bn:0,sent:{},skin:'rev',ef:{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false},ptab:'market',job:'',stF:'',stage:'',primary:'map',source:null,orgOpen:false,sopAcc:'a0',lastRef:{},tabs:[{id:'map',kind:'map',ref:null,title:'Map'},{id:'acc',kind:'org',ref:'a0',title:'Account'},{id:'person',kind:'msg',ref:'p-hale',title:'Person'},{id:'flow',kind:'sop',ref:'a0',title:'Workflow'},{id:'doc',kind:'doc',ref:'d-msa',title:'Document'},{id:'agent',kind:'aglist',ref:null,title:'Agent'}],tab:'map',
@@ -1337,7 +1355,30 @@ const daysIn=(e,t)=>(t-e.w)*7+e.d;
 const stuck=(a,e,t)=>e&&e.s>=1&&e.s<=3&&daysIn(e,t)>=8;
 const churnSig=(a,e,t)=>isActive(e)&&((a.payW&&t>=a.payW)||(a.valW&&t>=a.valW&&t<a.valW+3));
 function momentum(a,t){const e=stateAt(a,t);if(!e)return 0;if(stuck(a,e,t)||churnSig(a,e,t)||(e.s>=7&&t-e.w<3))return -1;if(e.s<=6&&daysIn(e,t)<=14&&e.s!==5)return 1;if(e.s===5&&daysIn(e,t)<=14)return 1;return 0;}
-function inF(a){if(S.stage){const e=stateAt(a,S.t);if(!e||e.s!==+S.stage)return false;}return (!S.seg||a.seg===S.seg)&&(!S.job||jobOf(a)===S.job)&&(!S.stF||a.st===S.stF);}
+function inF(a){if(S.stage){const e=stateAt(a,S.t);if(!e||e.s!==+S.stage)return false;}
+  if(S.ind&&a.ind!==S.ind)return false;
+  if(S.szFrom&&a.emp<+S.szFrom)return false;
+  if(S.szTo&&a.emp>+S.szTo)return false;
+  if(S.itown&&String(a.itown||'unknown')!==S.itown)return false;
+  return (!S.seg||a.seg===S.seg)&&(!S.job||jobOf(a)===S.job)&&(!S.stF||a.st===S.stF);}
+/* Какой именно признак обнулил выборку. Ноль — тоже ответ, но только если сказано,
+   чем он вызван: ходок стоял перед пустым экраном и не понимал, что сделал не так. */
+function zeroReason(){
+  const live=ACC.filter(a=>stateAt(a,S.t));
+  const tests=[['segment',S.seg?a=>a.seg===S.seg:null],
+    ['job',S.job?a=>jobOf(a)===S.job:null],
+    ['state',S.stF?a=>a.st===S.stF:null],
+    ['industry',S.ind?a=>a.ind===S.ind:null],
+    ['size',(S.szFrom||S.szTo)?a=>(!S.szFrom||a.emp>=+S.szFrom)&&(!S.szTo||a.emp<=+S.szTo):null],
+    ['own IT',S.itown?a=>String(a.itown||'unknown')===S.itown:null],
+    ['stage',S.stage?a=>{const e=stateAt(a,S.t);return e&&e.s===+S.stage;}:null]].filter(x=>x[1]);
+  let pool=live, out=[];
+  for(const [nm,fn] of tests){
+    const next=pool.filter(fn);
+    out.push([nm,next.length]);
+    if(!next.length)return {left:out,killer:nm};
+    pool=next;}
+  return {left:out,killer:null};}
 function segN(st){st=st||S.stF;let n=0;const jf=S.job==='hipaa'?.6:S.job==='ftc'?.4:1;for(const [k,p] of Object.entries(POP)){if(st&&k!==st)continue;for(const g of SEGS){if(S.seg&&g.id!==S.seg)continue;n+=p*g.perM*(g.id==='cmp'?jf:(S.job&&S.job!==g.id?0:1));}}return Math.round(n);}
 function formulaAt(t,st){const t0=t-WIN;let start=0,end=0,kept=0,newA=0,newC=0,interest=0;
   for(const a of ACC){if(!inF(a))continue;if(st&&a.st!==st)continue;const e0=stateAt(a,t0),e1=stateAt(a,t),a0=isActive(e0),a1=isActive(e1);
@@ -1695,6 +1736,11 @@ const FOPT={
      которой в выбранном сегменте нет, значит предлагать пустой экран:
      восемь из двенадцати пар давали ноль компаний (Николай, 06.10, 07:40). */
   job:()=>JOBS.filter(([k])=>!k||ACC.some(a=>(!S.seg||a.seg===S.seg)&&jobOf(a)===k)),
+  /* Отрасль предлагается только та, что есть в выбранном сегменте — как и работа:
+     предлагать значение, дающее ноль, значит предлагать пустой экран. */
+  ind:()=>[['','all industries']].concat([...new Set(ACC.filter(a=>(!S.seg||a.seg===S.seg)&&a.ind).map(a=>a.ind))].sort().map(x=>[x,x])),
+  itown:()=>{const k=ACC.filter(a=>a.itown).length;
+    return [['','any'],['no','no IT person of their own','known for '+k+' of '+ACC.filter(a=>stateAt(a,S.t)).length+' accounts'],['yes','has one of their own'],['unknown','not known']];},
   st:()=>[['','all states']].concat([...new Set(ACC.map(a=>a.st))].sort().map(x=>[x,x])),
   stage:()=>[['','all stages']].concat([1,2,3,4,5,6,7,8].map(k=>[String(k),STAGE[k]])),
   role:()=>[['','all'],['decides','decides','has the last word'],['champions','champions','moves the deal inside the company'],['pays','pays','approves the budget and signs the invoice']],
@@ -1709,6 +1755,13 @@ const FFLD={
   job:   {lbl:'Job',    get:()=>S.job||'',       set:v=>{S.job=v;}},
   st:    {lbl:'State',  get:()=>S.stF||'',       set:v=>{S.stF=v;if(v&&S.tab==='map'){const f=statesF.find(x=>x.abbr===v);f&&zoomToFeature(f);}}},
   stage: {lbl:'Stage',  get:()=>S.stage||'',     set:v=>{S.stage=v;}},
+  ind:   {lbl:'Industry',get:()=>S.ind||'',      set:v=>{S.ind=v;}},
+  /* Размер — не список, а диапазон: задача звучит «20–100 сотрудников», а не
+     «один из пяти разрядов». Поле новое по виду, поэтому у компонента появился
+     третий тип наряду с выбором и переключателем. */
+  size:  {lbl:'Seats',type:'rng',get:()=>[S.szFrom||'',S.szTo||''],set:v=>{S.szFrom=v[0];S.szTo=v[1];}},
+  itown: {lbl:'Own IT person',hint:'this comes from what people say in the correspondence, and there is no source feeding it yet — for most accounts it is simply not known',
+          get:()=>S.itown||'', set:v=>{S.itown=v;}},
   role:  {lbl:'Role in the deal',light:1,get:()=>S.ef.role||'',  set:v=>{S.ef.role=v;}},
   src:   {lbl:'Channel',light:1,get:()=>S.ef.src||'',            set:v=>{S.ef.src=v;}},
   dkind: {lbl:'Kind',   light:1,get:()=>S.ef.dkind||'',          set:v=>{S.ef.dkind=v;}},
@@ -1717,10 +1770,12 @@ const FFLD={
   proc:  {lbl:'Process',light:1,keep:1,get:()=>S.ef.proc||'sale',set:v=>{S.ef.proc=v||'sale';}},
   newonly:{lbl:'unverified facts only',hint:'while unconfirmed, these facts stay out of the formula',type:'tog',get:()=>!!S.ef.newonly,set:v=>{S.ef.newonly=v;}},
   down:   {lbl:'stuck or leaving only',hint:'no movement for 8 days, or a churn signal',type:'tog',get:()=>!!S.downOnly,set:v=>{S.downOnly=v;}}};
-const FSET={seg:['seg','job','newonly'],acc:['seg','job','st','stage','down'],ppl:['role','src'],
+const FSET={seg:['seg','job','newonly'],acc:['seg','job','ind','st','size','itown','stage','down'],ppl:['role','src'],
             /* Сегмент — главный способ сузить поток: рассылка делается по сегменту,
                и список обещает это прямо в подписи. */
-            flow:['seg','proc','stage'],doc:['dkind','seg'],ag:['arole','astate'],us:['arole','astate']};
+            /* Рассылка режется теми же признаками, что и список: «штат есть только на
+               экране Accounts, в кампанию не переносится» (ходок, 08.10). */
+            flow:['seg','proc','ind','st','size','stage'],doc:['dkind','seg'],ag:['arole','astate'],us:['arole','astate']};
 function filterBar(ent){
   S.ef=S.ef||{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false};
   const keys=FSET[ent]||FSET.acc, allf=keys.map(k=>[k,FFLD[k]]).filter(x=>x[1]);
@@ -1730,13 +1785,13 @@ function filterBar(ent){
      снимается само, иначе экран остаётся пустым без объяснения. */
   const OPT={};
   for(const [k,f] of allf){
-    if(f.type==='tog')continue;
+    if(f.type==='tog'||f.type==='rng')continue;
     OPT[k]=(FOPT[k]||(()=>[]))();
     const cur=String(f.get());
     if(cur&&!OPT[k].some(o=>String(o[0])===cur))f.set('');
   }
-  const flds=allf.filter(([k,f])=>f.type==='tog'||f.keep||OPT[k].filter(o=>String(o[0])!=='').length>=2);
-  const set=flds.some(([k,f])=>f.keep?false:(f.type==='tog'?f.get():!!f.get()));
+  const flds=allf.filter(([k,f])=>f.type==='tog'||f.type==='rng'||f.keep||OPT[k].filter(o=>String(o[0])!=='').length>=2);
+  const set=flds.some(([k,f])=>f.keep?false:f.type==='tog'?f.get():f.type==='rng'?(f.get()[0]||f.get()[1]):!!f.get());
   const wide=flds.some(([k,f])=>!f.light);
   /* Подпись поля, повторяющая заголовок панели, — мусор: «сегмент выше». */
   const dup=l=>String(l).toLowerCase().replace(/s$/,'')===String(ENTNM[ent]||'').toLowerCase().replace(/s$/,'');
@@ -1745,6 +1800,11 @@ function filterBar(ent){
      × сбрасывает поле, Clear all сверху. Чипы столбиком занимали половину колонки. */
   const row=([k,f])=>{
     if(f.type==='tog')return `<label class="frow fchk"${f.hint?` data-tip="${esc(f.hint)}"`:''}><span class="fk">${esc(f.lbl)}</span><input type="checkbox" data-ftog="${k}" ${f.get()?'checked':''}></label>`;
+    if(f.type==='rng'){const v=f.get(),onr=!!(v[0]||v[1]);
+      return `<div class="frow"${f.hint?` data-tip="${esc(f.hint)}"`:''}><span class="fk">${esc(f.lbl)}</span>`
+        +`<span class="frng"><input type="number" min="1" inputmode="numeric" data-frng="${k}:0" value="${esc(String(v[0]))}" aria-label="${esc(f.lbl)} from" placeholder="from">`
+        +`<i>–</i><input type="number" min="1" inputmode="numeric" data-frng="${k}:1" value="${esc(String(v[1]))}" aria-label="${esc(f.lbl)} to" placeholder="to"></span>`
+        +`${onr?`<button class="fx" data-fclr="${k}" aria-label="Clear ${esc(f.lbl)}">×</button>`:'<span class="fx"></span>'}</div>`;}
     const opts=OPT[k]||[], cur=String(f.get()), on=!f.keep&&!!f.get();
     return `<div class="frow"><span class="fk">${esc(f.lbl)}</span><select class="fv" data-fsel="${k}">`
       +opts.map(o=>`<option value="${esc(String(o[0]))}" ${cur===String(o[0])?'selected':''}>${esc(o[1])}</option>`).join('')
@@ -2677,8 +2737,38 @@ const CAMP0=[{a:'found',b:'the agent filtered them'},
              {a:'first touch',b:'one letter under your name'},
              {a:'reply',b:'anything back'},
              {a:'meeting',b:'a conversation in the calendar'}];
-function campPool(seg){return ACC.filter(a=>(!seg||seg==='all'||a.seg===seg)&&stateAt(a,S.t))
-  .flatMap(a=>peopleOf(a).map(x=>({...x,acc:a})));}
+function campPool(seg){
+  /* Рассылка шла только по сегменту: «штат есть, но теряется — в кампанию не
+     переносится» (ходок, 08.10). Теперь те же признаки, что и в списке; сегмент
+     у рассылки свой, поэтому глобальный на время снимаем. */
+  const sv=S.seg; S.seg=null;
+  const out=ACC.filter(a=>(!seg||seg==='all'||a.seg===seg)&&stateAt(a,S.t)&&inF(a))
+    .flatMap(a=>peopleOf(a).map(x=>({...x,acc:a})));
+  S.seg=sv; return out;}
+/* Ноль объясняется тем признаком, на котором выборка кончилась, и — если это отрасль —
+   прямо говорится, что такой отрасли в базе нет. Честный ноль полезнее подогнанной
+   выборки: «ветклиник в Аризоне» в демо-данных не было и не будет. */
+function zeroLine(){
+  const z=zeroReason();
+  if(!z.killer)return 'Nothing matches, and no single criterion is to blame — try clearing one.';
+  const steps=z.left.map(([k,n])=>k+': '+n).join(' → ');
+  let extra='';
+  if(z.killer==='industry'&&S.ind&&!ACC.some(a=>a.ind===S.ind))
+    extra=' There is no “'+S.ind+'” in this database at all — these are demo records, and that trade is not among the 24 in them.';
+  if(z.killer==='own IT')extra=' Almost no account has this recorded: it comes from what people say, and nothing feeds it yet.';
+  if(z.killer==='size')extra=' Accounts here run from 6 to 60 seats.';
+  return 'Nothing left after “'+z.killer+'”. '+steps+'.'+extra;}
+/* Чем именно сужено — словами, рядом с числом. Иначе человек видит «531 компания»
+   и не знает, что в выборке уже нет ни Техаса, ни стоматологий. */
+function narrowWords(){
+  const w=[];
+  if(S.ind)w.push('industry '+S.ind);
+  if(S.stF)w.push('state '+S.stF);
+  if(S.szFrom||S.szTo)w.push('seats '+(S.szFrom||'1')+'–'+(S.szTo||'∞'));
+  if(S.itown)w.push('own IT: '+S.itown);
+  if(S.stage)w.push('stage '+STAGE[+S.stage]);
+  if(S.job)w.push('job '+(JOBS.find(j=>j[0]===S.job)||['',''])[1]);
+  return w;}
 /* Настройка живёт в состоянии, а не в голове у агента: её видно на экране, её можно
    менять руками, и агент справа предлагает значения в те же поля. */
 function campCfg(seg){
@@ -2722,7 +2812,9 @@ function campSetup(){
       <span class="pick">${[['','the whole market']].concat(SEGS.map(g=>[g.id,g.abc+' · '+g.name]))
         .map(([v,l])=>`<button data-campset="seg:${v}" aria-pressed="${(c.seg||'')===v}">${esc(l)}</button>`).join('')}</span></div>
     <div class="crow"><span class="lbl">reaches</span><span class="n">${int(accs.length)} companies · ${int(pool.length)} people${Object.keys(off).filter(k=>off[k]).length?` · ${Object.keys(off).filter(k=>off[k]).length} taken out by hand`:''}</span></div>
-    <div class="crow"><span class="lbl faint">The agent picks by segment. State, stage and job narrow it from the left column; the list below follows them. Industry, headcount and “has its own IT person” are not fields here yet — a send cannot be aimed by them.</span></div></div>`;
+    <div class="crow"><span class="lbl">narrowed by</span><span class="n">${narrowWords().length?esc(narrowWords().join(' · ')):'nothing — the whole segment'}</span></div>
+    ${!pool.length?`<div class="crow"><span class="lbl faint">${esc(zeroLine())}</span></div>`:''}
+    <div class="crow"><span class="lbl faint">The segment is chosen here; industry, state, seats, stage and job are chosen in the left column and apply to this send as well as to the list.</span></div></div>`;
   if(open==='what')det=`<div class="cdet">
     <div class="crow"><span class="lbl">channel</span>
       <span class="pick">${CHAN3.map(([v,l])=>`<button data-campset="chan:${v}" aria-pressed="${c.chan===v}">${l}</button>`).join('')}</span></div>
@@ -3324,7 +3416,9 @@ function renderPanel(){
    ни пролистать, ни отфильтровать. Таблица с колонками, сортировкой и страницами —
    то же решение, что у Attio, Clarify и Breakcold (приёмы 100, 75, 51). */
 const DBCOLS={
-  acc:[['nm','Account'],['last','Last touch'],['touch','Wrote'],['stg','Stage'],['mv','Movement'],['acv','ACV'],['seg','Segment'],['loc','City, state']],
+  /* Признак, по которому отбирают, должен быть виден в строке — иначе отбор выглядит
+     как фокус: «отрасль вшита в сегмент скрытым NAICS» (ходок, 08.10). */
+  acc:[['nm','Account'],['last','Last touch'],['touch','Wrote'],['stg','Stage'],['mv','Movement'],['acv','ACV'],['ind','Industry'],['emp','Seats'],['seg','Segment'],['loc','City, state']],
   person:[['nm','Person'],['last','Last touch'],['acc','Account'],['role','Role in the deal'],['title','Title'],['src','Channel']],
   doc:[['nm','Document'],['acc','Account'],['kind','Kind'],['stt','State'],['last','Age'],['src','Where it lives']]};
 /* «Писали» отвечает на работу №2: дотянуться, не задев тех, кому уже писали.
@@ -3337,8 +3431,10 @@ function dbRows(kind){
   if(kind==='acc'){
     let r=base.map(a=>{const e=stateAt(a,t);return {id:'acc:'+a.id,a,
       nm:a.name,seg:segBy(a.seg).name,loc:a.city+', '+a.st,stg:e?STAGE[e.s]:'—',
+      ind:a.ind||'—',emp:a.emp,
       mv:momentum(a,t),acv:a.acv,last:e?(t-e.w)*7:9999,touch:e?(t-e.w)*7:9999};});
-    if(q)r=r.filter(x=>(x.nm+' '+x.loc+' '+x.seg+' '+x.stg+' '+touchState(x.touch)[0]).toLowerCase().includes(q));
+    /* Поиск по таблице должен находить и по отрасли: её теперь можно спросить словом. */
+    if(q)r=r.filter(x=>(x.nm+' '+x.loc+' '+x.seg+' '+x.stg+' '+x.ind+' '+touchState(x.touch)[0]).toLowerCase().includes(q));
     return r;}
   if(kind==='doc'){
     let r=Object.entries(DOCS).filter(([id,d])=>{const a=ACCBY[d.acc];return a&&inF(a)&&d.w<=Math.max(t,NOW);})
@@ -3368,6 +3464,7 @@ function renderDB(){
     if(k==='mv'){const w=r.mv>0?'moving up':r.mv<0?'moving down':'flat';
       return `<td class="num ${mcls(r.mv)}" title="${w}" aria-label="${w}">${arrow(r.mv)}</td>`;}
     if(k==='acv')return `<td class="num">${usd(r.acv)}</td>`;
+    if(k==='emp')return `<td class="num">${esc(String(r.emp))}</td>`;
     if(k==='last')return `<td class="num">${r.last>=9999?'—':r.last+'d'}</td>`;
     if(k==='touch'){const ts=touchState(r.touch);return `<td><span class="chip ${ts[1]}">${esc(ts[0])}</span></td>`;}
     if(k==='role')return `<td><span class="role">${esc(r.role)}</span></td>`;
@@ -3379,7 +3476,7 @@ function renderDB(){
       <span class="pick"><button data-dbkind="acc" aria-pressed="${kind==='acc'}">accounts</button><button data-dbkind="person" aria-pressed="${kind==='person'}">people</button><button data-dbkind="doc" aria-pressed="${kind==='doc'}">documents</button></span></div>
       <div class="note">The list on the left holds only what needs a move. Everything lives here; the filters on the left recalculate this table and the formula above it.</div></div>
     <table class="db"><thead><tr>${cols.map(([k,t])=>`<th data-dbsort="${k}">${t}${sort.k===k?` <span class="ar">${sort.d>0?'▲':'▼'}</span>`:''}</th>`).join('')}</tr></thead>
-    <tbody>${page.map(r=>`<tr data-open="${r.id}">${cols.map(([k])=>cell(r,k)).join('')}</tr>`).join('')||`<tr><td colspan="${cols.length}" style="padding:16px;color:var(--fg3)">Nothing matches these filters.</td></tr>`}</tbody></table>
+    <tbody>${page.map(r=>`<tr data-open="${r.id}">${cols.map(([k])=>cell(r,k)).join('')}</tr>`).join('')||`<tr><td colspan="${cols.length}" style="padding:16px;color:var(--fg3)">${esc(kind==='acc'?zeroLine():'Nothing matches these filters.')}</td></tr>`}</tbody></table>
     ${rows.length>page.length?`<button class="dbmore" data-dbmore="1">show ${int(Math.min(50,rows.length-page.length))} more · ${int(rows.length-page.length)} left</button>`:''}`;}
 
 /* =================== «Сегодня»: очередь ходов в центре =================== */
@@ -4117,10 +4214,10 @@ document.addEventListener('click',e=>{
     f.set(String(f.get())===v&&!f.keep?'':v);
     if(f.light){renderSide();renderPanel();}else renderAll();return;}
   if(b.dataset.feeddown){S.feedDown=!S.feedDown;renderEditor();return;}
-  if(b.dataset.fclr){const f=FFLD[b.dataset.fclr];if(f){f.set(f.type==='tog'?false:'');
+  if(b.dataset.fclr){const f=FFLD[b.dataset.fclr];if(f){f.set(f.type==='tog'?false:f.type==='rng'?['','']:'');
     if(f.light){renderSide();renderPanel();}else renderAll();}return;}
   if(b.dataset.freset!==undefined){let wide=false;
-    (FSET[b.dataset.freset]||[]).forEach(k=>{const f=FFLD[k];if(!f||f.keep)return;f.set(f.type==='tog'?false:'');if(!f.light)wide=true;});
+    (FSET[b.dataset.freset]||[]).forEach(k=>{const f=FFLD[k];if(!f||f.keep)return;f.set(f.type==='tog'?false:f.type==='rng'?['','']:'');if(!f.light)wide=true;});
     if(wide)renderAll();else{renderSide();renderPanel();}return;}
   if(b.dataset.mail){S.mail=b.dataset.mail;S.ptab='channel';renderSide();renderPanel();return;}
   if(b.dataset.side){if(S.side===b.dataset.side&&S.layout.side){S.layout.side=false;}else{S.side=b.dataset.side;S.layout.side=true;}applyLayout();renderActivity();renderSide();return;}
@@ -4368,7 +4465,16 @@ document.addEventListener('drop',e=>{if(DRAGI==null)return;const c=e.target.clos
 document.addEventListener('dragend',()=>{DRAGI=null;document.querySelectorAll('.rst').forEach(x=>{x.draggable=false;x.classList.remove('dragging','dropto');});});
 document.addEventListener('change',e=>{const d=e.target.dataset||{};
   if(d.fsel){const f=FFLD[d.fsel];if(f){f.set(e.target.value);if(f.light){renderSide();renderPanel();}else renderAll();}return;}
-  if(d.ftog){const f=FFLD[d.ftog];if(f){f.set(e.target.checked);if(f.light){renderSide();renderPanel();}else renderAll();}return;}});
+  if(d.ftog){const f=FFLD[d.ftog];if(f){f.set(e.target.checked);if(f.light){renderSide();renderPanel();}else renderAll();}return;}
+  if(d.frng){const [k,i]=d.frng.split(':'),f=FFLD[k];
+    if(f){const v=f.get().slice();v[+i]=e.target.value;f.set(v);
+      /* Левая колонка перерисовывается целиком, и фокус слетал: ввёл «от», перешёл в
+         «до» — а поле уже другое, и ввод не начинался. Возвращаем фокус на то же поле. */
+      const sel=`[data-frng="${d.frng}"]`;
+      if(f.light){renderSide();renderPanel();}else renderAll();
+      const el=document.querySelector(sel);
+      if(el){el.focus();try{el.setSelectionRange(el.value.length,el.value.length);}catch(_){}}}
+    return;}});
 addEventListener('resize',()=>{applyLayout();});
 $('ptabs').addEventListener('click',e=>{if(S.feedDown&&!e.target.closest('button')){S.feedDown=false;renderEditor();}});
 $('profile').addEventListener('change',e=>{S.profile=e.target.value;S.chat=[];
