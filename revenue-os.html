@@ -174,6 +174,14 @@ q{quotes:"«" "»"}
 .tdbn .t{font-size:13px;font-weight:600;color:var(--fg);margin-bottom:4px}
 .tdbn .s{font-size:11px;color:var(--fg2);margin-bottom:8px}
 .tdbn .btns{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+/* Главный орган работы обязан быть в видимой полосе. Центру отдано ~380 px, а
+   содержимое экрана документа — 772, человека — 474, сделки — 1091: кнопка подписи,
+   «Send under my name» и обход блокирующего уезжали за сгиб, и работа не делалась —
+   «я так и не увидела, где это делать». Полоса липнет к низу своей прокручиваемой
+   области: читать можно сколько угодно, ход всегда под рукой. */
+.cact{position:sticky;bottom:0;z-index:3;margin-top:6px;padding:8px 0 4px;
+  background:linear-gradient(to bottom,transparent,var(--editor) 22%);
+  border-top:1px solid var(--border)}
 /* дериватив: только сведение, поэтому ни рамки, ни кнопок */
 .tddrill{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 0 8px;font-size:11px}
 .tddrill .k{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--fg3)}
@@ -218,7 +226,7 @@ table.db td.num{font-family:var(--ui);font-variant-numeric:tabular-nums;letter-s
    Плиточный вид (treemap) удалён целиком — Лиза 30.09: «никаких плиток,
    всегда должна быть карта визуальная, все отображения только на карте». */
 .segclu{display:flex;align-items:flex-end;gap:4px;position:relative}
-.segclu .sb{border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;font-family:var(--ui);font-variant-numeric:tabular-nums;letter-spacing:0;font-weight:600;line-height:1.05;cursor:pointer;border:1px solid rgba(255,255,255,.3);box-shadow:0 1px 5px rgba(0,0,0,.4);transition:filter 90ms linear}
+.segclu .sb{appearance:none;-webkit-appearance:none;padding:0;margin:0;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;font-family:var(--ui);font-variant-numeric:tabular-nums;letter-spacing:0;font-weight:600;line-height:1.05;cursor:pointer;border:1px solid rgba(255,255,255,.3);box-shadow:0 1px 5px rgba(0,0,0,.4);transition:filter 90ms linear}
 .segclu .sb:hover{filter:brightness(1.35)}
 .segclu .sb i{font-style:normal;font-size:.72em;opacity:.92;font-weight:600}
 .segclu .ab{position:absolute;left:50%;top:100%;transform:translateX(-50%);margin-top:4px;font-family:var(--ui);font-variant-numeric:tabular-nums;letter-spacing:0;font-size:10px;letter-spacing:.04em;color:var(--fg2);white-space:nowrap;pointer-events:none}
@@ -285,6 +293,14 @@ body.focus-mode .ptabs{cursor:pointer}
 .mnone button{display:block;margin:8px auto 0;font-size:11px;padding:4px 10px;border-radius:4px;
   border:1px solid var(--accent);background:none;color:var(--accent);cursor:pointer}
 .mkorg{position:relative;width:0;height:0}
+/* Сброс оформления кнопки через :where() — специфичность ноль. Узлы и пузыри стали
+   кнопками ради клавиатуры и скринридера, но выглядеть обязаны как прежде. Обычный
+   сброс с селектором `.mkorg .node` перебил бы правила, которые узлы подхватывают
+   по имени класса: `.up`/`.down` красят состояние, `.doc` и `.flow` приходят с других
+   экранов и задают узлу отступы и кегль. Их столкновение с именами узлов — отдельная
+   находка, и чинить её попутно нельзя: это изменило бы вид карты. */
+:where(.mk){appearance:none;-webkit-appearance:none;padding:0;margin:0;color:inherit;font:inherit}
+:where(.mkorg .node){appearance:none;-webkit-appearance:none;background:none;border:0;padding:0;margin:0;color:inherit;font:inherit;text-align:center}
 .mkorg .node{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer}
 .mkorg .node i{width:16px;height:16px;border-radius:50%;background:var(--fg3);border:1.5px solid var(--editor);display:block}
 .mkorg .node.on{border-color:var(--accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 45%,transparent)}
@@ -421,6 +437,28 @@ body.focus-mode .ptabs{cursor:pointer}
 .compose{display:flex;flex-direction:column;gap:8px}
 .compose textarea{min-height:70px;resize:vertical;width:100%}
 .facts{display:flex;flex-direction:column;gap:8px}
+/* Настройка рассылки: четыре блока в строку — кого, что, когда, чем. Раньше их не
+   было вовсе: экран кампании кончался просьбой «попроси агента словами», и работа
+   «настроить аутрич-кампанию» не выполнялась. Порядок взят из того, в чём команда
+   работает сегодня (polish/inventory/gtm-lusin.md): выборка → шаблон → цепочка →
+   ящики → запуск → разбор. Блоки держатся в одну строку, чтобы запуск оставался
+   в видимой части: центру отдано ~380 px, и всё, что ниже, человек не находит. */
+.cset{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:8px 0 6px}
+.cblk{text-align:left;border:1px solid var(--border);border-radius:8px;background:var(--editor);padding:6px 8px;display:flex;flex-direction:column;gap:1px;min-width:0}
+.cblk[aria-expanded="true"]{border-color:var(--accent)}
+.cblk .k{font-size:9.5px;letter-spacing:.07em;color:var(--fg3);text-transform:uppercase}
+.cblk .v{font-size:11.5px;color:var(--fg);line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cblk .n{font-size:10.5px;color:var(--fg2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cdet{border:1px solid var(--accent);border-radius:8px;padding:8px 9px;margin-bottom:6px;display:flex;flex-direction:column;gap:6px}
+.crow{display:flex;gap:6px;flex-wrap:wrap;align-items:center;min-width:0}
+.crow>.lbl{font-size:10.5px;color:var(--fg3);min-width:74px}
+.crow input[type=text]{flex:1;min-width:160px}
+.cseq{display:flex;gap:6px;flex-wrap:wrap}
+.cstep{border:1px solid var(--border);border-radius:6px;padding:3px 7px;font-size:11px;color:var(--fg);background:var(--editor)}
+.cstep[aria-pressed="false"]{opacity:.42;text-decoration:line-through}
+table.runs{width:100%;border-collapse:collapse;font-size:11px;margin-top:6px}
+table.runs th{text-align:left;font-size:9.5px;letter-spacing:.06em;color:var(--fg3);text-transform:uppercase;padding:3px 8px 3px 0;font-weight:600}
+table.runs td{padding:4px 8px 4px 0;border-top:1px solid color-mix(in srgb,var(--border) 55%,transparent);vertical-align:top}
 .fact{display:flex;gap:8px;align-items:flex-start;border:1px solid var(--border);border-radius:8px;padding:8px 10px}
 .fact .grow{flex:1;display:flex;flex-direction:column;gap:4px}
 .fact.mb{background:none;font:inherit;color:inherit;text-align:left;cursor:pointer;align-items:center}
@@ -1272,10 +1310,10 @@ function replyClass(txt,act){
   return null;}
 const MEET=[{id:'mt1',acc:'a0',who:'Dr. Jonathan Moss',w:38,when:'Thu 2:00 pm',ttl:'HIPAA dashboard demo \u00b7 30 min',st:['up','on the calendar']},
             {id:'mt2',acc:'a1',who:'Tom Hale',w:38,when:'not scheduled',ttl:'Price walkthrough: $1,400 freelancer vs $3,170 with an SLA',st:['warn','awaiting a yes']}];
-const BUILD='Oct 8, 00:45';   /* отметка сборки: единственное место, где она живёт */
+const BUILD='Oct 8, 15:09';   /* отметка сборки: единственное место, где она живёт */
 const S={t:NOW,seg:null,downOnly:false,sel:null,level:'segment',K:1,
   knob:{scout:2,qual:2,seller:2,pricer:1,service:1},profile:'head',
-  side:'tree',ent:'seg',agView:null,mapAcc:null,bn:0,sent:{},skin:'rev',ef:{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false},ptab:'market',job:'',stF:'',stage:'',primary:'map',source:null,orgOpen:false,sopAcc:'a0',lastRef:{},tabs:[{id:'map',kind:'map',ref:null,title:'Map'},{id:'acc',kind:'org',ref:'a0',title:'Account'},{id:'person',kind:'msg',ref:'p-hale',title:'Person'},{id:'flow',kind:'sop',ref:'a0',title:'Workflow'},{id:'doc',kind:'doc',ref:'d-msa',title:'Document'}],tab:'map',
+  side:'tree',ent:'seg',agView:null,mapAcc:null,bn:0,sent:{},skin:'rev',ef:{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false},ptab:'market',job:'',stF:'',stage:'',primary:'map',source:null,orgOpen:false,sopAcc:'a0',lastRef:{},tabs:[{id:'map',kind:'map',ref:null,title:'Map'},{id:'acc',kind:'org',ref:'a0',title:'Account'},{id:'person',kind:'msg',ref:'p-hale',title:'Person'},{id:'flow',kind:'sop',ref:'a0',title:'Workflow'},{id:'doc',kind:'doc',ref:'d-msa',title:'Document'},{id:'agent',kind:'aglist',ref:null,title:'Agent'}],tab:'map',
   facts:{},docs:{},tri:{},plan:null,chat:[],layout:{side:true,panel:true,agent:true,panelRight:false,swap:false},sopEdit:false,sopFix:null,steps:JSON.parse(JSON.stringify(STEPS0)),fieldPol:{},hidden:{},dnc:{},knobW:{scout:1,qual:1,seller:1,pricer:1,service:1},rules:JSON.parse(JSON.stringify(RULES0))};
 try{const L=JSON.parse(localStorage.getItem('revos-layout-v4')||'null');if(L)Object.assign(S.layout,L);}catch(e){}
 if(window.innerWidth<1280&&!(()=>{try{return localStorage.getItem('revos-layout-v4')}catch(e){return null}})())S.layout.side=false;
@@ -1784,7 +1822,8 @@ function renderSide(){
     const dbk={seg:'acc',acc:'acc',ppl:'person',doc:'doc'}[S.ent];
     if(S.ent==='flow')h+=`<button class="dblink" data-open="flowlist">All campaigns and deals ↗</button>`;
     else if(dbk)h+=`<button class="dblink" data-open="db:${dbk}">Everything as a table ↗</button>`;
-    else if(S.ent==='ag'||S.ent==='us')h+=`<button class="dblink" data-open="us">Our people, agents and mailboxes ↗</button>`;}
+    else if(S.ent==='ag'||S.ent==='us'){h+=`<button class="dblink" data-open="aglist">All agents ↗</button>`
+      +`<button class="dblink" data-open="us">Our people, agents and mailboxes ↗</button>`;}}
   $('side').innerHTML=h;
 }
 function allEntities(){
@@ -1797,12 +1836,15 @@ function allEntities(){
 /* Пять рабочих областей закреплены навсегда. «Они постоянно висят… области просто так
    не исчезают и не появляются» (Николай, 06.10, Telegram). Каждая помнит свой последний
    объект: «тот старый, на которого я до этого кликнул, он будет в этом view висеть» (20:12:40). */
-const VIEWOF={map:'map',today:'map',sop:'flow',camp:'flow',flowlist:'flow',db:'acc',org:'acc',msg:'person',agent:'person',ourp:'person',doc:'doc',draft:'doc',news:'doc'};
+/* Агент — не физлицо. Вкладка «Person · Scout» прямо врала: нажимаешь зону Agents,
+   открывается вкладка человека с агентом внутри. «Мне это не нравится, это путает»
+   (Лиза, 08.10). У агентов своя область; People остаётся только за людьми. */
+const VIEWOF={map:'map',today:'map',sop:'flow',camp:'flow',flowlist:'flow',db:'acc',org:'acc',msg:'person',agent:'agent',ourp:'agent',aglist:'agent',doc:'doc',draft:'doc',news:'doc'};
 function setView(kind,id){const v=VIEWOF[kind]; if(!v)return null;
   const tb=S.tabs.find(x=>x.id===v); if(v!=='map'){tb.kind=kind;tb.ref=id;}
-  /* Область Person делят две зоны, People и Agents; область Account — юрлица и «мы».
-     Поэтому последний объект помнит зона, а не только область: уйдя к агенту и
-     вернувшись к людям, человек находит того человека, с которого ушёл. */
+  /* Область Agent делят зона Agents и наши люди; область Account — юрлица и «мы».
+     Поэтому последний объект помнит зона, а не только область: уйдя к нашему
+     человеку и вернувшись к агентам, человек находит того, с кого ушёл. */
   const z=id&&Object.keys(ENTKIND).find(k=>ENTVIEW[k]===v&&ENTKIND[k].includes(kind));
   if(z)S.lastRef[z]=id;
   return v;}
@@ -1811,15 +1853,15 @@ function openTab(kind,id,title){const v=setView(kind,id); if(!v)return; S.tab=v;
    Workflows оставляло в центре карту. У экрана было два хозяина, отсюда вопрос
    «как отличить, хочу я фильтровать карту или открыть рассылку» (Лиза, 07.10).
    Хозяин один — центр. Зона ведёт в него, фильтры и лента идут за ним. */
-const ENTVIEW={seg:'map',acc:'acc',ppl:'person',flow:'flow',doc:'doc',ag:'person'};
+const ENTVIEW={seg:'map',acc:'acc',ppl:'person',flow:'flow',doc:'doc',ag:'agent'};
 const ENTKIND={seg:['map','today'],acc:['org','db'],ppl:['msg'],flow:['sop','camp','flowlist'],
-               doc:['doc','draft','news'],ag:['agent','ourp']};
+               doc:['doc','draft','news'],ag:['agent','ourp','aglist']};
 /* Ступень карты — тоже предмет: пузыри сегментов, точки юрлиц, люди вокруг одного. */
 const MAPENT={segment:'seg',accounts:'acc',people:'ppl'};
 /* Куда ведёт зона, если в её области лежит чужое. */
 const ENTDEF={acc:()=>['org',S.mapAcc||S.sopAcc||'a0'],ppl:()=>['msg',Object.keys(PEOPLE)[0]],
               flow:()=>['sop',S.sopAcc||'a0'],doc:()=>['doc',Object.keys(DOCS)[0]],
-              ag:()=>['agent',AGENTS[0].id]};
+              ag:()=>['aglist',null]};
 function fitsEnt(k,tb){
   if(!(ENTKIND[k]||[]).includes(tb.kind))return false;
   if(k==='acc'&&tb.kind==='org'&&tb.ref==='us')return false;   /* «мы» живут в зоне Agents */
@@ -1845,14 +1887,15 @@ function viewLabel(t){
   const cut=s=>String(s||'').split(' ')[0];
   if(t.id==='map')return ['Map',''];
   if(t.id==='acc')return ['Account', t.kind==='db'?(t.ref==='acc'?'all accounts':'all people'):(t.ref==='us'?'us':cut((ACCBY[t.ref]||{}).name))];
-  if(t.id==='person')return ['Person', t.kind==='agent'?cut((agBy(t.ref)||{}).nm):t.kind==='ourp'?cut((OURS.find(o=>o.id===t.ref)||{}).nm):cut((personById(t.ref)||{}).nm)];
-  if(t.id==='flow')return ['Workflow', t.kind==='camp'?cut((segBy(t.ref)||{}).name):cut((ACCBY[t.ref]||{}).name)];
+  if(t.id==='person')return ['Person', cut((personById(t.ref)||{}).nm)];
+  if(t.id==='agent')return ['Agent', t.kind==='aglist'?'all':t.kind==='ourp'?cut((OURS.find(o=>o.id===t.ref)||{}).nm):cut((agBy(t.ref)||{}).nm)];
+  if(t.id==='flow')return ['Workflow', t.kind==='flowlist'?'all':t.kind==='camp'?(t.ref&&t.ref!=='all'?cut((segBy(t.ref)||{}).name):'market'):cut((ACCBY[t.ref]||{}).name)];
   return ['Document', t.kind==='draft'?'draft':t.kind==='news'?'fact':((DOCS[t.ref]||{}).kind||'')];}
 function renderTabs(){
   /* Один знак на один тип, одинаковый везде (решение 8). Полоска вкладок держала
      собственный набор текстовых символов — другой, чем на карте, в списках и
      в карточках. «Почему тут иконки другие везде» (Лиза, 06.10). */
-  const ic={map:GLYPH.map,acc:GLYPH.account,person:GLYPH.person,flow:GLYPH.flow,doc:GLYPH.document};
+  const ic={map:GLYPH.map,acc:GLYPH.account,person:GLYPH.person,agent:GLYPH.agent,flow:GLYPH.flow,doc:GLYPH.document};
   $('tabs').innerHTML=S.tabs.map(t=>{const [nm,sub]=viewLabel(t);
     return `<div class="tabb" role="tab" aria-selected="${S.tab===t.id}"><button data-tab="${t.id}"><span class="ic">${ic[t.id]}</span> ${esc(nm)}${sub?`<span class="sub">${esc(sub)}</span>`:''}</button></div>`;}).join('');
 }
@@ -1866,7 +1909,7 @@ function renderOurPerson(id){const o=OURS.find(x=>x.id===id);if(!o)return '<div 
     <div class="facts">${steps.map(s=>`<div class="fact"><div class="grow"><div>${esc(STAGE[s.stage])}</div><div class="note">${esc(s.what)}</div></div></div>`).join('')||'<div class="note">No stage of its own.</div>'}</div></div>`;}
 function renderSource(t){if(t.kind==='ourp')return renderOurPerson(t.ref);
   if(t.kind==='org')return t.ref==='us'?renderOrg():renderAccView(ACCBY[t.ref]);
-  if(t.kind==='draft')return renderDraft(t.ref);if(t.kind==='doc')return renderDoc(t.ref);if(t.kind==='msg')return renderMsg(t.ref);if(t.kind==='news')return renderNews(t.ref);if(t.kind==='org')return renderOrg();if(t.kind==='agent')return renderAgentTab(t.ref);return '';}
+  if(t.kind==='draft')return renderDraft(t.ref);if(t.kind==='doc')return renderDoc(t.ref);if(t.kind==='msg')return renderMsg(t.ref);if(t.kind==='news')return renderNews(t.ref);if(t.kind==='org')return renderOrg();if(t.kind==='aglist')return renderAgentList();if(t.kind==='agent')return renderAgentTab(t.ref);return '';}
 function renderEditor(){
   /* «Я ушла с map на person во views, но сбоку и снизу у меня всё ещё прошлое
      отображение» (Лиза, 06.10). setEnt менял переменную, но левую колонку, ленту,
@@ -2064,11 +2107,15 @@ function renderMap(){
       if(here.length)cells.push({f,ll,here});});
     const rS=d3.scaleSqrt().domain([0,d3.max(cells.flatMap(c=>c.here.map(x=>x.s.v)))||1]).range([0,26]);
     cells.forEach(c=>{const box=document.createElement('div');box.className='segclu';
-      c.here.forEach(x=>{const r=Math.max(20,rS(x.s.v)*1.5),b=document.createElement('span');
-        b.className='sb';b.style.width=b.style.height=r+'px';b.style.background=tradeCol(x.s.d);
+      /* Орган управления, а не раскрашенный текст: пузырь выбирает сегмент, значит он
+         кнопка. Как `span` с обработчиком он брался мышью и был недоступен клавиатуре
+         и скринридеру — тот же дефект, что у символьных кнопок без подписи. */
+      c.here.forEach(x=>{const r=Math.max(20,rS(x.s.v)*1.5),b=document.createElement('button');
+        b.type='button';b.className='sb';b.style.width=b.style.height=r+'px';b.style.background=tradeCol(x.s.d);
         b.style.fontSize=(r>30?11:9.5)+'px';
         b.innerHTML=`${x.g.abc}<i>${x.s.d>=0?'▲':'▼'}${Math.abs(x.s.d*100).toFixed(1)}</i>`;
         b.title=`${x.g.name} in ${c.f.properties.name} · market ${usd(x.s.v)} · ${int(x.s.n)} accounts · our ARR ${usd(x.s.end)} ${x.s.d>=0?'▲':'▼'} ${Math.abs(x.s.d*100).toFixed(1)} %`;
+        b.setAttribute('aria-label',b.title);
         b.onclick=ev=>{ev.stopPropagation();pickSeg(x.g.id,false);zoomToFeature(c.f);};
         box.appendChild(b);});
       const ab=document.createElement('b');ab.className='ab';ab.textContent=c.f.abbr;box.appendChild(ab);
@@ -2080,17 +2127,19 @@ function renderMap(){
     d3.groups(vis,a=>a.mi).forEach(([mi,arr])=>{const m=METROS[mi];
       const up=arr.filter(a=>momentum(a,t)>0).length,dn=arr.filter(a=>momentum(a,t)<0).length;
       const bal=(up-dn)/arr.length,r=Math.max(22,16+Math.sqrt(arr.length)*4.2);
-      const el=document.createElement('div');el.className='mk';
+      const el=document.createElement('button');el.type='button';el.className='mk';
       el.style.width=el.style.height=r+'px';el.style.background=bal<0?DN:bal>0?UP:FL;
       el.textContent=arr.length;
       el.title=`${m[0]}, ${m[1]} · ${arr.length} accounts · ▲ ${up} moving · ▼ ${dn} stuck or leaving`;
+      el.setAttribute('aria-label',el.title);
       el.onclick=()=>ML.flyTo({center:[m[2],m[3]],zoom:8.2,duration:900});
       mkMarker('clu',[m[2],m[3]],el);});
   }
 
   /* --- мы: такая же точка на карте --- */
-  const hq=document.createElement('div');hq.className='mk hq';
+  const hq=document.createElement('button');hq.type='button';hq.className='mk hq';
   hq.title='We are a point on this map like any other: our people and our agents';
+  hq.setAttribute('aria-label',hq.title);
   hq.onclick=()=>{selectNode('us',null);};
   mkMarker('hq',[-73.99,40.75],hq);
 
@@ -2112,24 +2161,25 @@ function renderMap(){
       const len=Math.hypot(q[0],q[1]+14),ang=Math.atan2(q[1]+14,q[0])*180/Math.PI;
       ln.style.width=len+'px';ln.style.left='0px';ln.style.top='-14px';ln.style.transform=`rotate(${ang}deg)`;
       box.appendChild(ln);});
-    P.forEach((p,i)=>{const n=document.createElement('div');
+    P.forEach((p,i)=>{const n=document.createElement('button');n.type='button';
       const pl=personLight(selA,p,i);
       n.className='node '+(pl[0]||'')+(i===miss?' miss':'')+(S.sel&&S.sel.type==='person'&&S.sel.id===p.id?' on':'');
       n.style.left=pos[i][0]+'px';n.style.top=pos[i][1]+'px';
       /* фигурка человека: круглая голова и полукруг-тельце — тот же знак, что в списках */
       n.innerHTML=`<span>${esc(p.nm.split(' ').slice(-1)[0])} · ${esc(p.role.split(' ')[0])}</span><i>${GLYPH.person}</i>`;
       n.title=`${p.nm} — ${p.role} · ${pl[1]}${i===miss?' · the signature is waiting on their yes':''} → conversation log`;
+      n.setAttribute('aria-label',n.title);
       n.onclick=ev=>{ev.stopPropagation();selectNode('person',p.id);};
       box.appendChild(n);});
 
     /* «Сверху органеграмма, снизу документы, слева значок workflows» (Николай, 21:50).
        Цвет узла — его состояние, тот же язык, что и у юрлиц на карте. */
-    const mkNode=(cls,x,y,label,tip,on,fn)=>{const n=document.createElement('div');
+    const mkNode=(cls,x,y,label,tip,on,fn)=>{const n=document.createElement('button');n.type='button';
       n.className='node '+cls+(on?' on':'');n.style.left=x+'px';n.style.top=y+'px';
       /* знак берём из общей таблицы: на карте были два квадрата — поток и агент —
          и голый кружок вместо человека, поэтому типы не различались */
       const kind=/\bdoc\b/.test(cls)?'document':/\bflow\b/.test(cls)?'flow':/\bbot\b/.test(cls)?'agent':'person';
-      n.innerHTML=`<i>${GLYPH[kind]}</i><span>${esc(label)}</span>`;n.title=tip;
+      n.innerHTML=`<i>${GLYPH[kind]}</i><span>${esc(label)}</span>`;n.title=tip;n.setAttribute('aria-label',tip);
       n.onclick=ev=>{ev.stopPropagation();fn();};box.appendChild(n);
       const len=Math.hypot(x,y),ang=Math.atan2(y,x)*180/Math.PI;
       const ln=document.createElement('i');ln.className='ln';ln.style.width=len+'px';ln.style.left='0px';ln.style.top='0px';
@@ -2526,7 +2576,7 @@ function renderSOP(a){
   const inf=(S.infl||{})[a.id];
   const iRow=!bl?''
     :!inf?`<div class="prow"><div class="pwho"><span class="pnm">Who can reach them</span><span class="prole">nobody added yet</span></div>`
-      +`<div class="pc" style="grid-column:span ${N};text-align:left;padding-left:4px"><button class="btn" data-influencer="${a.id}" aria-label="Bring in someone who can reach this person" data-tip="The agent will find someone who can reach this person">Find someone who can reach ${esc(bl[0].nm)}</button></div></div>`
+      +`<div class="pc" style="grid-column:span ${N};text-align:left;padding-left:4px"><span class="note">the move is below, where it stays in view</span></div></div>`
     :prow(face(inf.nm),inf.nm,'reaches '+bl[0].nm+' · added by you',
       ST.map(st=>st.stage===4?DOT('up',null,inf.why):DOT('none',null,'—')));
   let h=`<div class="bpmn" style="--sn:${N}">
@@ -2542,6 +2592,7 @@ function renderSOP(a){
     ${cRows}${oRows}${iRow}
     ${fixPanel()}
     ${e.s===7?`<div class="note">✕ lost: ${esc(a.reason||'—')}</div>`:''}
+    ${bl&&!inf?`<div class="btns cact"><span class="note" style="flex:1">${esc(bl[0].nm)} — ${esc(bl[1][1])}</span><button class="btn pri" data-influencer="${a.id}" aria-label="Bring in someone who can reach this person" data-tip="The agent will find someone who can reach this person">Find someone who can reach ${esc(bl[0].nm)}</button></div>`:''}
     <div class="bnote"><span style="color:var(--accent);font-weight:600">Constraint on this deal:</span><span>${bright?'the signature is waiting on Tom Hale (pays). The move: answer the price objection — a $1,400/mo freelancer against $3,170/mo with an SLA and HIPAA.':isStuck?'stage “'+STAGE[e.s]+'”: silent for '+daysIn(e,t)+'d.':'none — the deal is moving.'}</span></div>
 </div>`;
   return h;
@@ -2551,16 +2602,105 @@ function renderSOP(a){
 /* «Конструктор воронок и СОП плюс-минус одна и та же херня, только сбоку. Плюс
    здесь надо форму доработать, чтобы они совпадали» (Николай, 05.10, 61:10).
    Поэтому рейка здесь — те же классы .rail/.rst/.rsn/.rss/.rsy, что в renderSOP. */
+/* Шаблоны писем — то, чем рассылка отличается от «отправить письмо». Пустая тема
+   значит, что её пишет модель под каждого получателя: это свойство шаблона, а не
+   разовая просьба агенту (так это и устроено в движке, которым команда пользуется). */
+const TPL=[
+ {id:'t-sla',  ch:'email',   nm:'IT bill vs an SLA',        kind:'AI',
+  subj:'', body:'You pay {{current}} a month for one freelancer. Our {{price}} covers 24/7 monitoring, HIPAA audit prep and a 1-hour SLA.'},
+ {id:'t-audit',ch:'email',   nm:'HIPAA audit in November',  kind:'Static',
+  subj:'Your HIPAA audit is in November', body:'Three dental practices in DFW were fined last quarter. Here is the checklist we run before an audit.'},
+ {id:'t-li',   ch:'linkedin',nm:'Connect note \u00b7 MSP',     kind:'Static',
+  subj:'', body:'Saw you run IT for {{company}} \u2014 we look after dental practices in {{metro}}.'},
+ {id:'t-wa',   ch:'whatsapp',nm:'Short intro',              kind:'AI',
+  subj:'', body:'{{first_name}}, two minutes on your IT cover \u2014 worth a look before the audit?'}];
+const TPLBY=Object.fromEntries(TPL.map(t=>[t.id,t]));
+const CHAN3=[['email','Email'],['linkedin','LinkedIn'],['whatsapp','WhatsApp']];
+/* Цепочка касаний по дням: одно письмо не рассылка. Дни и канал на каждом шаге. */
+const SEQ0=[{d:1,ch:'email'},{d:4,ch:'linkedin'},{d:7,ch:'email'},{d:10,ch:'call'}];
 const CAMP0=[{a:'found',b:'the agent filtered them'},
              {a:'first touch',b:'one letter under your name'},
              {a:'reply',b:'anything back'},
              {a:'meeting',b:'a conversation in the calendar'}];
 function campPool(seg){return ACC.filter(a=>(!seg||seg==='all'||a.seg===seg)&&stateAt(a,S.t))
   .flatMap(a=>peopleOf(a).map(x=>({...x,acc:a})));}
+/* Настройка живёт в состоянии, а не в голове у агента: её видно на экране, её можно
+   менять руками, и агент справа предлагает значения в те же поля. */
+function campCfg(seg){
+  const c=S.campCfg=S.campCfg||{};
+  if(c.seg===undefined)c.seg=(seg&&seg!=='all')?seg:null;
+  if(!c.chan)c.chan='email';
+  if(!c.tpl||TPLBY[c.tpl].ch!==c.chan)c.tpl=(TPL.find(t=>t.ch===c.chan)||TPL[0]).id;
+  if(c.subj===undefined)c.subj='';
+  if(!c.seq)c.seq=SEQ0.map(s=>({...s,on:true}));
+  if(!c.boxes)c.boxes=Object.fromEntries(MAIL.filter(m=>m.lim>0).map(m=>[m.id,true]));
+  return c;}
+function campAccs(c){return ACC.filter(a=>(!c.seg||a.seg===c.seg)&&stateAt(a,S.t));}
+function campBoxCap(c){
+  const on=MAIL.filter(m=>m.lim>0&&c.boxes[m.id]);
+  return {n:on.length,perDay:on.reduce((s,m)=>s+m.lim,0),
+          leftToday:on.reduce((s,m)=>s+Math.max(0,m.lim-m.sent),0)};}
 function campNum(i,pool){const n=pool.length;
   return [n, Math.round(n*0.62), Math.round(n*0.19), Math.round(n*0.07)][i];}
+/* Четыре блока настройки. Каждый раскрывается на месте, под строкой, — и там
+   стоят органы, а не просьба угадать формулировку. «Я не понимаю, как там настроить
+   рассылку, как выбрать сегменты, как выбрать сообщение» (Лиза, 08.10). */
+function campSetup(){
+  const c=campCfg(), open=S.campOpen||null;
+  const accs=campAccs(c), pool=campPool(c.seg||'all'), off=S.campOff||{};
+  const n=pool.filter(x=>!off[x.id]).length;
+  const t=TPLBY[c.tpl], cap=campBoxCap(c);
+  const days=cap.perDay?Math.ceil(Math.max(0,n-cap.leftToday)/cap.perDay)+(cap.leftToday?1:0):0;
+  const onSteps=c.seq.filter(s=>s.on);
+  const blk=(k,title,value,note)=>`<button class="cblk" data-campblk="${k}" aria-expanded="${open===k}"
+      data-tip="Click to change ${title.toLowerCase()}"><span class="k">${title}</span>
+      <span class="v">${value}</span><span class="n">${note}</span></button>`;
+  const cards=`<div class="cset">
+    ${blk('who','who',esc(c.seg?segBy(c.seg).name:'the whole market'),`${int(accs.length)} companies · ${int(n)} people`)}
+    ${blk('what','what',esc(t.nm),`${CHAN3.find(x=>x[0]===c.chan)[1]} · ${c.subj?'subject set':t.subj?'fixed subject':'model writes the subject'}`)}
+    ${blk('when','when',onSteps.map(s=>'D'+s.d).join(' › ')||'one touch',`${onSteps.length} step${onSteps.length===1?'':'s'} over ${onSteps.length?onSteps[onSteps.length-1].d:0} days`)}
+    ${blk('how','how',`${cap.n} mailbox${cap.n===1?'':'es'} · ${int(cap.perDay)}/day`,days?`all of it over ~${days} day${days===1?'':'s'}`:'no mailbox can send')}
+  </div>`;
+  let det='';
+  if(open==='who')det=`<div class="cdet">
+    <div class="crow"><span class="lbl">segment</span>
+      <span class="pick">${[['','the whole market']].concat(SEGS.map(g=>[g.id,g.abc+' · '+g.name]))
+        .map(([v,l])=>`<button data-campset="seg:${v}" aria-pressed="${(c.seg||'')===v}">${esc(l)}</button>`).join('')}</span></div>
+    <div class="crow"><span class="lbl">reaches</span><span class="n">${int(accs.length)} companies · ${int(pool.length)} people${Object.keys(off).filter(k=>off[k]).length?` · ${Object.keys(off).filter(k=>off[k]).length} taken out by hand`:''}</span></div>
+    <div class="crow"><span class="lbl faint">the agent filters by segment; narrower criteria live in the left column and the list below follows them</span></div></div>`;
+  if(open==='what')det=`<div class="cdet">
+    <div class="crow"><span class="lbl">channel</span>
+      <span class="pick">${CHAN3.map(([v,l])=>`<button data-campset="chan:${v}" aria-pressed="${c.chan===v}">${l}</button>`).join('')}</span></div>
+    <div class="crow"><span class="lbl">template</span>
+      <span class="pick">${TPL.filter(x=>x.ch===c.chan).map(x=>`<button data-campset="tpl:${x.id}" aria-pressed="${c.tpl===x.id}">${esc(x.nm)} · ${x.kind}</button>`).join('')}</span></div>
+    <div class="crow"><span class="lbl">subject</span>
+      <input type="text" id="campSubj" value="${esc(c.subj||t.subj||'')}" placeholder="empty = the model writes one per recipient">
+      <button class="btn" data-campset="subjapply:1">Set</button></div>
+    <div class="crow"><span class="lbl">body</span><span class="n" style="flex:1;white-space:normal">${esc(t.body)}</span></div></div>`;
+  if(open==='when')det=`<div class="cdet">
+    <div class="crow"><span class="lbl">sequence</span><span class="cseq">${c.seq.map((s,i)=>
+      `<button class="cstep" data-campseq="${i}" aria-pressed="${!!s.on}" data-tip="Click to drop this touch">Day ${s.d} · ${esc(s.ch)}</button>`).join('')}</span></div>
+    <div class="crow"><span class="lbl faint">the agent stops the whole chain for a person the moment they reply</span></div></div>`;
+  if(open==='how')det=`<div class="cdet">
+    ${MAIL.filter(m=>m.lim>0).map(m=>`<div class="crow">
+      <button class="cstep" data-campbox="${m.id}" aria-pressed="${!!c.boxes[m.id]}">${esc(m.adr)}</button>
+      <span class="n">${m.lim}/day · sent ${m.sent} today · warmed ${m.warm} %</span>
+      <span class="chip ${m.st[0]}">${esc(m.st[1])}</span></div>`).join('')}
+    <div class="crow"><span class="lbl faint">${esc(MAIL.find(m=>!m.lim).adr)} is your own name — a human sends from it, never a campaign</span></div></div>`;
+  return cards+det;}
+/* Таблица запусков: не одно число, а разбор — сколько ушло, сколько не удалось,
+   сколько пропущено, и что с этим можно сделать. */
+function campRuns(){
+  const runs=S.campRuns||[];
+  if(!runs.length)return '';
+  return `<table class="runs"><thead><tr><th>launched</th><th>name</th><th>channels</th><th>people</th><th>progress</th><th>state</th><th>actions</th></tr></thead><tbody>`
+    +runs.map((r,i)=>`<tr><td>W${r.w}</td><td>${esc(r.nm)}</td><td>${esc(r.ch)}</td><td>${int(r.n)}</td>
+      <td><b>${int(r.sent)}</b>/${int(r.n)}${r.failed?` · <span style="color:var(--down)">${r.failed} failed</span>`:''}${r.skipped?` · ${r.skipped} skipped`:''}</td>
+      <td><span class="chip ${r.state==='sending'?'up':r.state==='paused'?'warn':'flat'}">${esc(r.state)}</span></td>
+      <td><span class="pick">${r.state==='sending'?`<button data-camprunact="pause:${i}">Pause</button>`:`<button data-camprunact="resume:${i}">Resume</button>`}${r.failed?`<button data-camprunact="retry:${i}">Retry failed</button>`:''}<button data-camprunact="cancel:${i}">Cancel</button></span></td></tr>`).join('')
+    +`</tbody></table>`;}
 function renderCamp(seg){
-  const pool=campPool(seg), g=seg&&seg!=='all'?segBy(seg):null;
+  const cfg=campCfg(seg), pool=campPool(cfg.seg||'all');
   const CS=S.camp&&S.camp.steps||CAMP0, N=CS.length;
   const selI=S.campStep==null?1:S.campStep;
   const off=S.campOff||{};
@@ -2580,16 +2720,19 @@ function renderCamp(seg){
         +`<button class="ib" data-campoff="${x.id}">${off[x.id]?'left out — put back':'in the send'}</button></div></div>`).join('')
     : `<div class="bnote"><span>This stage is the agent's work: it sends under your name, waits, and moves people on its own. Nothing here is a button for a human.</span></div>`;
   const nOff=Object.keys(off).filter(k=>off[k]).length;
+  /* Порядок на экране решает, выполнима ли работа. Настройка и запуск стоят выше
+     воронки, потому что центру отдано ~380 px: всё, что ниже, человек не находит —
+     это и показал прибор, научившись видеть сгиб. */
   return `<div class="bpmn" style="--sn:${N}">
-    <div class="bph"><h2>Campaign · ${esc(g?g.name:'all segments')}</h2>
-      <span class="chip acc">${pool.length-nOff} people</span>
-      <span class="muted">the same rail as a deal workflow — one form, two uses</span></div>
+    <div class="bph"><h2>Campaign · ${esc(cfg.seg?segBy(cfg.seg).name:'the whole market')}</h2>
+      <span class="chip acc">${int(pool.length-nOff)} people</span>
+      <span class="muted">set it here, launch it here, and watch it in the table below</span></div>
+    ${campSetup()}
+    ${campCapacity(pool.length-nOff,seg)}
+    ${campRuns()}
     ${rail}
     ${body}
-    <div class="bnote"><span style="color:var(--accent);font-weight:600">What the agent needs from you:</span>
-      <span>${S.camp&&S.camp.subj?'the line is set — “'+esc(S.camp.subj)+'”':'nothing is set yet. Ask the agent on the right to write the line and start it.'}</span></div>
-    ${campCapacity(pool.length-nOff,seg)}
-    <div class="bnote"><span class="faint" style="font-size:11px">The log of this campaign is the feed below.</span></div></div>`;}
+    <div class="bnote"><span class="faint" style="font-size:11px">Every touch this campaign makes also lands in the feed below.</span></div></div>`;}
 /* Рассылку можно было собрать, но не запустить: экран кончался просьбой «попроси
    агента словами». Работа «дотянуться до выбранных компаний» кончается тем, что
    письма ушли, — значит на экране должны стоять ёмкость и запуск.
@@ -2600,16 +2743,15 @@ function sendCapacity(){
   const perDay=cold.reduce((s,m)=>s+m.lim,0);
   const leftToday=cold.reduce((s,m)=>s+Math.max(0,m.lim-m.sent),0);
   return {cold:cold.length,perDay,leftToday};}
-function campCapacity(n,seg){
-  const C=sendCapacity(), run=S.campRun&&S.campRun.seg===seg?S.campRun:null;
+function campCapacity(n){
+  const c=campCfg(), C=campBoxCap(c);
   const days=C.perDay?Math.ceil(Math.max(0,n-C.leftToday)/C.perDay)+(C.leftToday?1:0):0;
-  if(run)return `<div class="bnote"><span style="color:var(--up);font-weight:600">Sending</span>
-    <span>started W${run.w} · <b>${int(run.today)}</b> went out today, <b>${int(run.queued)}</b> queued behind them.
-    The agent keeps to ${int(C.perDay)} a day across ${C.cold} mailboxes and stops on a reply.</span></div>`;
-  return `<div class="bnote"><span style="color:var(--accent);font-weight:600">Capacity:</span>
-    <span><b>${int(n)}</b> people · the mailboxes carry <b>${int(C.perDay)}</b> a day across ${C.cold} of them,
-    <b>${int(C.leftToday)}</b> left today${days?` · all of it goes out over about <b>${days}</b> day${days===1?'':'s'}`:''}.</span>
-    <button class="btn pri" data-camprun="${seg||'all'}" style="margin-left:auto">Start the send</button></div>`;}
+  const t=TPLBY[c.tpl], ready=C.n>0&&n>0;
+  return `<div class="bnote"><span style="color:var(--accent);font-weight:600">What will happen:</span>
+    <span><b>${int(n)}</b> people get “${esc(t.nm)}” by ${esc(CHAN3.find(x=>x[0]===c.chan)[1])}${c.seq.filter(s=>s.on).length>1?`, then ${c.seq.filter(s=>s.on).length-1} more touches`:''}.
+    ${C.n} mailbox${C.n===1?'':'es'} carry <b>${int(C.perDay)}</b> a day, <b>${int(C.leftToday)}</b> left today${days?` — all of it over about <b>${days}</b> day${days===1?'':'s'}`:''}.</span>
+    <button class="btn pri" data-camprun="${c.seg||'all'}" ${ready?'':'disabled'} style="margin-left:auto"
+      data-tip="${ready?'It goes out under your name':'Pick at least one mailbox first'}">Start the send</button></div>`;}
 
 /* =================== documents, messages, news, org =================== */
 function renderDoc(id){const d=DOCS[id],a=ACCBY[d.acc],st=S.docs[id]||{};const P=peopleOf(a);
@@ -2643,7 +2785,7 @@ function renderDoc(id){const d=DOCS[id],a=ACCBY[d.acc],st=S.docs[id]||{};const P
       <h3>3. Service level</h3>99.5 % uptime, response to a critical incident within 1 hour.
       <h3>7. Liability</h3>Limited to the fees paid over the preceding 12 months.
       <h3>Clause</h3>This is not an offer until countersigned by Bobroff MSP LLC.</div>
-    <div class="btns"><button class="btn" data-edit="1">Edit</button>${isMSA?`<button class="btn pri" data-sign="${id}" ${canSign&&!st.us?'':'disabled'}>Sign as Nikolai Bobrov</button>`:''}${d.kind==='Offer v2'?`<button class="btn good" data-approve="${id}">Approve the agent’s draft</button><button class="btn bad" data-reject="${id}">Send it back to the agent</button>`:''}</div>
+    <div class="btns cact"><button class="btn" data-edit="1">Edit</button>${isMSA?`<button class="btn pri" data-sign="${id}" ${canSign&&!st.us?'':'disabled'}>Sign as Nikolai Bobrov</button>`:''}${d.kind==='Offer v2'?`<button class="btn good" data-approve="${id}">Approve the agent’s draft</button><button class="btn bad" data-reject="${id}">Send it back to the agent</button>`:''}</div>
     <div class="note">${isMSA?(canSign?'A signature is irreversible: only a human with the authority can give it. The agent prepares, the agent does not sign.':'This profile has no signing authority. A signature is the revenue owner\u2019s, and only theirs \u2014 switch to that profile to give it.'):'Opened from the account feed. An agent’s edits stay a draft until a human approves them.'}</div></div>`;}
 /* JOB-024: «А сколько конкретно вот этот человек внутри юрлица мне принёс? Вот там три
    продавана… вот этот принёс вот столько-то» (Николай, 25.09). Выручку между людьми мы
@@ -2670,7 +2812,7 @@ function renderMsg(pid){const p=personById(pid),a=ACCBY[p.acc],M=MSGS[pid]||peop
     <div class="thread">${M.map(m=>`<div class="msg ${m.me?'me':''}">${m.me?agAv(m.agent,'mid'):face(p.nm,'mid')}<div class="bub2"><div class="meta">${srcIc(m.src).replace('class="src"','class="av sq"')} ${m.me?'the '+agBy(m.agent).nm+' agent':esc(p.nm)} · W${m.w}${m.act?` · <span class="act">${m.act}</span>`:''}</div><div>${esc(m.txt)}</div></div></div>`).join('')||'<div class="note">No correspondence yet.</div>'}</div>
     ${renderChannels(pid)}
     ${renderSlots(pid)}
-    <div class="compose"><div class="hdr">Agent draft</div><textarea id="draft" aria-label="Draft">${esc(draft)}</textarea><div class="btns"><button class="btn pri" data-send="${pid}">${S.chan&&S.chan[pid]?'Send by '+esc(CHAN[S.chan[pid]][0])+' under my name':'Send under my name'}</button><span class="note">Mail under a person’s name goes out only on that person’s click.</span></div></div></div>`;}
+    <div class="compose"><div class="hdr">Agent draft</div><textarea id="draft" aria-label="Draft">${esc(draft)}</textarea><div class="btns cact"><button class="btn pri" data-send="${pid}">${S.chan&&S.chan[pid]?'Send by '+esc(CHAN[S.chan[pid]][0])+' under my name':'Send under my name'}</button><span class="note">Mail under a person’s name goes out only on that person’s click.</span></div></div></div>`;}
 /* Канал выбирался молча: письмо уходило почтой, даже если почта отбивалась. Работа
    «выбрать канал, которым дойдёт» кончается тем, что канал назначен, — значит на
    экране должен стоять выбор, а рядом с каждым каналом то, что о нём известно
@@ -2703,6 +2845,28 @@ function renderNews(id){const n=MARKET.find(x=>x.id===id),st=S.facts[id]||{};
     <div class="hdr">Facts from the source — confirm, refute or drop them</div>
     <div class="facts">${n.facts.map((f,i)=>{const s=st[i];return `<div class="fact"><div class="grow"><div>${esc(Array.isArray(f)?f[0]:f)}</div><div class="note">${Array.isArray(f)&&f[1]?esc(f[1])+' · ':''}${s?{ok:'confirmed by a human',no:'refuted by a human',x:'dropped'}[s]:'nobody checked it'}</div></div><div class="btns"><button class="ib ok" data-fact="${id}:${i}:ok" aria-label="Confirm">✓</button><button class="ib no" data-fact="${id}:${i}:no" aria-label="Refute">✕</button><button class="ib" data-fact="${id}:${i}:x" aria-label="Drop">−</button></div></div>`;}).join('')}</div>
     <div class="note">A confirmed fact goes into the model of the world: it moves the “${n.hits.replace(' ×','')}” term and the forecast on the time arrow.</div></div>`;}
+/* Вход в зону — список, а не случайный агент. Нажав Agents, человек спрашивает
+   «что там с машиной», а получал одного Scout, будто он единственный. Ровно та же
+   ошибка была у Workflows до 07.10: зона вела в один процесс, а не в список.
+   «В чём суть, если там почему-то всегда конкретный агент открыт» (Лиза, 08.10). */
+function renderAgentList(){
+  const logs=LOGS.concat(S.extraLogs||[]);
+  const rows=AGENTS.map(g=>{
+    const own=OURS.find(o=>o.id===g.owner)||{};
+    const mine=logs.filter(l=>l.ag===g.id).sort((a,b)=>b.w-a.w);
+    const bad=mine.filter(l=>l.st&&l.st[0]==='down').length;
+    const last=mine[0];
+    return `<tr><td><button class="lnk" data-open="agent:${g.id}"><b>${esc(g.nm)}</b></button><div class="note">${esc(g.title)}</div></td>
+      <td>${esc(own.nm||'—')}</td>
+      <td>${esc(KNOB[(S.knob||{})[g.id]!=null?S.knob[g.id]:2]||'Auto')}</td>
+      <td><span class="chip ${ASTATE[g.state][0]}">${esc(ASTATE[g.state][1])}</span></td>
+      <td>${last?`${esc(String(last.ttl).slice(0,58))}<div class="note">W${last.w}${bad?` · ${bad} outside its rule`:''}</div>`:'<span class="note">nothing yet</span>'}</td></tr>`;}).join('');
+  const act=AGENTS.filter(a=>a.state==='active').length, wait=AGENTS.filter(a=>a.state==='awaiting').length, off=AGENTS.filter(a=>a.state==='paused').length;
+  return `<div class="bpmn">
+    <div class="bph"><h2>The machine</h2><span class="chip acc">${AGENTS.length} agents</span>
+      <span class="muted">${act} running · ${wait} waiting on a human · ${off} stopped — open one to change its freedom or stop it</span></div>
+    <table class="runs"><thead><tr><th>agent</th><th>answers for it</th><th>freedom</th><th>state</th><th>last thing it did</th></tr></thead><tbody>${rows}</tbody></table>
+    <div class="bnote"><span class="faint" style="font-size:11px">Everything these agents did without you is in the feed below.</span></div></div>`;}
 function renderAgentTab(id){const g=agBy(id),own=OURS.find(o=>o.id===g.owner);const logs=LOGS.concat(S.extraLogs||[]).filter(l=>l.ag===id).sort((a,b)=>b.w-a.w);
   return `<div class="doc"><div class="doch">${agAv(g.id,'big')}<div><h2>${g.nm}</h2><div class="muted">${g.title} · ${esc(own.nm)} answers for it · <span class="chip ${ASTATE[g.state][0]}">${ASTATE[g.state][1]}</span></div><div class="note">An agent is a colleague: a role, a face, a log. Same form as a person — do not mistake one for the other.</div></div></div>
     <div class="kv"><div><span>Autonomy</span><b>${KNOB[S.knob[id]]}</b></div><div><span>Runs stages</span><b>${g.owns.map(x=>STAGE[x]).join(', ')}</b></div><div><span>Never-do fired</span><b>${STOPS[id][1]}×</b></div><div><span>Answers for it</span><b>${esc(own.nm.split(' ')[0])}</b></div></div>
@@ -2932,7 +3096,7 @@ function renderEcard(){
       +`<button class="btn" data-open="sop:${sel.id}">Open the flow</button>`;}
   else if(sel&&sel.type==='agent'){const g=agBy(sel.id);h=`<div class="top">${agAv(g.id,'big')}<div><h3>${g.nm}</h3><div class="sub">${g.title}</div></div></div>`+params([['State',`<span class="${ASTATE[g.state][0]}">${ASTATE[g.state][1]}</span>`],['Autonomy',KNOB[S.knob[g.id]]],['Answers for it',OURS.find(o=>o.id===g.owner).nm],['Runs stages',g.owns.map(s=>STAGE[s]).join(', ')]])+
       `<div class="hdr">Autonomy \u2014 how much freedom</div><div class="btns">${KNOB.map((k,i)=>`<button class="btn ${S.knob[g.id]===i?'pri':''}" data-knob="${g.id}:${i}">${k}</button>`).join('')}</div>`;}
-  else if(tab==='market'){const g=S.seg?segBy(S.seg):null;h=`<div class="top"><span class="av sq big">${g?g.abc:'US'}</span><div><h3>${g?g.name:'US market · all segments'}</h3><div class="sub">${g?'Core job: “'+g.job+'”':'three segments by core job'}</div></div></div>`+params([['Accounts',int(formulaAt(t).N)],['Market',usd(SEGS.filter(x=>!S.seg||x.id===S.seg).reduce((s,x)=>s+segMetrics(x).mkt,0))],['Unverified',MARKET.filter(n=>!S.facts[n.id]).length]])+`<button class="btn" data-camp="${S.seg||'all'}" data-tip="The same rail as the deal workflow — one form for both">Make a campaign for this segment</button>`;}
+  else if(tab==='market'){const g=S.seg?segBy(S.seg):null;h=`<div class="top"><span class="av sq big">${g?g.abc:'US'}</span><div><h3>${g?g.name:'US market · all segments'}</h3><div class="sub">${g?'Core job: “'+g.job+'”':'three segments by core job'}</div></div></div>`+params([['Accounts',int(formulaAt(t).N)],['Market',usd(SEGS.filter(x=>!S.seg||x.id===S.seg).reduce((s,x)=>s+segMetrics(x).mkt,0))],['Unverified',MARKET.filter(n=>!S.facts[n.id]).length]])+`<button class="btn" data-camp="${S.seg||'all'}" data-tip="Set who, what, when and which mailboxes — then launch">Make a campaign for ${g?esc(g.name):'the whole market'}</button>`;}
   else if(tab==='account'){const vis=ACC.filter(a=>stateAt(a,t)&&inF(a));h=`<div class="top"><span class="av sq big">⌂</span><div><h3>Accounts${S.seg?' · '+segBy(S.seg).name:''}</h3><div class="sub">an account speaks in documents — goods for money</div></div></div>`+params([['In pipeline',vis.filter(a=>{const e=stateAt(a,t);return e.s>=1&&e.s<=4;}).length],['In service',vis.filter(a=>isActive(stateAt(a,t))).length],['▼ stuck',vis.filter(a=>momentum(a,t)<0).length],['Awaiting signature',vis.filter(a=>stateAt(a,t).s===4).length]]);}
   else if(tab==='channel'){
     const rows=DELIV.filter(d=>d.w<=Math.max(t,NOW));const n=rows.length;
@@ -2945,10 +3109,20 @@ function renderEcard(){
            Лента отвечает за историю: сколько через этот ящик дошло. Одна цифра — одно место. */
         return `<div class="mailrow" style="padding-left:0"><span class="adr">${esc(m.adr)}</span><span class="chip ${r.length&&o2/r.length<.85?'down':'up'}">${r.length?pct(o2/r.length,0)+' landed':'nothing sent'}</span></div>`;}).join('')
       +`<div class="note">A complaint or an opt-out silences that person across every mailbox at once. The limit protects the account; it is not a quota to spend.</div>`;}
+  else if(tab==='flow'&&S.campSeg!=null){
+    /* Лента и карточка идут за центром. Открыта кампания — карточка показывала
+       прошлую сделку и кнопку «Open the workflow», то есть говорила о другом
+       предмете, чем центр. «Это просто дублирование», если они смотрят в разные
+       стороны (Николай, 25.09). */
+    const c=campCfg(), g=c.seg?segBy(c.seg):null, accs=campAccs(c), pool=campPool(c.seg||'all');
+    const off=S.campOff||{}, n=pool.filter(x=>!off[x.id]).length, cap=campBoxCap(c);
+    const run=(S.campRuns||[])[0];
+    h=`<div class="top"><span class="av sq big">${g?esc(g.abc):'US'}</span><div><h3>${esc(g?g.name:'The whole market')}</h3><div class="sub">one campaign: who it reaches, what it sends, and what has gone out</div></div></div>`
+      +params([['Companies',int(accs.length)],['People',int(n)],['Per day',int(cap.perDay)],['Gone out',run?int(run.sent):'—']]);}
   else if(tab==='flow'){const a=ACCBY[S.sopAcc],e=stateAt(a,t),m=momentum(a,t),d=e?daysIn(e,t):0;
     h=`<div class="top">${logo(a,'sq big')}<div><h3>${esc(a.name)}</h3><div class="sub">the flow of one deal: who owes what to whom to get the document signed</div></div></div>`
       +params([['Stage',`<span class="${mcls(m)}">${arrow(m)} ${e?STAGE[e.s]:'—'}</span>`],['ACV',usd(a.acv)],['Stuck',d+'d'],['People',peopleOf(a).length]])
-      +`<button class="btn" data-open="sop:${a.id}">Open the workflow</button>`;}
+      +(S.primary==='sop'&&!S.flowList?'':`<button class="btn" data-open="sop:${a.id}">Open the workflow</button>`);}
   else if(tab==='people'){h=`<div class="top"><span class="av big">☺</span><div><h3>Client people</h3><div class="sub">people speak in speech acts: request, assertion, promise, declaration, expressive, silence</div></div></div>`;}
   else {h=`<div class="top"><span class="av bot big">${ICONS.bot}</span><div><h3>The machine</h3><div class="sub">5 agents · 3 people · a named human answers for each agent</div></div></div>`+params([['Running',AGENTS.filter(a=>a.state==='active').length],['Waiting on a human',AGENTS.filter(a=>a.state==='awaiting').length],['Stopped',AGENTS.filter(a=>a.state==='paused').length],['Alarms',AGENTS.filter(a=>a.state==='paused').length]]);}
   $('ecard').innerHTML=h;}
@@ -3646,6 +3820,7 @@ document.addEventListener('keydown',e=>{if((e.metaKey||e.ctrlKey)&&e.key.toLower
 function openRef(k){
   const [type,id,id2]=k.split(':');
   if(type==='flowlist'){openTab('flowlist',null);setEnt('flow');renderAllButMap();return;}
+  if(type==='aglist'){openTab('aglist',null);setEnt('ag');renderAllButMap();return;}
   if(type==='camp'){openTab('camp',id);S.campStep=1;setEnt('flow');renderAllButMap();return;}
   if(type==='draft'){const B=BNS().find(x=>x.id===id)||bnCur();
     openTab('draft',B.id,'Draft · '+(personById(B.draft.to)||{nm:''}).nm.split(' ').slice(-1)[0]);
@@ -3671,7 +3846,7 @@ function openRef(k){
 }
 function logAdd(ag,ttl,st){(S.extraLogs=S.extraLogs||[]).push({ag,w:NOW,ttl,st});}
 document.addEventListener('click',e=>{
-  const b=e.target.closest('[data-fmul],[data-open],[data-side],[data-tab],[data-close],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-feeddown],[data-plus],[data-newchat],[data-agundo],[data-weekpick],[data-week],[data-calm],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-f],[data-freset],[data-fclr],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepsel],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-fmode],[data-dbsort],[data-dbmore],[data-dbkind],[data-camp],[data-camprun],[data-chan],[data-slot],[data-campsel],[data-campoff],[data-inwin],[data-stuck],[data-mailclear],[data-mark],[data-note],[data-notecancel],[data-ent],[data-mail],[data-common],[data-importfacts],[data-nextbn],[data-influencer],[data-sim],[data-role],[data-triopen],#fDown,#addFact,#addNote');
+  const b=e.target.closest('[data-fmul],[data-open],[data-side],[data-tab],[data-close],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-feeddown],[data-plus],[data-newchat],[data-agundo],[data-weekpick],[data-week],[data-calm],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-f],[data-freset],[data-fclr],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepsel],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-fmode],[data-dbsort],[data-dbmore],[data-dbkind],[data-camp],[data-camprun],[data-chan],[data-slot],[data-campsel],[data-campoff],[data-campblk],[data-campset],[data-campseq],[data-campbox],[data-camprunact],[data-inwin],[data-stuck],[data-mailclear],[data-mark],[data-note],[data-notecancel],[data-ent],[data-mail],[data-common],[data-importfacts],[data-nextbn],[data-influencer],[data-sim],[data-role],[data-triopen],#fDown,#addFact,#addNote');
   if(!b){if(S.wkOpen&&!e.target.closest('.wkpop')){S.wkOpen=false;renderFilters();}return;}
   if(S.wkOpen&&!b.dataset.weekpick&&!b.dataset.week&&!b.dataset.calm&&!e.target.closest('.wkpop')){S.wkOpen=false;renderFilters();}
   if(b.dataset.pal)$('pal').hidden=true;
@@ -3805,17 +3980,50 @@ document.addEventListener('click',e=>{
     toast(`On the calendar: ${slot}. The agent sent the invite under your name and stopped the follow-up.`);return;}
   if(b.dataset.camprun){const seg=b.dataset.camprun;
     const pool=campPool(seg==='all'?null:seg), off=S.campOff||{};
-    const n=pool.filter(x=>!off[x.id]).length, C=sendCapacity();
+    const c=campCfg(), tp=TPLBY[c.tpl];
+    /* Ушедшее сегодня считается по отмеченным ящикам, а не по всем: иначе запуск
+       обещает больше, чем выбранная мощность. */
+    const n=pool.filter(x=>!off[x.id]).length, C=campBoxCap(c);
     const today=Math.min(n,C.leftToday);
     S.campRun={seg:seg==='all'?null:seg,w:S.t,today,queued:n-today};
-    logAdd('seller',`Campaign ${seg==='all'?'across all segments':'· '+segBy(seg).name}: ${n} people queued, ${today} went out today`,['up','started by a human']);
+    /* Числа строки запуска берутся из того, что известно, а не придумываются.
+       «Не удалось» в момент запуска равно нулю: ещё ничего не отправлено. Пропущены
+       те, кого сняли руками, и те, чьё юрлицо под запретом на контакт. */
+    const banned=pool.filter(x=>S.dnc&&(S.dnc['acc:'+x.acc.id]||S.dnc[x.acc.id])).length;
+    S.campRuns=(S.campRuns||[]);
+    S.campRuns.unshift({w:S.t,nm:(c.seg?segBy(c.seg).abc+' · '+segBy(c.seg).name:'the whole market')+' · '+tp.nm,
+      ch:c.seq.filter(s=>s.on).map(s=>s.ch).filter((v,i,a)=>a.indexOf(v)===i).join(', '),
+      n,sent:today,failed:0,skipped:Object.keys(off).filter(k=>off[k]).length+banned,state:'sending'});
+    logAdd('seller',`Campaign ${seg==='all'?'across the whole market':'· '+segBy(seg).name}: ${n} people queued, ${today} went out today`,['up','started by a human']);
     renderAllButMap();paintCentre();
-    toast(`The send is on. ${today} went out today, ${n-today} are queued — the mailboxes carry ${C.perDay} a day and the agent stops on a reply.`);
+    /* Число в сообщении должно совпадать с тем, что человек выбрал: тост брал ёмкость
+       всех ящиков, а не отмеченных, и говорил 62 в день там, где на экране стояло 37. */
+    const CB=campBoxCap(c);
+    toast(`The send is on. ${today} went out today, ${n-today} are queued — ${CB.n} mailbox${CB.n===1?'':'es'} carry ${CB.perDay} a day and the agent stops on a reply.`);
     return;}
   if(b.dataset.camp){const s=b.dataset.camp;
     openTab('camp',s,'Campaign · '+(s==='all'?'all segments':segBy(s).name));
     S.campStep=1;renderAllButMap();return;}
   if(b.dataset.campsel){S.campStep=+b.dataset.campsel;renderEditor();return;}
+  if(b.dataset.campblk){S.campOpen=S.campOpen===b.dataset.campblk?null:b.dataset.campblk;renderEditor();return;}
+  if(b.dataset.campset){const [k,v]=b.dataset.campset.split(':');const c=campCfg();
+    if(k==='seg'){c.seg=v||null;S.campOff={};
+      const tb=S.tabs.find(x=>x.id==='flow');tb.kind='camp';tb.ref=c.seg||'all';S.campSeg=c.seg||null;}
+    if(k==='chan'){c.chan=v;c.tpl=(TPL.find(t=>t.ch===v)||TPL[0]).id;c.subj='';}
+    if(k==='tpl'){c.tpl=v;c.subj='';}
+    if(k==='subjapply'){const i=$('campSubj');c.subj=i?i.value.trim():'';
+      toast(c.subj?`Subject set: “${c.subj}”.`:'Subject cleared — the model writes one per recipient.');}
+    renderEditor();return;}
+  if(b.dataset.campseq){const c=campCfg(),i=+b.dataset.campseq;c.seq[i].on=!c.seq[i].on;renderEditor();return;}
+  if(b.dataset.campbox){const c=campCfg(),id=b.dataset.campbox;c.boxes[id]=!c.boxes[id];renderEditor();return;}
+  /* Запущенную рассылку человек должен уметь остановить, доотправить и отменить —
+     иначе запуск необратим, а необратимый ход без обратного хода мы не ставим. */
+  if(b.dataset.camprunact){const [act,ix]=b.dataset.camprunact.split(':');const r=(S.campRuns||[])[+ix];if(!r)return;
+    if(act==='pause'){r.state='paused';logAdd('seller',`Campaign “${r.nm}” paused by a human at ${r.sent} of ${r.n}`,['warn','paused']);}
+    if(act==='resume'){r.state='sending';logAdd('seller',`Campaign “${r.nm}” resumed at ${r.sent} of ${r.n}`,['up','resumed']);}
+    if(act==='retry'){r.sent+=r.failed;r.failed=0;logAdd('seller',`Campaign “${r.nm}”: failed sends retried`,['up','retried']);}
+    if(act==='cancel'){r.state='cancelled';logAdd('seller',`Campaign “${r.nm}” cancelled at ${r.sent} of ${r.n}`,['down','cancelled']);}
+    renderAllButMap();paintCentre();toast(`Campaign “${r.nm}” — ${r.state}.`);return;}
   if(b.dataset.campoff){S.campOff=S.campOff||{};const k=b.dataset.campoff;
     S.campOff[k]=!S.campOff[k];renderEditor();return;}
   if(b.dataset.inwin){const v=b.dataset.inwin;
