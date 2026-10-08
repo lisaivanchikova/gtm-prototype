@@ -654,6 +654,14 @@ table.runs td{padding:4px 8px 4px 0;border-top:1px solid color-mix(in srgb,var(-
 .statusbar .alarm{color:var(--down);font-weight:600}
 
 /* palette */
+.cfm{position:fixed;inset:0;z-index:50;display:flex;justify-content:center;align-items:center;padding:24px;background:rgba(0,0,0,.34)}
+.cfmbox{width:min(520px,calc(100% - 32px));background:var(--side);border:1px solid var(--border);border-radius:8px;box-shadow:0 12px 40px rgba(0,0,0,.4);overflow:hidden}
+.cfmbox h3{margin:0;padding:11px 14px;font-size:12px;font-weight:600;border-bottom:1px solid var(--border)}
+.cfmb{padding:12px 14px;font-size:11px;line-height:1.45;color:var(--fg2);display:flex;flex-direction:column;gap:6px;max-height:52vh;overflow:auto}
+.cfmb .kvr{display:flex;justify-content:space-between;gap:12px}
+.cfmb .kvr b{color:var(--fg);font-weight:600;text-align:right}
+.cfmb .wrn{color:var(--warn)}
+.cfmf{display:flex;justify-content:flex-end;gap:8px;padding:10px 14px;border-top:1px solid var(--border)}
 .pal{position:fixed;inset:0;z-index:40;display:flex;justify-content:center;align-items:flex-start;padding-top:24px;background:rgba(0,0,0,.18)}
 .pal[hidden]{display:none}
 .palbox{width:min(600px,calc(100% - 32px));background:var(--side);border:1px solid var(--border);border-radius:8px;box-shadow:0 10px 30px rgba(0,0,0,.25);overflow:hidden}
@@ -1123,6 +1131,7 @@ table.runs td{padding:4px 8px 4px 0;border-top:1px solid color-mix(in srgb,var(-
   </footer>
 </div>
 
+<div class="cfm" id="cfm" hidden><div class="cfmbox" role="dialog" aria-modal="true" aria-labelledby="cfmT"><h3 id="cfmT"></h3><div class="cfmb" id="cfmB"></div><div class="cfmf"><button class="btn" id="cfmNo">Cancel</button><button class="btn pri" id="cfmGo"></button></div></div></div>
 <div class="pal" id="pal" hidden><div class="palbox"><input id="palIn" placeholder="Account, person, document, agent, segment…" autocomplete="off"><div class="pall" id="pall"></div></div></div>
 <div id="tip" hidden></div>
 <div class="toast" id="toast" hidden></div>
@@ -1310,7 +1319,7 @@ function replyClass(txt,act){
   return null;}
 const MEET=[{id:'mt1',acc:'a0',who:'Dr. Jonathan Moss',w:38,when:'Thu 2:00 pm',ttl:'HIPAA dashboard demo \u00b7 30 min',st:['up','on the calendar']},
             {id:'mt2',acc:'a1',who:'Tom Hale',w:38,when:'not scheduled',ttl:'Price walkthrough: $1,400 freelancer vs $3,170 with an SLA',st:['warn','awaiting a yes']}];
-const BUILD='Oct 8, 19:20';   /* отметка сборки: единственное место, где она живёт */
+const BUILD='Oct 8, 22:39';   /* отметка сборки: единственное место, где она живёт */
 const S={t:NOW,seg:null,downOnly:false,sel:null,level:'segment',K:1,
   knob:{scout:2,qual:2,seller:2,pricer:1,service:1},profile:'head',
   side:'tree',ent:'seg',agView:null,mapAcc:null,bn:0,sent:{},skin:'rev',ef:{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false},ptab:'market',job:'',stF:'',stage:'',primary:'map',source:null,orgOpen:false,sopAcc:'a0',lastRef:{},tabs:[{id:'map',kind:'map',ref:null,title:'Map'},{id:'acc',kind:'org',ref:'a0',title:'Account'},{id:'person',kind:'msg',ref:'p-hale',title:'Person'},{id:'flow',kind:'sop',ref:'a0',title:'Workflow'},{id:'doc',kind:'doc',ref:'d-msa',title:'Document'},{id:'agent',kind:'aglist',ref:null,title:'Agent'}],tab:'map',
@@ -1541,6 +1550,31 @@ const AGICON={
 function agAv(id,cls=''){const g=agBy(id);const st=g?(g.state==='paused'?'down':g.state==='awaiting'?'warn':'up'):'';return gl('agent',st+' '+cls);}
 function srcIc(k){const s=SRC[k];return `<span class="src" title="${esc(s[0])}">${esc(s[0].slice(0,3))}</span>`;}
 function toast(t){const el=$('toast');el.textContent=t;el.hidden=false;clearTimeout(toast.h);toast.h=setTimeout(()=>el.hidden=true,2600);}
+/* ============ Подтверждение перед необратимым ============
+   Стенд из агентов по ролям 08.10 нашёл шесть ходов, уходивших с одного нажатия и
+   молча: отправка 471 письма, «Send under my name» у двух ролей, переназначение
+   канала отписавшемуся, выключение критерия отбора, смена свободы агента. Трое
+   ходоков из пяти наткнулись на это независимо — значит дело не в кнопке, а в
+   устройстве. Ход один на все: окно называет, что именно случится и с кем, и только
+   после согласия действие происходит. После действия — расписка, а не «готово». */
+function optedOut(pid){const p=personById(pid);if(!p)return null;
+  const d=(typeof DELIV!=='undefined'?DELIV:[]).find(x=>x.k==='optout'&&x.who===p.nm);
+  return d?('W'+d.w):null;}
+let cfmGo=null;
+function confirmAct(o){
+  $('cfmT').textContent=o.title;
+  $('cfmB').innerHTML=(o.lines||[]).filter(Boolean).map(l=>Array.isArray(l)
+    ?`<div class="kvr"><span>${esc(l[0])}</span><b>${esc(String(l[1]))}</b></div>`
+    :`<div class="${/^!/.test(l)?'wrn':''}">${esc(String(l).replace(/^!/,''))}</div>`).join('');
+  const go=$('cfmGo');go.textContent=o.cta||'Do it';go.className='btn '+(o.danger?'bad':'pri');
+  cfmGo=o.onOk;$('cfm').hidden=false;go.focus();}
+function cfmClose(){$('cfm').hidden=true;cfmGo=null;}
+$('cfmNo').onclick=cfmClose;
+$('cfmGo').onclick=()=>{const f=cfmGo;cfmClose();if(f)f();};
+$('cfm').addEventListener('click',e=>{if(e.target.id==='cfm')cfmClose();});
+document.addEventListener('keydown',e=>{if($('cfm').hidden)return;
+  if(e.key==='Escape'){e.preventDefault();cfmClose();}
+  if(e.key==='Enter'){e.preventDefault();$('cfmGo').click();}});
 function accPhrase(a,t){const e=stateAt(a,t);if(!e)return a.name;let s=`${a.name} · ${a.city}, ${a.st} · ${STAGE[e.s]} · ${usd(acvAt(a,t))}`;
   if(stuck(a,e,t))s+=` \u00b7 silent ${daysIn(e,t)}d`;
   if(isActive(e)){const pay=a.payW&&t>=a.payW,val=a.valW&&t>=a.valW&&t<a.valW+3;s+=` \u00b7 value ${val?'\u2715':'\u2713'} SLA \u2713 payment ${pay?'\u2715 '+((t-a.payW)*7+5)+'d':'\u2713'}`;}
@@ -4033,7 +4067,19 @@ document.addEventListener('click',e=>{
     logAdd('seller',`${inf.nm} (${inf.from}) added to the ${ACCBY[id].name} flow — they can reach the person who is blocking`,['up','flow edited']);
     toast(`${inf.nm} added to the flow: ${inf.why}.`);renderAll();return;}
   if(b.dataset.sopmode!==undefined){S.sopEdit=b.dataset.sopmode==='1';if(!S.sopEdit)S.sopFix=null;renderEditorLight();return;}
-  if(b.dataset.rule){const [ag,rid]=b.dataset.rule.split(':');const r=S.rules[ag].find(x=>x.id===rid);r.on=!r.on;
+  if(b.dataset.rule){const [ag,rid]=b.dataset.rule.split(':');const r=S.rules[ag].find(x=>x.id===rid);
+    /* Критерий отбора выключался одним нажатием: ходок 08.10 снял его, не заметив,
+       и вернул только потому, что сверился с журналом. Ужесточение не спрашиваем,
+       ослабление — спрашиваем: после него агент перестаёт проверять. */
+    if(r.on&&!b.dataset.ruleOk){
+      confirmAct({title:'Stop checking this?', danger:true, cta:'Switch the rule off',
+        lines:[['Rule',r.t],['Agent',(agBy(ag)||{nm:ag}).nm],
+          '!From now on the agent will not check it, and everything it has already let through stays as it is.',
+          r.knob?'!This is the rule that broke the funnel in W36 — switching it off is how it happened.':null,
+          'The change is logged under your name and can be rolled back from the log.'],
+        onOk:()=>{b.dataset.ruleOk='1';b.click();delete b.dataset.ruleOk;}});
+      return;}
+    r.on=!r.on;
     if(r.knob==='qual'){S.knob.qual=r.on?1:2;}
     logAdd(ag,`Step rule “${r.t}” ${r.on?'switched on':'switched off'} (${$('profile').selectedOptions[0].text})`,[r.on?'up':'down','edited']);
     toast(`Rule ${r.on?'switched on':'switched off'}. The formula has been recalculated.`);renderAll();return;}
@@ -4045,6 +4091,17 @@ document.addEventListener('click',e=>{
     S.sopFix=null;S.tri['t-knob']='done: fixed on the diagram';
     toast('Fixed. The agent now works to the new rule. The effect is in the forecast: move time to W42.');renderAll();return;}
   if(b.dataset.knobcycle){const [id,w]=b.dataset.knobcycle.split(':');
+    /* Второе место, где задаётся свобода, — шкала на этапе. Ходок 08.10 снял «Auto»
+       в списке агентов и обнаружил, что на этапе первого письма «Auto» осталось:
+       места два. Спрашиваем на входе в «Auto», где письма начинают уходить сами. */
+    if(w==='cold'&&(S.knob[id]+1)%3===2&&!b.dataset.cycOk){
+      confirmAct({title:'Let '+(agBy(id)||{nm:'the agent'}).nm+' send cold mail on its own?',
+        danger:true, cta:'Change it to Auto',
+        lines:[['Stage','first email'],['Now',KNOB[S.knob[id]]],['After','Auto — messages leave without you'],
+          '!Freedom is set in two places: here, on the stage, and on the agent card. This one covers cold mail only.',
+          'Its never-do rules still hold. The change is logged under your name.'],
+        onOk:()=>{b.dataset.cycOk='1';b.click();delete b.dataset.cycOk;}});
+      return;}
     if(w==='cold'){S.knob[id]=(S.knob[id]+1)%3;logAdd(id,`Cold: dial → ${KNOB[S.knob[id]]}`,['flat','edited']);
       const r=(S.rules[id]||[]).find(x=>x.knob==='qual');if(r)r.on=S.knob[id]<2;}
     else{if(S.knobW[id]>=1){S.knobW[id]=0;}else{S.knobW[id]=1;}
@@ -4079,11 +4136,23 @@ document.addEventListener('click',e=>{
   if(b.dataset.clearsel){S.sel=null;renderAll();return;}
   if(b.dataset.mailclear){S.mail=null;renderPanel();return;}
   if(b.dataset.chan){const [pid,k]=b.dataset.chan.split(':');
-    S.chan=S.chan||{};S.chan[pid]=S.chan[pid]===k?null:k;
-    const p=personById(pid);
-    logAdd('seller',`${p.nm}: channel set to ${CHAN[k][0]} (${chanState(pid,k)[1]})`,['flat','edited']);
-    renderEditor();renderAllButMap();
-    toast(`Sending by ${CHAN[k][0]} — ${chanState(pid,k)[1]}.`);return;}
+    const p=personById(pid), cs=chanState(pid,k), oo=optedOut(pid);
+    const set=()=>{S.chan=S.chan||{};S.chan[pid]=S.chan[pid]===k?null:k;
+      logAdd('seller',`${p.nm}: channel set to ${CHAN[k][0]} (${cs[1]})`,['flat','edited']);
+      renderEditor();renderAllButMap();
+      toast(`Sending by ${CHAN[k][0]} — ${cs[1]}.`);};
+    /* Выбор канала обратим, поэтому обычно вопроса нет. Но ходок 08.10 одним
+       нажатием назначил почту человеку, который от неё отписался: это уже не выбор
+       канала, а нарушение. Спрашиваем ровно в опасном случае. */
+    if(k==='email'&&(oo||cs[0]==='down')){
+      confirmAct({title:'Put '+p.nm+' back on email?', danger:true, cta:'Set email anyway',
+        lines:[['Person',p.nm+' · '+p.title],['Channel','email — '+cs[1]],
+          oo?'!They opted out in '+oo+'. Email to them breaks CAN-SPAM, and a complaint silences them across every mailbox at once.'
+            :'!Mail to this address has bounced. Sending again costs the domain its reputation.',
+          'LinkedIn and WhatsApp are on the same card and cost nothing to try.'],
+        onOk:set});
+      return;}
+    set();return;}
   if(b.dataset.slot){const [pid,when]=b.dataset.slot.split(':');
     const slot=b.dataset.slot.slice(pid.length+1);
     S.meet=S.meet||{};S.meet[pid]=slot;
@@ -4092,6 +4161,29 @@ document.addEventListener('click',e=>{
     renderEditor();renderAllButMap();
     toast(`On the calendar: ${slot}. The agent sent the invite under your name and stopped the follow-up.`);return;}
   if(b.dataset.camprun){const seg=b.dataset.camprun;
+    /* Ходок 08.10 нажал «Start the send» — и 471 человек получил письмо мгновенно,
+       без подтверждения и без экрана «кому именно». Теперь оба есть. */
+    const P=campPool(seg==='all'?null:seg), O=S.campOff||{};
+    const live=P.filter(x=>!O[x.id]);
+    const dnc=live.filter(x=>S.dnc&&(S.dnc['acc:'+x.acc.id]||S.dnc[x.acc.id]));
+    const cc=campCfg(), tpl=TPLBY[cc.tpl], cap=campBoxCap(cc);
+    const go=Math.min(live.length,cap.leftToday);
+    const names=live.slice(0,5).map(x=>x.nm+' · '+x.acc.name);
+    confirmAct({title:'Start a send to '+live.length+' '+(live.length===1?'person':'people')+'?',
+      danger:true, cta:'Send to '+go+' now',
+      lines:[
+        ['Who',(cc.seg?segBy(cc.seg).abc+' · '+segBy(cc.seg).name:'the whole market')+', '+live.length+' people'],
+        ['Out today',go+(live.length>go?' — the other '+(live.length-go)+' are queued':'')],
+        ['From',cap.n+' mailbox'+(cap.n===1?'':'es')+' · '+cap.perDay+' a day'],
+        ['First message',tpl.nm+' by '+cc.chan],
+        ['Then',cc.seq.filter(x=>x.on).map(x=>'D'+x.d+' '+x.ch).join(' › ')||'nothing'],
+        Object.keys(O).filter(k=>O[k]).length?['Taken off by hand',Object.keys(O).filter(k=>O[k]).length]:null,
+        dnc.length?'!'+dnc.length+' of them are at accounts marked do-not-contact and will be skipped.':null,
+        'It goes out under your name. The agent stops a thread on any reply.',
+        names.length?'First five: '+names.join(' · ')+(live.length>5?' … and '+(live.length-5)+' more':''):null],
+      onOk:()=>campStart(seg)});
+    return;}
+  function campStart(seg){
     const pool=campPool(seg==='all'?null:seg), off=S.campOff||{};
     const c=campCfg(), tp=TPLBY[c.tpl];
     /* Ушедшее сегодня считается по отмеченным ящикам, а не по всем: иначе запуск
@@ -4112,8 +4204,8 @@ document.addEventListener('click',e=>{
     /* Число в сообщении должно совпадать с тем, что человек выбрал: тост брал ёмкость
        всех ящиков, а не отмеченных, и говорил 62 в день там, где на экране стояло 37. */
     const CB=campBoxCap(c);
-    toast(`The send is on. ${today} went out today, ${n-today} are queued — ${CB.n} mailbox${CB.n===1?'':'es'} carry ${CB.perDay} a day and the agent stops on a reply.`);
-    return;}
+    toast(`Sent: ${today} went out just now, ${n-today} queued. From ${CB.n} mailbox${CB.n===1?'':'es'} carrying ${CB.perDay} a day. Logged against you.`);
+  }
   if(b.dataset.camp){const s=b.dataset.camp;
     openTab('camp',s,'Campaign · '+(s==='all'?'all segments':segBy(s).name));
     S.campStep=1;renderAllButMap();return;}
@@ -4160,7 +4252,23 @@ document.addEventListener('click',e=>{
     return;}
   if(b.dataset.seg!==undefined){pickSeg(b.dataset.seg);return;}
   if(b.id==='fDown'){S.downOnly=!S.downOnly;renderAll();return;}
-  if(b.dataset.knob){const [id,k]=b.dataset.knob.split(':');logAdd(id,`Dial: ${KNOB[S.knob[id]]} → ${KNOB[+k]} (${$('profile').selectedOptions[0].text})`,['flat','edited']);S.knob[id]=+k;
+  if(b.dataset.knob){const [id,k]=b.dataset.knob.split(':');
+    /* Свобода агента менялась одним нажатием и без вопроса: ходок 08.10 перевёл
+       агента в «Auto» и заметил это только по журналу. Право отправлять без
+       человека — не настройка вида, его дают сознательно. */
+    const was=S.knob[id], now=+k;
+    if(was!==now&&!b.dataset.knobOk){
+      const MEANS=['prepares and waits — nothing leaves without you',
+                   'prepares and asks — you approve each one',
+                   'acts on its own — messages leave without you'];
+      confirmAct({title:'Give '+(agBy(id)||{nm:'the agent'}).nm+' a different freedom?',
+        danger:now>was, cta:'Change it to '+KNOB[now],
+        lines:[['Now',KNOB[was]+' — '+MEANS[was]],['After',KNOB[now]+' — '+MEANS[now]],
+          now===2?'!At Auto this agent writes to clients without you seeing it first. Its never-do rules still hold; everything else is its call.':null,
+          'The change goes into the log with your name on it, and can be rolled back from there.'],
+        onOk:()=>{b.dataset.knobOk='1';b.click();delete b.dataset.knobOk;}});
+      return;}
+    logAdd(id,`Dial: ${KNOB[S.knob[id]]} → ${KNOB[+k]} (${$('profile').selectedOptions[0].text})`,['flat','edited']);S.knob[id]=+k;
     S.ptab='agents';S.layout.panel=true;applyLayout();renderAll();return;}
   if(b.dataset.tri){const [id,k,label]=b.dataset.tri.split('|');
     if(k==='knob'){logAdd('qual','Dial: Auto → Approve (approved by Nikolai)',['flat','edited']);S.knob.qual=1;}
@@ -4178,10 +4286,45 @@ document.addEventListener('click',e=>{
     if(k==='showdfw'){S.seg=null;S.sel=null;if(S.tab!=='map'){S.tab='map';renderEditor();}renderAll();zoomTo(bx,by,7);return;}if(k.startsWith('open:'))openRef(k.slice(5));return;}
   if(b.dataset.fact){const [id,i,v]=b.dataset.fact.split(':');S.facts[id]=S.facts[id]||{};S.facts[id][i]=v;renderEditor();renderPanel();return;}
   if(b.dataset.factall){const [id,v]=b.dataset.factall.split(':');const n=MARKET.find(x=>x.id===id);S.facts[id]={all:v};n.facts.forEach((f,i)=>S.facts[id][i]=v);renderPanel();if(S.tabs.find(x=>x.id==='doc').ref===id)renderEditor();return;}
-  if(b.dataset.sign){S.docs[b.dataset.sign]={...(S.docs[b.dataset.sign]||{}),us:true};logAdd('pricer','Brightline MSA: Lisa has signed, waiting on Dr. Moss',['up','signature']);renderEditor();renderPanel();toast('Signed. The document is waiting on the client’s signature.');return;}
-  if(b.dataset.approve){logAdd('pricer','Draft v2 approved by a human → sent to the client',['up','approved']);S.tri['t-v2']='done';toast('Approved.');renderAll();return;}
+  if(b.dataset.sign){const did=b.dataset.sign,dd=DOCS[did],aa=ACCBY[dd.acc];
+    /* Подпись названа необратимой в подписи под кнопкой, а ставилась одним нажатием. */
+    confirmAct({title:'Sign for Bobroff MSP?', danger:true, cta:'Sign it',
+      lines:[['Document',dd.kind+' · '+aa.name],['Amount',usdx(aa.acv)+'/year'],['Term','36 months'],
+        ['Signing as',$('profile').selectedOptions[0].text],
+        '!A signature cannot be taken back. It binds Bobroff MSP to everything written above.',
+        'After this the document waits on the client, and the first invoice follows the agreement.'],
+      onOk:()=>{S.docs[did]={...(S.docs[did]||{}),us:true};
+        logAdd('pricer',`${aa.name} ${dd.kind}: signed by ${$('profile').selectedOptions[0].text}`,['up','signature']);
+        renderEditor();renderPanel();
+        toast(`Signed \u00b7 W${S.t}. ${aa.name} ${dd.kind} now waits on the client.`);}});
+    return;}
+  if(b.dataset.approve){const did=b.dataset.approve,dd=DOCS[did]||{},aa=ACCBY[dd.acc]||{};
+    /* «Approve» не согласовывает — оно отправляет клиенту. Так и надо спросить. */
+    confirmAct({title:'Approve and send to the client?', cta:'Approve and send',
+      lines:[['Document',(dd.kind||'draft')+' · '+(aa.name||'')],
+        docDisc(dd)?['Price',usdx(aa.acv*(1-docDisc(dd)/100))+'/year — list '+usdx(aa.acv)+', discount '+docDisc(dd)+' %']:null,
+        'The agent prepared it; approving it is what sends it out. It is logged against you.'],
+      onOk:()=>{logAdd('pricer',`${aa.name||''} ${dd.kind||'draft'}: approved by ${$('profile').selectedOptions[0].text} \u2192 sent to the client`,['up','approved']);
+        S.tri['t-v2']='done';
+        toast(`Approved and sent \u00b7 W${S.t}. Logged against you, not the agent.`);renderAll();}});
+    return;}
   if(b.dataset.reject){logAdd('pricer','Draft v2 sent back to the agent: the discount was not justified',['down','sent back']);toast('Sent back to the agent.');renderAll();return;}
-  if(b.dataset.send){toast('Sent under your name. Logged against you, not the agent.');return;}
+  if(b.dataset.send){const pid=b.dataset.send,pp=personById(pid);
+    /* Уходило с одного нажатия и молча — у SDR и у AE. Теперь видно, кому и чем. */
+    const ch=(S.chan&&S.chan[pid])||'email', cs=chanState(pid,ch);
+    const ta=$('draft'), txt=((ta&&ta.value)||'').trim();
+    const oo=optedOut(pid);
+    confirmAct({title:'Send to '+pp.nm+'?', danger:true, cta:'Send it now',
+      lines:[['To',pp.nm+' · '+pp.title],['At',ACCBY[pp.acc].name],
+        ['By',CHAN[ch][0]+' — '+cs[1]],
+        oo?'!This person opted out in '+oo+'. Writing again breaks CAN-SPAM and the never-do rule — the agent is not allowed to, and neither are you.':null,
+        txt?'First line: \u201c'+txt.split('\n')[0].slice(0,120)+'\u201d':'!The draft is empty — nothing would be sent.',
+        'It goes out under your name and is logged against you, not the agent.'],
+      onOk:()=>{if(!txt){toast('Nothing to send — the draft is empty.');return;}
+        logAdd('seller',`${pp.nm}: sent by ${CHAN[ch][0]} under ${$('profile').selectedOptions[0].text}`,['up','sent by a human']);
+        renderAllButMap();
+        toast(`Sent to ${pp.nm} by ${CHAN[ch][0]} \u00b7 W${S.t}. Logged against you, not the agent.`);}});
+    return;}
   if(b.dataset.edit){const p=$('paper');const on=p.getAttribute('contenteditable')==='true';p.setAttribute('contenteditable',on?'false':'true');b.textContent=on?'Edit':'Done';return;}
   if(b.dataset.fpol){const k=b.dataset.fpol,cur=S.fieldPol[k]||'auto';
     const i=FPOL.findIndex(x=>x[0]===cur);S.fieldPol[k]=FPOL[(i+1)%FPOL.length][0];
