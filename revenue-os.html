@@ -1310,7 +1310,7 @@ function replyClass(txt,act){
   return null;}
 const MEET=[{id:'mt1',acc:'a0',who:'Dr. Jonathan Moss',w:38,when:'Thu 2:00 pm',ttl:'HIPAA dashboard demo \u00b7 30 min',st:['up','on the calendar']},
             {id:'mt2',acc:'a1',who:'Tom Hale',w:38,when:'not scheduled',ttl:'Price walkthrough: $1,400 freelancer vs $3,170 with an SLA',st:['warn','awaiting a yes']}];
-const BUILD='Oct 8, 16:05';   /* отметка сборки: единственное место, где она живёт */
+const BUILD='Oct 8, 16:10';   /* отметка сборки: единственное место, где она живёт */
 const S={t:NOW,seg:null,downOnly:false,sel:null,level:'segment',K:1,
   knob:{scout:2,qual:2,seller:2,pricer:1,service:1},profile:'head',
   side:'tree',ent:'seg',agView:null,mapAcc:null,bn:0,sent:{},skin:'rev',ef:{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false},ptab:'market',job:'',stF:'',stage:'',primary:'map',source:null,orgOpen:false,sopAcc:'a0',lastRef:{},tabs:[{id:'map',kind:'map',ref:null,title:'Map'},{id:'acc',kind:'org',ref:'a0',title:'Account'},{id:'person',kind:'msg',ref:'p-hale',title:'Person'},{id:'flow',kind:'sop',ref:'a0',title:'Workflow'},{id:'doc',kind:'doc',ref:'d-msa',title:'Document'},{id:'agent',kind:'aglist',ref:null,title:'Agent'}],tab:'map',
@@ -3096,7 +3096,7 @@ function renderEcard(){
       +`<button class="btn" data-open="sop:${sel.id}">Open the flow</button>`;}
   else if(sel&&sel.type==='agent'){const g=agBy(sel.id);h=`<div class="top">${agAv(g.id,'big')}<div><h3>${g.nm}</h3><div class="sub">${g.title}</div></div></div>`+params([['State',`<span class="${ASTATE[g.state][0]}">${ASTATE[g.state][1]}</span>`],['Autonomy',KNOB[S.knob[g.id]]],['Answers for it',OURS.find(o=>o.id===g.owner).nm],['Runs stages',g.owns.map(s=>STAGE[s]).join(', ')]])+
       `<div class="hdr">Autonomy \u2014 how much freedom</div><div class="btns">${KNOB.map((k,i)=>`<button class="btn ${S.knob[g.id]===i?'pri':''}" data-knob="${g.id}:${i}">${k}</button>`).join('')}</div>`;}
-  else if(tab==='market'){const g=S.seg?segBy(S.seg):null;h=`<div class="top"><span class="av sq big">${g?g.abc:'US'}</span><div><h3>${g?g.name:'US market · all segments'}</h3><div class="sub">${g?'Core job: “'+g.job+'”':'three segments by core job'}</div></div></div>`+params([['Accounts',int(formulaAt(t).N)],['Market',usd(SEGS.filter(x=>!S.seg||x.id===S.seg).reduce((s,x)=>s+segMetrics(x).mkt,0))],['Unverified',MARKET.filter(n=>!S.facts[n.id]).length]])+`<button class="btn" data-camp="${S.seg||'all'}" data-tip="Set who, what, when and which mailboxes — then launch">Make a campaign for ${g?esc(g.name):'the whole market'}</button>`;}
+  else if(tab==='market'){const g=S.seg?segBy(S.seg):null;h=`<div class="top"><span class="av sq big">${g?g.abc:'US'}</span><div><h3>${g?g.name:'US market · all segments'}</h3><div class="sub">${g?'Core job: “'+g.job+'”':'three segments by core job'}</div></div></div>`+params([['Accounts',int(formulaAt(t).N)],['Market',usd(SEGS.filter(x=>!S.seg||x.id===S.seg).reduce((s,x)=>s+segMetrics(x).mkt,0))],['Unverified',MARKET.filter(n=>!S.facts[n.id]).length]])+`<button class="btn pri" data-camp="${S.seg||'all'}" data-tip="Set who, what, when and which mailboxes — then launch">Make a campaign for ${g?esc(g.name):'the whole market'}</button>`;}
   else if(tab==='account'){const vis=ACC.filter(a=>stateAt(a,t)&&inF(a));h=`<div class="top"><span class="av sq big">⌂</span><div><h3>Accounts${S.seg?' · '+segBy(S.seg).name:''}</h3><div class="sub">an account speaks in documents — goods for money</div></div></div>`+params([['In pipeline',vis.filter(a=>{const e=stateAt(a,t);return e.s>=1&&e.s<=4;}).length],['In service',vis.filter(a=>isActive(stateAt(a,t))).length],['▼ stuck',vis.filter(a=>momentum(a,t)<0).length],['Awaiting signature',vis.filter(a=>stateAt(a,t).s===4).length]]);}
   else if(tab==='channel'){
     const rows=DELIV.filter(d=>d.w<=Math.max(t,NOW));const n=rows.length;
@@ -3463,10 +3463,11 @@ function renderAgAsk(){
      бессмысленные подсказки» (Николай, 06.10, 18:53). Они предлагали человеку
      слова вместо того, чтобы агент сам клал готовый ход. Осталась одна кнопка —
      внести лицо или визитку, потому что это вход данных, а не подсказка. */
-  /* Подпись органа — действие, а не существительное. «Photo or business card» читалось
-     как остаток от убранных подсказок: «нахрена тут эта подсказка» (Лиза, 08.10).
-     Кнопка не оправдывается, а говорит, что произойдёт. */
-  $('sugg').innerHTML=`<button class="btn" data-photo="1" data-tip="You remember the face but not the conversation">⧉ Identify from a photo or card</button>`;}
+  /* Строка под вводом агента убрана целиком: сначала Николай снял бессмысленные
+     подсказки (06.10), потом Лиза — последнюю оставшуюся кнопку (08.10). Панель
+     агента говорит, что делать, и не предлагает слов. Цена записана: работа
+     «вспомнить, кто это по лицу» входа больше не имеет. */
+  $('sugg').innerHTML='';}
 /* ===== E1 · агент знает, в какой области я нахожусь =====
    «Я ему пишу вот сюда в чат… а он должен знать, что я нахожусь сейчас в окне СОПа,
    и оно активно» (Николай, 30.09, 17:15). Область — не строка для показа, а то,
