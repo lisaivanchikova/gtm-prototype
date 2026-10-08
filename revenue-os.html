@@ -1310,7 +1310,7 @@ function replyClass(txt,act){
   return null;}
 const MEET=[{id:'mt1',acc:'a0',who:'Dr. Jonathan Moss',w:38,when:'Thu 2:00 pm',ttl:'HIPAA dashboard demo \u00b7 30 min',st:['up','on the calendar']},
             {id:'mt2',acc:'a1',who:'Tom Hale',w:38,when:'not scheduled',ttl:'Price walkthrough: $1,400 freelancer vs $3,170 with an SLA',st:['warn','awaiting a yes']}];
-const BUILD='Oct 8, 16:10';   /* отметка сборки: единственное место, где она живёт */
+const BUILD='Oct 8, 16:16';   /* отметка сборки: единственное место, где она живёт */
 const S={t:NOW,seg:null,downOnly:false,sel:null,level:'segment',K:1,
   knob:{scout:2,qual:2,seller:2,pricer:1,service:1},profile:'head',
   side:'tree',ent:'seg',agView:null,mapAcc:null,bn:0,sent:{},skin:'rev',ef:{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false},ptab:'market',job:'',stF:'',stage:'',primary:'map',source:null,orgOpen:false,sopAcc:'a0',lastRef:{},tabs:[{id:'map',kind:'map',ref:null,title:'Map'},{id:'acc',kind:'org',ref:'a0',title:'Account'},{id:'person',kind:'msg',ref:'p-hale',title:'Person'},{id:'flow',kind:'sop',ref:'a0',title:'Workflow'},{id:'doc',kind:'doc',ref:'d-msa',title:'Document'},{id:'agent',kind:'aglist',ref:null,title:'Agent'}],tab:'map',
@@ -1935,6 +1935,10 @@ function renderEditor(){
     const follow={doc:'doc',msg:'ppl',news:'seg',agent:'ag',ourp:'ag',org:t.ref==='us'?'us':'acc',draft:'ppl'}[t.kind];
     if(follow)setEnt(follow);}
   renderTabs();
+  /* Плашка контекста живёт у агента, а меняется от того, что открыто в центре, —
+     значит её надо перерисовывать здесь. Без этого она застревала на «Map» с
+     загрузки, и агент сообщал не ту область, в которой человек стоит. */
+  if(document.getElementById('askCtx'))renderAgAsk();
   if(!MAPEL)buildMapView();
   $('mapwrap').style.display=S.primary==='map'?'':'none';
   $('sopview').style.display=S.primary==='sop'?'':'none';
@@ -3482,20 +3486,40 @@ function agentScope(){
   /* Рабочих областей второго уровня ровно три — переписка, СОП, документ (24:12).
      Если одна из них открыта в боковом окне, активна именно она, а не вкладка под ней:
      иначе на открытом документе агент отвечает «я в СОПе», что и есть потеря области. */
+  /* Вкладка хранит вид и ссылку (kind/ref). Проверка вида по строке «doc:…» осталась
+     от прежнего устройства и не срабатывала никогда — агент падал в ветку процесса и
+     на открытом человеке отвечал «я в СОПе». «Он пишет, что я сейчас нахожусь в сопах,
+     хотя я нахожусь во вкладке person» (Лиза, 08.10). */
   if(src){
-    const sid=src.id.split(':')[1];
-    if(src.id.startsWith('doc:')){const d=DOCS[sid],a2=ACCBY[d.acc];
+    const sid=src.ref, K=src.kind;
+    if(K==='doc'||K==='draft'){const d=DOCS[sid],a2=ACCBY[d.acc];
       return {area:'doc',acc:a2,doc:d,label:`Document · ${d.kind} · ${a2.name}`,
         sees:[`${d.kind} of ${a2.name}, W${d.w}, status “${d.status[1]}”`,`speech act: ${d.act}`,
               `who is on this deal: ${peopleOf(a2).map(who).join(' · ')}`],
         can:['change a person’s role in this deal','add a stage to this funnel']};}
-    if(src.id.startsWith('msg:')||src.id.startsWith('person:')){const pp=personById(sid);
+    if(K==='msg'){const pp=personById(sid);
       if(pp){const a2=ACCBY[pp.acc];
         return {area:'msg',acc:a2,person:pp,label:`Conversation · ${pp.nm} · ${a2.name}`,
           sees:[`${pp.nm}, ${pp.title}, role in the deal: ${pp.role}`,`channel: ${pp.src}`,
                 `account ${a2.name}, stage “${STAGE[(stateAt(a2,t)||{s:1}).s]}”`],
           can:['change this person’s role','add a stage to this funnel']};}}
-    if(src.id.startsWith('agent:')){const g=agBy(sid);
+    if(K==='org'){const a2=sid==='us'?null:ACCBY[sid];
+      if(a2){const e2=stateAt(a2,t)||{s:1};
+        return {area:'acc',acc:a2,label:`Account · ${a2.name}`,
+          sees:[`${a2.name}, ${a2.city}, ${a2.st}, ${segBy(a2.seg).name}, ACV ${usd(a2.acv)}`,
+                `stage “${STAGE[e2.s]}”`,
+                `who is on this deal: ${peopleOf(a2).map(who).join(' · ')}`],
+          can:['change a person’s role in this deal','open the workflow of this deal']};}
+      return {area:'us',acc:null,label:'Us · Bobroff MSP',
+        sees:['our people, our agents and our mailboxes','what went out and what landed'],
+        can:['see the sending capacity','open an agent']};}
+    if(K==='aglist'){
+      return {area:'aglist',acc:acc,label:'Agents · the machine',
+        sees:[`${AGENTS.length} agents`,
+              `running ${AGENTS.filter(x=>x.state==='active').length} · waiting on a human ${AGENTS.filter(x=>x.state==='awaiting').length} · stopped ${AGENTS.filter(x=>x.state==='paused').length}`,
+              'who answers for each of them'],
+        can:['open an agent','move an agent’s dial']};}
+    if(K==='agent'){const g=agBy(sid);
       if(g)return {area:'agent',acc:acc,agent:g,label:`Agent · ${g.nm}`,
         sees:[`${g.nm} — ${g.title}`,`state: ${ASTATE[g.state][1]}`,
               `runs stages ${g.owns.map(s=>STAGE[s]).join(', ')}`,
@@ -3508,7 +3532,7 @@ function agentScope(){
     const i=(S.sopStep!=null&&S.sopStep>=0&&S.sopStep<S.steps.length)?S.sopStep:Math.max(0,S.steps.findIndex(x=>x.stage===cur));
     const st=S.steps[i]||{};
     return {area:'sop',acc:a,step:i,person:null,
-      label:`SOP · ${a.name} · stage “${st.a||'—'}”`,
+      label:`Workflow · ${a.name} · stage “${st.a||'—'}”`,
       sees:[`the funnel of ${a.name}: ${S.steps.length} stages, the deal is on “${STAGE[e.s]}”`,
             `the stage you have open: “${st.a}” → we: ${st.b||'—'}`,
             `who runs it: ${st.ag?((agBy(st.ag)||{}).nm||'a human'):'nobody yet'}`,
