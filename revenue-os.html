@@ -1310,7 +1310,7 @@ function replyClass(txt,act){
   return null;}
 const MEET=[{id:'mt1',acc:'a0',who:'Dr. Jonathan Moss',w:38,when:'Thu 2:00 pm',ttl:'HIPAA dashboard demo \u00b7 30 min',st:['up','on the calendar']},
             {id:'mt2',acc:'a1',who:'Tom Hale',w:38,when:'not scheduled',ttl:'Price walkthrough: $1,400 freelancer vs $3,170 with an SLA',st:['warn','awaiting a yes']}];
-const BUILD='Oct 8, 16:23';   /* отметка сборки: единственное место, где она живёт */
+const BUILD='Oct 8, 19:20';   /* отметка сборки: единственное место, где она живёт */
 const S={t:NOW,seg:null,downOnly:false,sel:null,level:'segment',K:1,
   knob:{scout:2,qual:2,seller:2,pricer:1,service:1},profile:'head',
   side:'tree',ent:'seg',agView:null,mapAcc:null,bn:0,sent:{},skin:'rev',ef:{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false},ptab:'market',job:'',stF:'',stage:'',primary:'map',source:null,orgOpen:false,sopAcc:'a0',lastRef:{},tabs:[{id:'map',kind:'map',ref:null,title:'Map'},{id:'acc',kind:'org',ref:'a0',title:'Account'},{id:'person',kind:'msg',ref:'p-hale',title:'Person'},{id:'flow',kind:'sop',ref:'a0',title:'Workflow'},{id:'doc',kind:'doc',ref:'d-msa',title:'Document'},{id:'agent',kind:'aglist',ref:null,title:'Agent'}],tab:'map',
@@ -1394,13 +1394,18 @@ const DOCGEN=[[2,'NDA','docusign','NDA signed by both sides','declaration'],
     DOCGEN.forEach(([st,kind,src,ttl,act],i)=>{
       if(st>e.s)return;
       const live=st===e.s, w=Math.max(TMIN,e.w-(e.s-st)*2);
-      const status=!live?['up','signed']
+      /* Пройденный документ получал «signed» независимо от вида: счёт «подписан»,
+         отчёт «подписан». Каждый вид закрывается своим словом. */
+      const PAST={'Invoice':'paid','SLA report':'accepted','Questionnaire':'returned','NDA':'signed','MSA':'signed','Offer v1':'signed'};
+      const status=!live?['up',PAST[kind]||'signed']
         :e.s===3?['down','opened, not signed']
         :e.s===4?['warn','awaiting signature']
         :kind==='Invoice'?(a.payW&&NOW>=a.payW?['down','overdue']:['up','paid'])
         :kind==='SLA report'?['up','SLA met']:['up','in force'];
       DOCS[a.id+'-d'+i]={acc:a.id,src,kind,
-        ttl:`${ttl} · ${kind==='Invoice'||kind==='MSA'||kind==='Offer v1'?'$'+Math.round(a.acv/1000)+'K':a.emp+' seats'}`,
+        /* Счёт показывал годовую сумму: $29K там, где договор говорит «$29K в год,
+           помесячно». Нашёл CSM-ходок 08.10. Счёт — за месяц. */
+        ttl:`${ttl} · ${kind==='Invoice'?usdx(a.acv/12)+'/month':(kind==='MSA'||kind==='Offer v1')?'$'+Math.round(a.acv/1000)+'K/year':a.emp+' seats'}`,
         w,status,act};});
   }
 })();
@@ -1422,6 +1427,7 @@ const LOGS=[
 /* =================== helpers =================== */
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function usdx(v){return '$'+Math.round(v).toLocaleString('en-US');}
 const usd=v=>v>=1e9?'$'+(v/1e9).toFixed(1)+'B':v>=1e6?'$'+(v/1e6).toFixed(2)+'M':v>=1e3?'$'+Math.round(v/1e3)+'K':'$'+Math.round(v);
 const pct=(v,d=1)=>(Number.isFinite(v)?(v*100).toFixed(d):'0.0')+'\u00a0%';
 const int=v=>Math.round(v).toLocaleString('en-US');
@@ -1890,7 +1896,7 @@ function viewLabel(t){
   if(t.id==='person')return ['Person', cut((personById(t.ref)||{}).nm)];
   if(t.id==='agent')return ['Agent', t.kind==='aglist'?'all':t.kind==='ourp'?cut((OURS.find(o=>o.id===t.ref)||{}).nm):cut((agBy(t.ref)||{}).nm)];
   if(t.id==='flow')return ['Workflow', t.kind==='flowlist'?'all':t.kind==='camp'?(t.ref&&t.ref!=='all'?cut((segBy(t.ref)||{}).name):'market'):cut((ACCBY[t.ref]||{}).name)];
-  return ['Document', t.kind==='draft'?'draft':t.kind==='news'?'fact':((DOCS[t.ref]||{}).kind||'')];}
+  return ['Document', t.kind==='draft'?'draft':t.kind==='news'?'fact':(t.ref&&DOCS[t.ref]?DOCS[t.ref].kind:'none')];}
 function renderTabs(){
   /* Один знак на один тип, одинаковый везде (решение 8). Полоска вкладок держала
      собственный набор текстовых символов — другой, чем на карте, в списках и
@@ -1909,7 +1915,11 @@ function renderOurPerson(id){const o=OURS.find(x=>x.id===id);if(!o)return '<div 
     <div class="facts">${steps.map(s=>`<div class="fact"><div class="grow"><div>${esc(STAGE[s.stage])}</div><div class="note">${esc(s.what)}</div></div></div>`).join('')||'<div class="note">No stage of its own.</div>'}</div></div>`;}
 function renderSource(t){if(t.kind==='ourp')return renderOurPerson(t.ref);
   if(t.kind==='org')return t.ref==='us'?renderOrg():renderAccView(ACCBY[t.ref]);
-  if(t.kind==='draft')return renderDraft(t.ref);if(t.kind==='doc')return renderDoc(t.ref);if(t.kind==='msg')return renderMsg(t.ref);if(t.kind==='news')return renderNews(t.ref);if(t.kind==='org')return renderOrg();if(t.kind==='aglist')return renderAgentList();if(t.kind==='agent')return renderAgentTab(t.ref);return '';}
+  if(t.kind==='draft')return renderDraft(t.ref);
+  if(t.kind==='doc'){if(!t.ref||!DOCS[t.ref]){const a=ACCBY[S.docEmptyAcc]||ACCBY[S.mapAcc];
+    return `<div class="doc"><div class="doch"><div><h2>${a?esc(a.name):'No document'}</h2><div class="muted">no paper on record</div></div></div>
+      <div class="note">Nothing has been signed, sent or billed here yet. The first document appears when the deal reaches an offer.</div></div>`;}
+    return renderDoc(t.ref);}if(t.kind==='msg')return renderMsg(t.ref);if(t.kind==='news')return renderNews(t.ref);if(t.kind==='org')return renderOrg();if(t.kind==='aglist')return renderAgentList();if(t.kind==='agent')return renderAgentTab(t.ref);return '';}
 function renderEditor(){
   /* «Я ушла с map на person во views, но сбоку и снизу у меня всё ещё прошлое
      отображение» (Лиза, 06.10). setEnt менял переменную, но левую колонку, ленту,
@@ -2225,10 +2235,17 @@ function pointAllViews(a){
   const ppl=peopleOf(a), lead=ppl.find(p=>p.role==='decides')||ppl[0];
   if(lead)setView('msg',lead.id);
   const docs=Object.entries(DOCS).filter(([,d])=>d.acc===a.id).sort((x,y)=>y[1].w-x[1].w);
-  if(docs.length)setView('doc',docs[0][0]);
+  /* CSM-ходок 08.10: выбрал компанию в поиске — в центре остался документ другой
+     компании. У 54 юрлиц из 531 бумаг нет вовсе, и зона просто не переставлялась.
+     Теперь зона становится пустой и называет, чья она. */
+  setView('doc',docs.length?docs[0][0]:null);
+  S.docEmptyAcc=docs.length?null:a.id;
 }
 function selectAcc(a){S.sel={type:'acc',id:a.id};S.mapAcc=a.id;S.sopAcc=a.id;S.orgOpen=true;S.level='people';
-  pointAllViews(a);syncFilters();renderTabs();
+  /* Корень жалобы CSM-ходока «в центре другая компания»: pointAllViews переставлял
+     ссылки всех областей, но renderAllButMap центр не перерисовывает — он обновлялся
+     только при openTab. Выбрал компанию, а в центре бумага предыдущей. */
+  pointAllViews(a);syncFilters();renderTabs();renderEditor();
   if(ML&&MLREADY)ML.flyTo({center:llOf(a),zoom:Math.max(ML.getZoom(),13),duration:900});
   setEnt('acc');renderAllButMap();renderMap();}
 function segMetrics(g){const sv=S.seg;S.seg=g.id;const a=formulaAt(S.t),b=formulaAt(Math.max(TMIN,S.t-WIN));S.seg=sv;
@@ -2671,7 +2688,7 @@ function campSetup(){
       <span class="pick">${[['','the whole market']].concat(SEGS.map(g=>[g.id,g.abc+' · '+g.name]))
         .map(([v,l])=>`<button data-campset="seg:${v}" aria-pressed="${(c.seg||'')===v}">${esc(l)}</button>`).join('')}</span></div>
     <div class="crow"><span class="lbl">reaches</span><span class="n">${int(accs.length)} companies · ${int(pool.length)} people${Object.keys(off).filter(k=>off[k]).length?` · ${Object.keys(off).filter(k=>off[k]).length} taken out by hand`:''}</span></div>
-    <div class="crow"><span class="lbl faint">the agent filters by segment; narrower criteria live in the left column and the list below follows them</span></div></div>`;
+    <div class="crow"><span class="lbl faint">The agent picks by segment. State, stage and job narrow it from the left column; the list below follows them. Industry, headcount and “has its own IT person” are not fields here yet — a send cannot be aimed by them.</span></div></div>`;
   if(open==='what')det=`<div class="cdet">
     <div class="crow"><span class="lbl">channel</span>
       <span class="pick">${CHAN3.map(([v,l])=>`<button data-campset="chan:${v}" aria-pressed="${c.chan===v}">${l}</button>`).join('')}</span></div>
@@ -2758,8 +2775,62 @@ function campCapacity(n){
       data-tip="${ready?'It goes out under your name':'Pick at least one mailbox first'}">Start the send</button></div>`;}
 
 /* =================== documents, messages, news, org =================== */
+/* Тело документа было одно на все шесть видов — копия договора. На счёте стояло
+   «This is not an offer until countersigned», у акта SLA — обязательство вместо замера,
+   у оффера v2 — цена без скидки, объявленной в его же заголовке. Нашёл CSM-ходок 08.10.
+   Теперь у каждого вида своё тело, и только из того, что в системе есть.
+   Где факта нет — так и написано, выдумывать нечего. */
+function docTail(t){const i=(t||'').indexOf(':');return i<0?'':t.slice(i+1).trim();}
+function docDisc(d){const m=/(\d+(?:[.,]\d+)?)\s*%\s*discount/i.exec(d.ttl||'');return m?parseFloat(m[1].replace(',','.')):0;}
+function docNo(d){const m=/#(\d+)/.exec(d.ttl||'');return m?m[1]:null;}
+function docFacts(d,a){
+  const mo=a.acv/12, disc=docDisc(d), net=a.acv*(1-disc/100);
+  if(d.kind==='Invoice')return [['Amount due',usdx(mo)],['Period','one month'],['Payable','within 15 days'],['Seats',a.emp]];
+  if(d.kind==='SLA report')return [['Period','W'+d.w],['Committed uptime','99.5 %'],['Committed response','1 hour'],['Seats',a.emp]];
+  if(d.kind==='Questionnaire')return [['Seats',a.emp],['Returned','W'+d.w],['Form','HIPAA security'],['Pages','4']];
+  if(d.kind==='NDA')return [['Parties','2'],['Term','3 years'],['Signed','W'+d.w],['Mutual','yes']];
+  if(disc)return [['Price',usdx(net)+'/year'],['List',usdx(a.acv)+'/year'],['Discount',disc+' %'],['Seats',a.emp]];
+  return [['Price',usdx(a.acv)+'/year'],['Per month',usdx(mo)],['Term','36 months'],['Seats',a.emp]];
+}
+function docPaper(d,a){
+  const nm=esc(a.name), mo=a.acv/12, disc=docDisc(d), net=a.acv*(1-disc/100), tail=docTail(d.ttl), no=docNo(d);
+  const svc=`Managed IT: 24/7 monitoring, backup, HIPAA controls, support for ${a.emp} seats.`;
+  if(d.kind==='MSA')return `<b>Master Services Agreement</b> between Bobroff MSP LLC and ${nm}.
+      <h3>1. Services</h3>${svc}
+      <h3>2. Price</h3>${usdx(a.acv)} per year (${usdx(mo)} per month), invoiced monthly, payable within 15 days.
+      <h3>3. Service level</h3>99.5 % uptime, response to a critical incident within 1 hour.
+      <h3>7. Liability</h3>Limited to the fees paid over the preceding 12 months.`;
+  if(d.kind==='Offer v1'||d.kind==='Offer v2')return `<b>${esc(d.kind)}</b> from Bobroff MSP LLC to ${nm}.
+      <h3>1. Scope</h3>${svc}
+      <h3>2. Price</h3>${disc?`${usdx(net)} per year (${usdx(net/12)} per month) — list ${usdx(a.acv)}, less a discount of ${disc} %.`:`${usdx(a.acv)} per year (${usdx(mo)} per month), invoiced monthly.`}
+      <h3>3. Service level</h3>99.5 % uptime, response to a critical incident within 1 hour.
+      <h3>4. Term</h3>36 months.
+      <h3>Clause</h3>This is not an offer until countersigned by Bobroff MSP LLC.`;
+  if(d.kind==='Invoice')return `<b>Invoice${no?' #'+no:''}</b> from Bobroff MSP LLC to ${nm}.
+      <h3>1. For</h3>${svc} One month under the master agreement.
+      <h3>2. Amount due</h3>${usdx(mo)} — one twelfth of ${usdx(a.acv)} per year.
+      <h3>3. Terms</h3>Payable within 15 days of issue. ${d.status[1]==='overdue'?'<b>This invoice is past due.</b>':''}
+      <h3>4. Pay to</h3>Bobroff MSP LLC · reference: ${nm}${no?' / '+no:''}.`;
+  if(d.kind==='SLA report')return `<b>Monthly service report</b> for ${nm}.
+      <h3>1. Period</h3>W${d.w}.
+      <h3>2. Committed in the agreement</h3>99.5 % uptime, response to a critical incident within 1 hour.
+      <h3>3. Measured</h3>${tail?esc(tail)+'.':'<b>No measurement is stored in this system.</b> Tickets, uptime and response times live in the RMM and are not read here — so this report states the commitment, not the fact.'}`;
+  if(d.kind==='Questionnaire')return `<b>Security questionnaire</b> returned by ${nm}.
+      <h3>1. Form</h3>HIPAA security questionnaire, 4 pages, sent W${Math.max(1,d.w-1)}.
+      <h3>2. Answers on record</h3>${tail?esc(tail)+'.':`${a.emp} seats. Nothing else from the form is stored here.`}
+      <h3>3. What it is for</h3>It states what the client has, and obliges nobody.`;
+  if(d.kind==='NDA')return `<b>Mutual non-disclosure agreement</b> between Bobroff MSP LLC and ${nm}.
+      <h3>1. Confidential information</h3>Anything either side marks as confidential, including patient-data handling and pricing.
+      <h3>2. Term</h3>3 years from signature.
+      <h3>3. Exclusions</h3>What is already public, or what the law requires to be disclosed.`;
+  return `<b>${esc(d.kind)}</b> · ${nm}.<h3>Contents</h3>${tail?esc(tail)+'.':'Not stored in this system.'}`;
+}
 function renderDoc(id){const d=DOCS[id],a=ACCBY[d.acc],st=S.docs[id]||{};const P=peopleOf(a);
   const isMSA=d.kind==='MSA',canSign=S.profile==='head';
+  /* AE-ходок 08.10: «Edit» открывал на правку уже подписанный оффер, без предупреждения.
+     CSM-ходок: на счёте «Edit» включал режим правки, в котором нечего править.
+     Правится только то, что ещё черновик агента. */
+  const draftable=/draft/i.test(d.status[1]||'');
   /* «По идее здесь должен документ отображаться — на подписи подаёт там или ещё что-то.
      Я не понимаю, что такое» (Николай, 06.10, 10:33). Тело документа было видно, а где
      он стоит — нет: подписанты показывались только у MSA. Теперь у каждого вида видно,
@@ -2781,15 +2852,10 @@ function renderDoc(id){const d=DOCS[id],a=ACCBY[d.acc],st=S.docs[id]||{};const P
     ['Nikolai Bobrov','us · '+(ourTurn?'our move':'nothing owed'),st.us?'signed':(ourTurn?'waiting on us':'—')],
     ['The '+(d.src==='quickbooks'?'Billing':'Pricing')+' agent','prepared it · cannot '+owe[0].split(' ')[0],'—']];
   return `<div class="doc"><div class="doch">${logo(a,'sq big')}<div><h2>${esc(d.kind)} · ${esc(a.name)}</h2><div class="muted">${srcIc(d.src).replace('class="src"','class="av sq"')} ${SRC[d.src][0]} · W${d.w} · <span class="chip ${d.status[0]}">${st.us?'signed by us':d.status[1]}</span> · speech act: ${d.act}</div></div></div>
-    <div class="kv"><div><span>Amount</span><b>${usd(a.acv)}/year</b></div><div><span>Term</span><b>36 months</b></div><div><span>SLA</span><b>99.5 %</b></div><div><span>Seats</span><b>${a.emp}</b></div></div>
+    <div class="kv">${docFacts(d,a).map(([k,v])=>`<div><span>${k}</span><b>${v}</b></div>`).join('')}</div>
     ${`<div class="hdr">Where it stands</div><div class="signers">${signers.map((s,i)=>`<div class="signer">${(i===2?agAv('pricer'):face(s[0],'',i===1))}<div class="grow"><div>${esc(s[0])}</div><div class="note">${s[1]}</div></div><span class="chip ${s[2]==='signed'?'up':s[2]==='—'?'flat':'warn'}">${s[2]}</span></div>`).join('')}</div>`}
-    <div class="paper" id="paper"><b>${isMSA?'Master Services Agreement':esc(d.kind)}</b> between Bobroff MSP LLC and ${esc(a.name)}.
-      <h3>1. Services</h3>Managed IT: 24/7 monitoring, backup, HIPAA controls, support for ${a.emp} seats.
-      <h3>2. Price</h3>${usd(a.acv)} per year, invoiced monthly, payable within 15 days.
-      <h3>3. Service level</h3>99.5 % uptime, response to a critical incident within 1 hour.
-      <h3>7. Liability</h3>Limited to the fees paid over the preceding 12 months.
-      <h3>Clause</h3>This is not an offer until countersigned by Bobroff MSP LLC.</div>
-    <div class="btns cact"><button class="btn" data-edit="1">Edit</button>${isMSA?`<button class="btn pri" data-sign="${id}" ${canSign&&!st.us?'':'disabled'}>Sign as Nikolai Bobrov</button>`:''}${d.kind==='Offer v2'?`<button class="btn good" data-approve="${id}">Approve the agent’s draft</button><button class="btn bad" data-reject="${id}">Send it back to the agent</button>`:''}</div>
+    <div class="paper" id="paper">${docPaper(d,a)}</div>
+    <div class="btns cact">${draftable?`<button class="btn" data-edit="1">Edit</button>`:`<button class="btn" disabled title="${done?'A signed document is not edited \u2014 a new version is issued':'Sent to the client \u2014 changing it here would not change their copy'}">Edit</button>`}${isMSA?`<button class="btn pri" data-sign="${id}" ${canSign&&!st.us?'':'disabled'}>Sign as Nikolai Bobrov</button>`:''}${d.kind==='Offer v2'?`<button class="btn good" data-approve="${id}">Approve the agent’s draft</button><button class="btn bad" data-reject="${id}">Send it back to the agent</button>`:''}</div>
     <div class="note">${isMSA?(canSign?'A signature is irreversible: only a human with the authority can give it. The agent prepares, the agent does not sign.':'This profile has no signing authority. A signature is the revenue owner\u2019s, and only theirs \u2014 switch to that profile to give it.'):'Opened from the account feed. An agent’s edits stay a draft until a human approves them.'}</div></div>`;}
 /* JOB-024: «А сколько конкретно вот этот человек внутри юрлица мне принёс? Вот там три
    продавана… вот этот принёс вот столько-то» (Николай, 25.09). Выручку между людьми мы
@@ -3264,7 +3330,9 @@ function renderDB(){
   const cell=(r,k)=>{
     if(k==='nm')return `<td class="nm">${kind==='acc'?logo(r.a,'sq'):kind==='doc'?logo(r.a,'sq'):face(r.nm)}${esc(r.nm)}</td>`;
     if(k==='stt')return `<td><span class="chip ${r.d&&r.d.status?r.d.status[0]:''}">${esc(r.stt)}</span></td>`;
-    if(k==='mv')return `<td class="num ${mcls(r.mv)}">${arrow(r.mv)}</td>`;
+    /* Движение стояло одним знаком «▲» — глазу понятно, диктору нечего прочесть. */
+    if(k==='mv'){const w=r.mv>0?'moving up':r.mv<0?'moving down':'flat';
+      return `<td class="num ${mcls(r.mv)}" title="${w}" aria-label="${w}">${arrow(r.mv)}</td>`;}
     if(k==='acv')return `<td class="num">${usd(r.acv)}</td>`;
     if(k==='last')return `<td class="num">${r.last>=9999?'—':r.last+'d'}</td>`;
     if(k==='touch'){const ts=touchState(r.touch);return `<td><span class="chip ${ts[1]}">${esc(ts[0])}</span></td>`;}
@@ -3492,6 +3560,12 @@ function agentScope(){
      хотя я нахожусь во вкладке person» (Лиза, 08.10). */
   if(src){
     const sid=src.ref, K=src.kind;
+    if((K==='doc'||K==='draft')&&!DOCS[sid]){const a2=ACCBY[S.docEmptyAcc]||ACCBY[S.mapAcc];
+      /* Зона Document может быть пустой: у 54 юрлиц бумаг нет. Агент должен назвать
+         область и признать, что смотреть нечего, а не падать. */
+      if(a2)return {area:'doc',acc:a2,label:`Document · none · ${a2.name}`,
+        sees:[`no document on record for ${a2.name}`,'the first paper appears at the offer'],
+        can:['open the deal process for this account']};}
     if(K==='doc'||K==='draft'){const d=DOCS[sid],a2=ACCBY[d.acc];
       return {area:'doc',acc:a2,doc:d,label:`Document · ${d.kind} · ${a2.name}`,
         sees:[`${d.kind} of ${a2.name}, W${d.w}, status “${d.status[1]}”`,`speech act: ${d.act}`,
@@ -3794,7 +3868,12 @@ function mentionDir(){
   if(a) for(const p of peopleOf(a)) out.push([p.nm,a.name+' · '+p.role]);
   return out;
 }
-function ask(q){if(!q.trim())return;S.chat.push({u:1,t:esc(q)});
+function ask(q){if(!q.trim())return;
+  /* GTM-ходок 08.10: задал вопрос при открытой вкладке Hard stop — вопрос «исчез без
+     следа». Виды «queue» и «alarm» подменяют тело панели целиком, и разговор в них не
+     рисуется. Спросили — значит панель возвращается к разговору. */
+  if(S.agView)S.agView=null;
+  S.chat.push({u:1,t:esc(q)});
   const l=q.toLowerCase();
   const at=q.indexOf('@');
   if(at>=0){
@@ -3850,8 +3929,14 @@ function openRef(k){
   if(type==='flowlist'){openTab('flowlist',null);setEnt('flow');renderAllButMap();return;}
   if(type==='aglist'){openTab('aglist',null);setEnt('ag');renderAllButMap();return;}
   if(type==='camp'){openTab('camp',id);S.campStep=1;setEnt('flow');renderAllButMap();return;}
-  if(type==='draft'){const B=BNS().find(x=>x.id===id)||bnCur();
-    openTab('draft',B.id,'Draft · '+(personById(B.draft.to)||{nm:''}).nm.split(' ').slice(-1)[0]);
+  if(type==='draft'){
+    /* AE- и GTM-ходоки 08.10: «Open the draft» падал с ошибкой в консоли. Под чужим
+       профилем список узких мест другой, нужного id в нём нет, откат брал узкое место
+       без черновика — и чтение .to у пустоты роняло обработчик. */
+    const L=BNS(), B=L.find(x=>x.id===id&&x.draft)||L.find(x=>x.draft);
+    if(!B||!B.draft||!B.draft.to){toast('No draft is waiting on this constraint right now.');return;}
+    const who=personById(B.draft.to)||{nm:''};
+    openTab('draft',B.id,'Draft · '+(who.nm||'—').split(' ').slice(-1)[0]);
     setEnt('ppl');S.sel={type:'person',id:B.draft.to};renderAllButMap();return;}
   if(type==='docnode'){const d=DOCS[id];S.mapAcc=d.acc;S.orgOpen=true;selectNode('doc',id);
     /* С карты клик только подсвечивает; из списка или таблицы — открывает документ. */
