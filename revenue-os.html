@@ -431,7 +431,7 @@ body.focus-mode .ptabs{cursor:pointer}
 /* Переписка росла без предела, и всё, что под ней, уезжало за сгиб: стоило добавить
    один блок — и кнопка отправки перестала быть видна. Длина разговора не должна
    решать, видно ли органы работы. Прокручивается сама переписка, а не вся карточка. */
-.thread{display:flex;flex-direction:column;gap:8px;max-height:34vh;overflow:auto}
+.thread{display:flex;flex-direction:column;gap:8px;max-height:30vh;overflow:auto}
 .msg{display:flex;gap:8px;align-items:flex-start}
 .msg .bub2{border:1px solid var(--border);border-radius:8px;padding:8px 10px;max-width:560px;display:flex;flex-direction:column;gap:4px}
 .msg.me{flex-direction:row-reverse}
@@ -1343,7 +1343,7 @@ function replyClass(txt,act){
   return null;}
 const MEET=[{id:'mt1',acc:'a0',who:'Dr. Jonathan Moss',w:38,when:'Thu 2:00 pm',ttl:'HIPAA dashboard demo \u00b7 30 min',st:['up','on the calendar']},
             {id:'mt2',acc:'a1',who:'Tom Hale',w:38,when:'not scheduled',ttl:'Price walkthrough: $1,400 freelancer vs $3,170 with an SLA',st:['warn','awaiting a yes']}];
-const BUILD='Oct 9, 00:12';   /* отметка сборки: единственное место, где она живёт */
+const BUILD='Oct 9, 00:28';   /* отметка сборки: единственное место, где она живёт */
 const S={t:NOW,seg:null,downOnly:false,sel:null,level:'segment',K:1,
   knob:{scout:2,qual:2,seller:2,pricer:1,service:1},profile:'head',
   side:'tree',ent:'seg',agView:null,mapAcc:null,bn:0,sent:{},skin:'rev',ef:{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false},ptab:'market',job:'',stF:'',stage:'',primary:'map',source:null,orgOpen:false,sopAcc:'a0',lastRef:{},tabs:[{id:'map',kind:'map',ref:null,title:'Map'},{id:'acc',kind:'org',ref:'a0',title:'Account'},{id:'person',kind:'msg',ref:'p-hale',title:'Person'},{id:'flow',kind:'sop',ref:'a0',title:'Workflow'},{id:'doc',kind:'doc',ref:'d-msa',title:'Document'},{id:'agent',kind:'aglist',ref:null,title:'Agent'}],tab:'map',
@@ -1874,7 +1874,9 @@ function renderSide(){
 
     /* ---------- ЛЮДИ ---------- */
     else if(ent==='ppl'){
-      h+=`<div class="sfilt"><div class="hdr">New</div><div class="frow"><button class="btn" data-addp="1">Add a person by hand</button></div></div>`;
+      h+=`<div class="sfilt"><div class="hdr">People</div>
+        <div class="frow"><button class="btn" data-open="replies">Replies${repliesAt(S.t).filter(r=>r.days<=7).length?' · '+repliesAt(S.t).filter(r=>r.days<=7).length:''}</button></div>
+        <div class="frow"><button class="btn" data-addp="1">Add a person by hand</button></div></div>`;
       h+=filterBar('ppl');
       const allAcc=ACC.filter(a=>stateAt(a,tt)&&inF(a));
       const base=allAcc.filter(a=>momentum(a,tt)<0).sort((x,y)=>(y.feat-x.feat)||(y.acv-x.acv)).slice(0,6);
@@ -1956,7 +1958,7 @@ function allEntities(){
 /* Агент — не физлицо. Вкладка «Person · Scout» прямо врала: нажимаешь зону Agents,
    открывается вкладка человека с агентом внутри. «Мне это не нравится, это путает»
    (Лиза, 08.10). У агентов своя область; People остаётся только за людьми. */
-const VIEWOF={map:'map',today:'map',sop:'flow',camp:'flow',flowlist:'flow',db:'acc',org:'acc',msg:'person',agent:'agent',ourp:'agent',aglist:'agent',doc:'doc',draft:'doc',news:'doc'};
+const VIEWOF={map:'map',today:'map',replies:'person',sop:'flow',camp:'flow',flowlist:'flow',db:'acc',org:'acc',msg:'person',agent:'agent',ourp:'agent',aglist:'agent',doc:'doc',draft:'doc',news:'doc'};
 function setView(kind,id){const v=VIEWOF[kind]; if(!v)return null;
   const tb=S.tabs.find(x=>x.id===v); if(v!=='map'){tb.kind=kind;tb.ref=id;}
   /* Область Agent делят зона Agents и наши люди; область Account — юрлица и «мы».
@@ -1971,7 +1973,7 @@ function openTab(kind,id,title){const v=setView(kind,id); if(!v)return; S.tab=v;
    «как отличить, хочу я фильтровать карту или открыть рассылку» (Лиза, 07.10).
    Хозяин один — центр. Зона ведёт в него, фильтры и лента идут за ним. */
 const ENTVIEW={seg:'map',acc:'acc',ppl:'person',flow:'flow',doc:'doc',ag:'agent'};
-const ENTKIND={seg:['map','today'],acc:['org','db'],ppl:['msg'],flow:['sop','camp','flowlist'],
+const ENTKIND={seg:['map','today'],acc:['org','db'],ppl:['msg','replies'],flow:['sop','camp','flowlist'],
                doc:['doc','draft','news'],ag:['agent','ourp','aglist']};
 /* Ступень карты — тоже предмет: пузыри сегментов, точки юрлиц, люди вокруг одного. */
 const MAPENT={segment:'seg',accounts:'acc',people:'ppl'};
@@ -1981,6 +1983,7 @@ const ENTDEF={acc:()=>['org',S.mapAcc||S.sopAcc||'a0'],ppl:()=>['msg',Object.key
               ag:()=>['aglist',null]};
 function fitsEnt(k,tb){
   if(!(ENTKIND[k]||[]).includes(tb.kind))return false;
+  if(k==='ppl'&&tb.kind==='replies')return true;
   if(k==='acc'&&tb.kind==='org'&&tb.ref==='us')return false;   /* «мы» живут в зоне Agents */
   if(k==='acc'&&tb.kind==='db')return S.dbKind!=='person'&&S.dbKind!=='doc';
   return true;}
@@ -2004,7 +2007,7 @@ function viewLabel(t){
   const cut=s=>String(s||'').split(' ')[0];
   if(t.id==='map')return ['Map',''];
   if(t.id==='acc')return ['Account', t.kind==='db'?(t.ref==='acc'?'all accounts':'all people'):(t.ref==='us'?'us':cut((ACCBY[t.ref]||{}).name))];
-  if(t.id==='person')return ['Person', cut((personById(t.ref)||{}).nm)];
+  if(t.id==='person')return ['Person', t.kind==='replies'?'replies':cut((personById(t.ref)||{}).nm)];
   if(t.id==='agent')return ['Agent', t.kind==='aglist'?'all':t.kind==='ourp'?cut((OURS.find(o=>o.id===t.ref)||{}).nm):cut((agBy(t.ref)||{}).nm)];
   if(t.id==='flow')return ['Workflow', t.kind==='flowlist'?'all':t.kind==='camp'?(t.ref&&t.ref!=='all'?cut((segBy(t.ref)||{}).name):'market'):cut((ACCBY[t.ref]||{}).name)];
   return ['Document', t.kind==='draft'?'draft':t.kind==='news'?'fact':(t.ref&&DOCS[t.ref]?DOCS[t.ref].kind:'none')];}
@@ -2026,6 +2029,7 @@ function renderOurPerson(id){const o=OURS.find(x=>x.id===id);if(!o)return '<div 
     <div class="facts">${steps.map(s=>`<div class="fact"><div class="grow"><div>${esc(STAGE[s.stage])}</div><div class="note">${esc(s.what)}</div></div></div>`).join('')||'<div class="note">No stage of its own.</div>'}</div></div>`;}
 function renderSource(t){if(t.kind==='ourp')return renderOurPerson(t.ref);
   if(t.kind==='org')return t.ref==='us'?renderOrg():renderAccView(ACCBY[t.ref]);
+  if(t.kind==='replies')return renderReplies();
   if(t.kind==='draft')return renderDraft(t.ref);
   if(t.kind==='doc'){if(!t.ref||!DOCS[t.ref]){const a=ACCBY[S.docEmptyAcc]||ACCBY[S.mapAcc];
     return `<div class="doc"><div class="doch"><div><h2>${a?esc(a.name):'No document'}</h2><div class="muted">no paper on record</div></div></div>
@@ -2764,7 +2768,8 @@ function campPool(seg){
      у рассылки свой, поэтому глобальный на время снимаем. */
   const sv=S.seg; S.seg=null;
   const out=ACC.filter(a=>(!seg||seg==='all'||a.seg===seg)&&stateAt(a,S.t)&&inF(a))
-    .flatMap(a=>peopleOf(a).map(x=>({...x,acc:a})));
+    .flatMap(a=>peopleOf(a).map(x=>({...x,acc:a})))
+    .filter(x=>pstateK(x.id)==='active');
   S.seg=sv; return out;}
 /* Ноль объясняется тем признаком, на котором выборка кончилась, и — если это отрасль —
    прямо говорится, что такой отрасли в базе нет. Честный ноль полезнее подогнанной
@@ -3026,11 +3031,12 @@ function personWorth(pid){
 function renderMsg(pid){const p=personById(pid),a=ACCBY[p.acc],M=MSGS[pid]||peopleActs(a,S.t).filter(x=>x.p.id===pid).map(x=>({me:false,src:p.src.toLowerCase()==='gmail'?'gmail':p.src.toLowerCase()==='linkedin'?'linkedin':'aircall',act:x.act,txt:x.txt,w:S.t}));
   const draft=pid==='p-hale'?'Tom, you pay $1,400/mo for one freelancer today. Our $3,170/mo covers 24/7 monitoring, HIPAA audit prep and a 1-hour SLA. Can I show the side-by-side in 15 minutes?':pid==='p-diaz'?'Karen, quick one: is Dr. Moss waiting for anything from us before the audit prep?':'';
   return `<div class="doc"><div class="doch">${face(p.nm,'big '+((personWorth(pid)||{eff:{}}).eff.c||''))}<div><h2>${esc(p.nm)}</h2><div class="muted">${esc(p.title)} · ${esc(a.name)} · role in the deal: <b>${p.role}</b></div><div class="note">source: ${esc(p.src)} · <a href="https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(p.nm)}" target="_blank" rel="noopener">Find their profile ↗</a></div></div></div>
-    <div class="thread">${M.map(m=>`<div class="msg ${m.me?'me':''}">${m.me?agAv(m.agent,'mid'):face(p.nm,'mid')}<div class="bub2"><div class="meta">${srcIc(m.src).replace('class="src"','class="av sq"')} ${m.me?'the '+agBy(m.agent).nm+' agent':esc(p.nm)} · W${m.w}${m.act?` · <span class="act">${m.act}</span>`:''}</div><div>${esc(m.txt)}</div></div></div>`).join('')||'<div class="note">No correspondence yet.</div>'}</div>
     ${renderChannels(pid)}
-    ${renderNext(pid)}
     ${renderSlots(pid)}
-    <div class="compose"><div class="hdr">Agent draft</div><textarea id="draft" aria-label="Draft">${esc(draft)}</textarea><div class="btns cact"><button class="btn pri" data-send="${pid}">${S.chan&&S.chan[pid]?'Send by '+esc(CHAN[S.chan[pid]][0])+' under my name':'Send under my name'}</button><span class="note">Mail under a person’s name goes out only on that person’s click.</span></div></div></div>`;}
+    ${renderNext(pid)}
+    <div class="compose"><div class="hdr">Agent draft</div><textarea id="draft" aria-label="Draft">${esc(draft)}</textarea><div class="btns cact"><button class="btn pri" data-send="${pid}">${S.chan&&S.chan[pid]?'Send by '+esc(CHAN[S.chan[pid]][0])+' under my name':'Send under my name'}</button><span class="note">Mail under a person’s name goes out only on that person’s click.</span></div></div>    <div class="hdr">The conversation so far</div>
+    <div class="thread">${M.map(m=>`<div class="msg ${m.me?'me':''}">${m.me?agAv(m.agent,'mid'):face(p.nm,'mid')}<div class="bub2"><div class="meta">${srcIc(m.src).replace('class="src"','class="av sq"')} ${m.me?'the '+agBy(m.agent).nm+' agent':esc(p.nm)} · W${m.w}${m.act?` · <span class="act">${m.act}</span>`:''}</div><div>${esc(m.txt)}</div></div></div>`).join('')||'<div class="note">No correspondence yet.</div>'}</div>
+</div>`;}
 /* Канал выбирался молча: письмо уходило почтой, даже если почта отбивалась. Работа
    «выбрать канал, которым дойдёт» кончается тем, что канал назначен, — значит на
    экране должен стоять выбор, а рядом с каждым каналом то, что о нём известно
@@ -3063,12 +3069,71 @@ function renderNext(pid){
   /* Два заголовка подряд на одной карточке — «Next touch» и «Bring it to a
      conversation» — стоили 28px и вытолкнули кнопку отправки за дно области.
      Один заголовок на оба органа: оба про то, что будет дальше. */
-  return `<div class="hdr">What happens next</div>`
+  return `<div class="hdr">Remind me</div>`
     +(n?`<div class="bnote"><span style="color:var(--up);font-weight:600">Scheduled</span>
         <span>${esc(nextWords(pid))}. Nothing else goes to this person before then.</span>
         <button class="btn" data-nextclr="${pid}">Clear it</button></div>`
       :`<div class="btns">${NEXTS.map(([d,l])=>`<button class="btn" data-next="${pid}:${d}:${ch}">${esc(l)}</button>`).join('')}
-        <span class="note">Nothing is scheduled. By ${esc(CHAN[ch]?CHAN[ch][0]:'email')} — the channel set above.</span></div>`);}
+        <span class="note">Nothing scheduled · by ${esc(CHAN[ch]?CHAN[ch][0]:'email')}</span></div>`);}
+/* ============ Ответ как объект ============
+   Ответы в системе были — это сообщения клиента в переписке, у каждого свой речевой
+   акт. Чего не было: собрать их в одном месте и сказать про ответ, чего человек
+   хочет. «Объекта “ответ на аутрич” нет: в воронке только процент replies, списка
+   нет» (ходок, 08.10). И минус у карточки означал «убрать из ленты», а не из работы —
+   поэтому состояние в работе появилось отдельной вещью. */
+const INTENT=[['talk','wants to talk','назначить разговор'],
+  ['price','asking for a price',''],['later','not now',''],
+  ['no','a polite no',''],['wrong','not the right person','']];
+const PSTATE={active:['in play','up'],later:['on hold','warn'],out:['out of play','down']};
+function pstate(pid){return (S.pstate&&S.pstate[pid])||null;}
+function pstateK(pid){const x=pstate(pid);return x?x.k:'active';}
+function intentOf(pid){return (S.intent&&S.intent[pid])||null;}
+/* Ответом считается то, что сказал клиент, а не мы: у featured это настоящая
+   переписка, у остальных — приписанное действие, кроме молчания. */
+function repliesAt(t){
+  const out=[];
+  for(const a of ACC){
+    if(!stateAt(a,t)||!inF(a))continue;
+    const own=MSGS&&Object.keys(MSGS).length?null:null;
+    for(const p of peopleOf(a)){
+      const thread=MSGS[p.id];
+      if(thread){
+        const last=[...thread].reverse().find(m=>!m.me);
+        if(last&&last.w<=t)out.push({p,a,act:last.act,txt:last.txt,w:last.w,days:(t-last.w)*7});
+        continue;}
+      const act=peopleActs(a,t).find(x=>x.p.id===p.id);
+      if(act&&act.act&&act.act!=='silence')out.push({p,a,act:act.act,txt:act.txt,w:t,days:act.days||0});}}
+  return out.sort((x,y)=>x.days-y.days);}
+function renderReplies(){
+  /* 401 ответ за неделю — это свалка, а не работа. Сверху то, что ещё не разобрано,
+     и не больше, чем человек способен пройти за один присест. Остальное — числом. */
+  const R=repliesAt(S.t), wkAll=R.filter(r=>r.days<=7);
+  const todo=wkAll.filter(r=>!intentOf(r.p.id)&&pstateK(r.p.id)==='active');
+  const wk=todo.slice(0,25);
+  const row=r=>{const k=pstateK(r.p.id), it=intentOf(r.p.id), st=PSTATE[k];
+    return `<div class="fact"><div class="grow">
+      <div><button class="lnk" data-open="msg:${r.p.id}">${esc(r.p.nm)}</button> <span class="faint">· ${esc(r.a.name)}</span></div>
+      <div class="note">${esc(r.txt)} <span class="act">${esc(r.act)}</span> · ${r.days}d ago</div>
+      <div class="btns" style="margin-top:4px">${INTENT.map(([v,l])=>`<button class="lnk" data-intent="${r.p.id}:${v}" aria-pressed="${it===v}">${esc(l)}</button>`).join('')}</div></div>
+      <div class="btns">${it==='talk'?`<button class="btn pri" data-open="msg:${r.p.id}">Set a time</button>`:''}
+        <button class="btn" data-pst="${r.p.id}:later" ${k==='later'?'disabled':''}>Hold</button>
+        <button class="btn bad" data-pst="${r.p.id}:out" ${k==='out'?'disabled':''}>Out of play</button>
+        <span class="chip ${st[1]}">${st[0]}</span></div></div>`;};
+  const marked=R.filter(r=>intentOf(r.p.id)).length;
+  const held=R.filter(r=>pstateK(r.p.id)!=='active').length;
+  /* Помеченный «хочет разговор» переезжает наверх: там его кнопка «назначить время»
+     рядом, а не за сгибом в середине длинной ленты. Разметил — и сразу действуешь. */
+  const talk=wkAll.filter(r=>intentOf(r.p.id)==='talk'&&pstateK(r.p.id)==='active');
+  const rest=wkAll.filter(r=>intentOf(r.p.id)&&intentOf(r.p.id)!=='talk');
+  return `<div class="doc"><div class="doch"><div><h2>Replies</h2>
+      <div class="muted">${wkAll.length} answered in the last 7 days · ${marked} marked · ${held} on hold or out</div></div></div>
+    <div class="note">An answer is what the client said, not what we sent. Mark what they want; put a person on hold or out of play and no send reaches them — not this campaign, not the next one.</div>
+    ${talk.length?`<div class="hdr">Want to talk · ${talk.length}</div>
+      <div class="facts">${talk.slice(0,10).map(row).join('')}</div>`:''}
+    <div class="hdr">Not sorted out yet · ${todo.length}${todo.length>wk.length?` · showing ${wk.length}`:''}</div>
+    <div class="facts">${wk.map(row).join('')||'<div class="note">Everything from the last 7 days is sorted out.</div>'}</div>
+    ${rest.length?`<div class="hdr">Marked otherwise · ${rest.length}</div><div class="facts">${rest.slice(0,10).map(row).join('')}</div>`:''}</div>`;}
+
 /* ============ Человек, внесённый руками ============
    Система писала про себя «nobody is added by hand», и для SDR это было отрицание
    его работы: человека с конференции деть некуда. «Вчера познакомилась с Dr. Mara
@@ -3126,10 +3191,10 @@ function addPersonByHand(){
 }
 function renderSlots(pid){
   const m=S.meet&&S.meet[pid];
-  if(m)return `<div class="bnote"><span style="color:var(--up);font-weight:600">On the calendar</span>
+  if(m)return `<div class="hdr">What happens next</div><div class="bnote"><span style="color:var(--up);font-weight:600">On the calendar</span>
     <span>${esc(m)} · 30 min · the agent sent the invite under your name and stopped following up.</span></div>`;
-  return `<div class="btns">${SLOTS.map(x=>`<button class="btn" data-slot="${pid}:${esc(x)}">${esc(x)}</button>`).join('')}
-    <span class="note">Pick a slot and the agent sends the invite under your name.</span></div>`;}
+  return `<div class="hdr">What happens next</div><div class="btns">${SLOTS.map(x=>`<button class="btn" data-slot="${pid}:${esc(x)}">${esc(x)}</button>`).join('')}
+    <span class="note">The invite goes under your name.</span></div>`;}
 function renderNews(id){const n=MARKET.find(x=>x.id===id),st=S.facts[id]||{};
   return `<div class="doc"><div class="doch"><span class="av sq big">${SRC[n.src][0].slice(0,3)}</span><div><h2>${esc(n.ttl)}</h2><div class="muted">${SRC[n.src][0]} · ${n.url} · ${n.when} ago · segment ${segBy(n.seg).name}${n.st?' · '+n.st:''} · moves: <b>${n.hits}</b></div></div></div>
     <div class="hdr">Facts from the source — confirm, refute or drop them</div>
@@ -4155,6 +4220,7 @@ function openRef(k){
   const [type,id,id2]=k.split(':');
   if(type==='flowlist'){openTab('flowlist',null);setEnt('flow');renderAllButMap();return;}
   if(type==='aglist'){openTab('aglist',null);setEnt('ag');renderAllButMap();return;}
+  if(type==='replies'){openTab('replies',null);setEnt('ppl');renderAllButMap();return;}
   if(type==='camp'){openTab('camp',id);S.campStep=1;setEnt('flow');renderAllButMap();return;}
   if(type==='draft'){
     /* AE- и GTM-ходоки 08.10: «Open the draft» падал с ошибкой в консоли. Под чужим
@@ -4186,7 +4252,7 @@ function openRef(k){
 }
 function logAdd(ag,ttl,st){(S.extraLogs=S.extraLogs||[]).push({ag,w:NOW,ttl,st});}
 document.addEventListener('click',e=>{
-  const b=e.target.closest('[data-fmul],[data-open],[data-side],[data-tab],[data-close],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-feeddown],[data-plus],[data-newchat],[data-agundo],[data-weekpick],[data-week],[data-calm],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-f],[data-freset],[data-fclr],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepsel],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-fmode],[data-dbsort],[data-dbmore],[data-dbkind],[data-camp],[data-camprun],[data-chan],[data-slot],[data-next],[data-nextclr],[data-addp],[data-campsel],[data-campoff],[data-campblk],[data-campset],[data-campseq],[data-campbox],[data-camprunact],[data-inwin],[data-stuck],[data-mailclear],[data-mark],[data-note],[data-notecancel],[data-ent],[data-mail],[data-common],[data-importfacts],[data-nextbn],[data-influencer],[data-sim],[data-role],[data-triopen],#fDown,#addFact,#addNote');
+  const b=e.target.closest('[data-fmul],[data-open],[data-side],[data-tab],[data-close],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-feeddown],[data-plus],[data-newchat],[data-agundo],[data-weekpick],[data-week],[data-calm],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-f],[data-freset],[data-fclr],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepsel],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-fmode],[data-dbsort],[data-dbmore],[data-dbkind],[data-camp],[data-camprun],[data-chan],[data-slot],[data-next],[data-nextclr],[data-addp],[data-intent],[data-pst],[data-campsel],[data-campoff],[data-campblk],[data-campset],[data-campseq],[data-campbox],[data-camprunact],[data-inwin],[data-stuck],[data-mailclear],[data-mark],[data-note],[data-notecancel],[data-ent],[data-mail],[data-common],[data-importfacts],[data-nextbn],[data-influencer],[data-sim],[data-role],[data-triopen],#fDown,#addFact,#addNote');
   if(!b){if(S.wkOpen&&!e.target.closest('.wkpop')){S.wkOpen=false;renderFilters();}return;}
   if(S.wkOpen&&!b.dataset.weekpick&&!b.dataset.week&&!b.dataset.calm&&!e.target.closest('.wkpop')){S.wkOpen=false;renderFilters();}
   if(b.dataset.pal)$('pal').hidden=true;
@@ -4347,6 +4413,25 @@ document.addEventListener('click',e=>{
       return;}
     set();return;}
   if(b.dataset.addp){addPersonDialog();return;}
+  if(b.dataset.intent){const [pid,v]=b.dataset.intent.split(':'),p=personById(pid);
+    S.intent=S.intent||{}; S.intent[pid]=S.intent[pid]===v?null:v;
+    const l=(INTENT.find(x=>x[0]===v)||['','']) [1];
+    logAdd('seller',`${p.nm}: reply marked “${l}” (${$('profile').selectedOptions[0].text})`,['flat','marked']);
+    renderEditor();renderAllButMap();return;}
+  if(b.dataset.pst){const [pid,k]=b.dataset.pst.split(':'),p=personById(pid);
+    /* «Убрать из работы» было только «убрать из ленты». Теперь это состояние, и оно
+       действует: выведенный человек не попадает ни в одну рассылку. */
+    const act=()=>{S.pstate=S.pstate||{};S.pstate[pid]={k,w:S.t};
+      logAdd('seller',`${p.nm}: ${PSTATE[k][0]} (${$('profile').selectedOptions[0].text})`,[k==='out'?'down':'warn','state']);
+      renderEditor();renderAllButMap();
+      toast(k==='out'?`${p.nm} is out of play. No send reaches them until you put them back.`
+                     :`${p.nm} is on hold. Nothing goes out to them for now.`);};
+    if(k==='out'){confirmAct({title:'Take '+p.nm+' out of play?',danger:true,cta:'Take them out',
+      lines:[['Person',p.nm+' · '+p.title],['At',ACCBY[p.acc].name],
+        'No send reaches them while they are out — not this campaign, not the next one.',
+        'They stay in the database, and the log says who took them out and when.'],
+      onOk:act});return;}
+    act();return;}
   if(b.dataset.next){const [pid,d,ch]=b.dataset.next.split(':');
     const p=personById(pid);
     S.next=S.next||{}; S.next[pid]={d:+d,ch,by:'the agent'};
