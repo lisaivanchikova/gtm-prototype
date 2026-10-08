@@ -417,7 +417,7 @@ body.focus-mode .ptabs{cursor:pointer}
 .signers{display:flex;flex-direction:column;gap:8px}
 .signer{display:flex;align-items:center;gap:8px;border:1px solid var(--border);border-radius:8px;padding:8px 10px}
 .signer .grow{flex:1}
-.btn{height:26px;padding:0 11px;border-radius:4px;border:1px solid var(--border);background:var(--editor);font-size:11px;font-weight:600;display:inline-flex;align-items:center;gap:8px}
+.btn{min-height:22px;padding:4px 10px;border-radius:4px;border:1px solid var(--border);background:var(--editor);font-size:11px;font-weight:600;line-height:1.3;display:inline-flex;align-items:center;gap:8px;text-align:left;white-space:normal}
 .btn:hover:not(:disabled){border-color:var(--accent)}
 .btn.pri{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
 .btn.pri:hover:not(:disabled){background:#0258a8}
@@ -806,7 +806,7 @@ table.runs td{padding:4px 8px 4px 0;border-top:1px solid color-mix(in srgb,var(-
 .ecard .row{height:20px;font-size:11px}
 .ecard .row{flex:none}
 .ecard .row .rt{display:none}
-.ecard .btn{height:22px;font-size:11px;padding:0 8px}
+.ecard /* высота у .btn теперь по содержимому — см. единое правило выше */
 .fi{padding:8px 14px}
 .ptabs .ib{white-space:nowrap}
 .turn .by{white-space:nowrap;overflow:hidden;min-width:0}
@@ -826,7 +826,7 @@ table.runs td{padding:4px 8px 4px 0;border-top:1px solid color-mix(in srgb,var(-
 .feed.dense .fi .mt b{min-width:0;overflow:hidden;text-overflow:ellipsis}
 .feed.dense .fi .acts{top:2px;bottom:auto;background:var(--panel);padding-left:8px}
 .feed.dense .addfact{padding:4px 12px}
-.feed.dense .addfact input,.feed.dense .addfact .btn{height:22px;font-size:11px}
+.feed.dense .addfact input,.feed.dense .addfact /* и здесь тоже: второго правила на тот же селектор быть не должно */
 .feed .day{position:sticky;top:0;z-index:1;background:var(--panel);font-family:var(--ui);font-variant-numeric:tabular-nums;letter-spacing:0;font-size:10px;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:var(--fg3);padding:4px 12px;border-bottom:1px solid var(--border)}
 .ptabs .ptab{flex:none}
 .dens{flex:none;display:inline-flex;border:1px solid var(--border);border-radius:4px;overflow:hidden;margin-right:8px}
@@ -1310,7 +1310,7 @@ function replyClass(txt,act){
   return null;}
 const MEET=[{id:'mt1',acc:'a0',who:'Dr. Jonathan Moss',w:38,when:'Thu 2:00 pm',ttl:'HIPAA dashboard demo \u00b7 30 min',st:['up','on the calendar']},
             {id:'mt2',acc:'a1',who:'Tom Hale',w:38,when:'not scheduled',ttl:'Price walkthrough: $1,400 freelancer vs $3,170 with an SLA',st:['warn','awaiting a yes']}];
-const BUILD='Oct 8, 16:16';   /* отметка сборки: единственное место, где она живёт */
+const BUILD='Oct 8, 16:23';   /* отметка сборки: единственное место, где она живёт */
 const S={t:NOW,seg:null,downOnly:false,sel:null,level:'segment',K:1,
   knob:{scout:2,qual:2,seller:2,pricer:1,service:1},profile:'head',
   side:'tree',ent:'seg',agView:null,mapAcc:null,bn:0,sent:{},skin:'rev',ef:{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false},ptab:'market',job:'',stF:'',stage:'',primary:'map',source:null,orgOpen:false,sopAcc:'a0',lastRef:{},tabs:[{id:'map',kind:'map',ref:null,title:'Map'},{id:'acc',kind:'org',ref:'a0',title:'Account'},{id:'person',kind:'msg',ref:'p-hale',title:'Person'},{id:'flow',kind:'sop',ref:'a0',title:'Workflow'},{id:'doc',kind:'doc',ref:'d-msa',title:'Document'},{id:'agent',kind:'aglist',ref:null,title:'Agent'}],tab:'map',
