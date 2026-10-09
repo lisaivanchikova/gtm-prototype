@@ -1334,6 +1334,32 @@ const MAIL=[
  {id:'m-cold3',adr:'team@getbobroff.com',dom:'getbobroff.com',kind:'cold',warm:64,sent:6,lim:12,st:['warn','warming up 64 %']},
  {id:'m-warm',adr:'nicolas@bobroffmsp.com',dom:'bobroffmsp.com',kind:'warm \u00b7 your own name',warm:100,sent:3,lim:0,st:['up','human only']}];
 const MAILBY=Object.fromEntries(MAIL.map(m=>[m.id,m]));
+/* Ёмкость канала существовала только как посмертная статистика: «клик по ящику только
+   фильтрует ленту, у кампании есть лишь Start the send без паузы, дневной лимит не
+   редактируется» (GTM Eng, 09.10). Жалоба на спам и `domain blocklisted` висели на
+   одном и том же ящике, а остановить его было нечем — стоп был только у агента.
+   Теперь ящик — предмет: его суточный предел задаётся, его можно остановить, и всё,
+   что считает ёмкость, считает по тому же состоянию. */
+function mailLim(m){const o=(S.mailLim||{})[m.id];return o===undefined?m.lim:o;}
+function mailOff(id){return !!(S.mailOff||{})[id];}
+/* `domain blocklisted` и жалоба на спам жили записями в журнале доставки, и ходок
+   видел их в ленте, а у самого ящика их не было — остановить «то, что рискует
+   доменом» было нечем, потому что риск не принадлежал ящику. Теперь принадлежит. */
+function mailRisk(m){
+  const d=(typeof DELIV!=='undefined'?DELIV:[]).filter(x=>x.mail===m.id);
+  const block=d.filter(x=>x.k==='block').length, spam=d.filter(x=>x.k==='spam').length;
+  if(!block&&!spam)return null;
+  return {block,spam,why:[block?block+' letter'+(block===1?'':'s')+' refused — the domain is on a blocklist':'',
+    spam?spam+' spam complaint'+(spam===1?'':'s'):''].filter(Boolean).join(' · ')};}
+function mailState(m){
+  if(mailOff(m.id))return ['down','stopped by a human'];
+  const rk=mailRisk(m); if(rk&&rk.block)return ['down','the domain is on a blocklist'];
+  if(/blocklist/i.test(m.st[1]))return m.st;
+  const L=mailLim(m);
+  if(!L)return m.st;
+  if(m.sent>=L)return ['flat','quota spent'];
+  return m.warm<100?['warn','warming up '+m.warm+' %']:['up','in use'];}
+function mailLeft(m){const L=mailLim(m);return mailOff(m.id)?0:Math.max(0,L-m.sent);}
 /* ===== ДОБАВЛЕНО: JOB-007 что дошло · JOB-008 класс ответа · JOB-009 до разговора ===== */
 const DCLASS={ok:['delivered','up'],soft:['bounced \u00b7 mailbox full','warn'],hard:['bounced \u00b7 no such address','down'],
   block:['not delivered \u00b7 domain blocklisted','down'],optout:['opted out','warn'],spam:['spam complaint','down']};
@@ -1374,7 +1400,7 @@ function replyClass(txt,act){
   return null;}
 const MEET=[{id:'mt1',acc:'a0',who:'Dr. Jonathan Moss',w:38,when:'Thu 2:00 pm',ttl:'HIPAA dashboard demo \u00b7 30 min',st:['up','on the calendar']},
             {id:'mt2',acc:'a1',who:'Tom Hale',w:38,when:'not scheduled',ttl:'Price walkthrough: $1,400 freelancer vs $3,170 with an SLA',st:['warn','awaiting a yes']}];
-const BUILD='Oct 9, 12:58';   /* отметка сборки: единственное место, где она живёт */
+const BUILD='Oct 9, 13:11';   /* отметка сборки: единственное место, где она живёт */
 const S={t:NOW,seg:null,downOnly:false,sel:null,level:'segment',K:1,
   knob:{scout:2,qual:2,seller:2,pricer:1,service:1},profile:'head',
   side:'tree',ent:'seg',agView:null,mapAcc:null,bn:0,sent:{},skin:'rev',ef:{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false},ptab:'market',job:'',stF:'',stage:'',primary:'map',source:null,orgOpen:false,sopAcc:'a0',lastRef:{},tabs:[{id:'map',kind:'map',ref:null,title:'Map'},{id:'acc',kind:'org',ref:'a0',title:'Account'},{id:'person',kind:'msg',ref:'p-hale',title:'Person'},{id:'flow',kind:'sop',ref:'a0',title:'Workflow'},{id:'doc',kind:'doc',ref:'d-msa',title:'Document'},{id:'agent',kind:'aglist',ref:null,title:'Agent'}],tab:'map',
@@ -2333,7 +2359,10 @@ function renderMap(){
   const hq=document.createElement('button');hq.type='button';hq.className='mk hq';
   hq.title='We are a point on this map like any other: our people and our agents';
   hq.setAttribute('aria-label',hq.title);
-  hq.onclick=()=>{selectNode('us',null);};
+  /* Клик по нам на карте только подсвечивал узел: область Account оставалась на чужом
+     юрлице, и до ящиков — нашей ёмкости отправки — не было пути нажатиями вовсе.
+     «Ящик не объект, не кликается» (GTM Eng, 08 и 09.10) начиналось отсюда. */
+  hq.onclick=()=>{openRef('us');};
   mkMarker('hq',[-73.99,40.75],hq);
 
   /* --- человечки вокруг выбранного юрлица --- */
@@ -2897,9 +2926,16 @@ function campWho(c){
   if(!nw.length)return base;
   return (c&&c.seg?segBy(c.seg).name:'the market')+' · '+nw.join(' · ');}
 function campBoxCap(c){
-  const on=MAIL.filter(m=>m.lim>0&&c.boxes[m.id]);
-  return {n:on.length,perDay:on.reduce((s,m)=>s+m.lim,0),
-          leftToday:on.reduce((s,m)=>s+Math.max(0,m.lim-m.sent),0)};}
+  /* «Не больше 150 писем в день» задать было нечем: число складывалось из прогрева
+     ящиков и не принимало ввода (SDR, 09.10). Теперь это два разных числа — сколько
+     могут ящики и сколько разрешил человек, — и в работу идёт меньшее. */
+  const on=MAIL.filter(m=>mailLim(m)>0&&c.boxes[m.id]&&!mailOff(m.id));
+  const boxes=on.reduce((s,m)=>s+mailLim(m),0);
+  const cap=S.campCap?+S.campCap:0;
+  const perDay=cap?Math.min(boxes,cap):boxes;
+  const left=on.reduce((s,m)=>s+mailLeft(m),0);
+  return {n:on.length,perDay,boxes,cap,capBinds:!!(cap&&cap<boxes),
+          leftToday:cap?Math.min(left,perDay):left};}
 function campNum(i,pool){const n=pool.length;
   return [n, Math.round(n*0.62), Math.round(n*0.19), Math.round(n*0.07)][i];}
 /* Четыре блока настройки. Каждый раскрывается на месте, под строкой, — и там
@@ -2953,11 +2989,14 @@ function campSetup(){
       `<button class="cstep" data-campseq="${i}" aria-pressed="${!!s.on}" data-tip="Click to drop this touch">Day ${s.d} · ${esc(s.ch)}</button>`).join('')}</span></div>
     <div class="crow"><span class="lbl faint">the agent stops the whole chain for a person the moment they reply</span></div></div>`;
   if(open==='how')det=`<div class="cdet">
-    ${MAIL.filter(m=>m.lim>0).map(m=>`<div class="crow">
-      <button class="cstep" data-campbox="${m.id}" aria-pressed="${!!c.boxes[m.id]}">${esc(m.adr)}</button>
-      <span class="n">${m.lim}/day · sent ${m.sent} today · warmed ${m.warm} %</span>
-      <span class="chip ${m.st[0]}">${esc(m.st[1])}</span></div>`).join('')}
-    <div class="crow"><span class="lbl faint">${esc(MAIL.find(m=>!m.lim).adr)} is your own name — a human sends from it, never a campaign</span></div></div>`;
+    ${MAIL.filter(m=>mailLim(m)>0||mailOff(m.id)).map(m=>{const st=mailState(m);return `<div class="crow">
+      <button class="cstep" data-campbox="${m.id}" aria-pressed="${!!c.boxes[m.id]&&!mailOff(m.id)}" ${mailOff(m.id)?'disabled title="Stopped by a human — it sends nothing until it is let back"':''}>${esc(m.adr)}</button>
+      <span class="n">${mailLim(m)}/day · sent ${m.sent} today · warmed ${m.warm} %</span>
+      <span class="chip ${st[0]}">${esc(st[1])}</span></div>`;}).join('')}
+    <div class="crow"><span class="lbl">no more than</span>
+      <span class="frng"><input type="text" inputmode="numeric" autocomplete="off" data-campcap="1" value="${esc(String(S.campCap||''))}" aria-label="Letters a day at most" placeholder="a day"></span>
+      <span class="n">${cap.cap?(cap.capBinds?`your cap holds: the mailboxes could carry ${int(cap.boxes)} a day`:`the mailboxes carry ${int(cap.boxes)} a day, so the cap of ${int(cap.cap)} never binds`):`empty means the mailboxes decide — ${int(cap.boxes)} a day`}</span></div>
+    <div class="crow"><span class="lbl faint">${esc(MAIL.find(m=>!m.lim).adr)} is your own name — a human sends from it, never a campaign. A limit here does not make a mailbox able to carry more: the smaller of the two wins.</span></div></div>`;
   return cards+det;}
 /* Таблица запусков: не одно число, а разбор — сколько ушло, сколько не удалось,
    сколько пропущено, и что с этим можно сделать. */
@@ -3020,7 +3059,7 @@ function campCapacity(n){
   const t=TPLBY[c.tpl], ready=C.n>0&&n>0;
   return `<div class="bnote"><span style="color:var(--accent);font-weight:600">What will happen:</span>
     <span><b>${int(n)}</b> people get “${esc(t.nm)}” by ${esc(CHAN3.find(x=>x[0]===c.chan)[1])}${c.seq.filter(s=>s.on).length>1?`, then ${c.seq.filter(s=>s.on).length-1} more touches`:''}.
-    ${C.n} mailbox${C.n===1?'':'es'} carry <b>${int(C.perDay)}</b> a day, <b>${int(C.leftToday)}</b> left today${days?` — all of it over about <b>${days}</b> day${days===1?'':'s'}`:''}.</span>
+    ${C.capBinds?`${C.n} mailbox${C.n===1?'':'es'} could carry ${int(C.boxes)} a day; <b>your cap of ${int(C.cap)}</b> is what holds`:`${C.n} mailbox${C.n===1?'':'es'} carry <b>${int(C.perDay)}</b> a day`}, <b>${int(C.leftToday)}</b> left today${days?` — all of it over about <b>${days}</b> day${days===1?'':'s'}`:''}.</span>
     <button class="btn pri" data-camprun="${c.seg||'all'}" ${ready?'':'disabled'} style="margin-left:auto"
       data-tip="${ready?'It goes out under your name':'Pick at least one mailbox first'}">Start the send</button></div>`;}
 
@@ -3449,20 +3488,36 @@ function renderOrg(){
      отправляют наши агенты, а отвечают за них наши люди. Список был в левой колонке и
      пропал, когда списки ушли из неё в рабочую область — обрезка срезала его вместе
      с деревом, и работа «держать инфраструктуру отправки живой» осталась без места. */
-  const mbad=MAIL.filter(m=>m.lim&&m.sent>=m.lim).length;
-  const mailbox=m=>`<button class="fact mb" data-mail="${m.id}" data-tip="${esc('What went out through '+m.adr+' — the feed below narrows to this mailbox')}">
-    <span class="grow"><b>mailbox ${esc(m.adr)}</b><span class="note">${esc(m.kind)} · warmed ${m.warm} %</span></span>
-    <span class="chip ${m.st[0]}">${m.lim?`${m.sent} / ${m.lim} today`:esc(m.st[1])}</span></button>`;
+  const mbad=MAIL.filter(m=>mailLim(m)&&m.sent>=mailLim(m)).length, mstop=MAIL.filter(m=>mailOff(m.id)).length;
+  const mailbox=m=>{const st=mailState(m), L=mailLim(m), open=S.mailOpen===m.id, rk=mailRisk(m), risky=!!(rk&&rk.block);
+    return `<div class="mbwrap">
+    <button class="fact mb" data-mailopen="${m.id}" aria-expanded="${open}" data-tip="${esc('Open the mailbox — its daily limit, what has gone out today, and the stop')}">
+      <span class="grow"><b>mailbox ${esc(m.adr)}</b><span class="note">${esc(m.kind)} · warmed ${m.warm} %${rk?' · '+esc(rk.why):''}</span></span>
+      <span class="chip ${st[0]}">${L?`${m.sent} / ${L} today`:esc(st[1])}</span></button>`
+    +(open?`<div class="cdet">
+      <div class="crow"><span class="lbl">domain</span><span class="n">${esc(m.dom)}${rk?` · <b class="down">${esc(rk.why)}</b> — anything else sent from here risks every address on this domain`:' · nothing against it in the delivery log'}</span></div>
+      <div class="crow"><span class="lbl">a day</span><span class="frng"><input type="text" inputmode="numeric" autocomplete="off" data-maillim="${m.id}" value="${L}" aria-label="Letters a day from ${esc(m.adr)}"></span>
+        <span class="n">sent today ${m.sent} · left ${mailLeft(m)}</span></div>
+      <div class="crow"><span class="lbl">state</span><span class="n"><span class="chip ${st[0]}">${esc(st[1])}</span></span></div>
+      <div class="crow"><span class="lbl"></span><span class="n">
+        <button class="btn ${mailOff(m.id)?'':'bad'}" data-mailstop="${m.id}">${mailOff(m.id)?'Let it send again':'Stop this mailbox'}</button>
+        <button class="lnk" data-mail="${m.id}">What went out through it</button></span></div>
+      <div class="crow"><span class="lbl faint">A stop takes effect at once: every campaign counts its capacity from the mailboxes that are still sending. Letters already gone are not recalled — nothing here can recall them.</span></div></div>`:'')
+    +`</div>`;};
+  /* Ёмкость стоит выше оргсхемы: это единственная часть этого экрана с органами
+     управления, а схема людей — описание. Прибор поймал её за сгибом при 1440×900:
+     ящик открывался, но человеку нужна была прокрутка, чтобы его найти. */
   return `<div class="org">
-    <div class="orgrow">${human(boss)}</div>
-    ${bossBots.length?`<div class="orgbots own">${bossBots.map(bot).join('')}</div>`:''}
-    <div class="orgline"></div>
-    <div class="orgcols">${reports.map(col).join('')}</div>
-    <div class="hdr">Our capacity to send${mbad?` — <b class="down">${mbad} mailbox has spent its daily limit</b>`:''}</div>
+    <div class="hdr">Our capacity to send${mstop?` — <b class="down">${mstop} stopped by a human</b>`:mbad?` — <b class="down">${mbad} mailbox has spent its daily limit</b>`:''}</div>
     <div class="facts">${MAIL.map(mailbox).join('')}</div>
     <div class="note">A mailbox sends up to its daily limit and no further: above it, mail stops
       landing instead of going out. The feed below is every send across all of them — pick
       a mailbox to narrow it to one.</div>
+    <div class="hdr">Who answers for what</div>
+    <div class="orgrow">${human(boss)}</div>
+    ${bossBots.length?`<div class="orgbots own">${bossBots.map(bot).join('')}</div>`:''}
+    <div class="orgline"></div>
+    <div class="orgcols">${reports.map(col).join('')}</div>
   </div>`;}
 
 /* =================== panel: three feeds + agents log, one uniform item =================== */
@@ -4438,7 +4493,7 @@ function openRef(k){
 }
 function logAdd(ag,ttl,st){(S.extraLogs=S.extraLogs||[]).push({ag,w:NOW,ttl,st});}
 document.addEventListener('click',e=>{
-  const b=e.target.closest('[data-fmul],[data-open],[data-side],[data-tab],[data-close],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-feeddown],[data-plus],[data-newchat],[data-agundo],[data-weekpick],[data-week],[data-calm],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-f],[data-freset],[data-fclr],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepsel],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-fmode],[data-dbsort],[data-dbmore],[data-dbkind],[data-camp],[data-camprun],[data-chan],[data-slot],[data-next],[data-nextclr],[data-addp],[data-intent],[data-pst],[data-campsel],[data-campoff],[data-campblk],[data-campset],[data-campseq],[data-campbox],[data-camprunact],[data-inwin],[data-stuck],[data-mailclear],[data-mark],[data-note],[data-notecancel],[data-ent],[data-mail],[data-common],[data-importfacts],[data-nextbn],[data-influencer],[data-sim],[data-role],[data-triopen],#fDown,#addFact,#addNote');
+  const b=e.target.closest('[data-fmul],[data-open],[data-side],[data-tab],[data-close],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-feeddown],[data-plus],[data-newchat],[data-agundo],[data-weekpick],[data-week],[data-calm],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-f],[data-freset],[data-fclr],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepsel],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-fmode],[data-dbsort],[data-dbmore],[data-dbkind],[data-camp],[data-camprun],[data-chan],[data-slot],[data-next],[data-nextclr],[data-addp],[data-intent],[data-pst],[data-campsel],[data-campoff],[data-campblk],[data-campset],[data-campseq],[data-campbox],[data-camprunact],[data-inwin],[data-stuck],[data-mailclear],[data-mailopen],[data-mailstop],[data-mark],[data-note],[data-notecancel],[data-ent],[data-mail],[data-common],[data-importfacts],[data-nextbn],[data-influencer],[data-sim],[data-role],[data-triopen],#fDown,#addFact,#addNote');
   if(!b){if(S.wkOpen&&!e.target.closest('.wkpop')){S.wkOpen=false;renderFilters();}return;}
   if(S.wkOpen&&!b.dataset.weekpick&&!b.dataset.week&&!b.dataset.calm&&!e.target.closest('.wkpop')){S.wkOpen=false;renderFilters();}
   if(b.dataset.pal)$('pal').hidden=true;
@@ -4567,6 +4622,22 @@ document.addEventListener('click',e=>{
   if(b.dataset.freset!==undefined){let wide=false;
     (FSET[b.dataset.freset]||[]).forEach(k=>{const f=FFLD[k];if(!f||f.keep)return;f.set(f.type==='tog'?false:f.type==='rng'?['','']:'');if(!f.light)wide=true;});
     if(wide)renderAll();else{renderSide();renderPanel();}return;}
+  if(b.dataset.mailopen){S.mailOpen=S.mailOpen===b.dataset.mailopen?null:b.dataset.mailopen;renderEditor();return;}
+  if(b.dataset.mailstop){const m=MAILBY[b.dataset.mailstop];S.mailOff=S.mailOff||{};
+    const rk=mailRisk(m), risky=!!(rk&&rk.block);
+    const stop=()=>{S.mailOff[m.id]=true;
+      logAdd('seller',`Mailbox ${m.adr} stopped by ${$('profile').selectedOptions[0].text} — ${mailLim(m)-m.sent} letters a day taken out of capacity`,['down','stopped by a human']);
+      renderAll();toast(`${m.adr} is stopped · W${S.t}. Campaigns now count ${int(campBoxCap(campCfg()).perDay)} a day. Logged against you.`);};
+    if(mailOff(m.id)){
+      /* Вернуть ящик, домен которого в блоклисте, — ход против домена, и он спрашивает.
+         Остановка обратима и вопроса не требует. */
+      if(risky){confirmAct({title:'Let '+m.adr+' send again?',danger:true,cta:'Let it send',
+        lines:[['Mailbox',m.adr],['Domain',m.dom],['A day',String(mailLim(m))],
+          '!'+rk.why+'. Sending from it again risks every address on '+m.dom+', including the ones people answer.',
+          'Stopping it was reversible. What a blocklist does to a domain is not.'],
+        onOk:()=>{delete S.mailOff[m.id];logAdd('seller',`Mailbox ${m.adr} let back by ${$('profile').selectedOptions[0].text} while ${m.dom} is blocklisted`,['warn','let back by a human']);renderAll();toast(`${m.adr} is sending again · W${S.t}. Logged against you.`);}});return;}
+      delete S.mailOff[m.id];renderAll();toast(`${m.adr} is sending again · W${S.t}.`);return;}
+    stop();return;}
   if(b.dataset.mail){S.mail=b.dataset.mail;S.ptab='channel';renderSide();renderPanel();return;}
   if(b.dataset.side){if(S.side===b.dataset.side&&S.layout.side){S.layout.side=false;}else{S.side=b.dataset.side;S.layout.side=true;}applyLayout();renderActivity();renderSide();return;}
   /* Провал от ограничения к роли: раздел агентов, сузленный до её агентов. */
@@ -4679,7 +4750,7 @@ document.addEventListener('click',e=>{
     /* Число в сообщении должно совпадать с тем, что человек выбрал: тост брал ёмкость
        всех ящиков, а не отмеченных, и говорил 62 в день там, где на экране стояло 37. */
     const CB=campBoxCap(c);
-    toast(`Sent: ${today} went out just now, ${n-today} queued. From ${CB.n} mailbox${CB.n===1?'':'es'} carrying ${CB.perDay} a day. Logged against you.`);
+    toast(`Sent: ${today} went out just now, ${n-today} queued. ${CB.capBinds?`Held to ${CB.perDay} a day by your cap, not by the mailboxes`:`From ${CB.n} mailbox${CB.n===1?'':'es'} carrying ${CB.perDay} a day`}. Logged against you.`);
   }
   if(b.dataset.camp){const s=b.dataset.camp;
     openTab('camp',s,'Campaign · '+(s==='all'?'all segments':segBy(s).name));
@@ -4834,6 +4905,23 @@ document.addEventListener('click',e=>{
 document.addEventListener('input',e=>{
   /* Диапазон — на каждом нажатии, у того поля, в котором набирают. Фокус возвращается
      туда же, откуда ушёл, и соседнее поле больше не перехватывает ввод. */
+  const dm=(e.target.dataset||{}).maillim;
+  if(dm){const raw=e.target.value.replace(/[^0-9]/g,'').slice(0,4);
+    if(raw!==e.target.value)e.target.value=raw;
+    const c=e.target.selectionStart;
+    S.mailLim=S.mailLim||{}; S.mailLim[dm]=raw===''?MAILBY[dm].lim:+raw;
+    renderEditor();
+    const el=document.querySelector(`[data-maillim="${dm}"]`);
+    if(el){el.focus();try{const q=Math.min(c==null?el.value.length:c,el.value.length);el.setSelectionRange(q,q);}catch(_){}}
+    return;}
+  if((e.target.dataset||{}).campcap!==undefined){const raw=e.target.value.replace(/[^0-9]/g,'').slice(0,5);
+    if(raw!==e.target.value)e.target.value=raw;
+    const c=e.target.selectionStart;
+    S.campCap=raw===''?null:+raw;
+    renderEditor();
+    const el=document.querySelector('[data-campcap]');
+    if(el){el.focus();try{const q=Math.min(c==null?el.value.length:c,el.value.length);el.setSelectionRange(q,q);}catch(_){}}
+    return;}
   const dr=(e.target.dataset||{}).frng;
   if(dr){const [k,i]=dr.split(':'),f=FFLD[k];
     if(f){const raw=e.target.value.replace(/[^0-9]/g,'').slice(0,6);
