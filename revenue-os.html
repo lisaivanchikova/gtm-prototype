@@ -1253,7 +1253,12 @@ const AGROLE={scout:'SDR',qual:'SDR',seller:'SDR',pricer:'AE',service:'CSM'};
 function agentsOfRole(r){return AGENTS.filter(a=>AGROLE[a.id]===r);}
 function roleBroken(r){return agentsOfRole(r).filter(a=>a.state==='paused'||a.state==='error'||a.state==='awaiting');}
 const KNOB=['Suggest','Approve','Auto'];
-const STOPS={scout:['never writes to anyone who opted out; \u2264 3 touches a week',0],qual:['never passes a deal on without an answer about price',0],seller:['never promises anything outside the catalogue',2],pricer:['a discount above 12 % goes to a human',1],service:['never cuts a client off for non-payment on its own',0]};
+const STOPS={scout:['never writes to anyone who opted out; \u2264 3 touches a week'],qual:['never passes a deal on without an answer about price'],seller:['never promises anything outside the catalogue'],pricer:['a discount above 12 % goes to a human'],service:['never cuts a client off for non-payment on its own']};
+/* Сколько раз сработал запрет — факт журнала, а не число рядом с текстом правила.
+   Рядом стояло прибитое: у Pricer «Never-do fired 2×» при одной строке в логе, у
+   Qualifier «0×» против «1 outside its rule» в таблице (HEAD и GTM Eng, 09.10).
+   Один факт — один источник. */
+function stopsFired(id){return (LOGS.concat(S.extraLogs||[])).filter(l=>l.ag===id&&l.st&&l.st[0]==='down').length;}
 const JOBS=[['','all jobs'],['hipaa','pass a HIPAA audit'],['ftc','meet FTC Safeguards'],['dfm','hand off IT entirely'],['price','cut the IT bill']];
 function jobOf(a){if(a.seg==='dfm')return 'dfm';if(a.seg==='price')return 'price';return /Dental|Clinic|Pediatrics|Orthodontics|Physical/.test(a.name)?'hipaa':'ftc';}
 const ASTATE={active:['up','● running'],awaiting:['warn','◐ waiting on a human'],paused:['down','■ stopped'],error:['down','▲ error']};
@@ -1343,7 +1348,7 @@ function replyClass(txt,act){
   return null;}
 const MEET=[{id:'mt1',acc:'a0',who:'Dr. Jonathan Moss',w:38,when:'Thu 2:00 pm',ttl:'HIPAA dashboard demo \u00b7 30 min',st:['up','on the calendar']},
             {id:'mt2',acc:'a1',who:'Tom Hale',w:38,when:'not scheduled',ttl:'Price walkthrough: $1,400 freelancer vs $3,170 with an SLA',st:['warn','awaiting a yes']}];
-const BUILD='Oct 9, 11:56';   /* отметка сборки: единственное место, где она живёт */
+const BUILD='Oct 9, 12:44';   /* отметка сборки: единственное место, где она живёт */
 const S={t:NOW,seg:null,downOnly:false,sel:null,level:'segment',K:1,
   knob:{scout:2,qual:2,seller:2,pricer:1,service:1},profile:'head',
   side:'tree',ent:'seg',agView:null,mapAcc:null,bn:0,sent:{},skin:'rev',ef:{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false},ptab:'market',job:'',stF:'',stage:'',primary:'map',source:null,orgOpen:false,sopAcc:'a0',lastRef:{},tabs:[{id:'map',kind:'map',ref:null,title:'Map'},{id:'acc',kind:'org',ref:'a0',title:'Account'},{id:'person',kind:'msg',ref:'p-hale',title:'Person'},{id:'flow',kind:'sop',ref:'a0',title:'Workflow'},{id:'doc',kind:'doc',ref:'d-msa',title:'Document'},{id:'agent',kind:'aglist',ref:null,title:'Agent'}],tab:'map',
@@ -1718,7 +1723,11 @@ function renderSkins(){
 function renderActivity(){
   $('activity').innerHTML=ENTS.map(([k,,ic])=>{
     const n=entBadge(k), on=S.ent===k&&S.layout.side;
-    return `<button data-ent="${k}" aria-pressed="${on}" aria-label="${esc(ENTNM[k])}">${ICONS[ic]}<span class="cap">${esc(ENTNM[k])}</span>${n?`<span class="badge">${n>99?'99+':n}</span>`:''}</button>`;}).join('')
+    /* Число на бейдже — строки ленты, которые просят взгляда, а не количество
+       объектов. Ходок прочитал «Agents 7» как семь агентов, когда их пять. Теперь
+       число называет себя — и диктору, и наведением. */
+    const cnt=n?` · ${n} in the feed need a look`:'';
+    return `<button data-ent="${k}" aria-pressed="${on}" aria-label="${esc(ENTNM[k]+cnt)}"${n?` data-tip="${esc(n+' thing'+(n===1?'':'s')+' in the '+ENTNM[k].toLowerCase()+' feed need a look — not the number of '+ENTNM[k].toLowerCase())}"`:''}>${ICONS[ic]}<span class="cap">${esc(ENTNM[k])}</span>${n?`<span class="badge">${n>99?'99+':n}</span>`:''}</button>`;}).join('')
     +`<span class="sp"></span><button data-side="profile" aria-pressed="${S.side==='profile'}" aria-label="Profile" data-tip="Signed in as ${esc($('profile').selectedOptions[0].text)}">${ICONS.account}<span class="cap">Profile</span></button>`;
 }
 function applyLayout(){
@@ -2490,7 +2499,14 @@ function renderFormula(){
   /* Четыре работы Head живут в этой строке, а не в центре: спуститься от упавшей
      цифры до причины, сравнить сценарии, посчитать что будет если не менять,
      отмотать назад. Поэтому множитель — не надпись, а вход. */
-  const m=(n,v,d,cls,key)=>`<button class="fm ${cls||''}" data-fmul="${key||n}"><i>${n}</i><span class="v">${ap}${v}</span>${d?`<b>${d}</b>`:''}</button>`;
+  /* Две цифры читались как невозможные: «Retention 100.0 % ▼ 1.7 pp» и
+     «Conv 0.0 % ▼ 271.4 pp» (CSM и SDR, 09.10). Арифметика верна, врала подпись:
+     у обеих величин знаменатель не тот, что подразумевает слово. Удержание —
+     денежное и выше 100 % при продлении с ростом; конверсия считает закрытия этих
+     четырёх недель против первых касаний этих же четырёх недель, а это разные
+     группы, и закрытия приходят от касаний более старых. Теперь множитель говорит,
+     из чего он сложен. */
+  const m=(n,v,d,cls,key,tip)=>`<button class="fm ${cls||''}" data-fmul="${key||n}"${tip?` data-tip="${esc(tip)}"`:''}><i>${n}</i><span class="v">${ap}${v}</span>${d?`<b>${d}</b>`:''}</button>`;
   const dlt=(x,u,eps)=>{const s=dd(x,u,eps);return s&&s.trim()?s:'';};
   $('formula').innerHTML =
     /* Итог — тоже вход, и самый частый: смотришь на цифру и спрашиваешь, куда она
@@ -2498,11 +2514,14 @@ function renderFormula(){
     `<button class="fres" data-fmul="arr" data-tip="Where this ends up if nothing changes \u2014 and the ways to change it"><i>${S.t>NOW?'ARR forecast':'ARR'}</i><span class="v">${ap}${usd(F.end)}</span><b>${P.end?dlt(F.end/P.end-1,'%',.004):''}</b></button>`
     +`<span class="fo">=</span>`
     +m(`W${S.t-WIN}`,usd(F.start),'','','week')+`<span class="fo">\u00d7</span>`
-    +m('Retention',pct(F.ret),dlt(F.ret-P.ret,'pp',.002),'','ret')
+    +m('Retention',pct(F.ret),dlt(F.ret-P.ret,'pp',.002),'','ret',
+       'Money kept, not accounts kept: what accounts active four weeks ago are worth now, against what they were worth then. A renewal that raises the contract pushes it above 100 %.')
     +`<span class="fo">+</span>`
     +m(S.seg?segBy(S.seg).name:'Segment',int(F.N),'','','seg')+`<span class="fo">\u00d7</span>`
-    +m('Reach',pct(F.reach,3),dlt(F.reach-P.reach,'pp',.00001),'','reach')+`<span class="fo">\u00d7</span>`
-    +m('Conv',pct(F.conv),dlt(F.conv-P.conv,'pp',.005),'lim','conv')+`<span class="fo">\u00d7</span>`
+    +m('Reach',pct(F.reach,3),dlt(F.reach-P.reach,'pp',.00001),'','reach',
+       'First touches made in these four weeks, against every account in the segment. One touch per account, however many letters it took.')+`<span class="fo">\u00d7</span>`
+    +m('Conv',pct(F.conv),dlt(F.conv-P.conv,'pp',.005),'lim','conv',
+       'Accounts that went live in these four weeks, against first touches made in these four weeks. Two different groups — the deals that closed were touched earlier — so this can pass 100 % and is not a probability.')+`<span class="fo">\u00d7</span>`
     +m('ACV',usd(F.acv),dlt(P.acv?F.acv/P.acv-1:0,'%',.02),'','acv');
 }
 /* «А сколько конкретно вот этот человек внутри юрлица мне принёс?» (Николай, 25.09, 57:40).
@@ -2996,7 +3015,7 @@ function docPaper(d,a){
       <h3>1. Services</h3>${svc}
       <h3>2. Price</h3>${usdx(a.acv)} per year (${usdx(mo)} per month), invoiced monthly, payable within 15 days.
       <h3>3. Service level</h3>99.5 % uptime, response to a critical incident within 1 hour.
-      <h3>7. Liability</h3>Limited to the fees paid over the preceding 12 months.`;
+      <h3>4. Liability</h3>Limited to the fees paid over the preceding 12 months.`;
   if(d.kind==='Offer v1'||d.kind==='Offer v2')return `<b>${esc(d.kind)}</b> from Bobroff MSP LLC to ${nm}.
       <h3>1. Scope</h3>${svc}
       <h3>2. Price</h3>${disc?`${usdx(net)} per year (${usdx(net/12)} per month) — list ${usdx(a.acv)}, less a discount of ${disc} %.`:`${usdx(a.acv)} per year (${usdx(mo)} per month), invoiced monthly.`}
@@ -3305,7 +3324,7 @@ function renderAgentList(){
     <div class="bnote"><span class="faint" style="font-size:11px">Everything these agents did without you is in the feed below.</span></div></div>`;}
 function renderAgentTab(id){const g=agBy(id),own=OURS.find(o=>o.id===g.owner);const logs=LOGS.concat(S.extraLogs||[]).filter(l=>l.ag===id).sort((a,b)=>b.w-a.w);
   return `<div class="doc"><div class="doch">${agAv(g.id,'big')}<div><h2>${g.nm}</h2><div class="muted">${g.title} · ${esc(own.nm)} answers for it · <span class="chip ${ASTATE[g.state][0]}">${ASTATE[g.state][1]}</span></div><div class="note">An agent is a colleague: a role, a face, a log. Same form as a person — do not mistake one for the other.</div></div></div>
-    <div class="kv"><div><span>Autonomy</span><b>${KNOB[S.knob[id]]}</b></div><div><span>Runs stages</span><b>${g.owns.map(x=>STAGE[x]).join(', ')}</b></div><div><span>Never-do fired</span><b>${STOPS[id][1]}×</b></div><div><span>Answers for it</span><b>${esc(own.nm.split(' ')[0])}</b></div></div>
+    <div class="kv"><div><span>Autonomy</span><b>${KNOB[S.knob[id]]}</b></div><div><span>Runs stages</span><b>${g.owns.map(x=>STAGE[x]).join(', ')}</b></div><div><span>Never-do fired</span><b>${stopsFired(id)}×</b></div><div><span>Answers for it</span><b>${esc(own.nm.split(' ')[0])}</b></div></div>
     <div class="hdr">Autonomy — how much freedom</div><div class="btns">${KNOB.map((k,i)=>`<button class="btn ${S.knob[id]===i?'pri':''}" data-knob="${id}:${i}">${k}</button>`).join('')}</div>
     <div class="hdr">Never-do — where that freedom ends</div><div class="paper">Never: ${STOPS[id][0]}.</div>
     ${g.state==='paused'?`<div class="btns"><button class="btn" data-tri="t-seller|resume|Resume">Put it back to work</button><span class="note">Stopped by a hard stop. ${esc(own.nm)} decides.</span></div>`:''}
@@ -3544,7 +3563,7 @@ function renderEcard(){
     const cnt=k=>rows.filter(d=>d.k===k).length;
     const ok=cnt('ok'),bad=cnt('hard')+cnt('soft')+cnt('block'),out=cnt('optout'),spam=cnt('spam');
     h=`<div class="top"><span class="av sq big">✉</span><div><h3>Channel · what landed</h3><div class="sub">four weeks of sending across every mailbox</div></div></div>`
-      +params([['Sent',int(n)],['Landed',pct(n?ok/n:0,0)],['Bounced',int(bad)],['Opted out',int(out)],['Complaints',int(spam)]])
+      +params([['Sent · 4 weeks',int(n)],['Landed',pct(n?ok/n:0,0)],['Bounced',int(bad)],['Opted out',int(out)],['Complaints',int(spam)]])
       +`<div class="hdr">By mailbox</div>`+MAIL.map(m=>{const r=rows.filter(d=>d.mail===m.id);const o2=r.filter(d=>d.k==='ok').length;
         /* Прогрев и дневной лимит — это ёмкость, и она стоит в центре, на странице «мы».
            Лента отвечает за историю: сколько через этот ящик дошло. Одна цифра — одно место. */
@@ -3565,7 +3584,7 @@ function renderEcard(){
       +params([['Stage',`<span class="${mcls(m)}">${arrow(m)} ${e?STAGE[e.s]:'—'}</span>`],['ACV',usdAcv(a)],['Stuck',d+'d'],['People',peopleOf(a).length]])
       +(S.primary==='sop'&&!S.flowList?'':`<button class="btn" data-open="sop:${a.id}">Open the workflow</button>`);}
   else if(tab==='people'){h=`<div class="top"><span class="av big">☺</span><div><h3>Client people</h3><div class="sub">people speak in speech acts: request, assertion, promise, declaration, expressive, silence</div></div></div>`;}
-  else {h=`<div class="top"><span class="av bot big">${ICONS.bot}</span><div><h3>The machine</h3><div class="sub">5 agents · 3 people · a named human answers for each agent</div></div></div>`+params([['Running',AGENTS.filter(a=>a.state==='active').length],['Waiting on a human',AGENTS.filter(a=>a.state==='awaiting').length],['Stopped',AGENTS.filter(a=>a.state==='paused').length],['Alarms',AGENTS.filter(a=>a.state==='paused').length]]);}
+  else {h=`<div class="top"><span class="av bot big">${ICONS.bot}</span><div><h3>The machine</h3><div class="sub">${AGENTS.length} agents · ${OURS.length} people · a named human answers for each agent</div></div></div>`+params([['Running',AGENTS.filter(a=>a.state==='active').length],['Waiting on a human',AGENTS.filter(a=>a.state==='awaiting').length],['Stopped',AGENTS.filter(a=>a.state==='paused').length],['Rules fired',AGENTS.reduce((s,a)=>s+stopsFired(a.id),0)]]);}
   $('ecard').innerHTML=h;}
 function denseRows(items){let last='',h='';
   for(const it of items){const d=/h$|now/.test(it.when)?'this week':(parseInt(it.when)||0)<=7?'last week':'earlier';
@@ -3896,7 +3915,9 @@ function renderAgent(){
      своего человека. Выдумывать им имя нельзя, поэтому подписываемся ролью. */
   const me={head:'Nikolai Bobrov',sdr:'Dana Whitfield',csm:'Ops director'}[p]||WHOM[p]||'Me';
   const turnA=(html)=>`<div class="turn"><div class="by"><span class="av bot">${ICONS.bot}</span>My agent <span class="faint">· ${who}</span></div><div class="bodyt">${html}</div></div>`;
-  const nOpen=tri.filter(x=>!S.tri[x.id]).length;
+  /* Считалось по всей очереди, а открывалась только своя: «Open the queue · 2»
+     открывало три пункта (AE, 09.10). Счёт и список — один набор. */
+  const nOpen=tri.filter(x=>(x.own===S.profile||!WHOM[x.own])&&!S.tri[x.id]).length;
   $('agbody').innerHTML=turnA(`<span>The thing that matters right now is one constraint. The rest can wait.</span>
     <div class="focus"><span class="k">Constraint · TOC</span><span class="t">${f.t}</span>
       ${fever()}
@@ -4659,7 +4680,10 @@ document.addEventListener('click',e=>{
     logAdd(id,`Dial: ${KNOB[S.knob[id]]} → ${KNOB[+k]} (${$('profile').selectedOptions[0].text})`,['flat','edited']);S.knob[id]=+k;
     S.ptab='agents';S.layout.panel=true;applyLayout();renderAll();return;}
   if(b.dataset.tri){const [id,k,label]=b.dataset.tri.split('|');
-    if(k==='knob'){logAdd('qual','Dial: Auto → Approve (approved by Nikolai)',['flat','edited']);S.knob.qual=1;}
+    /* Одна и та же перемена подписывалась «(GTM Eng)» через кнопку и «(approved by
+       Nikolai)» через панель агента (GTM Eng, 09.10). Подпись берётся оттуда же,
+       откуда её берёт кнопка: из того, кто вошёл. */
+    if(k==='knob'){logAdd('qual',`Dial: ${KNOB[S.knob.qual]} → ${KNOB[1]} (${$('profile').selectedOptions[0].text})`,['flat','edited']);S.knob.qual=1;}
     if(k==='resume'){agBy('seller').state='active';logAdd('seller','Put back to work after the alarm was reviewed',['up','decision']);}
     if(k.startsWith('rule:')){const [,ag,rid]=k.split(':');const r=(S.rules[ag]||[]).find(x=>x.id===rid);if(r){r.on=true;logAdd(ag,`Rule \u201c${r.t}\u201d turned on (${$('profile').selectedOptions[0].text})`,['up','edited']);}}
     if(k.startsWith('fact:')){const [,nid,v]=k.split(':');S.facts[nid]={0:v,1:v};}
