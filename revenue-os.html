@@ -1232,10 +1232,36 @@ const OURS=[
   {id:'h-sdr',nm:'Dana Whitfield',title:'SDR \u00b7 first touch and follow-up',kind:'human',boss:'h-nik'},
   {id:'h-ops',nm:'Ops director',title:'service and SLA',kind:'human',boss:'h-nik'},
   {id:'h-law',nm:'Counsel (external)',title:'contracts and clauses',kind:'human',boss:'h-nik'}];
+/* Услуга. Её не было как предмета: цена жила одним числом `acv` у юрлица, список
+   позиций — одной фразой внутри документа, лимит скидки — строкой «12 %» в четырёх
+   местах. Поэтому две работы AE были нерешаемы в принципе: «сделай оффер на 40 мест
+   с круглосуточной поддержкой и миграцией почты» и «можем ли мы такое обещать».
+   При этом система уже ссылалась на каталог, которого нет: «promised a Dentrix
+   integration — outside the catalogue» (09.10).
+   Единица — место, потому что так считает договор: цена за место в месяц. */
+const DISCMAX=12;
+const CAT=[
+  {id:'mon', nm:'24/7 monitoring',            unit:'seat/mo', price:38, in:true,  note:'agent watches, human is paged'},
+  {id:'help',nm:'Business-hours helpdesk',    unit:'seat/mo', price:41, in:true,  note:'8:00–18:00 local'},
+  {id:'ahd', nm:'After-hours helpdesk',       unit:'seat/mo', price:17, in:false, note:'extra line, not in the base price'},
+  {id:'bkp', nm:'Backup to our storage',      unit:'seat/mo', price:12, in:true,  note:'daily, 30 days kept'},
+  {id:'hip', nm:'HIPAA controls with an access log', unit:'seat/mo', price:9, in:true, note:'kept for audit'},
+  {id:'mig', nm:'Email migration',            unit:'project', price:2400,in:false,note:'one-off, quoted per mailbox count'},
+  {id:'ons', nm:'On-site visit',              unit:'visit',   price:320, in:false,note:'scheduled, not on demand'},
+  {id:'sla1',nm:'1-hour response SLA',        unit:'seat/mo', price:6,  in:true,  note:'critical incidents only'}];
+/* Чего мы не обещаем. Это не пустой список — это ответ на вопрос «можем ли мы такое»,
+   и он нужен раньше, чем новая позиция каталога. */
+const CATNO=[
+  ['Backup to the client’s own storage','we do not take responsibility for hardware we do not run; our backup goes to our storage'],
+  ['Dentrix or any PMS integration','no contract covers it, and the never-do names it by name'],
+  ['Response faster than one hour','the SLA we sign is one hour; a tighter one has never been priced'],
+  ['On-demand on-site visits','visits are scheduled; the price list has no on-demand line']];
+const catIn=()=>CAT.filter(x=>x.in);
+const catBySeat=()=>catIn().filter(x=>x.unit==='seat/mo').reduce((s,x)=>s+x.price,0);
 /* наша сторона в СОП: кто у нас отвечает на каком этапе. Берётся из OURS. */
 const OURSIDE=[
   {stage:2,nm:'Dana Whitfield',what:'owes the follow-up',wait:'the follow-up is on her'},
-  {stage:3,nm:'Nikolai Bobrov',what:'approves a discount above 12 %',wait:'waiting on his approval',warn:1},
+  {stage:3,nm:'Nikolai Bobrov',what:`approves a discount above ${DISCMAX} %`,wait:'waiting on his approval',warn:1},
   {stage:4,nm:'Lisa',what:'signing authority',wait:'waiting on her signature',warn:1,ref:'doc:d-msa'},
   {stage:4,nm:'Nikolai Bobrov',what:'the revenue owner signs',wait:'waiting on his signature',warn:1,ref:'doc:d-msa'},
   {stage:5,nm:'Ops director',what:'owns the SLA',wait:'the SLA is on him'}];
@@ -1253,7 +1279,7 @@ const AGROLE={scout:'SDR',qual:'SDR',seller:'SDR',pricer:'AE',service:'CSM'};
 function agentsOfRole(r){return AGENTS.filter(a=>AGROLE[a.id]===r);}
 function roleBroken(r){return agentsOfRole(r).filter(a=>a.state==='paused'||a.state==='error'||a.state==='awaiting');}
 const KNOB=['Suggest','Approve','Auto'];
-const STOPS={scout:['never writes to anyone who opted out; \u2264 3 touches a week'],qual:['never passes a deal on without an answer about price'],seller:['never promises anything outside the catalogue'],pricer:['a discount above 12 % goes to a human'],service:['never cuts a client off for non-payment on its own']};
+const STOPS={scout:['never writes to anyone who opted out; \u2264 3 touches a week'],qual:['never passes a deal on without an answer about price'],seller:['never promises anything outside the catalogue'],pricer:[`a discount above ${DISCMAX} % goes to a human`],service:['never cuts a client off for non-payment on its own']};
 /* Сколько раз сработал запрет — факт журнала, а не число рядом с текстом правила.
    Рядом стояло прибитое: у Pricer «Never-do fired 2×» при одной строке в логе, у
    Qualifier «0×» против «1 outside its rule» в таблице (HEAD и GTM Eng, 09.10).
@@ -1277,7 +1303,7 @@ const RULES0={
          {id:'p2',t:'no more than 3 touches a week',on:true},
          {id:'p3',t:'for a warm contact \u2014 draft for a human, not a send',on:true,lock:'reputation'}],
  pricer:[{id:'o1',t:'price from the segment price list',on:true},
-         {id:'o2',t:'a discount above 12 % goes to a human',on:true,lock:'money'},
+         {id:'o2',t:`a discount above ${DISCMAX} % goes to a human`,on:true,lock:'money'},
          {id:'o3',t:'the \u201cnot an offer until countersigned\u201d clause',on:false,why:'counsel asked for it in the template'}],
  service:[{id:'v1',t:'first value in 7 days or less',on:true},
           {id:'v2',t:'never cut a client off for non-payment alone',on:true,lock:'money'}]};
@@ -1348,7 +1374,7 @@ function replyClass(txt,act){
   return null;}
 const MEET=[{id:'mt1',acc:'a0',who:'Dr. Jonathan Moss',w:38,when:'Thu 2:00 pm',ttl:'HIPAA dashboard demo \u00b7 30 min',st:['up','on the calendar']},
             {id:'mt2',acc:'a1',who:'Tom Hale',w:38,when:'not scheduled',ttl:'Price walkthrough: $1,400 freelancer vs $3,170 with an SLA',st:['warn','awaiting a yes']}];
-const BUILD='Oct 9, 12:44';   /* отметка сборки: единственное место, где она живёт */
+const BUILD='Oct 9, 12:58';   /* отметка сборки: единственное место, где она живёт */
 const S={t:NOW,seg:null,downOnly:false,sel:null,level:'segment',K:1,
   knob:{scout:2,qual:2,seller:2,pricer:1,service:1},profile:'head',
   side:'tree',ent:'seg',agView:null,mapAcc:null,bn:0,sent:{},skin:'rev',ef:{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false},ptab:'market',job:'',stF:'',stage:'',primary:'map',source:null,orgOpen:false,sopAcc:'a0',lastRef:{},tabs:[{id:'map',kind:'map',ref:null,title:'Map'},{id:'acc',kind:'org',ref:'a0',title:'Account'},{id:'person',kind:'msg',ref:'p-hale',title:'Person'},{id:'flow',kind:'sop',ref:'a0',title:'Workflow'},{id:'doc',kind:'doc',ref:'d-msa',title:'Document'},{id:'agent',kind:'aglist',ref:null,title:'Agent'}],tab:'map',
@@ -1980,7 +2006,14 @@ function allEntities(){
     ...ACC.filter(a=>stateAt(a,S.t)).map(a=>({k:'acc:'+a.id,t:a.name,ty:`account · ${a.city}, ${a.st}`})),
     ...Object.values(PEOPLE).map(p=>({k:'person:'+p.id,t:p.nm,ty:'person · '+ACCBY[p.acc].name})),
     ...Object.entries(DOCS).map(([id,d])=>({k:'doc:'+id,t:d.kind+' · '+ACCBY[d.acc].name,ty:'document'})),
-    ...AGENTS.map(a=>({k:'agent:'+a.id,t:a.nm,ty:'agent'})),{k:'us',t:'Bobroff MSP (us)',ty:'our org chart'}];}
+    ...AGENTS.map(a=>({k:'agent:'+a.id,t:a.nm,ty:'agent'})),{k:'us',t:'Bobroff MSP (us)',ty:'our org chart'},
+    /* Прайс-лист находится поиском, иначе предмет есть, а входа к нему нет: вопрос
+       «можем ли мы такое обещать» задают не стоя в карточке агента. Ищется и по
+       словам того, чего мы не обещаем, — именно их называет клиент. */
+    {k:'price:1',t:'Price list — what we sell and what we never promise',
+     ty:'our paper · '+catIn().length+' lines in the base price · '+CATNO.length+' things not offered'},
+    ...CAT.map(x=>({k:'price:1',t:x.nm,ty:'price list · '+(x.in?'in the base price':'extra line')+' · $'+x.price+' '+x.unit})),
+    ...CATNO.map(([nm])=>({k:'price:1',t:nm,ty:'price list · not offered'}))];}
 /* =================== editor: tabs =================== */
 /* Пять рабочих областей закреплены навсегда. «Они постоянно висят… области просто так
    не исчезают и не появляются» (Николай, 06.10, Telegram). Каждая помнит свой последний
@@ -1988,7 +2021,7 @@ function allEntities(){
 /* Агент — не физлицо. Вкладка «Person · Scout» прямо врала: нажимаешь зону Agents,
    открывается вкладка человека с агентом внутри. «Мне это не нравится, это путает»
    (Лиза, 08.10). У агентов своя область; People остаётся только за людьми. */
-const VIEWOF={map:'map',today:'map',replies:'person',sop:'flow',camp:'flow',flowlist:'flow',db:'acc',org:'acc',msg:'person',agent:'agent',ourp:'agent',aglist:'agent',doc:'doc',draft:'doc',news:'doc'};
+const VIEWOF={map:'map',today:'map',replies:'person',sop:'flow',camp:'flow',flowlist:'flow',db:'acc',org:'acc',msg:'person',agent:'agent',ourp:'agent',aglist:'agent',doc:'doc',draft:'doc',news:'doc',price:'doc'};
 function setView(kind,id){const v=VIEWOF[kind]; if(!v)return null;
   const tb=S.tabs.find(x=>x.id===v); if(v!=='map'){tb.kind=kind;tb.ref=id;}
   /* Область Agent делят зона Agents и наши люди; область Account — юрлица и «мы».
@@ -2004,7 +2037,7 @@ function openTab(kind,id,title){const v=setView(kind,id); if(!v)return; S.tab=v;
    Хозяин один — центр. Зона ведёт в него, фильтры и лента идут за ним. */
 const ENTVIEW={seg:'map',acc:'acc',ppl:'person',flow:'flow',doc:'doc',ag:'agent'};
 const ENTKIND={seg:['map','today'],acc:['org','db'],ppl:['msg','replies'],flow:['sop','camp','flowlist'],
-               doc:['doc','draft','news'],ag:['agent','ourp','aglist']};
+               doc:['doc','draft','news','price'],ag:['agent','ourp','aglist']};
 /* Ступень карты — тоже предмет: пузыри сегментов, точки юрлиц, люди вокруг одного. */
 const MAPENT={segment:'seg',accounts:'acc',people:'ppl'};
 /* Куда ведёт зона, если в её области лежит чужое. */
@@ -2040,7 +2073,7 @@ function viewLabel(t){
   if(t.id==='person')return ['Person', t.kind==='replies'?'replies':cut((personById(t.ref)||{}).nm)];
   if(t.id==='agent')return ['Agent', t.kind==='aglist'?'all':t.kind==='ourp'?cut((OURS.find(o=>o.id===t.ref)||{}).nm):cut((agBy(t.ref)||{}).nm)];
   if(t.id==='flow')return ['Workflow', t.kind==='flowlist'?'all':t.kind==='camp'?(t.ref&&t.ref!=='all'?cut((segBy(t.ref)||{}).name):'market'):cut((ACCBY[t.ref]||{}).name)];
-  return ['Document', t.kind==='draft'?'draft':t.kind==='news'?'fact':(t.ref&&DOCS[t.ref]?DOCS[t.ref].kind:'none')];}
+  return ['Document', t.kind==='draft'?'draft':t.kind==='news'?'fact':t.kind==='price'?'price list':(t.ref&&DOCS[t.ref]?DOCS[t.ref].kind:'none')];}
 function renderTabs(){
   /* Один знак на один тип, одинаковый везде (решение 8). Полоска вкладок держала
      собственный набор текстовых символов — другой, чем на карте, в списках и
@@ -2061,6 +2094,7 @@ function renderSource(t){if(t.kind==='ourp')return renderOurPerson(t.ref);
   if(t.kind==='org')return t.ref==='us'?renderOrg():renderAccView(ACCBY[t.ref]);
   if(t.kind==='replies')return renderReplies();
   if(t.kind==='draft')return renderDraft(t.ref);
+  if(t.kind==='price')return renderPriceList();
   if(t.kind==='doc'){if(!t.ref||!DOCS[t.ref]){const a=ACCBY[S.docEmptyAcc]||ACCBY[S.mapAcc];
     return `<div class="doc"><div class="doch"><div><h2>${a?esc(a.name):'No document'}</h2><div class="muted">no paper on record</div></div></div>
       <div class="note">Nothing has been signed, sent or billed here yet. The first document appears when the deal reaches an offer.</div></div>`;}
@@ -3010,7 +3044,9 @@ function docFacts(d,a){
 }
 function docPaper(d,a){
   const nm=esc(a.name), mo=a.acv/12, disc=docDisc(d), net=a.acv*(1-disc/100), tail=docTail(d.ttl), no=docNo(d);
-  const svc=`Managed IT: 24/7 monitoring, backup, HIPAA controls, support for ${a.emp} seats.`;
+  /* Состав был фразой в теле документа и расходился с тем, что мы продаём. Теперь
+     строки берутся из каталога — и в оффере видно, из чего он сложен. */
+  const svc=`Managed IT for ${a.emp} seats — ${catIn().map(x=>x.nm).join('; ')}.`;
   if(d.kind==='MSA')return `<b>Master Services Agreement</b> between Bobroff MSP LLC and ${nm}.
       <h3>1. Services</h3>${svc}
       <h3>2. Price</h3>${usdx(a.acv)} per year (${usdx(mo)} per month), invoiced monthly, payable within 15 days.
@@ -3071,6 +3107,7 @@ function renderDoc(id){const d=DOCS[id],a=ACCBY[d.acc],st=S.docs[id]||{};const P
     <div class="kv">${docFacts(d,a).map(([k,v])=>`<div><span>${k}</span><b>${v}</b></div>`).join('')}</div>
     ${`<div class="hdr">Where it stands</div><div class="signers">${signers.map((s,i)=>`<div class="signer">${(i===2?agAv('pricer'):face(s[0],'',i===1))}<div class="grow"><div>${esc(s[0])}</div><div class="note">${s[1]}</div></div><span class="chip ${s[2]==='signed'?'up':s[2]==='—'?'flat':'warn'}">${s[2]}</span></div>`).join('')}</div>`}
     <div class="paper" id="paper">${docPaper(d,a)}</div>
+    ${/Offer|MSA/.test(d.kind)?`<div class="btns"><button class="btn alt" data-open="price:1" data-tip="What we sell, what costs extra, and what we never promise — this paper carries its own price">Open the price list</button></div>`:''}
     <div class="btns cact">${draftable?`<button class="btn" data-edit="1">Edit</button>`:`<button class="btn" disabled title="${done?'A signed document is not edited \u2014 a new version is issued':'Sent to the client \u2014 changing it here would not change their copy'}">Edit</button>`}${isMSA?`<button class="btn pri" data-sign="${id}" ${canSign&&!st.us?'':'disabled'}>Sign as Nikolai Bobrov</button>`:''}${d.kind==='Offer v2'?`<button class="btn good" data-approve="${id}">Approve the agent’s draft</button><button class="btn bad" data-reject="${id}">Send it back to the agent</button>`:''}</div>
     <div class="note">${isMSA?(canSign?'A signature is irreversible: only a human with the authority can give it. The agent prepares, the agent does not sign.':'This profile has no signing authority. A signature is the revenue owner\u2019s, and only theirs \u2014 switch to that profile to give it.'):'Opened from the account feed. An agent’s edits stay a draft until a human approves them.'}</div></div>`;}
 /* JOB-024: «А сколько конкретно вот этот человек внутри юрлица мне принёс? Вот там три
@@ -3092,6 +3129,33 @@ function personWorth(pid){
   else if(act.act==='assertion')eff={c:'flat',l:'setting the terms'};
   return {p,a,money,eff};
 }
+/* Прайс-лист — наша бумага, и единственная, у которой нет юрлица: её цитирует каждый
+   оффер. Поэтому она живёт в зоне Documents как вид, а не как документ в DOCS: у всех
+   записей там есть `.acc`, и подделывать его было бы той же ложью. */
+function renderPriceList(){
+  const seat=catBySeat();
+  const line=x=>`<tr><td>${esc(x.nm)}</td><td class="num">${x.unit==='seat/mo'?'$'+x.price:usdx(x.price)}</td>
+    <td>${esc(x.unit==='seat/mo'?'per seat, per month':x.unit==='project'?'per project':'per visit')}</td>
+    <td><span class="chip ${x.in?'up':'warn'}">${x.in?'in the base price':'extra line'}</span></td>
+    <td class="note">${esc(x.note)}</td></tr>`;
+  return `<div class="doc"><div class="doch"><span class="av sq big">$</span><div><h2>Price list</h2>
+      <div class="muted">Bobroff MSP LLC · what we sell and what we never promise · speech act: <span class="act">assertion</span></div></div></div>
+    <div class="hdr">What is in the base price</div>
+    <table class="dbt"><thead><tr><th>Line</th><th>Price</th><th>Unit</th><th>Where it sits</th><th>What it means</th></tr></thead>
+      <tbody>${CAT.map(line).join('')}</tbody></table>
+    <div class="bnote"><span style="font-weight:600">$${seat} per seat per month</span>
+      <span>is the base price — the sum of the lines marked “in the base price”. Twenty seats is
+      20 × $${seat} × 12 = ${usdx(seat*20*12)} a year before any discount. That is arithmetic from this
+      list, not a quote: <b>a contract already signed carries its own number</b>, and where a paper
+      differs from this list the paper governs. The list is what a new quote is built from.</span></div>
+    <div class="hdr">The discount ceiling</div>
+    <div class="paper">A discount up to <b>${DISCMAX} %</b> is the Pricing agent’s own. Anything deeper goes to a
+      human, and the agent is not allowed to send it meanwhile. This is the same number the
+      agent’s never-do names — it is kept in one place, not written out four times.</div>
+    <div class="hdr">What we do not promise</div>
+    <div class="facts">${CATNO.map(([nm,why])=>`<div class="fact"><div class="grow"><div>${esc(nm)}</div><div class="note">${esc(why)}</div></div>
+      <span class="chip down">not offered</span></div>`).join('')}</div>
+    <div class="note">If a client asks for something that is not on either list, it has no answer here yet — and that is the honest answer. Nothing in this system invents a price.</div></div>`;}
 function renderMsg(pid){const p=personById(pid),a=ACCBY[p.acc];
   /* Значок источника падал в Aircall всем, кого не опознал: у внесённого руками с
      каналом «email» в переписке стояло «Air». Рука — это тоже источник. */
@@ -3327,6 +3391,7 @@ function renderAgentTab(id){const g=agBy(id),own=OURS.find(o=>o.id===g.owner);co
     <div class="kv"><div><span>Autonomy</span><b>${KNOB[S.knob[id]]}</b></div><div><span>Runs stages</span><b>${g.owns.map(x=>STAGE[x]).join(', ')}</b></div><div><span>Never-do fired</span><b>${stopsFired(id)}×</b></div><div><span>Answers for it</span><b>${esc(own.nm.split(' ')[0])}</b></div></div>
     <div class="hdr">Autonomy — how much freedom</div><div class="btns">${KNOB.map((k,i)=>`<button class="btn ${S.knob[id]===i?'pri':''}" data-knob="${id}:${i}">${k}</button>`).join('')}</div>
     <div class="hdr">Never-do — where that freedom ends</div><div class="paper">Never: ${STOPS[id][0]}.</div>
+    ${id==='pricer'||id==='seller'?`<div class="btns"><button class="btn" data-open="price:1" data-tip="What we sell, what costs extra, and what we never promise">Open the price list</button></div>`:''}
     ${g.state==='paused'?`<div class="btns"><button class="btn" data-tri="t-seller|resume|Resume">Put it back to work</button><span class="note">Stopped by a hard stop. ${esc(own.nm)} decides.</span></div>`:''}
     <div class="hdr">Action log</div><div class="facts">${logs.map(l=>`<div class="fact"><div class="grow"><div>${esc(l.ttl)}</div><div class="note">W${l.w}</div></div><span class="chip ${l.st[0]}">${esc(l.st[1])}</span></div>`).join('')||'<div class="note">No entries.</div>'}</div></div>`;}
 function renderDraft(id){
@@ -4351,6 +4416,7 @@ function openRef(k){
     const who=personById(B.draft.to)||{nm:''};
     openTab('draft',B.id,'Draft · '+(who.nm||'—').split(' ').slice(-1)[0]);
     setEnt('ppl');S.sel={type:'person',id:B.draft.to};renderAllButMap();return;}
+  if(type==='price'){openTab('price',null,'Price list');setEnt('doc');renderAllButMap();return;}
   if(type==='docnode'){const d=DOCS[id];S.mapAcc=d.acc;S.orgOpen=true;selectNode('doc',id);
     /* С карты клик только подсвечивает; из списка или таблицы — открывает документ. */
     if(S.tab!=='map'){openTab('doc',id);renderAllButMap();}
