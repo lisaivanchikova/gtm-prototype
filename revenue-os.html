@@ -1195,7 +1195,7 @@ function makeAcc(o){
     /* «есть ли свой айтишник» вывести не из чего: null значит «неизвестно», и экран
        это говорит. Проставить значение всем 652 было бы выдуманным числом. */
     itown:o.itown??null,x:o.x??px+Math.cos(ang)*rad,y:o.y??py+Math.sin(ang)*rad,name,
-    acv:o.acv||Math.round(seg.acv*(0.7+R()*0.6)/500)*500,emp:o.emp||rint(6,60),ev:o.ev,cheap:!!o.cheap,payW:o.payW??null,valW:o.valW??null,reason:o.reason||null,
+    acv:(o.acv===0?0:(o.acv||Math.round(seg.acv*(0.7+R()*0.6)/500)*500)),emp:o.emp||rint(6,60),ev:o.ev,cheap:!!o.cheap,payW:o.payW??null,valW:o.valW??null,reason:o.reason||null,
     people:o.people||null,seed:rint(1,1e6),hue:HUE[rint(0,7)],feat:!!o.feat};
   ACC.push(a);return a;
 }
@@ -1343,7 +1343,7 @@ function replyClass(txt,act){
   return null;}
 const MEET=[{id:'mt1',acc:'a0',who:'Dr. Jonathan Moss',w:38,when:'Thu 2:00 pm',ttl:'HIPAA dashboard demo \u00b7 30 min',st:['up','on the calendar']},
             {id:'mt2',acc:'a1',who:'Tom Hale',w:38,when:'not scheduled',ttl:'Price walkthrough: $1,400 freelancer vs $3,170 with an SLA',st:['warn','awaiting a yes']}];
-const BUILD='Oct 9, 00:28';   /* отметка сборки: единственное место, где она живёт */
+const BUILD='Oct 9, 11:56';   /* отметка сборки: единственное место, где она живёт */
 const S={t:NOW,seg:null,downOnly:false,sel:null,level:'segment',K:1,
   knob:{scout:2,qual:2,seller:2,pricer:1,service:1},profile:'head',
   side:'tree',ent:'seg',agView:null,mapAcc:null,bn:0,sent:{},skin:'rev',ef:{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false},ptab:'market',job:'',stF:'',stage:'',primary:'map',source:null,orgOpen:false,sopAcc:'a0',lastRef:{},tabs:[{id:'map',kind:'map',ref:null,title:'Map'},{id:'acc',kind:'org',ref:'a0',title:'Account'},{id:'person',kind:'msg',ref:'p-hale',title:'Person'},{id:'flow',kind:'sop',ref:'a0',title:'Workflow'},{id:'doc',kind:'doc',ref:'d-msa',title:'Document'},{id:'agent',kind:'aglist',ref:null,title:'Agent'}],tab:'map',
@@ -1356,6 +1356,10 @@ function saveLayout(){try{localStorage.setItem('revos-layout-v4',JSON.stringify(
 function filtered(a){return a.cheap&&a.ev[0].w>NOW&&S.knob.qual<2&&((a.seed%100)/100)<.75;}
 function stateAt(a,t){if(filtered(a))return null;let c=null;for(const e of a.ev){if(e.w<=t)c=e;else break;}return c;}
 const isActive=e=>e&&(e.s===5||e.s===6);
+/* У компании, внесённой руками, никто ещё ничего не предлагал: сумма сделки берётся из
+   оффера, а оффера нет. Генератор ставил ей $32K — ходок увидел число, которого не
+   вводил (09.10). Ноль говорит правду, подпись объясняет ноль. */
+const usdAcv=a=>(a&&a.byhand&&!a.acv)?'not quoted yet':usd(a.acv);
 const acvAt=(a,t)=>a.ev.some(e=>e.s===6&&e.w<=t)?Math.round(a.acv*1.1):a.acv;
 const daysIn=(e,t)=>(t-e.w)*7+e.d;
 const stuck=(a,e,t)=>e&&e.s>=1&&e.s<=3&&daysIn(e,t)>=8;
@@ -1411,17 +1415,20 @@ function peopleActs(a,t){const e=stateAt(a,t),P=peopleOf(a);if(!e)return[];const
     6:[['promise','\u201crenewing for another year\u201d',x(dd)],['expressive','\u201cwe could not do this without you\u201d',x(dd+3)],['declaration','paid the invoice',x(dd%30)]],
     7:[['declaration',`lost: ${a.reason||'no reason given'}`,x(dd)],['silence','silent',dd],[null,'not connected',null]],
     8:[['declaration','we are terminating the contract',x(dd)],['expressive','\u201ctoo expensive for what we see\u201d',x(dd+10)],['silence','stopped paying',x(dd+20)]]}[e.s];
-  /* Приписанных действий ровно три — по числу порождённых лиц. Человек, внесённый
-     руками, становится четвёртым, и выдумывать ему активность нельзя: у него её нет
-     ровно до первого касания. */
-  return P.map((p,i)=>{const m=M[i]||[null,p.byhand?'added by hand, no contact yet':'nothing on record',null];
+  /* Приписанных действий ровно три — по числу порождённых лиц. Внесённому руками
+     выдумывать активность нельзя: у него её нет ровно до первого касания. Проверка
+     шла по номеру в списке, и у новой компании внесённый оказывался первым — ему
+     досталась фраза «our IT is a mess», которой он не говорил (09.10). Теперь смотрим
+     на человека, а не на его место в списке. */
+  return P.map((p,i)=>{const m=p.byhand?[null,'added by hand, no contact yet',null]
+    :(M[i]||[null,'nothing on record',null]);
     return {p,act:m[0],txt:m[1],days:m[2]};});}
 
 /* =================== feeds (uniform item: source · entity · phrase · status · actions) =================== */
 const SRC={
   sos:['TX SOS','#5c6b7a'],hhs:['HHS','#1c5cab'],indeed:['Indeed','#2557a7'],fed:['FedReg','#4a3aa7'],dbj:['DBJ','#b0413e'],ms:['MSFT','#00a4ef'],rmsp:['r/msp','#ff4500'],me:['Me','#8b8b8b'],
   docusign:['DocuSign','#d4a017'],pandadoc:['PandaDoc','#1baf7a'],quickbooks:['QuickBooks','#2ca01c'],rmm:['RMM','#6b7280'],crm:['CRM','#7a4fd6'],pdf:['PDF','#e34948'],
-  conf:['conference','#8a6fd6'],gmail:['Gmail','#d44638'],linkedin:['LinkedIn','#0a66c2'],aircall:['Aircall','#00b388'],teams:['Teams','#5b5fc7'],agent:['agent log','#7a4fd6']};
+  conf:['conference','#8a6fd6'],hand:['by hand','#8b8b8b'],gmail:['Gmail','#d44638'],linkedin:['LinkedIn','#0a66c2'],aircall:['Aircall','#00b388'],teams:['Teams','#5b5fc7'],agent:['agent log','#7a4fd6']};
 const MARKET=[
   {id:'m1',src:'sos',when:'2h',ttl:'214 new dental practices registered in DFW in September',seg:'cmp',st:'TX',hits:'Segment',facts:[['214 registrations Sep 1\u201323','SOSDirect \u00b7 business filings, SIC 8021'],['up 18 % on August','same query, Aug 1\u201331']],url:'sos.state.tx.us'},
   {id:'m2',src:'hhs',when:'1d',ttl:'3 patient-data breaches at Texas dental practices in 30 days \u2014 neighbours now face a HIPAA audit',seg:'cmp',st:'TX',hits:'Reach',facts:[['3 incidents in the OCR registry','OCR breach portal \u00b7 500+ records, TX'],['11,400 patients affected','sum of the three entries in that report']],url:'ocrportal.hhs.gov'},
@@ -1619,10 +1626,17 @@ function confirmAct(o){
     :`<div class="${/^!/.test(l)?'wrn':''}">${esc(String(l).replace(/^!/,''))}</div>`).join('');
   if(o.html)$('cfmB').innerHTML+=o.html;
   const go=$('cfmGo');go.textContent=o.cta||'Do it';go.className='btn '+(o.danger?'bad':'pri');
+  /* Если выбора нет — нет и отмены: окно, которое только объясняет запрет, не должно
+     выглядеть вопросом. */
+  $('cfmNo').hidden=!!o.only;
   cfmGo=o.onOk;$('cfm').hidden=false;go.focus();}
 function cfmClose(){$('cfm').hidden=true;cfmGo=null;}
 $('cfmNo').onclick=cfmClose;
-$('cfmGo').onclick=()=>{const f=cfmGo;cfmClose();if(f)f();};
+/* Окно закрывается после согласия, но не тогда, когда действие отказалось: форма,
+   потребовавшая сегмент, закрывалась вместе с набранным, и всё надо было вводить
+   заново. Обработчик, вернувший false, оставляет окно на экране. */
+$('cfmGo').onclick=()=>{const f=cfmGo;if(!f){cfmClose();return;}
+  if(f()===false)return; cfmClose();};
 $('cfm').addEventListener('click',e=>{if(e.target.id==='cfm')cfmClose();});
 document.addEventListener('keydown',e=>{if($('cfm').hidden)return;
   if(e.key==='Escape'){e.preventDefault();cfmClose();}
@@ -1791,7 +1805,7 @@ const FSET={seg:['seg','job','newonly'],acc:['seg','job','ind','st','size','itow
                и список обещает это прямо в подписи. */
             /* Рассылка режется теми же признаками, что и список: «штат есть только на
                экране Accounts, в кампанию не переносится» (ходок, 08.10). */
-            flow:['seg','proc','ind','st','size','stage'],doc:['dkind','seg'],ag:['arole','astate'],us:['arole','astate']};
+            flow:['seg','proc','ind','st','size','itown','stage'],doc:['dkind','seg'],ag:['arole','astate'],us:['arole','astate']};
 function filterBar(ent){
   S.ef=S.ef||{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false};
   const keys=FSET[ent]||FSET.acc, allf=keys.map(k=>[k,FFLD[k]]).filter(x=>x[1]);
@@ -1807,6 +1821,9 @@ function filterBar(ent){
     if(cur&&!OPT[k].some(o=>String(o[0])===cur))f.set('');
   }
   const flds=allf.filter(([k,f])=>f.type==='tog'||f.type==='rng'||f.keep||OPT[k].filter(o=>String(o[0])!=='').length>=2);
+  /* Что колонка показала на самом деле — чтобы подпись в кампании перечисляла поля,
+     а не память: она обещала job, которого здесь нет, и молчала про own IT. */
+  if(ent==='flow')S.flowShown=flds.map(([k])=>k);
   const set=flds.some(([k,f])=>f.keep?false:f.type==='tog'?f.get():f.type==='rng'?(f.get()[0]||f.get()[1]):!!f.get());
   const wide=flds.some(([k,f])=>!f.light);
   /* Подпись поля, повторяющая заголовок панели, — мусор: «сегмент выше». */
@@ -1817,9 +1834,13 @@ function filterBar(ent){
   const row=([k,f])=>{
     if(f.type==='tog')return `<label class="frow fchk"${f.hint?` data-tip="${esc(f.hint)}"`:''}><span class="fk">${esc(f.lbl)}</span><input type="checkbox" data-ftog="${k}" ${f.get()?'checked':''}></label>`;
     if(f.type==='rng'){const v=f.get(),onr=!!(v[0]||v[1]);
+      /* Поле текстовое, а не числовое: у `type=number` каретку не поставить —
+         setSelectionRange на нём бросает исключение, и после перерисовки цифры
+         вставали в обратном порядке (20 → 02). Цифры и так единственное, что
+         принимается: нецифры снимаются в обработчике. */
       return `<div class="frow"${f.hint?` data-tip="${esc(f.hint)}"`:''}><span class="fk">${esc(f.lbl)}</span>`
-        +`<span class="frng"><input type="number" min="1" inputmode="numeric" data-frng="${k}:0" value="${esc(String(v[0]))}" aria-label="${esc(f.lbl)} from" placeholder="from">`
-        +`<i>–</i><input type="number" min="1" inputmode="numeric" data-frng="${k}:1" value="${esc(String(v[1]))}" aria-label="${esc(f.lbl)} to" placeholder="to"></span>`
+        +`<span class="frng"><input type="text" inputmode="numeric" autocomplete="off" data-frng="${k}:0" value="${esc(String(v[0]))}" aria-label="${esc(f.lbl)} from" placeholder="from">`
+        +`<i>–</i><input type="text" inputmode="numeric" autocomplete="off" data-frng="${k}:1" value="${esc(String(v[1]))}" aria-label="${esc(f.lbl)} to" placeholder="to"></span>`
         +`${onr?`<button class="fx" data-fclr="${k}" aria-label="Clear ${esc(f.lbl)}">×</button>`:'<span class="fx"></span>'}</div>`;}
     const opts=OPT[k]||[], cur=String(f.get()), on=!f.keep&&!!f.get();
     return `<div class="frow"><span class="fk">${esc(f.lbl)}</span><select class="fv" data-fsel="${k}">`
@@ -1865,7 +1886,7 @@ function renderSide(){
           <span class="pick">${Object.entries(MODES).map(([k,v])=>`<button data-treemode="${k}" aria-pressed="${mode===k}" data-tip="${esc(v[1])}">${v[0]}</button>`).join('')}</span></div>`;
       h+=shown.map(a=>{const e=stateAt(a,tt),m=momentum(a,tt),d=e?daysIn(e,tt):0;
         const why=stuck(a,e,tt)?`stuck ${d}d`:churnSig(a,e,tt)?'churn signal':e&&e.s>=7?'closed':'';
-        return `<button class="row acc ${S.sel&&S.sel.id===a.id?'on':''}" data-open="acc:${a.id}" data-tip="${esc(a.name+' · '+a.city+', '+a.st+' · '+usd(a.acv)+'/year')}">
+        return `<button class="row acc ${S.sel&&S.sel.id===a.id?'on':''}" data-open="acc:${a.id}" data-tip="${esc(a.name+' · '+a.city+', '+a.st+' · '+usdAcv(a)+(a.acv?'/year':''))}">
           ${logo(a,'sq')}
           <span class="nm">${esc(a.name)}</span>
           <span class="rt">${why?`<span class="why ${mcls(m)}">${why}</span>`:`<span class="stg">${e?STAGE[e.s]:'—'}</span>`}</span></button>`;}).join('');
@@ -2720,7 +2741,7 @@ function renderSOP(a){
     :prow(face(inf.nm),inf.nm,'reaches '+bl[0].nm+' · added by you',
       ST.map(st=>st.stage===4?DOT('up',null,inf.why):DOT('none',null,'—')));
   let h=`<div class="bpmn" style="--sn:${N}">
-    <div class="bph"><h2>Workflow · ${esc(a.name)}</h2><span class="chip acc">${STAGE[e.s]}</span><span class="muted">${esc(a.city)}, ${a.st} · ${segBy(a.seg).name} · ${usd(a.acv)}</span></div>
+    <div class="bph"><h2>Workflow · ${esc(a.name)}</h2><span class="chip acc">${STAGE[e.s]}</span><span class="muted">${esc(a.city)}, ${a.st} · ${segBy(a.seg).name} · ${usdAcv(a)}</span></div>
     <div class="sopbar">
       <span class="modesw"><button data-sopmode="0" aria-pressed="${!S.sopEdit}">Read</button><button data-sopmode="1" aria-pressed="${S.sopEdit}">Edit</button></span>
       ${S.sopEdit?`<span>Rename a stage right on it. ⠿ drags it, ＋ inserts, × removes.</span>`:''}
@@ -2806,7 +2827,22 @@ function campCfg(seg){
   if(!c.seq)c.seq=SEQ0.map(s=>({...s,on:true}));
   if(!c.boxes)c.boxes=Object.fromEntries(MAIL.filter(m=>m.lim>0).map(m=>[m.id,true]));
   return c;}
-function campAccs(c){return ACC.filter(a=>(!c.seg||a.seg===c.seg)&&stateAt(a,S.t));}
+/* Компании считались по сегменту, а люди — по всем признакам отбора. Отсюда
+   «531 companies · 51 people» после отбора по Аризоне, где аккаунтов 17: два ходока
+   независимо, 09.10. Счёт теперь один и тот же, снятие глобального сегмента — как в
+   campPool, у рассылки свой. */
+function campAccs(c){
+  const sv=S.seg; S.seg=null;
+  const out=ACC.filter(a=>(!c.seg||a.seg===c.seg)&&stateAt(a,S.t)&&inF(a));
+  S.seg=sv; return out;}
+/* Кого бьёт рассылка — одним именем, и в нём видно сужение. «reaches 531 companies»
+   стояло прямо под строкой «narrowed by industry CPA · state CA · seats 1–50», а
+   запущенная рассылка по двенадцати бухгалтерам звалась «the whole market» (ходок, 09.10). */
+function campWho(c){
+  const base=c&&c.seg?segBy(c.seg).name:'the whole market';
+  const nw=narrowWords();
+  if(!nw.length)return base;
+  return (c&&c.seg?segBy(c.seg).name:'the market')+' · '+nw.join(' · ');}
 function campBoxCap(c){
   const on=MAIL.filter(m=>m.lim>0&&c.boxes[m.id]);
   return {n:on.length,perDay:on.reduce((s,m)=>s+m.lim,0),
@@ -2816,6 +2852,15 @@ function campNum(i,pool){const n=pool.length;
 /* Четыре блока настройки. Каждый раскрывается на месте, под строкой, — и там
    стоят органы, а не просьба угадать формулировку. «Я не понимаю, как там настроить
    рассылку, как выбрать сегменты, как выбрать сообщение» (Лиза, 08.10). */
+/* Подпись перечисляла поля на память и разошлась с правдой. Имена берутся из того же
+   набора, по которому колонка и строится, — разойтись больше нечему. */
+function flowFields(){
+  const ks=(S.flowShown||FSET.flow).filter(k=>k!=='seg'&&k!=='proc');
+  /* Ярлык берётся как написан: «own it person» со строчной читается как ошибка, а это
+     имя поля. Имена полей в подписи и должны выглядеть именами. */
+  const nm=ks.map(k=>(FFLD[k]||{}).lbl).filter(Boolean);
+  if(!nm.length)return 'nothing else';
+  return nm.length>1?nm.slice(0,-1).join(', ')+' and '+nm[nm.length-1]:nm[0];}
 function campSetup(){
   const c=campCfg(), open=S.campOpen||null;
   const accs=campAccs(c), pool=campPool(c.seg||'all'), off=S.campOff||{};
@@ -2827,7 +2872,7 @@ function campSetup(){
       data-tip="Click to change ${title.toLowerCase()}"><span class="k">${title}</span>
       <span class="v">${value}</span><span class="n">${note}</span></button>`;
   const cards=`<div class="cset">
-    ${blk('who','who',esc(c.seg?segBy(c.seg).name:'the whole market'),`${int(accs.length)} companies · ${int(n)} people`)}
+    ${blk('who','who',esc(campWho(c)),`${int(accs.length)} companies · ${int(n)} people`)}
     ${blk('what','what',esc(t.nm),`${CHAN3.find(x=>x[0]===c.chan)[1]} · ${c.subj?'subject set':t.subj?'fixed subject':'model writes the subject'}`)}
     ${blk('when','when',onSteps.map(s=>'D'+s.d).join(' › ')||'one touch',`${onSteps.length} step${onSteps.length===1?'':'s'} over ${onSteps.length?onSteps[onSteps.length-1].d:0} days`)}
     ${blk('how','how',`${cap.n} mailbox${cap.n===1?'':'es'} · ${int(cap.perDay)}/day`,days?`all of it over ~${days} day${days===1?'':'s'}`:'no mailbox can send')}
@@ -2840,7 +2885,7 @@ function campSetup(){
     <div class="crow"><span class="lbl">reaches</span><span class="n">${int(accs.length)} companies · ${int(pool.length)} people${Object.keys(off).filter(k=>off[k]).length?` · ${Object.keys(off).filter(k=>off[k]).length} taken out by hand`:''}</span></div>
     <div class="crow"><span class="lbl">narrowed by</span><span class="n">${narrowWords().length?esc(narrowWords().join(' · ')):'nothing — the whole segment'}</span></div>
     ${!pool.length?`<div class="crow"><span class="lbl faint">${esc(zeroLine())}</span></div>`:''}
-    <div class="crow"><span class="lbl faint">The segment is chosen here; industry, state, seats, stage and job are chosen in the left column and apply to this send as well as to the list.</span></div></div>`;
+    <div class="crow"><span class="lbl faint">The segment is chosen here; ${flowFields()} ${flowFields().indexOf(' and ')<0?'is':'are'} chosen in the left column and apply to this send as well as to the list.</span></div></div>`;
   if(open==='what')det=`<div class="cdet">
     <div class="crow"><span class="lbl">channel</span>
       <span class="pick">${CHAN3.map(([v,l])=>`<button data-campset="chan:${v}" aria-pressed="${c.chan===v}">${l}</button>`).join('')}</span></div>
@@ -2897,7 +2942,7 @@ function renderCamp(seg){
      воронки, потому что центру отдано ~380 px: всё, что ниже, человек не находит —
      это и показал прибор, научившись видеть сгиб. */
   return `<div class="bpmn" style="--sn:${N}">
-    <div class="bph"><h2>Campaign · ${esc(cfg.seg?segBy(cfg.seg).name:'the whole market')}</h2>
+    <div class="bph"><h2>Campaign · ${esc(campWho(cfg))}</h2>
       <span class="chip acc">${int(pool.length-nOff)} people</span>
       <span class="muted">set it here, launch it here, and watch it in the table below</span></div>
     ${campSetup()}
@@ -3028,13 +3073,20 @@ function personWorth(pid){
   else if(act.act==='assertion')eff={c:'flat',l:'setting the terms'};
   return {p,a,money,eff};
 }
-function renderMsg(pid){const p=personById(pid),a=ACCBY[p.acc],M=MSGS[pid]||peopleActs(a,S.t).filter(x=>x.p.id===pid).map(x=>({me:false,src:p.src.toLowerCase()==='gmail'?'gmail':p.src.toLowerCase()==='linkedin'?'linkedin':'aircall',act:x.act,txt:x.txt,w:S.t}));
+function renderMsg(pid){const p=personById(pid),a=ACCBY[p.acc];
+  /* Значок источника падал в Aircall всем, кого не опознал: у внесённого руками с
+     каналом «email» в переписке стояло «Air». Рука — это тоже источник. */
+  const sic=p.byhand?'hand':p.src.toLowerCase()==='gmail'?'gmail':p.src.toLowerCase()==='linkedin'?'linkedin':p.src.toLowerCase()==='email'?'gmail':'aircall';
+  const M=MSGS[pid]||peopleActs(a,S.t).filter(x=>x.p.id===pid).map(x=>({me:false,src:sic,act:x.act,txt:x.txt,w:S.t}));
+  const oo=optedOut(pid);
   const draft=pid==='p-hale'?'Tom, you pay $1,400/mo for one freelancer today. Our $3,170/mo covers 24/7 monitoring, HIPAA audit prep and a 1-hour SLA. Can I show the side-by-side in 15 minutes?':pid==='p-diaz'?'Karen, quick one: is Dr. Moss waiting for anything from us before the audit prep?':'';
-  return `<div class="doc"><div class="doch">${face(p.nm,'big '+((personWorth(pid)||{eff:{}}).eff.c||''))}<div><h2>${esc(p.nm)}</h2><div class="muted">${esc(p.title)} · ${esc(a.name)} · role in the deal: <b>${p.role}</b></div><div class="note">source: ${esc(p.src)} · <a href="https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(p.nm)}" target="_blank" rel="noopener">Find their profile ↗</a></div></div></div>
+  return `<div class="doc"><div class="doch">${face(p.nm,'big '+((personWorth(pid)||{eff:{}}).eff.c||''))}<div><h2>${esc(p.nm)}</h2><div class="muted">${esc(p.title)} · ${esc(a.name)} · role in the deal: <b>${p.role}</b></div><div class="note">source: ${esc(p.src)} · <a href="https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(p.nm)}" target="_blank" rel="noopener">Find their profile ↗</a></div>${oo?`<div class="note"><span class="chip down">opted out in ${oo}</span> nobody may write to them again — not the agent, not you</div>`:''}</div></div>
     ${renderChannels(pid)}
     ${renderSlots(pid)}
     ${renderNext(pid)}
-    <div class="compose"><div class="hdr">Agent draft</div><textarea id="draft" aria-label="Draft">${esc(draft)}</textarea><div class="btns cact"><button class="btn pri" data-send="${pid}">${S.chan&&S.chan[pid]?'Send by '+esc(CHAN[S.chan[pid]][0])+' under my name':'Send under my name'}</button><span class="note">Mail under a person’s name goes out only on that person’s click.</span></div></div>    <div class="hdr">The conversation so far</div>
+    <div class="compose"><div class="hdr">Agent draft</div><textarea id="draft" aria-label="Draft">${esc(draft)}</textarea><div class="btns cact">${oo
+      ? `<button class="btn" disabled data-tip="They opted out in ${oo} — writing again breaks CAN-SPAM and the never-do rule">Sending is closed on this person</button><span class="note">They opted out in ${oo}. The draft stays for the record; nothing goes out from here.</span>`
+      : `<button class="btn pri" data-send="${pid}">${S.chan&&S.chan[pid]?'Send by '+esc(CHAN[S.chan[pid]][0])+' under my name':'Send under my name'}</button><span class="note">Mail under a person’s name goes out only on that person’s click.</span>`}</div></div>    <div class="hdr">The conversation so far</div>
     <div class="thread">${M.map(m=>`<div class="msg ${m.me?'me':''}">${m.me?agAv(m.agent,'mid'):face(p.nm,'mid')}<div class="bub2"><div class="meta">${srcIc(m.src).replace('class="src"','class="av sq"')} ${m.me?'the '+agBy(m.agent).nm+' agent':esc(p.nm)} · W${m.w}${m.act?` · <span class="act">${m.act}</span>`:''}</div><div>${esc(m.txt)}</div></div></div>`).join('')||'<div class="note">No correspondence yet.</div>'}</div>
 </div>`;}
 /* Канал выбирался молча: письмо уходило почтой, даже если почта отбивалась. Работа
@@ -3108,14 +3160,19 @@ function renderReplies(){
   /* 401 ответ за неделю — это свалка, а не работа. Сверху то, что ещё не разобрано,
      и не больше, чем человек способен пройти за один присест. Остальное — числом. */
   const R=repliesAt(S.t), wkAll=R.filter(r=>r.days<=7);
-  const todo=wkAll.filter(r=>!intentOf(r.p.id)&&pstateK(r.p.id)==='active');
+  /* Отписавшийся стоял первым в очереди разбора — его можно было пометить «хочет
+     разговор» и позвать на встречу: лента предлагала то, что карточка запрещает
+     (ходоки, 09.10). Его ответ видно, но работы с ним нет: писать ему нельзя.
+     Запрет принадлежит действию, а не одному органу. */
+  const todo=wkAll.filter(r=>!intentOf(r.p.id)&&pstateK(r.p.id)==='active'&&!optedOut(r.p.id));
   const wk=todo.slice(0,25);
+  const oot=wkAll.filter(r=>optedOut(r.p.id));
   const row=r=>{const k=pstateK(r.p.id), it=intentOf(r.p.id), st=PSTATE[k];
     return `<div class="fact"><div class="grow">
       <div><button class="lnk" data-open="msg:${r.p.id}">${esc(r.p.nm)}</button> <span class="faint">· ${esc(r.a.name)}</span></div>
       <div class="note">${esc(r.txt)} <span class="act">${esc(r.act)}</span> · ${r.days}d ago</div>
       <div class="btns" style="margin-top:4px">${INTENT.map(([v,l])=>`<button class="lnk" data-intent="${r.p.id}:${v}" aria-pressed="${it===v}">${esc(l)}</button>`).join('')}</div></div>
-      <div class="btns">${it==='talk'?`<button class="btn pri" data-open="msg:${r.p.id}">Set a time</button>`:''}
+      <div class="btns">${optedOut(r.p.id)?`<span class="chip down" title="They opted out in ${optedOut(r.p.id)} — nothing goes out to them">opted out ${optedOut(r.p.id)}</span>`:it==='talk'?`<button class="btn pri" data-open="msg:${r.p.id}">Set a time</button>`:''}
         <button class="btn" data-pst="${r.p.id}:later" ${k==='later'?'disabled':''}>Hold</button>
         <button class="btn bad" data-pst="${r.p.id}:out" ${k==='out'?'disabled':''}>Out of play</button>
         <span class="chip ${st[1]}">${st[0]}</span></div></div>`;};
@@ -3123,16 +3180,19 @@ function renderReplies(){
   const held=R.filter(r=>pstateK(r.p.id)!=='active').length;
   /* Помеченный «хочет разговор» переезжает наверх: там его кнопка «назначить время»
      рядом, а не за сгибом в середине длинной ленты. Разметил — и сразу действуешь. */
-  const talk=wkAll.filter(r=>intentOf(r.p.id)==='talk'&&pstateK(r.p.id)==='active');
-  const rest=wkAll.filter(r=>intentOf(r.p.id)&&intentOf(r.p.id)!=='talk');
+  const talk=wkAll.filter(r=>intentOf(r.p.id)==='talk'&&pstateK(r.p.id)==='active'&&!optedOut(r.p.id));
+  const rest=wkAll.filter(r=>intentOf(r.p.id)&&intentOf(r.p.id)!=='talk'&&!optedOut(r.p.id));
   return `<div class="doc"><div class="doch"><div><h2>Replies</h2>
-      <div class="muted">${wkAll.length} answered in the last 7 days · ${marked} marked · ${held} on hold or out</div></div></div>
+      <div class="muted">${wkAll.length} answered in the last 7 days · ${marked} marked · ${held} on hold or out${oot.length?` · ${oot.length} opted out`:''}</div></div></div>
     <div class="note">An answer is what the client said, not what we sent. Mark what they want; put a person on hold or out of play and no send reaches them — not this campaign, not the next one.</div>
     ${talk.length?`<div class="hdr">Want to talk · ${talk.length}</div>
       <div class="facts">${talk.slice(0,10).map(row).join('')}</div>`:''}
     <div class="hdr">Not sorted out yet · ${todo.length}${todo.length>wk.length?` · showing ${wk.length}`:''}</div>
     <div class="facts">${wk.map(row).join('')||'<div class="note">Everything from the last 7 days is sorted out.</div>'}</div>
-    ${rest.length?`<div class="hdr">Marked otherwise · ${rest.length}</div><div class="facts">${rest.slice(0,10).map(row).join('')}</div>`:''}</div>`;}
+    ${rest.length?`<div class="hdr">Marked otherwise · ${rest.length}</div><div class="facts">${rest.slice(0,10).map(row).join('')}</div>`:''}
+    ${oot.length?`<div class="hdr">Opted out · ${oot.length}</div>
+      <div class="note">They wrote, and that is on the record. Nothing goes back to them — not an answer, not an invite.</div>
+      <div class="facts">${oot.slice(0,10).map(row).join('')}</div>`:''}</div>`;}
 
 /* ============ Человек, внесённый руками ============
    Система писала про себя «nobody is added by hand», и для SDR это было отрицание
@@ -3157,30 +3217,45 @@ function addPersonDialog(){
       +row('Role',`<select id="apRo"><option value="decides">decides</option><option value="champions">champions</option><option value="pays">pays</option></select>`)
       +row('Company',`<input id="apCo" list="apCoL" placeholder="an existing one, or a new name" autocomplete="off"><datalist id="apCoL">${accs.slice(0,400).map(n=>`<option value="${esc(n)}">`).join('')}</datalist>`)
       +row('State',`<select id="apSt">${sts.map(x=>`<option value="${x}">${x}</option>`).join('')}</select>`)
-      +row('Industry',`<select id="apIn">${inds.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join('')}</select>`)
+      +row('Industry',`<select id="apIn"><option value="">not known yet</option>${inds.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join('')}</select>`)
+      +row('Segment',`<select id="apSg"><option value="">—</option>${SEGS.map(g=>`<option value="${g.id}">${g.abc} · ${esc(g.name)}</option>`).join('')}</select>`)
       +row('Seats','<input id="apEm" type="number" min="1" placeholder="14">')
       +row('Channel',`<select id="apCh"><option value="email">email</option><option value="linkedin">LinkedIn</option><option value="whatsapp">WhatsApp</option></select>`)
       +row('Met at','<input id="apMt" placeholder="ASCII Edge 2026, hallway" autocomplete="off">')
-      +`<div class="note" style="margin-top:6px">State and industry apply only if the company is new. The list of states is the one the map already knows — a state outside it would have nowhere to be drawn.</div>`,
+      +`<div class="note" style="margin-top:6px">State, industry, segment and seats apply only if the company is new, and for a new one the segment and the seats are asked for rather than guessed: the segment decides which market it counts in, the seats decide the price. Nothing is filled in for you — a company you met yesterday has no deal value until someone quotes it, and nobody else at it until you enter them. The list of states is the one the map already knows; a state outside it would have nowhere to be drawn.</div>`,
     onOk:()=>addPersonByHand()});
 }
 function addPersonByHand(){
   const g=id=>(($(id)||{}).value||'').trim();
-  const nm=g('apNm'); if(!nm){toast('A name is the one thing it cannot be added without.');return;}
-  const coNm=g('apCo')||'—';
+  const nm=g('apNm'); if(!nm){toast('A name is the one thing it cannot be added without.');return false;}
+  /* Пустое название компании превращалось в юрлицо с именем «—». На визитке
+     компания есть всегда; выдумывать прочерк вместо неё — та же ложь, что город и
+     сумма у новой записи. */
+  const coNm=g('apCo');
+  if(!coNm){toast('The company is on the card too — without it the person has nowhere to be.');return false;}
   let a=ACC.find(x=>x.name.toLowerCase()===coNm.toLowerCase());
   let madeAcc=false;
   if(!a){
+    /* Новой компании раньше доставались сегмент «cmp», сумма из генератора и трое
+       сгенерированных коллег — ходок увидел город, сегмент, ACV $32K и трёх людей,
+       которых не вводил (09.10). Теперь спрашивается то, что знает человек, и не
+       придумывается то, чего он не знает. */
+    const seg=g('apSg'), emp=+g('apEm');
+    if(!seg){toast('Which segment the new company belongs to is not something the system can guess — it decides which market it counts in.');return false;}
+    if(!emp){toast('Seats are what the price is built from. For a new company it has to be entered, not guessed.');return false;}
     const st=g('apSt'), metro=METROS.find(m=>m[1]===st)||METROS[0];
-    a=makeAcc({metro,seg:'cmp',name:coNm,city:metro[0],ind:g('apIn')||null,
-      emp:+g('apEm')||10, ev:[{s:1,w:S.t,d:0}]});
+    a=makeAcc({metro,seg,name:coNm,city:metro[0],ind:g('apIn')||null,
+      emp, acv:0, people:[], ev:[{s:1,w:S.t,d:0}]});
     a.ind=g('apIn')||null; a.byhand=true; ACCBY[a.id]=a; madeAcc=true;}
-  /* У компании без собственного списка люди порождались из семени: если просто
-     дописать, сгенерированные исчезнут. Поэтому сначала закрепляем их как есть. */
+  /* У существующей компании без собственного списка люди порождались из семени: если
+     просто дописать, сгенерированные исчезнут. Поэтому сначала закрепляем их как есть.
+     У новой список пуст по праву — кроме того, кого вносят. */
   if(!a.people)a.people=peopleOf(a).map(x=>({...x}));
   const pid=a.id+'-h'+a.people.length;
-  const SRCNM={email:'Gmail',linkedin:'LinkedIn',whatsapp:'Aircall'};
-  const p={id:pid,nm,title:g('apTi')||'—',role:g('apRo')||'decides',src:SRCNM[g('apCh')]||'Gmail',
+  /* Канал — не провайдер. «email» превращался в «Gmail», и в карточке стояло
+     «source: Gmail» у человека, про чью почту никто ничего не говорил (ходок, 09.10). */
+  const SRCNM={email:'email',linkedin:'LinkedIn',whatsapp:'WhatsApp'};
+  const p={id:pid,nm,title:g('apTi')||'—',role:g('apRo')||'decides',src:SRCNM[g('apCh')]||'email',
            byhand:true,met:g('apMt')||null,by:$('profile').selectedOptions[0].text,w:S.t};
   a.people.push(p); PEOPLE[pid]={...p,acc:a.id};
   S.chan=S.chan||{}; S.chan[pid]=g('apCh')||'email';
@@ -3193,6 +3268,12 @@ function renderSlots(pid){
   const m=S.meet&&S.meet[pid];
   if(m)return `<div class="hdr">What happens next</div><div class="bnote"><span style="color:var(--up);font-weight:600">On the calendar</span>
     <span>${esc(m)} · 30 min · the agent sent the invite under your name and stopped following up.</span></div>`;
+  /* Приглашение на встречу — тоже исходящее письмо. Отписавшемуся предлагались три
+     слота рядом с запретом на переписку (ходоки, 09.10): запрет был на одном органе,
+     а не на действии. */
+  const oo=optedOut(pid);
+  if(oo)return `<div class="hdr">What happens next</div><div class="bnote"><span class="chip down">nothing from us</span>
+    <span>They opted out in ${oo}. An invite is a letter too, so there is no slot to offer. It takes them coming back to us first.</span></div>`;
   return `<div class="hdr">What happens next</div><div class="btns">${SLOTS.map(x=>`<button class="btn" data-slot="${pid}:${esc(x)}">${esc(x)}</button>`).join('')}
     <span class="note">The invite goes under your name.</span></div>`;}
 function renderNews(id){const n=MARKET.find(x=>x.id===id),st=S.facts[id]||{};
@@ -3262,7 +3343,7 @@ function renderAccView(a){
     return `<div class="wfrow"><button class="row" data-open="sop:${a.id}"><span class="nm">${i+1}. ${esc(s.a)}</span><span class="rt">${s.stage===e.s?'<b>here now</b>':''}</span></button>
       ${ds.map(([id,d])=>`<button class="row sub" data-open="doc:${id}"><span class="nm">▤ ${esc(d.kind)}</span><span class="rt ${d.status?d.status[0]:''}">${d.status?esc(d.status[1]):''}</span></button>`).join('')}</div>`;}).join('');
   return `<div class="doc"><div class="doch">${logo(a,'big')}<div><h2>${esc(a.name)}</h2>
-      <div class="muted">${esc(a.city)}, ${esc(a.st)} · ${esc(segBy(a.seg).name)} · ACV ${usd(a.acv)}</div></div></div>
+      <div class="muted">${esc(a.city)}, ${esc(a.st)} · ${esc(segBy(a.seg).name)} · ACV ${usdAcv(a)}</div></div></div>
     <div class="org"><div class="orgrow">${boss.map(card).join('')}</div><div class="orgline"></div>
       <div class="orgrow">${rest.map(card).join('')}</div></div>
     <div class="grp2">Workflow and its documents</div>${wf}</div>`;}
@@ -3433,21 +3514,26 @@ function renderEcard(){
   if(sel&&sel.type==='acc'){const a=ACCBY[sel.id],e=stateAt(a,t),m=momentum(a,t);
     h=`<div class="top">${logo(a,'sq big')}<div><h3>${esc(a.name)}</h3><div class="sub">${a.city}, ${a.st} · ${segBy(a.seg).name}</div></div></div>`+fields([
       ['State',`<span class="${mcls(m)}">${arrow(m)} ${e?STAGE[e.s]:'—'}</span>`,'sys'],
-      ['ACV',usd(a.acv),'own'],
+      ['ACV',usdAcv(a),'own'],
       ['Staff',a.emp,'enr'],
       ['Last touch',ago(e?e.w:S.t),'sys']],a.id)+
       `<div class="hdr">People</div>`+peopleOf(a).map(p=>`<button class="row" data-open="person:${p.id}">${face(p.nm,(personWorth(p.id)||{eff:{}}).eff.c||'')}<span class="nm">${esc(p.nm)}</span><span class="rt">${p.role}</span></button>`).join('')+`<button class="btn" data-open="sop:${a.id}">Open the workflow</button>`;}
   else if(sel&&sel.type==='person'){const p=personById(sel.id),a=ACCBY[p.acc],w=personWorth(sel.id);
     h=`<div class="top">${face(p.nm,'big')}<div><h3>${esc(p.nm)}</h3><div class="sub">${esc(p.title)} · ${esc(a.name)}</div></div></div>`
-      +params([['Role in the deal',p.role],['Moves ACV',`<span class="num">${usd(w?w.money:a.acv)}</span>`],['Which way',w?`<span class="${w.eff.c}">${w.eff.l}</span>`:'—'],['Channel',p.src]])
-      +`<button class="btn" data-open="msg:${p.id}">Open the correspondence</button>`+`<button class="btn alt" data-inwin="linkedin:${p.id}" data-tip="Opens inside the system, not in a browser tab">LinkedIn</button>`+`<button class="btn alt" data-inwin="whatsapp:${p.id}" data-tip="Opens inside the system, not in a browser tab">WhatsApp</button>`;}
+      +params([['Role in the deal',p.role],['Moves ACV',`<span class="num">${w?usd(w.money):usdAcv(a)}</span>`],['Which way',w?`<span class="${w.eff.c}">${w.eff.l}</span>`:'—'],['Channel',p.src]])
+      /* «Open the correspondence» здесь не было: любой выбор человека — из поиска, из
+         ленты, из оргсхемы — сам выносит его в зону Person, поэтому кнопка открывала
+         то, что уже открыто, и ходок записал её мёртвой (HEAD, 09.10). У органа не
+         бывает работы «подтвердить то, что уже случилось». Остались LinkedIn и
+         WhatsApp: они открывают сессию внутри системы, это другая работа. */
+      +`<button class="btn alt" data-inwin="linkedin:${p.id}" data-tip="Opens inside the system, not in a browser tab">LinkedIn</button>`+`<button class="btn alt" data-inwin="whatsapp:${p.id}" data-tip="Opens inside the system, not in a browser tab">WhatsApp</button>`;}
   else if(sel&&sel.type==='doc'){const d=DOCS[sel.id],a=ACCBY[d.acc];
     h=`<div class="top"><span class="av sq big">${SRC[d.src][0].slice(0,3)}</span><div><h3>${esc(d.kind)}</h3><div class="sub">${esc(a.name)}</div></div></div>`
       +params([['State',d.status?`<span class="${d.status[0]}">${d.status[1]}</span>`:'—'],['Source',SRC[d.src][0]],['Week',`W${d.w}`],['Money',usd(a.acv)]])
       +`<button class="btn" data-open="doc:${sel.id}">Open the document</button>`+`<button class="btn alt" data-stuck="${sel.id}" data-tip="Who is holding it — in the SOP">Where it is stuck</button>`;}
   else if(sel&&sel.type==='sop'){const a=ACCBY[sel.id],e=stateAt(a,t),m=momentum(a,t);
     h=`<div class="top">${logo(a,'sq big')}<div><h3>Flow · ${esc(a.name)}</h3><div class="sub">who owes what to whom to get the document signed</div></div></div>`
-      +params([['Stage',`<span class="${mcls(m)}">${arrow(m)} ${e?STAGE[e.s]:'—'}</span>`],['ACV',usd(a.acv)],['Stuck',(e?daysIn(e,t):0)+'d'],['People',peopleOf(a).length]])
+      +params([['Stage',`<span class="${mcls(m)}">${arrow(m)} ${e?STAGE[e.s]:'—'}</span>`],['ACV',usdAcv(a)],['Stuck',(e?daysIn(e,t):0)+'d'],['People',peopleOf(a).length]])
       +`<button class="btn" data-open="sop:${sel.id}">Open the flow</button>`;}
   else if(sel&&sel.type==='agent'){const g=agBy(sel.id);h=`<div class="top">${agAv(g.id,'big')}<div><h3>${g.nm}</h3><div class="sub">${g.title}</div></div></div>`+params([['State',`<span class="${ASTATE[g.state][0]}">${ASTATE[g.state][1]}</span>`],['Autonomy',KNOB[S.knob[g.id]]],['Answers for it',OURS.find(o=>o.id===g.owner).nm],['Runs stages',g.owns.map(s=>STAGE[s]).join(', ')]])+
       `<div class="hdr">Autonomy \u2014 how much freedom</div><div class="btns">${KNOB.map((k,i)=>`<button class="btn ${S.knob[g.id]===i?'pri':''}" data-knob="${g.id}:${i}">${k}</button>`).join('')}</div>`;}
@@ -3476,7 +3562,7 @@ function renderEcard(){
       +params([['Companies',int(accs.length)],['People',int(n)],['Per day',int(cap.perDay)],['Gone out',run?int(run.sent):'—']]);}
   else if(tab==='flow'){const a=ACCBY[S.sopAcc],e=stateAt(a,t),m=momentum(a,t),d=e?daysIn(e,t):0;
     h=`<div class="top">${logo(a,'sq big')}<div><h3>${esc(a.name)}</h3><div class="sub">the flow of one deal: who owes what to whom to get the document signed</div></div></div>`
-      +params([['Stage',`<span class="${mcls(m)}">${arrow(m)} ${e?STAGE[e.s]:'—'}</span>`],['ACV',usd(a.acv)],['Stuck',d+'d'],['People',peopleOf(a).length]])
+      +params([['Stage',`<span class="${mcls(m)}">${arrow(m)} ${e?STAGE[e.s]:'—'}</span>`],['ACV',usdAcv(a)],['Stuck',d+'d'],['People',peopleOf(a).length]])
       +(S.primary==='sop'&&!S.flowList?'':`<button class="btn" data-open="sop:${a.id}">Open the workflow</button>`);}
   else if(tab==='people'){h=`<div class="top"><span class="av big">☺</span><div><h3>Client people</h3><div class="sub">people speak in speech acts: request, assertion, promise, declaration, expressive, silence</div></div></div>`;}
   else {h=`<div class="top"><span class="av bot big">${ICONS.bot}</span><div><h3>The machine</h3><div class="sub">5 agents · 3 people · a named human answers for each agent</div></div></div>`+params([['Running',AGENTS.filter(a=>a.state==='active').length],['Waiting on a human',AGENTS.filter(a=>a.state==='awaiting').length],['Stopped',AGENTS.filter(a=>a.state==='paused').length],['Alarms',AGENTS.filter(a=>a.state==='paused').length]]);}
@@ -3852,10 +3938,23 @@ function agentScope(){
      хотя я нахожусь во вкладке person» (Лиза, 08.10). */
   if(src){
     const sid=src.ref, K=src.kind;
-    if((K==='doc'||K==='draft')&&!DOCS[sid]){const a2=ACCBY[S.docEmptyAcc]||ACCBY[S.mapAcc];
+    /* Черновик — своя область, а не документ: его ссылка указывает на узкое место, и
+       DOCS[sid] у него пуст всегда. Ветка «пустой Document» ловила его случайно, а
+       когда ни карта, ни пустая зона не называли юрлицо, чтение `.acc` у пустоты
+       роняло отрисовку целиком — вкладка переключалась, а тело экрана оставалось
+       прежним (AE, 09.10, стек agentScope → renderAgAsk → renderEditor). */
+    if(K==='draft'){
+      const L=BNS(), B=L.find(x=>x.id===sid&&x.draft)||L.find(x=>x.draft);
+      const to=B&&B.draft?personById(B.draft.to):null;
+      const a2=(B&&B.draft&&ACCBY[B.draft.acc])||(to&&ACCBY[to.acc])||acc||ACCBY[S.mapAcc]||ACC[0];
+      return {area:'draft',acc:a2,label:'Draft · '+(to?to.nm:'nobody waiting'),
+        sees:[to?`a draft the agent wrote for ${to.nm} and has not sent`:'no draft is waiting right now',
+              B?B.t:'nothing holds the chain at the moment'],
+        can:to?['send it under your name','send it back to the agent','open the person']:['open the constraint']};}
+    if(K==='doc'&&!DOCS[sid]){const a2=ACCBY[S.docEmptyAcc]||ACCBY[S.mapAcc]||acc||ACC[0];
       /* Зона Document может быть пустой: у 54 юрлиц бумаг нет. Агент должен назвать
          область и признать, что смотреть нечего, а не падать. */
-      if(a2)return {area:'doc',acc:a2,label:`Document · none · ${a2.name}`,
+      return {area:'doc',acc:a2,label:`Document · none · ${a2.name}`,
         sees:[`no document on record for ${a2.name}`,'the first paper appears at the offer'],
         can:['open the deal process for this account']};}
     if(K==='doc'||K==='draft'){const d=DOCS[sid],a2=ACCBY[d.acc];
@@ -4461,7 +4560,7 @@ document.addEventListener('click',e=>{
     confirmAct({title:'Start a send to '+live.length+' '+(live.length===1?'person':'people')+'?',
       danger:true, cta:'Send to '+go+' now',
       lines:[
-        ['Who',(cc.seg?segBy(cc.seg).abc+' · '+segBy(cc.seg).name:'the whole market')+', '+live.length+' people'],
+        ['Who',campWho(cc)+', '+live.length+' people'],
         ['Out today',go+(live.length>go?' — the other '+(live.length-go)+' are queued':'')],
         ['From',cap.n+' mailbox'+(cap.n===1?'':'es')+' · '+cap.perDay+' a day'],
         ['First message',tpl.nm+' by '+cc.chan],
@@ -4485,10 +4584,10 @@ document.addEventListener('click',e=>{
        те, кого сняли руками, и те, чьё юрлицо под запретом на контакт. */
     const banned=pool.filter(x=>S.dnc&&(S.dnc['acc:'+x.acc.id]||S.dnc[x.acc.id])).length;
     S.campRuns=(S.campRuns||[]);
-    S.campRuns.unshift({w:S.t,nm:(c.seg?segBy(c.seg).abc+' · '+segBy(c.seg).name:'the whole market')+' · '+tp.nm,
+    S.campRuns.unshift({w:S.t,nm:campWho(c)+' · '+tp.nm,
       ch:c.seq.filter(s=>s.on).map(s=>s.ch).filter((v,i,a)=>a.indexOf(v)===i).join(', '),
       n,sent:today,failed:0,skipped:Object.keys(off).filter(k=>off[k]).length+banned,state:'sending'});
-    logAdd('seller',`Campaign ${seg==='all'?'across the whole market':'· '+segBy(seg).name}: ${n} people queued, ${today} went out today`,['up','started by a human']);
+    logAdd('seller',`Campaign · ${campWho(c)}: ${n} people queued, ${today} went out today`,['up','started by a human']);
     renderAllButMap();paintCentre();
     /* Число в сообщении должно совпадать с тем, что человек выбрал: тост брал ёмкость
        всех ящиков, а не отмеченных, и говорил 62 в день там, где на экране стояло 37. */
@@ -4603,10 +4702,17 @@ document.addEventListener('click',e=>{
     const ch=(S.chan&&S.chan[pid])||'email', cs=chanState(pid,ch);
     const ta=$('draft'), txt=((ta&&ta.value)||'').trim();
     const oo=optedOut(pid);
+    /* Окно предупреждало про отписку и всё равно отправляло по нажатию: «the agent is
+       not allowed to, and neither are you» стояло рядом с живой кнопкой — нашли три
+       ходока независимо (09.10). Теперь это не вопрос, а отказ. */
+    if(oo){confirmAct({title:'No letter goes to '+pp.nm, danger:true, cta:'Close', only:true,
+      lines:[['To',pp.nm+' · '+pp.title],['At',ACCBY[pp.acc].name],['Opted out',oo],
+        '!Writing again breaks CAN-SPAM and the never-do rule. Nobody here may do it — not the agent, not you.',
+        'It takes them writing to us first, and that arrives as their reply.'],
+      onOk:()=>{}});return;}
     confirmAct({title:'Send to '+pp.nm+'?', danger:true, cta:'Send it now',
       lines:[['To',pp.nm+' · '+pp.title],['At',ACCBY[pp.acc].name],
         ['By',CHAN[ch][0]+' — '+cs[1]],
-        oo?'!This person opted out in '+oo+'. Writing again breaks CAN-SPAM and the never-do rule — the agent is not allowed to, and neither are you.':null,
         txt?'First line: \u201c'+txt.split('\n')[0].slice(0,120)+'\u201d':'!The draft is empty — nothing would be sent.',
         'It goes out under your name and is logged against you, not the agent.'],
       onOk:()=>{if(!txt){toast('Nothing to send — the draft is empty.');return;}
@@ -4636,7 +4742,18 @@ document.addEventListener('click',e=>{
 });
 
 document.addEventListener('input',e=>{
-
+  /* Диапазон — на каждом нажатии, у того поля, в котором набирают. Фокус возвращается
+     туда же, откуда ушёл, и соседнее поле больше не перехватывает ввод. */
+  const dr=(e.target.dataset||{}).frng;
+  if(dr){const [k,i]=dr.split(':'),f=FFLD[k];
+    if(f){const raw=e.target.value.replace(/[^0-9]/g,'').slice(0,6);
+      if(raw!==e.target.value)e.target.value=raw;
+      const c=e.target.selectionStart;
+      const v=f.get().slice();v[+i]=raw;f.set(v);
+      if(f.light){renderSide();renderPanel();}else renderAll();
+      const el=document.querySelector(`[data-frng="${dr}"]`);
+      if(el){el.focus();try{const q=Math.min(c==null?el.value.length:c,el.value.length);el.setSelectionRange(q,q);}catch(_){}}}
+    return;}
   if(e.target.id==='dbQ'){S.dbQ=e.target.value;S.dbN=50;const c=e.target.selectionStart;renderDB();const el=$('dbQ');if(el){el.focus();el.setSelectionRange(c,c);}}
   if(e.target.dataset&&e.target.dataset.rename){const [i,f]=e.target.dataset.rename.split(':');
     const v=e.target.textContent.replace(/\s+/g,' ').trim();if(v)S.steps[+i][f]=v;}
@@ -4658,15 +4775,12 @@ document.addEventListener('dragend',()=>{DRAGI=null;document.querySelectorAll('.
 document.addEventListener('change',e=>{const d=e.target.dataset||{};
   if(d.fsel){const f=FFLD[d.fsel];if(f){f.set(e.target.value);if(f.light){renderSide();renderPanel();}else renderAll();}return;}
   if(d.ftog){const f=FFLD[d.ftog];if(f){f.set(e.target.checked);if(f.light){renderSide();renderPanel();}else renderAll();}return;}
-  if(d.frng){const [k,i]=d.frng.split(':'),f=FFLD[k];
-    if(f){const v=f.get().slice();v[+i]=e.target.value;f.set(v);
-      /* Левая колонка перерисовывается целиком, и фокус слетал: ввёл «от», перешёл в
-         «до» — а поле уже другое, и ввод не начинался. Возвращаем фокус на то же поле. */
-      const sel=`[data-frng="${d.frng}"]`;
-      if(f.light){renderSide();renderPanel();}else renderAll();
-      const el=document.querySelector(sel);
-      if(el){el.focus();try{el.setSelectionRange(el.value.length,el.value.length);}catch(_){}}}
-    return;}});
+  /* Диапазон здесь больше не обрабатывается: у поля ввода «change» случается на потере
+     фокуса, то есть ровно когда человек уходит в соседнее поле. Перерисовка с возвратом
+     фокуса отбирала его назад, и набранное попадало в «от»: «Seats to не принимает ввод,
+     символы уходят в Seats from» (ходок, 09.10). Там же и «Clear» со второго нажатия —
+     первый клик уходил в перерисовку. Теперь диапазон живёт на «input». */
+});
 addEventListener('resize',()=>{applyLayout();});
 $('ptabs').addEventListener('click',e=>{if(S.feedDown&&!e.target.closest('button')){S.feedDown=false;renderEditor();}});
 $('profile').addEventListener('change',e=>{S.profile=e.target.value;S.chat=[];
