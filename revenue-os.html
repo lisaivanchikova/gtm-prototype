@@ -675,6 +675,46 @@ table.runs td{padding:4px 8px 4px 0;border-top:1px solid color-mix(in srgb,var(-
 .tri .t{font-size:13px}
 .tri .s{font-size:11px;color:var(--fg3)}
 .tri.done{opacity:.55}
+/* Три вида одной очереди. Сетка недели и доска стадий — та же очередь, разложенная
+   по другому полю. Цветом здесь говорит только состояние: род задачи сказан словом,
+   иначе цвет означал бы на одном экране две разные вещи. */
+.doch .pick{margin-left:auto;flex:none}
+table.db.tasks td{white-space:normal}
+table.db.tasks td:first-child{max-width:340px}
+.db tr.grp td{background:var(--side);color:var(--fg3);font-size:10px;letter-spacing:.12em;text-transform:uppercase;padding:6px 10px;cursor:default}
+.db tr.grp:hover td{background:var(--side)}
+.db tr.on td{background:var(--hover)}
+.db tr.done td{opacity:.55}
+.db tr.det td{background:var(--editor);padding:4px 10px 12px;max-width:none}
+.db tr.det .s{font-size:11px;color:var(--fg3)}
+.db tr.det .btns{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:8px}
+.db tr.det:hover td{background:var(--editor)}
+.calbar{display:flex;align-items:center;gap:8px;margin:12px 0 8px;font-size:12px;color:var(--fg2)}
+.calbar .note{margin-left:auto}
+.calw{display:grid;grid-template-columns:repeat(7,minmax(96px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-radius:6px;overflow-x:auto}
+.cday{background:var(--editor);min-height:92px;padding:6px;display:flex;flex-direction:column;gap:4px}
+.cday.today{background:color-mix(in srgb,var(--accent) 7%,var(--editor))}
+.cdh{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--fg3);white-space:nowrap}
+.cday.today .cdh{color:var(--accent)}
+.cev{display:flex;flex-direction:column;gap:2px;align-items:flex-start;text-align:left;width:100%;
+  background:var(--side);border:1px solid var(--border);border-left:2px solid var(--flat);border-radius:4px;
+  padding:5px 7px;cursor:pointer;color:var(--fg2);font-size:11.5px;line-height:1.3}
+.cev:hover{color:var(--fg)}
+.cev.warn{border-left-color:var(--warn)} .cev.up{border-left-color:var(--up)} .cev.down{border-left-color:var(--down)}
+.cev.on{border-color:var(--accent);color:var(--fg)}
+.cev .ct{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.cev .cm{font-size:10px;color:var(--fg3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.cshelf{display:flex;flex-wrap:wrap;gap:6px}
+.cshelf .cev{width:196px}
+.pipe{display:flex;gap:8px;overflow-x:auto;padding:12px 0 6px;align-items:flex-start}
+.pcol{flex:0 0 196px;display:flex;flex-direction:column;gap:6px}
+.pch{display:flex;flex-direction:column;gap:2px;padding:6px 7px;border:1px solid var(--border);border-radius:4px;background:var(--side)}
+.pch .pt{font-size:11px;color:var(--fg2)}
+.pch .pn{font-family:var(--ui);font-variant-numeric:tabular-nums;letter-spacing:0;font-size:10px;color:var(--fg3)}
+.tdet{border:1px solid var(--border);border-left:2px solid var(--accent);border-radius:6px;padding:10px 12px;margin-top:14px;display:flex;flex-direction:column;gap:8px;background:var(--editor)}
+.tdet .tdt{font-size:13px;font-weight:600;line-height:1.45}
+.tdet .tdw{font-weight:400;font-size:11px;color:var(--fg3);margin-left:6px}
+.tdet .btns{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .planbar{border:1px solid var(--accent);border-radius:8px;padding:8px 10px;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;background:color-mix(in srgb,var(--accent) 6%,var(--editor));margin:4px 0 12px}
 .planbar .k{font-family:var(--ui);font-variant-numeric:tabular-nums;letter-spacing:0;font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
 .planbar .t{font-size:13px;font-weight:600}
@@ -1564,10 +1604,10 @@ const MEET=[
   {id:'mt3',acc:'a0',pid:'p-diaz',who:'Karen Diaz',w:38,when:'Fri 10:00 am',own:'head',brief:0,
    ttl:'Brightline: signature and the go-live date \u00b7 20 min',st:['up','on the calendar'],
    last:'silent for 9 days on LinkedIn'}];
-const BUILD='Oct 10, 23:55';   /* отметка сборки: единственное место, где она живёт */
+const BUILD='Oct 11, 00:40';   /* отметка сборки: единственное место, где она живёт */
 const S={t:NOW,seg:null,downOnly:false,sel:null,level:'segment',K:1,
   knob:{scout:2,qual:2,seller:2,pricer:1,service:1},profile:'head',
-  side:'tree',ent:'seg',agView:null,mapAcc:null,box:'',bn:0,sent:{},skin:'rev',ef:{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false},ptab:'market',job:'',stF:'',stage:'',primary:'map',source:null,orgOpen:false,sopAcc:'a0',lastRef:{},tabs:[{id:'map',kind:'map',ref:null,title:'Map'},{id:'acc',kind:'org',ref:'a0',title:'Account'},{id:'person',kind:'msg',ref:'p-hale',title:'Person'},{id:'flow',kind:'sop',ref:'a0',title:'Workflow'},{id:'doc',kind:'doc',ref:'d-msa',title:'Document'}],tab:'map',
+  side:'tree',ent:'seg',agView:null,mapAcc:null,box:'',bn:0,sent:{},skin:'rev',ef:{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false},ptab:'market',job:'',stF:'',stage:'',primary:'map',source:null,orgOpen:false,sopAcc:'a0',lastRef:{},tview:'table',tabs:[{id:'map',kind:'map',ref:null,title:'Map'},{id:'acc',kind:'org',ref:'a0',title:'Account'},{id:'person',kind:'msg',ref:'p-hale',title:'Person'},{id:'flow',kind:'sop',ref:'a0',title:'Workflow'},{id:'doc',kind:'doc',ref:'d-msa',title:'Document'}],tab:'map',
   facts:{},docs:{},tri:{},proj:{},plan:null,chat:[],layout:{side:true,panel:true,agent:true,panelRight:false,swap:false},sopEdit:false,sopFix:null,steps:JSON.parse(JSON.stringify(STEPS0)),fieldPol:{},hidden:{},dnc:{},knobW:{scout:1,qual:1,seller:1,pricer:1,service:1},rules:JSON.parse(JSON.stringify(RULES0))};
 try{const L=JSON.parse(localStorage.getItem('revos-layout-v4')||'null');if(L)Object.assign(S.layout,L);}catch(e){}
 if(window.innerWidth<1280&&!(()=>{try{return localStorage.getItem('revos-layout-v4')}catch(e){return null}})())S.layout.side=false;
@@ -4040,12 +4080,22 @@ function taskKind(x){const k=(x.a||[]).map(a=>a[1]).join(' ');
   if(/fact:/.test(k))return 'fact';
   return 'msg';}
 function taskAgent(x){const m=/open:agent:(\w+)/.exec((x.a||[]).map(a=>a[1]).join(' '));return m?m[1]:null;}
+/* День. Время в системе живёт неделями (W30…W42, сейчас W38) — дня у неё не было,
+   а календарю он нужен, и выдумывать его нельзя. Один день следует из самих данных:
+   встречи этой недели стоят в четверг и пятницу и ещё не прошли, значит сегодня не
+   позже среды. Отсюда одна константа, остальное считается от неё. Чего день не
+   известен — у того его и нет: такие дела лежат на полке «no day set», а не
+   раскладываются наугад по клеткам. */
+const DAYW=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],TODAYD=2;
+function dayOfWhen(w){const m=/^(Mon|Tue|Wed|Thu|Fri|Sat|Sun)/.exec(String(w||''));
+  return m?DAYW.indexOf(m[1]):null;}
 function tasksAt(t){
   const out=[];
   /* 1 · то, что уже подготовили агенты. Это та самая очередь, что живёт в панели:
      не вторая копия, а она же — у панели своё мнение о порядке, здесь полный реестр. */
   allTriage().forEach(x=>out.push({id:x.id,ttl:x.t,why:x.s,wait:x.w||'',kind:taskKind(x),
     by:'agent',owner:x.own,agent:taskAgent(x),due:x.u==='now'?'now':'week',
+    day:x.u==='now'?TODAYD:null,
     acts:x.a,done:S.tri[x.id]||null,metric:x.f||''}));
   /* 2 · встречи. Карина: «план встреч, звонков на сегодня помимо тасков… и чтобы
      к этим встречам проставлялись таски, брифы». Значит встреча — тоже задача,
@@ -4053,7 +4103,7 @@ function tasksAt(t){
   MEET.forEach(m=>{if(m.w>Math.max(t,NOW))return;
     out.push({id:'mt-'+m.id,ttl:m.ttl,why:m.who+' · '+ACCBY[m.acc].name,wait:m.when,
       kind:'meet',by:'meeting',owner:m.own,agent:null,
-      due:m.when==='not scheduled'?'week':'now',meet:m,
+      due:m.when==='not scheduled'?'week':'now',meet:m,day:dayOfWhen(m.when),
       acts:[['Open the briefing','brief:'+m.id],['Open the thread','open:msg:'+m.pid]],
       done:null,metric:''});
     /* Бриф, которого ещё нет, — отдельная задача: без него на встречу идти не с чем. */
@@ -4061,12 +4111,14 @@ function tasksAt(t){
       out.push({id:'br-'+m.id,ttl:'Write the briefing for '+m.who,
         why:'the meeting is '+m.when+' and nothing is pulled together yet',wait:'',
         kind:'meet',by:'meeting',owner:m.own,agent:null,due:'now',meet:m,
+        day:dayOfWhen(m.when),brief:1,
         acts:[['Pull it together','brief:'+m.id]],done:null,metric:''});});
   /* 3 · то, что человек назначил себе сам. Срок и исполнитель есть — значит задача. */
   Object.keys(S.next||{}).forEach(pid=>{const nx=S.next[pid],p=personById(pid);if(!p)return;
     out.push({id:'nx-'+pid,ttl:'Write to '+p.nm+' — '+(CHAN[nx.ch]?CHAN[nx.ch][0]:'email'),
       why:'you scheduled it yourself · '+ACCBY[p.acc].name,wait:nextWords(pid)||'',
       kind:'msg',by:'me',owner:S.profile,agent:null,due:nx.d<=1?'now':'week',
+      day:TODAYD+nx.d<=6?TODAYD+nx.d:null,when:(NEXTS.find(x=>x[0]===nx.d)||[0,'in '+nx.d+' days'])[1],
       acts:[['Open the thread','open:msg:'+pid]],done:null,metric:''});});
   return out;}
 const TOWNNM={head:'Head',sdr:'SDR',ae:'AE',csm:'CSM',gtm:'GTM Eng'};
@@ -4097,6 +4149,114 @@ function tnarrow(){const w=[];
   if(S.tkind)w.push('kind '+TKND[S.tkind]);
   if(S.tby)w.push('put here by '+(TBYNM[S.tby]||S.tby));
   return w.join('</b>, <b>');}
+/* ============ Три вида одной очереди ============
+   Просьба Лизы 10.10: «несколько видов одних и тех же тасков… вид таблицы, вид
+   календаря и вид пайплайна; формат отображения выбирается где-нибудь сверху».
+   Живые экраны, по которым это сделано:
+   · Spotler CRM (бывш. Really Simple Systems) — таблица задач: приоритет · дата ·
+     компания · род · состояние · текст · исполнитель, фильтр «All tasks» и настройка
+     колонок сверху. Наши колонки — те же поля, кроме приоритета: его в данных нет.
+   · Saleswah — месяц клетками и дневная колонка рядом. Клетки взяты, месяц нет:
+     время у нас живёт неделями, и месячная сетка была бы на три четверти пуста.
+   · Bitrix24 — полоса видов (Kanban · List · Activities · Calendar) и канбан СДЕЛОК,
+     где в шапке колонки стоит сумма. На задачи это ложится одним способом: колонка —
+     стадия сделки той компании, которой задача принадлежит, в шапке — деньги,
+     которые на этой стадии стоят.
+   Вид не меняет ни набор задач, ни фильтры слева, ни кнопки внутри строки: это одно
+   множество, показанное с трёх сторон. Открытая задача остаётся открытой при
+   переключении. */
+const TVIEW=[['table','Table'],['cal','Calendar'],['pipe','Pipeline']];
+function taskWhen(x){
+  if(x.done)return String(x.done);
+  if(x.meet)return x.meet.when==='not scheduled'?'no date yet':(x.brief?'before '+x.meet.when:x.meet.when);
+  if(x.when)return x.when;
+  return x.due==='now'?'today':'this week';}
+function taskAccOf(x){const id=taskAcc(x);return (id&&ACCBY[id])||null;}
+function taskStage(x){const a=taskAccOf(x);if(!a)return null;const e=stateAt(a,S.t);return e?e.s:null;}
+/* Светофор у задачи — тот же, что везде: ждёт тебя сейчас — жёлтый, встреча стоит
+   в календаре — зелёная, остальное серое. Род задачи цветом не говорится: род —
+   это слово, иначе цвет означал бы две разные вещи на одном экране. */
+function taskLight(x){if(x.meet&&x.meet.st)return x.meet.st[0];return x.due==='now'?'warn':'flat';}
+/* Почему задача здесь, кто её поставил и что с ней можно сделать. Один кусок на все
+   три вида: кнопки у задачи обязаны быть одни и те же, где бы она ни показалась. */
+function taskBody(x){
+  return `<span class="s">${esc(x.why)}</span>
+    <div class="note">put here by ${esc(TBYNM[x.by]||x.by)}${x.agent?' · '+esc(agBy(x.agent).nm):''} · on ${esc(TOWNNM[x.owner]||x.owner)}</div>
+    <div class="btns">${x.acts.map(([lbl,k],j)=>`<button class="${j===0?'btn':'lnk'}" data-tkact="${x.id}|${k}|${esc(lbl)}">${esc(lbl)}</button>`).join('')}
+      ${x.by==='agent'&&!x.acts.some(a=>/decline|refute|keep it stopped/i.test(a[0]))?`<button class="lnk" data-tkact="${x.id}|decline|Decline">Decline</button>`:''}</div>`;}
+/* В таблице подробности раскрываются прямо под строкой, в календаре и на доске —
+   полосой под сеткой: у клетки и у карточки на это нет ширины, а у кнопок она есть
+   (так же стоит панель задачи у Spotler и дневная колонка у Saleswah). */
+function taskDetail(x){
+  if(!x)return `<div class="note">Pick anything above — the task opens here with why it is on the list and what to do with it.</div>`;
+  const a=taskAccOf(x);
+  return `<div class="tdet"><div class="tdt"><span class="chip">${esc(TKND[x.kind])}</span> ${esc(x.ttl)}
+      <span class="tdw">${esc(taskWhen(x))}${a?' · '+esc(a.name):''}</span></div>${taskBody(x)}</div>`;}
+
+function tasksTable(G,openId){
+  const trow=x=>{const on=x.id===openId&&!x.done,a=taskAccOf(x);
+    return `<tr class="${x.done?'done':''}${on?' on':''}" data-tkopen="${x.id}">
+        <td class="nm">${esc(x.ttl)}</td>
+        <td class="st ${x.done?'flat':taskLight(x)}"><i class="lt"></i>${esc(taskWhen(x))}</td>
+        <td>${a?esc(a.name):'<span class="faint">not an account</span>'}</td>
+        <td><span class="chip">${esc(TKND[x.kind])}</span></td>
+        <td>${esc(TBYNM[x.by]||x.by)}${x.agent?' · '+esc(agBy(x.agent).nm):''}</td>
+        <td>${esc(TOWNNM[x.owner]||x.owner)}</td></tr>`
+      +(on?`<tr class="det"><td colspan="6">${taskBody(x)}</td></tr>`:'');};
+  /* Порядок фокуса, а не сортировка по столбцу (приём Linear): сначала то, что ждёт
+     сегодня, потом календарь, потом неделя, в конце решённое. Группы — заголовками
+     строк, как в любой CRM-таблице с группировкой. */
+  const grp=(ttl,arr)=>arr.length?`<tr class="grp"><td colspan="6">${esc(ttl)} · ${arr.length}</td></tr>`+arr.map(trow).join(''):'';
+  const all=G.now.length+G.cal.length+G.week.length+G.done.length;
+  return `<table class="db tasks"><thead><tr><th>Task</th><th>When</th><th>Account</th><th>Kind</th><th>Put here by</th><th>On</th></tr></thead>
+    <tbody>${all?grp('Now',G.now)+grp('Meetings',G.cal)+grp('This week',G.week)+grp('Settled',G.done)
+      :`<tr><td colspan="6" style="padding:16px;color:var(--fg3)">${tnarrow()?`Nothing here once you narrow by <b>${tnarrow()}</b>.`:'Nothing is waiting on you.'}</td></tr>`}</tbody></table>`;}
+
+function tasksCal(R,openId){
+  const open=R.filter(x=>!x.done),sel=R.find(x=>x.id===openId&&!x.done)||null;
+  const ev=x=>`<button class="cev ${taskLight(x)}${x.id===openId?' on':''}" data-tkopen="${x.id}">
+      <span class="ct">${esc(x.ttl)}</span>
+      <span class="cm">${esc(x.meet&&x.meet.when!=='not scheduled'
+        ?(x.brief?'before ':'')+x.meet.when.replace(/^\w+\s/,''):TKND[x.kind])}</span></button>`;
+  const cell=d=>{const L=open.filter(x=>x.day===d);
+    return `<div class="cday${d===TODAYD?' today':''}">
+      <div class="cdh">${DAYW[d]}${d===TODAYD?' · today':''}</div>${L.map(ev).join('')}</div>`;};
+  const shelf=open.filter(x=>x.day==null);
+  /* Своих стрелок у календаря нет: неделю выбирают внизу слева, и там же её выбор
+     двигает карту, формулу и ленту. Вторая пара стрелок означала бы, что у задач
+     своё время, — а оно у всей системы одно. */
+  return `<div class="calbar"><b>W${S.t} · ${esc(wkd(S.t))}</b>
+      ${S.t!==NOW?`<button class="ib wd" data-week="${NOW}">back to this week</button>`:''}
+      <span class="note">${open.length-shelf.length} of ${open.length} have a day</span></div>
+    <div class="calw">${DAYW.map((_,d)=>cell(d)).join('')}</div>
+    ${shelf.length?`<div class="hdr">No day set · ${shelf.length}</div>
+      <div class="note">Due this week, nobody said which day. Open one and give it a day by scheduling the next touch.</div>
+      <div class="cshelf">${shelf.map(ev).join('')}</div>`:''}
+    ${taskDetail(sel)}`;}
+
+function tasksPipe(R,openId){
+  const open=R.filter(x=>!x.done),sel=R.find(x=>x.id===openId&&!x.done)||null;
+  const by={};open.forEach(x=>{const st=taskStage(x),k=st==null?'none':st;(by[k]=by[k]||[]).push(x);});
+  const nums=Object.keys(by).filter(k=>k!=='none').map(Number).sort((a,b)=>a-b);
+  const cols=[];
+  if(by.none)cols.push(['none','Not on a deal',by.none]);
+  /* Пустая стадия между занятыми остаётся на доске: дырка в воронке — это и есть
+     то, ради чего на неё смотрят. За крайними занятыми колонок нет. */
+  const cap=w=>w.charAt(0).toUpperCase()+w.slice(1);
+  if(nums.length)for(let i=nums[0];i<=nums[nums.length-1];i++)cols.push([i,cap(STAGE[i]),by[i]||[]]);
+  const money=L=>{const seen={};let m=0;
+    L.forEach(x=>{const a=taskAccOf(x);if(a&&!seen[a.id]){seen[a.id]=1;m+=acvAt(a,S.t);}});return m;};
+  const card=x=>{const a=taskAccOf(x);
+    return `<button class="cev ${taskLight(x)}${x.id===openId?' on':''}" data-tkopen="${x.id}">
+      <span class="ct">${esc(x.ttl)}</span>
+      <span class="cm">${a?esc(a.name)+' · ':''}${esc(TKND[x.kind])}</span></button>`;};
+  return `<div class="pipe">${cols.map(([k,ttl,L])=>{const m=k==='none'?0:money(L);
+      return `<div class="pcol"><div class="pch"><span class="pt">${esc(ttl)}</span>
+        <span class="pn">${L.length}${m?' · '+usd(m):''}</span></div>
+        ${L.map(card).join('')||'<div class="note">—</div>'}</div>`;}).join('')
+      ||'<div class="note">Nothing open under these filters.</div>'}</div>
+    ${taskDetail(sel)}`;}
+
 function renderTasks(){
   const R=taskRows(S.t);
   /* Бриф — не отдельный род работы, а состояние встречи: «этот flow вокруг звонка
@@ -4110,33 +4270,21 @@ function renderTasks(){
         week=R.filter(x=>x.due==='week'&&!x.done&&x.kind!=='meet'),
         done=R.filter(x=>x.done);
   const openId=S.tkOpen!==undefined?S.tkOpen:((now[0]||cal[0]||{}).id);
+  const view=TVIEW.some(v=>v[0]===S.tview)?S.tview:'table';
   /* «Your day» одной фразой — приём Clarify. Дешевле дашборда и полезнее: четыре
      счётчика в ряд говорят то же самое, но их надо складывать глазами. */
   const say=[meet.length?`${meet.length} meeting${meet.length===1?'':'s'}`:'',
              brf.length?`${brf.length} of them ${brf.length===1?'has':'have'} no briefing yet`:'',
              now.length?`${now.length} thing${now.length===1?'':'s'} need${now.length===1?'s':''} you now`:'',
              week.length?`${week.length} more this week`:''].filter(Boolean).join(' · ')||'nothing is waiting on you';
-  const row=x=>{const on=x.id===openId&&!x.done;
-    return `<div class="tri ${x.done?'done':''} ${on?'on':''}">`
-      +`<button class="trih" data-tkopen="${x.id}">`
-        +`<span class="t"><span class="chip">${esc(TKND[x.kind])}</span> ${esc(x.ttl)}</span>`
-        +`<span class="m">${x.done?esc(String(x.done)):esc(x.wait||x.metric||'')}</span>`
-      +`</button>`
-      +(on?`<div class="trib"><span class="s">${esc(x.why)}</span>
-          <div class="note">put here by ${esc(TBYNM[x.by]||x.by)}${x.agent?' · '+esc(agBy(x.agent).nm):''} · on ${esc(TOWNNM[x.owner]||x.owner)}</div>
-          <div class="btns">${x.acts.map(([lbl,k],j)=>`<button class="${j===0?'btn':'lnk'}" data-tkact="${x.id}|${k}|${esc(lbl)}">${esc(lbl)}</button>`).join('')}
-            ${x.by==='agent'&&!x.acts.some(a=>/decline|refute|keep it stopped/i.test(a[0]))?`<button class="lnk" data-tkact="${x.id}|decline|Decline">Decline</button>`:''}</div></div>`:'')
-      +`</div>`;};
-  const band=(ttl,arr,empty)=>arr.length||empty
-    ? `<div class="hdr">${ttl} · ${arr.length}</div><div class="tdlist">${arr.map(row).join('')||`<div class="note">${empty}</div>`}</div>`
-    : '';
+  const body=view==='cal'?tasksCal(R,openId)
+            :view==='pipe'?tasksPipe(R,openId)
+            :tasksTable({now,cal,week,done},openId);
   return `<div class="doc"><div class="doch"><div><h2>Tasks</h2>
-      <div class="muted">${esc(say)}</div></div></div>
-    <div class="note">One queue for people and agents. A task from an agent comes already done — open it, and either send it as it stands, change it, or decline with a reason. Nothing here goes out on its own.</div>
-    ${band('Now',now,tnarrow()?`Nothing here once you narrow by <b>${tnarrow()}</b>.`:'Nothing needs you right now.')}
-    ${band('Meetings',cal,'')}
-    ${band('This week',week,'')}
-    ${band('Settled',done,'')}</div>`;}
+      <div class="muted">${esc(say)}</div></div>
+      <span class="pick">${TVIEW.map(([k,t])=>`<button data-tview="${k}" aria-pressed="${view===k}">${t}</button>`).join('')}</span></div>
+    <div class="note">One queue for people and agents, shown three ways — the same tasks, the same filters on the left, the same buttons inside. A task from an agent comes already done: open it, and either send it as it stands, change it, or decline with a reason. Nothing here goes out on its own.</div>
+    ${body}</div>`;}
 
 /* ============ Окно в окне ============
    «Было бы здорово, чтобы это открывалось окно в окне. То есть здесь внутри был
@@ -5510,7 +5658,7 @@ function openRef(k){
 }
 function logAdd(ag,ttl,st){(S.extraLogs=S.extraLogs||[]).push({ag,w:NOW,ttl,st});}
 document.addEventListener('click',e=>{
-  const b=e.target.closest('[data-fmul],[data-open],[data-side],[data-tab],[data-web],[data-tabclose],[data-tkopen],[data-tkact],[data-close],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-feeddown],[data-plus],[data-newchat],[data-agundo],[data-weekpick],[data-week],[data-calm],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-f],[data-freset],[data-fclr],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepsel],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-projset],[data-dbstate],[data-fmode],[data-dbsort],[data-dbmore],[data-dbkind],[data-camp],[data-camprun],[data-chan],[data-find],[data-slot],[data-next],[data-nextclr],[data-addp],[data-intent],[data-pst],[data-campsel],[data-campoff],[data-campblk],[data-campset],[data-campseq],[data-campbox],[data-camprunact],[data-inwin],[data-stuck],[data-mailclear],[data-mailopen],[data-mailstop],[data-mark],[data-note],[data-notecancel],[data-ent],[data-mail],[data-common],[data-importfacts],[data-nextbn],[data-influencer],[data-sim],[data-role],[data-triopen],#fDown,#addFact,#addNote');
+  const b=e.target.closest('[data-fmul],[data-open],[data-side],[data-tab],[data-web],[data-tabclose],[data-tkopen],[data-tkact],[data-close],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-feeddown],[data-plus],[data-newchat],[data-agundo],[data-weekpick],[data-week],[data-calm],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-f],[data-freset],[data-fclr],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepsel],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-projset],[data-dbstate],[data-fmode],[data-dbsort],[data-dbmore],[data-dbkind],[data-camp],[data-camprun],[data-chan],[data-find],[data-slot],[data-next],[data-nextclr],[data-addp],[data-intent],[data-pst],[data-campsel],[data-campoff],[data-campblk],[data-campset],[data-campseq],[data-campbox],[data-camprunact],[data-inwin],[data-stuck],[data-mailclear],[data-mailopen],[data-mailstop],[data-mark],[data-note],[data-notecancel],[data-ent],[data-mail],[data-common],[data-importfacts],[data-nextbn],[data-influencer],[data-sim],[data-role],[data-tview],[data-triopen],#fDown,#addFact,#addNote');
   if(!b){if(S.wkOpen&&!e.target.closest('.wkpop')){S.wkOpen=false;renderFilters();}return;}
   if(S.wkOpen&&!b.dataset.weekpick&&!b.dataset.week&&!b.dataset.calm&&!e.target.closest('.wkpop')){S.wkOpen=false;renderFilters();}
   if(b.dataset.pal)$('pal').hidden=true;
@@ -5851,6 +5999,7 @@ document.addEventListener('click',e=>{
       return;}
     logAdd(id,`Dial: ${KNOB[S.knob[id]]} → ${KNOB[+k]} (${$('profile').selectedOptions[0].text})`,['flat','edited']);S.knob[id]=+k;
     S.ptab='agents';S.layout.panel=true;applyLayout();renderAll();return;}
+  if(b.dataset.tview){S.tview=b.dataset.tview;renderEditor();return;}
   if(b.dataset.tkopen){const id=b.dataset.tkopen;
     S.tkOpen=S.tkOpen===id?null:id;
     /* Строка в колонке слева ведёт в ту же область, иначе нажатие там молчит. */
