@@ -1564,7 +1564,7 @@ const MEET=[
   {id:'mt3',acc:'a0',pid:'p-diaz',who:'Karen Diaz',w:38,when:'Fri 10:00 am',own:'head',brief:0,
    ttl:'Brightline: signature and the go-live date \u00b7 20 min',st:['up','on the calendar'],
    last:'silent for 9 days on LinkedIn'}];
-const BUILD='Oct 10, 23:40';   /* отметка сборки: единственное место, где она живёт */
+const BUILD='Oct 10, 23:55';   /* отметка сборки: единственное место, где она живёт */
 const S={t:NOW,seg:null,downOnly:false,sel:null,level:'segment',K:1,
   knob:{scout:2,qual:2,seller:2,pricer:1,service:1},profile:'head',
   side:'tree',ent:'seg',agView:null,mapAcc:null,box:'',bn:0,sent:{},skin:'rev',ef:{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false},ptab:'market',job:'',stF:'',stage:'',primary:'map',source:null,orgOpen:false,sopAcc:'a0',lastRef:{},tabs:[{id:'map',kind:'map',ref:null,title:'Map'},{id:'acc',kind:'org',ref:'a0',title:'Account'},{id:'person',kind:'msg',ref:'p-hale',title:'Person'},{id:'flow',kind:'sop',ref:'a0',title:'Workflow'},{id:'doc',kind:'doc',ref:'d-msa',title:'Document'}],tab:'map',
@@ -3671,11 +3671,17 @@ function renderDoc(id){const d=DOCS[id],a=ACCBY[d.acc],st=S.docs[id]||{};const P
     ['Nikolai Bobrov','us · '+(ourTurn?'our move':'nothing owed'),st.us?'signed':(ourTurn?'waiting on us':'—')],
     ['The '+(d.src==='quickbooks'?'Billing':'Pricing')+' agent','prepared it · cannot '+owe[0].split(' ')[0],'—']];
   return `<div class="doc"><div class="doch">${logo(a,'sq big')}<div><h2>${esc(d.kind)} · ${esc(a.name)}</h2><div class="muted">${srcIc(d.src).replace('class="src"','class="av sq"')} ${SRC[d.src][0]} · W${d.w} · <span class="chip ${d.status[0]}">${st.us?'signed by us':d.status[1]}</span> · speech act: ${d.act}</div></div></div>
-    <div class="kv">${docFacts(d,a).map(([k,v])=>`<div><span>${k}</span><b>${v}</b></div>`).join('')}</div>
-    ${`<div class="hdr">Where it stands</div><div class="signers">${signers.map((s,i)=>`<div class="signer">${(i===2?agAv('pricer'):face(s[0],'',i===1))}<div class="grow"><div>${esc(s[0])}</div><div class="note">${s[1]}</div></div><span class="chip ${s[2]==='signed'?'up':s[2]==='—'?'flat':'warn'}">${s[2]}</span></div>`).join('')}</div>`}
+    ${/* Сам документ — выше всего, описание под ним: «я хочу, чтобы сначала был
+         выше всего сам PDF-документ, потом уже под ним описание» (Лиза, 10.10).
+         Так устроен любой просмотр бумаги — от DocuSign до почтового вложения:
+         открыл и читаешь, а не читаешь карточку о том, что сейчас откроется. */''}
     <div class="paper" id="paper">${docPaper(d,a)}</div>
     ${/Offer|MSA/.test(d.kind)?`<div class="btns"><button class="btn alt" data-open="price:1" data-tip="What we sell, what costs extra, and what we never promise — this paper carries its own price">Open the price list</button></div>`:''}
     <div class="btns cact">${draftable?`<button class="btn" data-edit="1">Edit</button>`:`<button class="btn" disabled title="${done?'A signed document is not edited \u2014 a new version is issued':'Sent to the client \u2014 changing it here would not change their copy'}">Edit</button>`}${isMSA?`<button class="btn pri" data-sign="${id}" ${canSign&&!st.us?'':'disabled'}>Sign as Nikolai Bobrov</button>`:''}${d.kind==='Offer v2'?`<button class="btn good" data-approve="${id}">Approve the agent’s draft</button><button class="btn bad" data-reject="${id}">Send it back to the agent</button>`:''}</div>
+    <div class="hdr">Where it stands</div>
+    <div class="signers">${signers.map((s,i)=>`<div class="signer">${(i===2?agAv('pricer'):face(s[0],'',i===1))}<div class="grow"><div>${esc(s[0])}</div><div class="note">${s[1]}</div></div><span class="chip ${s[2]==='signed'?'up':s[2]==='—'?'flat':'warn'}">${s[2]}</span></div>`).join('')}</div>
+    <div class="hdr">Details</div>
+    <div class="kv">${docFacts(d,a).map(([k,v])=>`<div><span>${k}</span><b>${v}</b></div>`).join('')}</div>
     <div class="note">${isMSA?(canSign?'A signature is irreversible: only a human with the authority can give it. The agent prepares, the agent does not sign.':'This profile has no signing authority. A signature is the revenue owner\u2019s, and only theirs \u2014 switch to that profile to give it.'):'Opened from the account feed. An agent’s edits stay a draft until a human approves them.'}</div></div>`;}
 /* JOB-024: «А сколько конкретно вот этот человек внутри юрлица мне принёс? Вот там три
    продавана… вот этот принёс вот столько-то» (Николай, 25.09). Выручку между людьми мы
