@@ -84,7 +84,11 @@ q{quotes:"«" "»"}
 .lbtn:hover{background:var(--hover)}
 .lbtn[aria-pressed="true"]{color:var(--fg)}
 .lbtn svg{width:16px;height:16px}
-.profile{height:24px;font-size:11px;padding:0 6px;margin-left:8px;min-width:0;max-width:clamp(88px,17vw,200px)}
+/* Роль — первое, что читают: «главное в левом верхнем углу — кто я, из какой роли
+   я на это смотрю» (Николай, 11.10). Она же задаёт, какие разделы и фильтры
+   появятся слева, поэтому стоит рядом с именем системы, а не среди служебных кнопок. */
+.profile{height:24px;font-size:11px;padding:0 6px;margin-left:10px;min-width:0;max-width:clamp(88px,17vw,200px);flex:none}
+.brand .profile{background:var(--side);border:1px solid var(--border);border-radius:5px;color:var(--fg);font-weight:500}
 
 .body{display:grid;grid-template-columns:66px var(--sbw,270px) 4px minmax(0,1fr) 4px var(--agw,340px);min-height:0}
 @media (max-width:1100px){.body{--agw:300px}}
@@ -750,6 +754,8 @@ table.db.tasks td:first-child{max-width:340px}
    не сжималась, а выпирала за правый край — документ становился шире окна, и всё, что
    справа, срезалось. Множители переносятся на вторую строку; ряд в сетке `.app` и так
    по содержимому, так что высоту он возьмёт сам. */
+.subrule .logttl{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--fg2);font-weight:600}
+.statusbar .sp{flex:1 1 auto;min-width:8px}
 .statusbar{background:var(--title);border-top:1px solid var(--border);display:flex;align-items:center;flex-wrap:wrap;gap:0 14px;min-height:28px;font-size:11px;color:var(--fg2);overflow:hidden;white-space:nowrap;padding-right:4px}
 .statusbar .stat{display:flex;align-items:center;gap:0;min-width:0;overflow:hidden}
 .formula{display:flex;align-items:center;flex-wrap:wrap;gap:0 3px;font-family:var(--ui);font-variant-numeric:tabular-nums;letter-spacing:0;font-size:11px;flex:0 1 auto;min-width:0}
@@ -1246,7 +1252,7 @@ table.db.tasks td:first-child{max-width:340px}
 
 <div class="app" id="app">
   <header class="titlebar">
-    <div class="brand"><svg class="mark" viewBox="60 362 905 300" role="img" aria-label="Intwin"><circle cx="815.5" cy="511.5" r="125" fill="var(--title)" stroke="var(--selbg)" stroke-width="50"/><circle cx="679.5" cy="511.5" r="125" fill="var(--title)" stroke="var(--fg3)" stroke-width="50"/><circle cx="543.5" cy="511.5" r="125" fill="var(--title)" stroke="#0057FF" stroke-width="50"/><circle cx="209.5" cy="511.5" r="150" fill="var(--fg)"/></svg><span>Revenue OS</span></div>
+    <div class="brand"><svg class="mark" viewBox="60 362 905 300" role="img" aria-label="Intwin"><circle cx="815.5" cy="511.5" r="125" fill="var(--title)" stroke="var(--selbg)" stroke-width="50"/><circle cx="679.5" cy="511.5" r="125" fill="var(--title)" stroke="var(--fg3)" stroke-width="50"/><circle cx="543.5" cy="511.5" r="125" fill="var(--title)" stroke="#0057FF" stroke-width="50"/><circle cx="209.5" cy="511.5" r="150" fill="var(--fg)"/></svg><span>Revenue OS</span><select class="profile" id="profile" aria-label="Signed in as"></select></div>
     <div class="cmdw"><button class="cmd" id="openPal"><span>⌕</span><span>Find an account, person, document, agent…</span><kbd>⌘K</kbd></button></div>
     <div class="tright">
       <button class="lbtn" id="tSide" aria-pressed="true" aria-label="Show or hide the left panel" data-tip="Left panel"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor"><rect x="1.5" y="2.5" width="13" height="11" rx="1.5"/><path d="M5.5 2.5v11"/></svg></button>
@@ -1254,7 +1260,6 @@ table.db.tasks td:first-child{max-width:340px}
       <button class="lbtn" id="tAgent" aria-pressed="true" aria-label="Show or hide the agent" data-tip="Agent"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor"><rect x="1.5" y="2.5" width="13" height="11" rx="1.5"/><path d="M10.5 2.5v11"/></svg></button>
       
       <span class="skins" id="skins" role="group" aria-label="Display skin"></span>
-      <select class="profile" id="profile" aria-label="Signed in as"></select>
     </div>
   </header>
 
@@ -1290,7 +1295,7 @@ table.db.tasks td:first-child{max-width:340px}
   </div>
 
   <footer class="statusbar" aria-label="Reference: the formula, the week and the state of the system">
-    <div class="timeline" id="timebar"></div><div class="formula" id="formula"></div><span class="sp"></span><div class="stat" id="status"></div>
+    <div class="formula" id="formula"></div><span class="sp"></span><div class="timeline" id="timebar"></div><div class="stat" id="status"></div>
   </footer>
 </div>
 
@@ -1604,7 +1609,7 @@ const MEET=[
   {id:'mt3',acc:'a0',pid:'p-diaz',who:'Karen Diaz',w:38,when:'Fri 10:00 am',own:'head',brief:0,
    ttl:'Brightline: signature and the go-live date \u00b7 20 min',st:['up','on the calendar'],
    last:'silent for 9 days on LinkedIn'}];
-const BUILD='Oct 11, 00:40';   /* отметка сборки: единственное место, где она живёт */
+const BUILD='Oct 12, 11:10';   /* отметка сборки: единственное место, где она живёт */
 const S={t:NOW,seg:null,downOnly:false,sel:null,level:'segment',K:1,
   knob:{scout:2,qual:2,seller:2,pricer:1,service:1},profile:'head',
   side:'tree',ent:'seg',agView:null,mapAcc:null,box:'',bn:0,sent:{},skin:'rev',ef:{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false},ptab:'market',job:'',stF:'',stage:'',primary:'map',source:null,orgOpen:false,sopAcc:'a0',lastRef:{},tview:'table',tabs:[{id:'map',kind:'map',ref:null,title:'Map'},{id:'acc',kind:'org',ref:'a0',title:'Account'},{id:'person',kind:'msg',ref:'p-hale',title:'Person'},{id:'flow',kind:'sop',ref:'a0',title:'Workflow'},{id:'doc',kind:'doc',ref:'d-msa',title:'Document'}],tab:'map',
@@ -2141,7 +2146,7 @@ function entBadge(k){
    (Николай, 25.09, 1:27:25). Бэкенд и база CRM остаются как есть — меняется только экран. */
 /* Скины. Revenue OS — здесь. GTM и CRM — наши живые приложения: кнопка уводит
    в них, а не показывает их копию. Со временем ходить туда станет незачем. */
-const SKINS=[['rev','Revenue OS',null],
+const SKINS=[['rev','OS',null],
              ['gtm','GTM','https://app.lusin.ai'],
              ['crm','CRM','https://crm.lusin.ai']];
 /* Список ролей берётся из WHOM, иначе он расходится с утверждёнными пятью. */
@@ -4933,7 +4938,11 @@ function feedView(tab){
 function renderPanel(){
   /* Сущность выбирается слева — второго переключателя здесь быть не должно.
      Лента идёт за левой кнопкой: «это просто дублирование» (Николай, 25.09, 58:40). */
-  const FNAME={market:'Market · facts',account:'Accounts · documents',people:'People · speech',flow:'Workflow · the whole deal',channel:'Channel · what landed',agents:'Agents · log'};
+  /* «Здесь agents — это же не log, это же карточка… вы можете это разделить»
+     (Николай, 11.10). Внизу всегда две разные вещи: слева карточка предмета или
+     группы, справа журнал её событий. Одно имя через точку выдавало их за одно. */
+  const FNAME={market:'Market',account:'Accounts',people:'People',flow:'Workflow',channel:'Channel',agents:'Agents'};
+  const FLOGNM={market:'what the market said',account:'what happened with the papers',people:'what was said and by whom',flow:'what moved in the deal',channel:'what landed in the channels',agents:'what the agents did'};
   const mb=S.mail?MAIL.find(m=>m.id===S.mail):null;
   $('ptabs').innerHTML=`<span class="fname">${esc(FNAME[S.ptab]||'Feed')}</span>`
     +(mb?`<span class="faint" style="font-size:11px">${esc(mb.adr)}</span><button class="ib" data-mailclear="1">all mailboxes ×</button>`:'')
@@ -4942,7 +4951,7 @@ function renderPanel(){
   const V=feedView(S.ptab), items=V.rows;
   $('feed').classList.toggle('dense',S.dense!==false);
   const nCom=S.ptab==='market'?MARKET.concat(S.addedFacts||[]).filter(n=>(!S.seg||n.seg===S.seg)&&isCommon(n)).length:0;
-  const head=`<div class="subrule"><span>showing <b>${items.length}</b> of ${V.all.length} · ${FEEDWHY[S.ptab][V.mode==='sig'?0:1]}${nCom?` · <b>${nCom}</b> the team already agreed on`+`` :''}${narrowLine()}</span>
+  const head=`<div class="subrule"><span><b class="logttl">Log</b> · ${esc(FLOGNM[S.ptab]||'what happened')} · showing <b>${items.length}</b> of ${V.all.length} · ${FEEDWHY[S.ptab][V.mode==='sig'?0:1]}${nCom?` · <b>${nCom}</b> the team already agreed on`+`` :''}${narrowLine()}</span>
     ${V.sig.length&&V.sig.length<V.all.length?`<span class="pick"><button data-fmode="sig" aria-pressed="${V.mode==='sig'}" data-tip="Only the lines that need a move">needs a move</button><button data-fmode="all" aria-pressed="${V.mode==='all'}" data-tip="The whole slice, unfiltered">all</button></span>`:''}
     ${GLOSS[S.ptab]?`<span class="gloss">${GLOSS[S.ptab]}</span>`:''}</div>`;
   const add=S.ptab==='market'?`<div class="addfact"><input id="myFact" placeholder="Write a fact or a thought about the market…"><button class="btn" id="addFact">Add</button><button class="btn" data-importfacts="1" data-tip="Log what you heard at a conference in one batch: each fact with its source and unconfirmed">＋ facts from a conference</button></div>`
