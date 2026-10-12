@@ -393,6 +393,8 @@ body.focus-mode .ptabs{cursor:pointer}
 .mslice{position:absolute;left:10px;top:10px;z-index:3;max-width:calc(100% - 80px);font-size:11.5px;color:var(--fg2);background:color-mix(in srgb,var(--editor) 90%,transparent);border:1px solid var(--border);border-radius:8px;padding:5px 10px;line-height:1.35}
 .mslice b{color:var(--fg);font-weight:600}
 .mslice b.down{color:var(--down)} .mslice b.wn{color:var(--warn)} .mslice b.up{color:var(--up)}
+.xbtn{width:20px;height:20px;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;color:var(--fg3);font-size:14px;line-height:1;flex:none}
+.xbtn:hover{background:var(--hover);color:var(--fg)}
 .zonebtn{height:22px;padding:0 9px;border:1px solid var(--border);border-radius:6px;background:transparent;color:var(--fg3);font-size:10px;font-weight:600;letter-spacing:.15em;text-transform:uppercase;white-space:nowrap;flex:none}
 .zonebtn[aria-pressed="true"]{background:var(--selbg);color:var(--fg)}
 .zonebtn:hover{color:var(--accent)}
@@ -1288,7 +1290,7 @@ table.db.tasks td:first-child{max-width:340px}
 
   <div class="body" id="body">
     <nav class="activity" id="activity" aria-label="Sections"></nav>
-    <section class="sidebar"><div class="sidehead"><span class="hdr" id="sideTitle"></span></div><div class="sidebody" id="side"></div></section>
+    <section class="sidebar"><div class="sidehead"><span class="hdr" id="sideTitle"></span><button class="xbtn" id="xSide" aria-label="Close the filters" data-tip="Close this panel — bring it back with Filters above">×</button></div><div class="sidebody" id="side"></div></section>
     <div class="gutter g1" data-g="sbw"></div>
     <main class="center" id="center">
       <section class="editor">
@@ -1304,7 +1306,7 @@ table.db.tasks td:first-child{max-width:340px}
     </main>
     <div class="gutter g2" data-g="agw"></div>
     <aside class="agentbar">
-      <div class="agh"><span class="hdr">My agent</span><span class="aghb"><button class="lbtn" data-newchat="1" aria-label="New conversation" data-tip="New conversation">＋</button><button class="lbtn" data-tip="Conversation history" aria-label="History">⟲</button><button class="lbtn" id="agHide" aria-label="Hide the agent" data-tip="Hide">×</button></span></div>
+      <div class="agh"><span class="hdr">My agent</span><span class="aghb"><button class="lbtn" data-newchat="1" aria-label="New conversation" data-tip="New conversation">＋</button><button class="lbtn" data-tip="Conversation history" aria-label="History">⟲</button><button class="xbtn" id="agHide" aria-label="Close the agent" data-tip="Close this panel — bring it back with Agent above">×</button></span></div>
       <div class="agentry" id="agentry"></div>
       <div class="agbody" id="agbody"></div>
       <div class="ask">
@@ -1709,7 +1711,7 @@ const MEET=[
   {id:'mt3',acc:'a0',pid:'p-diaz',who:'Karen Diaz',w:38,when:'Fri 10:00 am',own:'head',brief:0,
    ttl:'Brightline: signature and the go-live date \u00b7 20 min',st:['up','on the calendar'],
    last:'silent for 9 days on LinkedIn'}];
-const BUILD='Oct 12, 13:31';   /* отметка сборки: единственное место, где она живёт */
+const BUILD='Oct 12, 13:36';   /* отметка сборки: единственное место, где она живёт */
 const S={t:NOW,seg:null,downOnly:false,sel:null,level:'segment',K:1,
   knob:{scout:2,qual:2,seller:2,pricer:1,service:1},profile:'head',
   /* Начальные ступени — не выдумка: они сняты с того, как агенты работают в демо
@@ -2315,6 +2317,9 @@ document.querySelectorAll('.gutter').forEach(g=>{
     g.addEventListener('pointermove',move);g.addEventListener('pointerup',up);});
 });
 $('tSide').onclick=()=>{S.layout.side=!S.layout.side;applyLayout();renderActivity();};
+/* Закрыть можно изнутри крестиком, вернуть — именем зоны наверху. Это не дубль:
+   закрытая шторка не может показать собственную кнопку. */
+$('xSide').onclick=()=>{S.layout.side=false;applyLayout();renderActivity();};
 $('tPanel').onclick=()=>{S.layout.panel=!S.layout.panel;applyLayout();};
 $('tAgent').onclick=()=>{S.layout.agent=!S.layout.agent;applyLayout();};
 
@@ -5092,7 +5097,7 @@ function renderPanel(){
   const mb=S.mail?MAIL.find(m=>m.id===S.mail):null;
   $('ptabs').innerHTML=`<span class="fname">${esc(FNAME[S.ptab]||'Feed')}</span>`
     +(mb?`<span class="faint" style="font-size:11px">${esc(mb.adr)}</span><button class="ib" data-mailclear="1">all mailboxes ×</button>`:'')
-    +`<span style="flex:1"></span><button class="ib" data-feeddown="1" aria-label="${S.feedDown?'Open the feed':'Pull the feed down'}" data-tip="${S.feedDown?'Pull the feed back up':'Pull the feed down — it stays there until you raise it'}">${S.feedDown?'▴':'▾'}</button><span class="dens" role="group" aria-label="Feed density"><button data-dense="1" aria-pressed="${S.dense!==false}" aria-label="Compact" data-tip="Compact: one line per event">≡</button><button data-dense="0" aria-pressed="${S.dense===false}" aria-label="Roomy" data-tip="Roomy: two lines per event">☰</button></span>${S.sel?`<button class="ib" data-clearsel="1">clear selection ×</button>`:''}`;
+    +`<span style="flex:1"></span><button class="xbtn" data-xpanel="1" aria-label="Close the log" data-tip="Close this panel — bring it back with Log above">×</button>`;
   renderEcard();
   const V=feedView(S.ptab), items=V.rows;
   $('feed').classList.toggle('dense',S.dense!==false);
@@ -5926,7 +5931,7 @@ function logAdd(ag,ttl,st,m){const o={ag,w:NOW,ttl,st};
 const LKIND={decision:'decision',edit:'edit',metric:'metric',revert:'revert'};
 const meNow=()=>WHOM[S.profile]||'—';
 document.addEventListener('click',e=>{
-  const b=e.target.closest('[data-lkind],[data-dcl],[data-bkeep],[data-bdrop],[data-bsel],[data-bselall],[data-bgo],[data-bhand],[data-bclr],[data-fmul],[data-open],[data-side],[data-tab],[data-web],[data-tabclose],[data-tkopen],[data-tkact],[data-close],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-feeddown],[data-plus],[data-newchat],[data-agundo],[data-weekpick],[data-week],[data-calm],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-f],[data-freset],[data-fclr],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepsel],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-projset],[data-dbstate],[data-fmode],[data-dbsort],[data-dbmore],[data-dbkind],[data-camp],[data-camprun],[data-chan],[data-find],[data-slot],[data-next],[data-nextclr],[data-addp],[data-intent],[data-pst],[data-campsel],[data-campoff],[data-campblk],[data-campset],[data-campseq],[data-campbox],[data-camprunact],[data-inwin],[data-stuck],[data-mailclear],[data-mailopen],[data-mailstop],[data-mark],[data-note],[data-notecancel],[data-ent],[data-mail],[data-common],[data-importfacts],[data-nextbn],[data-influencer],[data-sim],[data-role],[data-tview],[data-triopen],#fDown,#addFact,#addNote');
+  const b=e.target.closest('[data-xpanel],[data-lkind],[data-dcl],[data-bkeep],[data-bdrop],[data-bsel],[data-bselall],[data-bgo],[data-bhand],[data-bclr],[data-fmul],[data-open],[data-side],[data-tab],[data-web],[data-tabclose],[data-tkopen],[data-tkact],[data-close],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-feeddown],[data-plus],[data-newchat],[data-agundo],[data-weekpick],[data-week],[data-calm],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-f],[data-freset],[data-fclr],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepsel],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-projset],[data-dbstate],[data-fmode],[data-dbsort],[data-dbmore],[data-dbkind],[data-camp],[data-camprun],[data-chan],[data-find],[data-slot],[data-next],[data-nextclr],[data-addp],[data-intent],[data-pst],[data-campsel],[data-campoff],[data-campblk],[data-campset],[data-campseq],[data-campbox],[data-camprunact],[data-inwin],[data-stuck],[data-mailclear],[data-mailopen],[data-mailstop],[data-mark],[data-note],[data-notecancel],[data-ent],[data-mail],[data-common],[data-importfacts],[data-nextbn],[data-influencer],[data-sim],[data-role],[data-tview],[data-triopen],#fDown,#addFact,#addNote');
   if(!b){if(S.wkOpen&&!e.target.closest('.wkpop')){
     /* Начало отмечено, а конец не назван — значит человек выбрал одну неделю. */
     if(S.wkA!=null){S.t=S.wkA;S.win=1;S.wkA=null;S.wkOpen=false;renderAll();return;}
@@ -6076,7 +6081,6 @@ document.addEventListener('click',e=>{
     const f=FFLD[k];if(!f)return;
     f.set(String(f.get())===v&&!f.keep?'':v);
     afterFilter(f);return;}
-  if(b.dataset.feeddown){S.feedDown=!S.feedDown;renderEditor();return;}
   if(b.dataset.fclr){const f=FFLD[b.dataset.fclr];if(f){f.set(f.type==='tog'?false:f.type==='rng'?['','']:'');afterFilter(f);}return;}
   if(b.dataset.freset!==undefined){let wide=false;
     (FSET[b.dataset.freset]||[]).forEach(k=>{const f=FFLD[k];if(!f||f.keep)return;f.set(f.type==='tog'?false:f.type==='rng'?['','']:'');if(!f.light)wide=true;});
@@ -6118,6 +6122,7 @@ document.addEventListener('click',e=>{
     const ids=[...document.querySelectorAll('[data-bsel]')].map(x=>x.dataset.bsel);
     S.bsel=S.bsel||{};const all=ids.length&&ids.every(id=>S.bsel[id]);
     ids.forEach(id=>{if(all)delete S.bsel[id];else S.bsel[id]=1;});renderDB();return;}
+  if(b.dataset.xpanel){S.layout.panel=false;applyLayout();return;}
   if(b.dataset.lkind!==undefined){S.lkind=b.dataset.lkind||null;renderPanel();return;}
   if(b.dataset.dcl){const [c,st]=b.dataset.dcl.split(':');const was=dstep(c);
     if(was===st)return;
