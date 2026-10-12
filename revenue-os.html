@@ -43,7 +43,10 @@ b,strong,h1,h2,h3,th{font-weight:600}
 *{box-sizing:border-box}
 html,body{height:100%}
 body{margin:0;background:var(--editor);color:var(--fg);font-family:var(--ui);font-size:13px;line-height:1.4;overflow:hidden}
-button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer;text-align:inherit}
+/* У кнопки браузер ставит свой text-transform, и он не наследуется от родителя.
+   Из-за этого имена вкладок оставались в обычном регистре, хотя правило зоны
+   говорило «капитель»: я объявила типографику выровненной, а она не применилась. */
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer;text-align:inherit;text-transform:inherit;letter-spacing:inherit}
 button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:1px solid var(--accent);outline-offset:-1px}
 input,select,textarea{font:inherit;color:var(--fg);background:var(--input);border:1px solid var(--border);border-radius:4px;padding:4px 7px}
 .num{font-family:var(--ui);font-variant-numeric:tabular-nums;letter-spacing:0;font-variant-numeric:tabular-nums}
@@ -1706,7 +1709,7 @@ const MEET=[
   {id:'mt3',acc:'a0',pid:'p-diaz',who:'Karen Diaz',w:38,when:'Fri 10:00 am',own:'head',brief:0,
    ttl:'Brightline: signature and the go-live date \u00b7 20 min',st:['up','on the calendar'],
    last:'silent for 9 days on LinkedIn'}];
-const BUILD='Oct 12, 13:20';   /* отметка сборки: единственное место, где она живёт */
+const BUILD='Oct 12, 13:31';   /* отметка сборки: единственное место, где она живёт */
 const S={t:NOW,seg:null,downOnly:false,sel:null,level:'segment',K:1,
   knob:{scout:2,qual:2,seller:2,pricer:1,service:1},profile:'head',
   /* Начальные ступени — не выдумка: они сняты с того, как агенты работают в демо
