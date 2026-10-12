@@ -74,12 +74,13 @@ q{quotes:"«" "»"}
 /* shell: VS Code workbench */
 .app{height:100%;display:grid;grid-template-rows:35px minmax(0,1fr) auto}   /* последний ряд по содержимому: фиксированные 22px не совпадали с высотой строки и вылезали за окно */
 .app>*{min-width:0}
-.titlebar{background:var(--title);border-bottom:1px solid var(--border);display:grid;grid-template-columns:minmax(0,1fr) minmax(120px,560px) minmax(0,1fr);align-items:center;padding-inline:10px;gap:8px;overflow:hidden}
+.titlebar{background:var(--title);border-bottom:1px solid var(--border);display:flex;align-items:center;padding-inline:10px;gap:12px;overflow:hidden}
+.titlebar .cmdw{flex:1 1 auto;min-width:0}
 .brand{display:flex;align-items:center;gap:8px;font-weight:600;white-space:nowrap;overflow:hidden;min-width:0}
 .brand .ex{font-family:var(--ui);font-variant-numeric:tabular-nums;letter-spacing:0;font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--fg3);border:1px dashed var(--fg3);border-radius:4px;padding:0 5px}
 .cmd{display:flex;align-items:center;gap:8px;height:24px;border:1px solid var(--border);border-radius:8px;background:var(--input);padding-inline:10px;color:var(--fg2);font-size:11px;width:100%}
 .cmd kbd{margin-left:auto;font-family:var(--ui);font-variant-numeric:tabular-nums;letter-spacing:0;font-size:11px;color:var(--fg3)}
-.tright{display:flex;justify-content:flex-end;align-items:center;gap:4px;min-width:0;overflow:hidden}
+.tright{display:flex;justify-content:flex-end;align-items:center;gap:6px;white-space:nowrap;flex:none}
 .lbtn{width:26px;height:24px;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;color:var(--fg2)}
 .lbtn:hover{background:var(--hover)}
 .lbtn[aria-pressed="true"]{color:var(--fg)}
@@ -87,7 +88,9 @@ q{quotes:"«" "»"}
 /* Роль — первое, что читают: «главное в левом верхнем углу — кто я, из какой роли
    я на это смотрю» (Николай, 11.10). Она же задаёт, какие разделы и фильтры
    появятся слева, поэтому стоит рядом с именем системы, а не среди служебных кнопок. */
-.subrule.jrn{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding-top:0}
+.subrule{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.subrule .sp{flex:1 1 auto}
+.lscope{color:var(--fg2);border-bottom:1px dotted var(--border)}
 .nevdo{padding:8px 10px;border:1px solid var(--border);border-left:3px solid var(--bad);border-radius:6px;font-size:12px;color:var(--fg)}
 .dcls{display:flex;flex-direction:column;gap:6px}
 .dclrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:7px 9px;border:1px solid var(--border);border-radius:6px}
@@ -289,7 +292,8 @@ body.focus-mode .ptabs{cursor:pointer}
 .editor{display:flex;flex-direction:column;min-height:0;min-width:0;background:var(--editor)}
 .tabs{display:flex;background:var(--tab);border-bottom:1px solid var(--border);overflow-x:auto;flex:none;height:35px}
 .tabs::-webkit-scrollbar{height:3px}
-.tabb{display:flex;align-items:center;gap:8px;padding:0 10px 0 12px;border-right:1px solid var(--border);white-space:nowrap;color:var(--fg2);font-size:13px;border-top:1px solid transparent;flex:none}
+.tabb{display:flex;align-items:center;gap:7px;padding:0 10px 0 12px;border-right:1px solid var(--border);white-space:nowrap;color:var(--fg2);font-size:10px;font-weight:600;letter-spacing:.15em;text-transform:uppercase;border-top:1px solid transparent;flex:none}
+.tabb .sub{letter-spacing:.04em;font-weight:400;text-transform:none;color:var(--fg3)}
 .tabb[aria-selected="true"]{background:var(--tab-on);color:var(--fg);border-top-color:var(--accent)}
 .tabb .x{width:18px;height:18px;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;color:var(--fg3);font-size:13px}
 .tabb .x:hover{background:var(--hover);color:var(--fg)}
@@ -386,6 +390,9 @@ body.focus-mode .ptabs{cursor:pointer}
 .mslice{position:absolute;left:10px;top:10px;z-index:3;max-width:calc(100% - 80px);font-size:11.5px;color:var(--fg2);background:color-mix(in srgb,var(--editor) 90%,transparent);border:1px solid var(--border);border-radius:8px;padding:5px 10px;line-height:1.35}
 .mslice b{color:var(--fg);font-weight:600}
 .mslice b.down{color:var(--down)} .mslice b.wn{color:var(--warn)} .mslice b.up{color:var(--up)}
+.zonebtn{height:22px;padding:0 9px;border:1px solid var(--border);border-radius:6px;background:transparent;color:var(--fg3);font-size:10px;font-weight:600;letter-spacing:.15em;text-transform:uppercase;white-space:nowrap;flex:none}
+.zonebtn[aria-pressed="true"]{background:var(--selbg);color:var(--fg)}
+.zonebtn:hover{color:var(--accent)}
 .skins{display:inline-flex;flex:none;border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-right:8px}
 .skins button,.skins a{display:inline-flex;align-items:center;height:22px;padding:0 8px;font-size:10px;color:var(--fg3);white-space:nowrap;flex:none;text-decoration:none}
 .skins button[aria-pressed="true"]{background:var(--selbg);color:var(--fg)}
@@ -614,7 +621,7 @@ table.runs td{padding:4px 8px 4px 0;border-top:1px solid color-mix(in srgb,var(-
 .fi .lead{display:flex;align-items:center;justify-content:center}
 .fi .av{width:20px;height:20px;font-size:10px;margin-top:4px}
 .fi .av.bot{padding:4px}
-.fname{font-family:var(--ui);font-variant-numeric:tabular-nums;letter-spacing:0;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--fg3);padding:0 8px 0 12px;flex:none}
+.fname{font-family:var(--ui);font-variant-numeric:tabular-nums;font-size:10px;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:var(--fg2);padding:0 8px 0 12px;flex:none}
 .pick.ent button{height:20px;padding:0 7px;font-size:11px;display:flex;align-items:center;gap:4px}
 .pick.ent button b{font-family:var(--ui);font-variant-numeric:tabular-nums;letter-spacing:0;font-size:10px;font-weight:600;opacity:.75}
 .feed .subrule{padding:8px 12px;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:2;background:var(--panel)}
@@ -833,7 +840,6 @@ table.db.tasks td:first-child{max-width:340px}
   .panel{min-height:360px}
   .pbody{grid-template-columns:1fr}
   .ecard{border-right:0;border-bottom:1px solid var(--border)}
-  .titlebar{grid-template-columns:1fr auto}
   .titlebar .cmdw{display:none}
   .timeline{margin-left:0}
 }
@@ -1269,12 +1275,10 @@ table.db.tasks td:first-child{max-width:340px}
     <div class="brand"><svg class="mark" viewBox="60 362 905 300" role="img" aria-label="Intwin"><circle cx="815.5" cy="511.5" r="125" fill="var(--title)" stroke="var(--selbg)" stroke-width="50"/><circle cx="679.5" cy="511.5" r="125" fill="var(--title)" stroke="var(--fg3)" stroke-width="50"/><circle cx="543.5" cy="511.5" r="125" fill="var(--title)" stroke="#0057FF" stroke-width="50"/><circle cx="209.5" cy="511.5" r="150" fill="var(--fg)"/></svg><span>Revenue OS</span><select class="profile" id="profile" aria-label="Signed in as"></select></div>
     <div class="cmdw"><button class="cmd" id="openPal"><span>⌕</span><span>Find an account, person, document, agent…</span><kbd>⌘K</kbd></button></div>
     <div class="tright">
-      <button class="lbtn" id="tSide" aria-pressed="true" aria-label="Show or hide the left panel" data-tip="Left panel"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor"><rect x="1.5" y="2.5" width="13" height="11" rx="1.5"/><path d="M5.5 2.5v11"/></svg></button>
-      <button class="lbtn" id="tPanel" aria-pressed="true" aria-label="Show or hide the feeds" data-tip="Feeds"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor"><rect x="1.5" y="2.5" width="13" height="11" rx="1.5"/><path d="M1.5 9.5h13"/></svg></button>
-      <button class="lbtn" id="tAgent" aria-pressed="true" aria-label="Show or hide the agent" data-tip="Agent"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor"><rect x="1.5" y="2.5" width="13" height="11" rx="1.5"/><path d="M10.5 2.5v11"/></svg></button>
-      
-      <span class="skins" id="skins" role="group" aria-label="Display skin"></span>
-    </div>
+      <button class="zonebtn" id="tSide" aria-pressed="true" aria-label="Show or hide the filters">Filters</button>
+      <button class="zonebtn" id="tPanel" aria-pressed="true" aria-label="Show or hide the log">Log</button>
+      <button class="zonebtn" id="tAgent" aria-pressed="true" aria-label="Show or hide the agent">Agent</button>
+          </div>
   </header>
 
   <div class="body" id="body">
@@ -1697,7 +1701,7 @@ const MEET=[
   {id:'mt3',acc:'a0',pid:'p-diaz',who:'Karen Diaz',w:38,when:'Fri 10:00 am',own:'head',brief:0,
    ttl:'Brightline: signature and the go-live date \u00b7 20 min',st:['up','on the calendar'],
    last:'silent for 9 days on LinkedIn'}];
-const BUILD='Oct 12, 12:56';   /* отметка сборки: единственное место, где она живёт */
+const BUILD='Oct 12, 13:13';   /* отметка сборки: единственное место, где она живёт */
 const S={t:NOW,seg:null,downOnly:false,sel:null,level:'segment',K:1,
   knob:{scout:2,qual:2,seller:2,pricer:1,service:1},profile:'head',
   /* Начальные ступени — не выдумка: они сняты с того, как агенты работают в демо
@@ -2261,11 +2265,9 @@ const SKINS=[['rev','OS',null],
 /* Список ролей берётся из WHOM, иначе он расходится с утверждёнными пятью. */
 function renderProfiles(){const el=$('profile');if(!el)return;
   el.innerHTML=Object.entries(WHOM).map(([k,nm])=>`<option value="${k}" ${S.profile===k?'selected':''}>${esc(nm)}</option>`).join('');}
-function renderSkins(){
-  $('skins').innerHTML=SKINS.map(([k,nm,url])=>url
-    ?`<a href="${url}" target="_blank" rel="noopener" data-tip="Opens ${nm} in a new tab — ${url.replace('https://','')}">${nm} ↗</a>`
-    :`<button aria-pressed="true">${nm}</button>`).join('');
-}
+/* Переключатель OS / GTM / CRM убран: этих систем в функционале не будет,
+   а орган управления, которому нечем управлять, себя не оправдывает. */
+function renderSkins(){}
 function renderActivity(){
   $('activity').innerHTML=ENTS.map(([k,,ic])=>{
     const n=entBadge(k), on=S.ent===k&&S.layout.side;
@@ -2438,15 +2440,15 @@ function filterBar(ent){
     return `<div class="frow"${f.hint?` data-tip="${esc(f.hint)}"`:''}><span class="fk">${esc(f.lbl)}</span><select class="fv" data-fsel="${k}">`
       +opts.map(o=>`<option value="${esc(String(o[0]))}" ${cur===String(o[0])?'selected':''}>${esc(o[1])}</option>`).join('')
       +`</select>${on?`<button class="fx" data-fclr="${k}" aria-label="Clear ${esc(f.lbl)}">×</button>`:'<span class="fx"></span>'}</div>`;};
-  return `<div class="sfilt"><div class="hdr">Filters`
-    +(set?`<button class="fclr" data-freset="${ent}">Clear all filters</button>`:'')+`</div>`
+  return `<div class="sfilt">`
+    +(set?`<div class="hdr"><button class="fclr" data-freset="${ent}">Clear all filters</button></div>`:'')
     +flds.map(row).join('')+`</div>`;
 }
 function renderSide(){
   /* «Вот здесь “Segment” — это вообще удалить, сегмент выше» (06.10, 00:43):
      над фильтрами стояло четыре заголовка подряд. Остался один — внутри карточки. */
-  $('sideTitle').textContent=S.side==='tree'?'':'Profile';
-  $('sideTitle').parentNode.style.display=S.side==='tree'?'none':'';let h='';
+  $('sideTitle').textContent=S.side==='tree'?'Filters':'Profile';
+  $('sideTitle').parentNode.style.display='';let h='';
   if(S.side==='tree'){
     const ent=S.ent||'seg', tt=S.t;
     S.ef=S.ef||{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false};
@@ -5085,16 +5087,23 @@ function renderPanel(){
   const V=feedView(S.ptab), items=V.rows;
   $('feed').classList.toggle('dense',S.dense!==false);
   const nCom=S.ptab==='market'?MARKET.concat(S.addedFacts||[]).filter(n=>(!S.seg||n.seg===S.seg)&&isCommon(n)).length:0;
-  const head=`<div class="subrule"><span><b class="logttl">Log</b> · ${esc(FLOGNM[S.ptab]||'what happened')} · showing <b>${items.length}</b> of ${V.all.length} · ${FEEDWHY[S.ptab][V.mode==='sig'?0:1]}${nCom?` · <b>${nCom}</b> the team already agreed on`+`` :''}${narrowLine()}</span>
-    ${V.sig.length&&V.sig.length<V.all.length?`<span class="pick"><button data-fmode="sig" aria-pressed="${V.mode==='sig'}" data-tip="Only the lines that need a move">needs a move</button><button data-fmode="all" aria-pressed="${V.mode==='all'}" data-tip="The whole slice, unfiltered">all</button></span>`:''}
-    ${GLOSS[S.ptab]?`<span class="gloss">${GLOSS[S.ptab]}</span>`:''}</div>`
-    /* Четыре журнала одной лентой. Счёт у каждого свой и считается, а не пишется:
-       пустой срез так и говорит «пока ни одного», а не исчезает молча. */
-    +(S.ptab==='agents'?(()=>{const all=LOGS.concat(S.extraLogs||[]).filter(l=>l.w<=Math.max(S.t,NOW));
+  /* Шапка лога была в три этажа: имя, длинное объяснение, вторая строка-пояснение,
+     а поверх ещё переключатель журналов. Человек, открывший задачи, видел четыре
+     строки текста прежде первой записи. Теперь одна строка: чей это лог, сколько
+     строк и из скольких. Объяснения ушли в подсказку — они нужны один раз. */
+  const scope = S.sel&&S.sel.type==='acc' ? (ACCBY[S.sel.id]||{}).name
+    : S.sel&&S.sel.type==='agent' ? (agBy(S.sel.id)||{}).nm
+    : S.sel&&S.sel.type==='person' ? ((personById(S.sel.id)||{}).nm)
+    : S.mail ? (MAILBY[S.mail]||{}).adr
+    : S.seg ? segBy(S.seg).name : null;
+  const head=`<div class="subrule"><b class="logttl">Log</b>
+    <span class="lscope" data-tip="${esc(FEEDWHY[S.ptab][V.mode==='sig'?0:1])}">${esc(FLOGNM[S.ptab]||'what happened')}</span>
+    <span class="faint">${scope?'· '+esc(scope)+' only':'· the whole company'} · <b>${items.length}</b> of ${V.all.length}</span>
+    ${V.sig.length&&V.sig.length<V.all.length?`<span class="pick"><button data-fmode="sig" aria-pressed="${V.mode==='sig'}" data-tip="Only the lines that need a move">needs a move</button><button data-fmode="all" aria-pressed="${V.mode==='all'}" data-tip="Everything, including what needs nothing">all</button></span>`:''}
+    ${S.ptab==='agents'?(()=>{const all=LOGS.concat(S.extraLogs||[]).filter(l=>l.w<=Math.max(S.t,NOW));
       const cnt=k=>all.filter(l=>(l.kind||'decision')===k).length;
-      return `<div class="subrule jrn"><span class="logttl">Four logs</span>
-        <span class="pick"><button data-lkind="" aria-pressed="${!S.lkind}" data-tip="Everything, in one list">all ${all.length}</button>${LKINDS.map(([k,nm,why])=>`<button data-lkind="${k}" aria-pressed="${S.lkind===k}" data-tip="${esc(why)}">${nm} ${cnt(k)}</button>`).join('')}</span>
-        <span class="gloss">${esc((LKINDS.find(x=>x[0]===S.lkind)||[0,0,'a decision, the edits it caused, how often it runs, and what was taken back — four different questions to the same history'])[2])}</span></div>`;})():'');
+      return `<span class="sp"></span><span class="pick" data-tip="A decision, the edits it caused, how often it runs, and what was taken back — four different questions to the same history"><button data-lkind="" aria-pressed="${!S.lkind}">all ${all.length}</button>${LKINDS.map(([k,nm,why])=>`<button data-lkind="${k}" aria-pressed="${S.lkind===k}" data-tip="${esc(why)}">${nm} ${cnt(k)}</button>`).join('')}</span>`;})():''}
+    </div>`;
   const add=S.ptab==='market'?`<div class="addfact"><input id="myFact" placeholder="Write a fact or a thought about the market…"><button class="btn" id="addFact">Add</button><button class="btn" data-importfacts="1" data-tip="Log what you heard at a conference in one batch: each fact with its source and unconfirmed">＋ facts from a conference</button></div>`
     :(S.noteFor?`<div class="addfact"><input id="myNote" placeholder="Add your own — a note under your name…" autofocus><button class="btn" id="addNote">Add</button><button class="ib" data-notecancel="1">×</button></div>`:'');
   const body=items.length
@@ -5848,7 +5857,9 @@ function renderStatus(){const alarms=AGENTS.filter(a=>a.state==='paused').length
      страницы и окно браузера — разные вещи (масштаб, свёрнутая вкладка, жест
      на трекпаде). Числа видно наведением, и их можно просто переслать. */
   const z=Math.round((window.outerWidth/Math.max(1,window.innerWidth))*100);
-  $('status').innerHTML=`<span class="it bld" data-tip="Build ${BUILD} · page window ${window.innerWidth}\u00d7${window.innerHeight} · document ${document.body.scrollWidth}\u00d7${document.body.scrollHeight} · browser window ${window.outerWidth} · pixel ratio ${devicePixelRatio} · zoom about ${z}%. If the build is older than you expect, the page came from cache — press Cmd+Shift+R.">${BUILD}</span>`;}
+  /* Сборка и размеры окна ушли из строки состояния: сегодняшнее число ничего
+     не решает в работе, а номер сборки — отладка, а не работа. */
+  $('status').innerHTML='';}
 let palSel=0;
 function openPal(){$('pal').hidden=false;$('palIn').value='';palSel=0;renderPal();$('palIn').focus();}
 function renderPal(){const q=$('palIn').value.toLowerCase();const r=allEntities().filter(e=>!q||(e.t+' '+e.ty).toLowerCase().includes(q)).slice(0,30);S.palR=r;
