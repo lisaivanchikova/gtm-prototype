@@ -1195,7 +1195,7 @@ table.db.tasks td:first-child{max-width:340px}
 .timeline .tl:hover{border-color:var(--border);color:var(--fg)}
 .timeline .tl[aria-expanded="true"]{border-color:var(--accent);color:var(--fg)}
 .timeline .tl .cv{font-style:normal;font-size:10px;color:var(--fg3)}
-.wkpop{position:absolute;bottom:calc(100% + 7px);left:0;z-index:60;background:var(--editor);border:1px solid var(--border);border-radius:8px;box-shadow:0 12px 34px rgba(0,0,0,.45);padding:12px 12px;min-width:430px;font-family:var(--ui)}
+.wkpop{position:absolute;bottom:calc(100% + 7px);right:0;left:auto;max-width:calc(100vw - 24px);z-index:60;background:var(--editor);border:1px solid var(--border);border-radius:8px;box-shadow:0 12px 34px rgba(0,0,0,.45);padding:12px 12px;min-width:430px;font-family:var(--ui)}
 .wkh{display:flex;flex-direction:column;gap:4px;margin-bottom:8px;font-size:11px}
 .wkh .faint{font-size:10px}
 .wkcal{display:flex;gap:12px;align-items:flex-start}
@@ -1219,6 +1219,8 @@ table.db.tasks td:first-child{max-width:340px}
 
 /* Календарь: дни сеткой, неделя — строка, подсвечивается целиком. */
 .wkpop{min-width:330px}
+.calrow.inr{background:color-mix(in srgb,var(--accent) 10%,transparent)}
+.calrow.aw{outline:1px solid var(--accent);outline-offset:-1px}
 .calh{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;font-size:11px}
 .calnav{width:24px;height:24px;border:1px solid var(--border);border-radius:8px;background:none;color:var(--fg2);cursor:pointer;font-size:11px;line-height:1}
 .calnav:hover:not([disabled]){border-color:var(--fg3);color:var(--fg)}
@@ -1333,7 +1335,10 @@ const TOPO={"type":"Topology","bbox":[-57.66491068874468,12.97635452036684,957.5
    до любых данных: peopleOf зовётся уже при сборке модели, когда ни S, ни ACC ещё нет. */
 const ROLEOV={};
 /* =================== model =================== */
-const NOW=38,TMIN=30,TMAX=42,WIN=4;
+const NOW=38,TMIN=30,TMAX=42;
+/* Промежуток выбирается целиком: S.t — правая граница, win() — сколько недель
+   он захватывает. Раньше ширина была зашита числом 4 и выбрать её было нельзя. */
+const win=()=>Math.max(1,Math.min(TMAX-TMIN,(S&&S.win)||4));
 const SEGS=[
   /* Имя сегмента — его работа, глагольной фразой. Ярлыки «Compliance-first» канон
      запрещает прямо: «Job statement — глагольная фраза, а не именная; ярлык категории
@@ -1701,7 +1706,7 @@ const MEET=[
   {id:'mt3',acc:'a0',pid:'p-diaz',who:'Karen Diaz',w:38,when:'Fri 10:00 am',own:'head',brief:0,
    ttl:'Brightline: signature and the go-live date \u00b7 20 min',st:['up','on the calendar'],
    last:'silent for 9 days on LinkedIn'}];
-const BUILD='Oct 12, 13:13';   /* отметка сборки: единственное место, где она живёт */
+const BUILD='Oct 12, 13:20';   /* отметка сборки: единственное место, где она живёт */
 const S={t:NOW,seg:null,downOnly:false,sel:null,level:'segment',K:1,
   knob:{scout:2,qual:2,seller:2,pricer:1,service:1},profile:'head',
   /* Начальные ступени — не выдумка: они сняты с того, как агенты работают в демо
@@ -1836,7 +1841,7 @@ function zeroReason(){
     pool=next;}
   return {left:out,killer:null};}
 function segN(st){st=st||S.stF;let n=0;const jf=S.job==='hipaa'?.6:S.job==='ftc'?.4:1;for(const [k,p] of Object.entries(POP)){if(st&&k!==st)continue;for(const g of SEGS){if(S.seg&&g.id!==S.seg)continue;n+=p*g.perM*(g.id==='cmp'?jf:(S.job&&S.job!==g.id?0:1));}}return Math.round(n);}
-function formulaAt(t,st){const t0=t-WIN;let start=0,end=0,kept=0,newA=0,newC=0,interest=0;
+function formulaAt(t,st){const t0=t-win();let start=0,end=0,kept=0,newA=0,newC=0,interest=0;
   for(const a of ACC){if(!inF(a))continue;if(st&&a.st!==st)continue;const e0=stateAt(a,t0),e1=stateAt(a,t),a0=isActive(e0),a1=isActive(e1);
     if(a0)start+=acvAt(a,t0);if(a1)end+=acvAt(a,t);if(a0&&a1)kept+=acvAt(a,t);if(!a0&&a1){newA+=acvAt(a,t);newC++;}
     if(!filtered(a)&&a.ev[0].s===1&&a.ev[0].w>t0&&a.ev[0].w<=t)interest++;}
@@ -3128,7 +3133,7 @@ function selectAcc(a){S.sel={type:'acc',id:a.id};S.mapAcc=a.id;S.sopAcc=a.id;S.o
   pointAllViews(a);syncFilters();renderTabs();renderEditor();
   if(ML&&MLREADY)ML.flyTo({center:llOf(a),zoom:Math.max(ML.getZoom(),13),duration:900});
   setEnt('acc');renderAllButMap();renderMap();}
-function segMetrics(g){const sv=S.seg;S.seg=g.id;const a=formulaAt(S.t),b=formulaAt(Math.max(TMIN,S.t-WIN));S.seg=sv;
+function segMetrics(g){const sv=S.seg;S.seg=g.id;const a=formulaAt(S.t),b=formulaAt(Math.max(TMIN,S.t-win()));S.seg=sv;
   return {mkt:a.N*g.acv,N:a.N,arr:a.end,d:b.end?a.end/b.end-1:0};}
 /* деньги и движение одного сегмента в одном штате: та же мера, что и у всего штата,
    просто срез сузили. Срез ставится глобально, поэтому его надо вернуть на место. */
@@ -3190,7 +3195,7 @@ document.addEventListener('mouseout',e=>{
   document.querySelectorAll('.formula .fm.pointed').forEach(x=>x.classList.remove('pointed'));
 });
 function fmulAsk(k){
-  const F=formulaAt(S.t), P=formulaAt(S.t-WIN), E=formulaAt(TMAX);
+  const F=formulaAt(S.t), P=formulaAt(S.t-win()), E=formulaAt(TMAX);
   /* Итог спрашивают иначе, чем множитель: не «почему он такой», а «куда он придёт».
      Ответ кончается ходом дальше — сравнением сценариев, у которого своего места
      на экране нет и не должно быть: это разговор, а не экран. */
@@ -3225,7 +3230,7 @@ function fmulAsk(k){
   renderAgent(); agScroll();
 }
 function renderFormula(){
-  const F=formulaAt(S.t),P=formulaAt(S.t-WIN),ap=S.t>NOW?'\u2248':'';
+  const F=formulaAt(S.t),P=formulaAt(S.t-win()),ap=S.t>NOW?'\u2248':'';
   /* Четыре работы Head живут в этой строке, а не в центре: спуститься от упавшей
      цифры до причины, сравнить сценарии, посчитать что будет если не менять,
      отмотать назад. Поэтому множитель — не надпись, а вход. */
@@ -3243,7 +3248,7 @@ function renderFormula(){
        придёт. Отсюда обе оставшиеся работы Head — прогноз и сравнение сценариев. */
     `<button class="fres" data-fmul="arr" data-tip="Where this ends up if nothing changes \u2014 and the ways to change it"><i>${S.t>NOW?'ARR forecast':'ARR'}</i><span class="v">${ap}${usd(F.end)}</span><b>${P.end?dlt(F.end/P.end-1,'%',.004):''}</b></button>`
     +`<span class="fo">=</span>`
-    +m(`W${S.t-WIN}`,usd(F.start),'','','week')+`<span class="fo">\u00d7</span>`
+    +m(`W${S.t-win()}`,usd(F.start),'','','week')+`<span class="fo">\u00d7</span>`
     +m('Retention',pct(F.ret),dlt(F.ret-P.ret,'pp',.002),'','ret',
        'Money kept, not accounts kept: what accounts active four weeks ago are worth now, against what they were worth then. A renewal that raises the contract pushes it above 100 %.')
     +`<span class="fo">+</span>`
@@ -3276,7 +3281,7 @@ function renderFilters(){
   const note=S.t>=36?(S.t>NOW?'forecast with no changes · the cheap channel was switched on in W36':'the cheap channel was switched on in W36 → Conv ▼'):'before the cheap channel';
   /* Стрелки по неделе за клик — «а если надо посмотреть за прошлый год, листать
      500 раз?» (Лиза, 05.10). Период выбирается в календаре. */
-  $('timebar').innerHTML=`<button class="tl" data-weekpick="1" aria-expanded="${!!S.wkOpen}" data-tip="Pick a week — the formula, the map and the feed recalculate to it">${S.t>NOW?'forecast · ':''}W${S.t} · ${wkd(S.t)} <i class="cv">▾</i></button><span class="tnote" title="${note}">${note}</span>${S.wkOpen?weekPopover():''}`;
+  $('timebar').innerHTML=`<button class="tl" data-weekpick="1" aria-expanded="${!!S.wkOpen}" data-tip="Pick a stretch of time — one day picks its week, two days pick any range. The formula, the map and the log recalculate to it">${S.t>NOW?'forecast · ':''}${win()===1?`W${S.t}`:`W${S.t-win()+1}–W${S.t}`} · ${win()===1?wkd(S.t):wkd(S.t-win()+1)+' – '+wkd(S.t)} <i class="cv">▾</i></button><span class="tnote" title="${note}">${note}</span>${S.wkOpen?weekPopover():''}`;
 }
 /* Календарь недель по тому диапазону, который реально есть в модели. Недели вне его
    не показываем вовсе: пустой календарь на год выглядел бы как ответ, не являясь им. */
@@ -3300,7 +3305,8 @@ function weekPopover(){
     let cells='';
     for(let i2=0;i2<7;i2++){const d=new Date(d0); d.setDate(d0.getDate()+i2);
       cells+=`<span class="cd${d.getMonth()!==m?' out':''}">${d.getDate()}</span>`;}
-    rows+=`<div class="calrow${w===S.t?' on':''}${w>NOW?' fc':''}${ok?'':' off'}"${ok?` data-week="${w}"`:''}>`
+    const inRange=w<=S.t&&w>S.t-win();
+    rows+=`<div class="calrow${w===S.t?' on':''}${inRange&&w!==S.t?' inr':''}${w===S.wkA?' aw':''}${w>NOW?' fc':''}${ok?'':' off'}"${ok?` data-week="${w}"`:''}>`
       +cells+`<i>${ok?'W'+w+(w===NOW?' · now':w>NOW?' · forecast':''):'no data'}</i></div>`;}
   /* Единственный переход, которого нет в самом календаре: «сейчас» — это не дата,
      которую помнишь, а состояние. Остальные прыжки календарь даёт сам. */
@@ -3310,8 +3316,9 @@ function weekPopover(){
       <button class="calnav" data-calm="1" ${curK>=maxK?`disabled data-tip="Later months hold no data — the model ends at ${wkd(TMAX)} 2026"`:''} aria-label="Next month">›</button></div>
     <div class="caldow">${['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(x=>`<span>${x}</span>`).join('')}<i></i></div>
     ${rows}
-    <div class="wkq">${S.t===NOW?'':`<button data-week="${NOW}">back to this week</button>`}
-      <span class="calnote">Click any day — the whole week it belongs to is picked.</span></div>
+    <div class="wkq">${S.t===NOW&&win()===4?'':`<button data-week="${NOW}" data-wreset="1">back to this week</button>`}
+      <span class="pick">${[1,2,4,8].map(n=>`<button data-wwin="${n}" aria-pressed="${win()===n}" data-tip="${n===1?'One week':n+' weeks back from the week you picked'}">${n}w</button>`).join('')}</span>
+      <span class="calnote">${S.wkA!=null?`Start W${S.wkA} picked — click the second day to close the range.`:'Click a day for one week, or two days for any range.'}</span></div>
   </div>`;
 }
 /* =================== SOP: service blueprint =================== */
@@ -3326,14 +3333,14 @@ function stepYield(i,scopeAcc){
   const seg=scopeAcc?scopeAcc.seg:(S.seg||null);
   /* когорта, а не два независимых счёта: из тех, кто вошёл в этап внутри окна,
      сколько ушло дальше — и уже после входа. Иначе выход бывает больше входа. */
-  const at=t=>{let inn=0,out=0;const lo=t-WIN;
+  const at=t=>{let inn=0,out=0;const lo=t-win();
     for(const a of ACC){if(seg?a.seg!==seg:!inF(a))continue;if(filtered(a))continue;
       const ein=a.ev.find(e=>e.s===i+1&&e.w>lo&&e.w<=t);
       if(!ein)continue;
       inn++;
       if(a.ev.some(e=>e.s===i+2&&e.s<=6&&e.w>=ein.w&&e.w<=t))out++;}
     return {inn,out,r:inn?out/inn:0};};
-  const n=at(S.t),p=at(Math.max(TMIN+WIN,S.t-WIN));
+  const n=at(S.t),p=at(Math.max(TMIN+win(),S.t-win()));
   return {inn:n.inn,out:n.out,r:n.r,d:n.r-p.r};
 }
 function defectAt(i){
@@ -5717,7 +5724,7 @@ function agentEdit(q){
   }
   return hint;
 }
-function answer(q){const F=formulaAt(S.t),P=formulaAt(S.t-WIN),l=q.toLowerCase();
+function answer(q){const F=formulaAt(S.t),P=formulaAt(S.t-win()),l=q.toLowerCase();
   if(/conv|drop|convers/.test(l))return `Conv ${pct(P.conv)} → ${pct(F.conv)}. Since W36 Scout has been pulling a cheap channel in TX and FL, the Qualifier lets cut-the-IT-bill deals through unscreened, and their offers go silent. This is the system constraint: turn the Qualifier dial to Approve.`;
   if(/sign|msa|who decides/.test(l)){const a=agentScope().acc||BRIGHT,P=peopleOf(a);
     const d=P.find(x=>x.role==='decides'),pay=P.find(x=>x.role==='pays');
@@ -5917,7 +5924,10 @@ const LKIND={decision:'decision',edit:'edit',metric:'metric',revert:'revert'};
 const meNow=()=>WHOM[S.profile]||'—';
 document.addEventListener('click',e=>{
   const b=e.target.closest('[data-lkind],[data-dcl],[data-bkeep],[data-bdrop],[data-bsel],[data-bselall],[data-bgo],[data-bhand],[data-bclr],[data-fmul],[data-open],[data-side],[data-tab],[data-web],[data-tabclose],[data-tkopen],[data-tkact],[data-close],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-feeddown],[data-plus],[data-newchat],[data-agundo],[data-weekpick],[data-week],[data-calm],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-f],[data-freset],[data-fclr],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepsel],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-projset],[data-dbstate],[data-fmode],[data-dbsort],[data-dbmore],[data-dbkind],[data-camp],[data-camprun],[data-chan],[data-find],[data-slot],[data-next],[data-nextclr],[data-addp],[data-intent],[data-pst],[data-campsel],[data-campoff],[data-campblk],[data-campset],[data-campseq],[data-campbox],[data-camprunact],[data-inwin],[data-stuck],[data-mailclear],[data-mailopen],[data-mailstop],[data-mark],[data-note],[data-notecancel],[data-ent],[data-mail],[data-common],[data-importfacts],[data-nextbn],[data-influencer],[data-sim],[data-role],[data-tview],[data-triopen],#fDown,#addFact,#addNote');
-  if(!b){if(S.wkOpen&&!e.target.closest('.wkpop')){S.wkOpen=false;renderFilters();}return;}
+  if(!b){if(S.wkOpen&&!e.target.closest('.wkpop')){
+    /* Начало отмечено, а конец не назван — значит человек выбрал одну неделю. */
+    if(S.wkA!=null){S.t=S.wkA;S.win=1;S.wkA=null;S.wkOpen=false;renderAll();return;}
+    S.wkOpen=false;renderFilters();}return;}
   if(S.wkOpen&&!b.dataset.weekpick&&!b.dataset.week&&!b.dataset.calm&&!e.target.closest('.wkpop')){S.wkOpen=false;renderFilters();}
   if(b.dataset.pal)$('pal').hidden=true;
   if(b.dataset.dense!==undefined){S.dense=b.dataset.dense==='1';renderPanel();return;}
@@ -5948,7 +5958,24 @@ document.addEventListener('click',e=>{
     S.chat.push({u:0,t:'Rolled back — '+esc(e.txt.split('.')[0])+'. The model is as it was. The first entry stays in the log and a second one cancels it: nothing is erased.'});
     renderAll();return;}
   if(b.dataset.weekpick){S.wkOpen=!S.wkOpen;S.calM=null;S.calY=null;renderFilters();return;}
-  if(b.dataset.week){S.t=+b.dataset.week;S.wkOpen=false;renderAll();return;}
+  if(b.dataset.wwin){S.win=+b.dataset.wwin;S.wkA=null;renderAll();renderFilters();return;}
+  if(b.dataset.week){const w=+b.dataset.week;
+    if(b.dataset.wreset){S.t=w;S.win=4;S.wkA=null;S.wkOpen=false;renderAll();return;}
+    /* Первый день задаёт начало промежутка, второй — конец. Одиночное нажатие,
+       которое ничем не продолжили, остаётся выбором одной недели: закрывать
+       календарь после первого клика нельзя — человек ещё не договорил. */
+    if(S.wkA==null){
+      /* Первый клик только отмечает начало. Менять им период нельзя: календарь
+         перескакивал на месяц выбранной недели, и второй день оказывался за
+         краем — промежуток из двух кликов становился недоступен. Месяц
+         фиксируется на том, где человек сейчас. */
+      const cur0=weekStart(S.t);
+      if(S.calM==null){S.calM=cur0.getMonth();S.calY=cur0.getFullYear();}
+      S.wkA=w;renderFilters();return;}
+    const lo=Math.min(S.wkA,w), hi=Math.max(S.wkA,w);
+    /* Промежуток включает обе названные недели: с 34-й по 36-ю — это три недели,
+       а не две. Окно формулы открыто слева, поэтому ширина равна hi-lo+1. */
+    S.t=hi;S.win=Math.max(1,hi-lo+1);S.wkA=null;S.wkOpen=false;renderAll();return;}
   if(b.dataset.calm){const cur=weekStart(S.t);
     let m=(S.calM==null?cur.getMonth():S.calM)+(+b.dataset.calm), y=S.calY==null?cur.getFullYear():S.calY;
     if(m<0){m=11;y--;} if(m>11){m=0;y++;}
