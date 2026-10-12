@@ -531,6 +531,21 @@ body.focus-mode .ptabs{cursor:pointer}
 .cstep{border:1px solid var(--border);border-radius:6px;padding:3px 7px;font-size:11px;color:var(--fg);background:var(--editor)}
 .cstep[aria-pressed="false"]{opacity:.42;text-decoration:line-through}
 table.runs{width:100%;border-collapse:collapse;font-size:11px;margin-top:6px}
+/* Реестр классов не сжимается ниже своей ширины: при трёх открытых шторках
+   колонки крошились, тройка кнопок ступени разваливалась на три строки,
+   а поручитель переносился посреди имени. Узкая область даёт полосу прокрутки
+   по горизонтали — это честнее, чем ломать строку решения. */
+.dclwrap{overflow-x:auto;overflow-y:visible}
+table.dcltab{min-width:720px}
+table.dcltab td{vertical-align:top}
+.dcltab .dstep{white-space:nowrap}
+.seg3{display:inline-flex;gap:0;white-space:nowrap}
+.seg3 .btn{border-radius:0;margin:0;position:relative}
+.seg3 .btn+.btn{margin-left:-1px}
+.seg3 .btn:first-child{border-radius:6px 0 0 6px}
+.seg3 .btn:last-child{border-radius:0 6px 6px 0}
+.seg3 .btn.pri{z-index:1}
+.dcltab select{max-width:100%}
 table.runs th{text-align:left;font-size:9.5px;letter-spacing:.06em;color:var(--fg3);text-transform:uppercase;padding:3px 8px 3px 0;font-weight:600}
 table.runs td{padding:4px 8px 4px 0;border-top:1px solid color-mix(in srgb,var(--border) 55%,transparent);vertical-align:top}
 .fact{display:flex;gap:8px;align-items:flex-start;border:1px solid var(--border);border-radius:8px;padding:8px 10px}
@@ -2668,9 +2683,12 @@ function renderSide(){
     const dbk={seg:'acc',doc:'doc'}[S.ent];
     if(S.ent==='flow')h+=`<button class="dblink" data-open="flowlist">All campaigns and deals ↗</button>`;
     else if(dbk)h+=`<button class="dblink" data-open="db:${dbk}">Everything as a table ↗</button>`;
-    else if(S.ent==='ag'||S.ent==='us'){h+=`<button class="dblink" data-open="aglist">All agents ↗</button>`
-      +`<button class="dblink" data-open="dclist">Decision classes — the rules themselves ↗</button>`
-      +`<button class="dblink" data-open="us">Our people, agents and mailboxes ↗</button>`;}}
+    /* Три входа в одну зону, и по именам было не понять, чем они отличаются:
+       «разве они не дублируют друг друга» (Лиза, 12.10). Один предмет — агент —
+       правда виден в двух из них, но вопросы разные, и теперь вопрос стоит в имени. */
+    else if(S.ent==='ag'||S.ent==='us'){h+=`<button class="dblink" data-open="aglist">The machine — what the agents are doing ↗</button>`
+      +`<button class="dblink" data-open="dclist">Decision classes — the rules they obey ↗</button>`
+      +`<button class="dblink" data-open="us">Our side — who answers for them, what we can send ↗</button>`;}}
   $('side').innerHTML=h;
 }
 function allEntities(){
@@ -4718,6 +4736,7 @@ function renderAgentList(){
   return `<div class="bpmn">
     <div class="bph"><h2>The machine</h2><span class="chip acc">${AGENTS.length} agents</span>
       <span class="muted">${act} running · ${wait} waiting on a human · ${off} stopped — open one to change its freedom or stop it</span></div>
+    <div class="bnote"><span class="faint" style="font-size:11px">This answers one question: what the machine is doing. Who answers for whom and how many letters a day we can send is <button class="lnk" data-open="us">Our side ↗</button>, and the rules every one of them obeys are in <button class="lnk" data-open="dclist">Decision classes ↗</button>.</span></div>
     <table class="runs"><thead><tr><th>agent</th><th>answers for it</th><th>freedom</th><th>state</th><th>last thing it did</th></tr></thead><tbody>${rows}</tbody></table>
     <div class="bnote"><span class="faint" style="font-size:11px">Everything these agents did without you is in the feed below.</span>
       <button class="lnk" data-open="dclist">Decision classes · ${Object.keys(DCL).length} ↗</button></div></div>`;}
@@ -4763,6 +4782,10 @@ function renderClasses(){
   const me=S.profile, keys=Object.keys(DCL);
   const mine=keys.filter(k=>mayDecide(k,me).ok).length;
   const over=keys.filter(overCap).length, noman=keys.filter(k=>!dgua(k).person).length;
+  /* Сам реестр читают все, меняют — двое. Ступень любого класса — это решение
+     класса «agent step» (GTM Eng), поручитель — класса «guarantor» (Head).
+     Пока этого не было, SDR мог со своего экрана отпустить всех агентов на волю. */
+  const mayStep=mayDecide('step',me), mayGua=mayDecide('gua',me);
   const rows=keys.map(k=>{
     const d=DCL[k], r=mayDecide(k,me), st=clsStats(k), g=dgua(k), ov=overCap(k);
     const ags=Object.keys(AGCLS).filter(a=>AGCLS[a].includes(k)).map(a=>(agBy(a)||{}).nm).filter(Boolean);
@@ -4770,11 +4793,11 @@ function renderClasses(){
       <td><b>${esc(d.nm)}</b><div class="note">${esc(d.out)}</div>
         ${d.hard?`<div class="note down">never: ${esc(d.hard)}</div>`:''}
         ${inBatch(k)?`<div class="note">in a batch — ${esc(batchGuaTxt())} approves, whatever the single-case right is</div>`:''}</td>
-      <td class="dstep">${DSTEPS.slice().reverse().map(x=>`<button class="btn ${dstep(k)===x?'pri':''}" data-dcl="${k}:${x}" data-tip="${esc(DSTEPNM[x])}">${x==='auto'?'Auto':x==='approve'?'Approve':'By hand'}</button>`).join('')}
+      <td class="dstep"><span class="seg3">${DSTEPS.slice().reverse().map(x=>`<button class="btn ${dstep(k)===x?'pri':''}" data-dcl="${k}:${x}" ${mayStep.ok?'':'disabled'} data-tip="${mayStep.ok?esc(DSTEPNM[x]):esc(mayStep.why)}">${x==='auto'?'Auto':x==='approve'?'Approve':'By hand'}</button>`).join('')}</span>
         <div class="note">${ov?`<span class="bad">above the ceiling</span> — the guarantor allows only “${esc(DSTEPSH[d.cap])}”`:`ceiling: ${esc(DSTEPSH[d.cap])}`}</div></td>
       <td>${g.person?`<b>${esc(g.person)}</b><div class="note">${esc(WHOM[d.gua])}</div>`
             :`<span class="bad">nobody named</span><div class="note">${esc(WHOM[d.gua])} — the role exists, the person does not</div>`}
-        <select data-setgua="${esc(d.gua)}" ${mayDecide('gua',me).ok?'':'disabled'} data-tip="${mayDecide('gua',me).ok?'Naming a guarantor is itself a decision — class “guarantor”, by hand, logged against you':esc(mayDecide('gua',me).why)}">
+        <select data-setgua="${esc(d.gua)}" ${mayGua.ok?'':'disabled'} data-tip="${mayGua.ok?'Naming a guarantor is itself a decision — class “guarantor”, by hand, logged against you':esc(mayGua.why)}">
           <option value="">— name a person —</option>
           ${OURS.map(o=>`<option value="${o.id}" ${GUAWHO[d.gua]===o.id?'selected':''}>${esc(o.nm)}</option>`).join('')}
         </select>${(()=>{const sib=keys.filter(x=>DCL[x].gua===d.gua);
@@ -4787,8 +4810,11 @@ function renderClasses(){
   return `<div class="bpmn">
     <div class="bph"><h2>Decision classes</h2><span class="chip acc">${keys.length}</span>
       <span class="muted">${mine} of ${keys.length} are yours as ${esc(WHOM[me]||me)}${over?` · ${over} above the ceiling`:''}${noman?` · ${noman} with nobody named`:''}</span></div>
+    <div class="bnote"><span class="faint" style="font-size:11px">${mayStep.ok&&mayGua.ok
+      ? 'You may move a step and name a guarantor here. Both are decisions of their own class and both are logged against you.'
+      : `Reading this is everyone’s; changing it is not. <b>The step</b> belongs to the class “agent step” — ${esc(mayStep.ok?'yours to move':mayStep.why)}. <b>The guarantor</b> belongs to the class “guarantor” — ${esc(mayGua.ok?'yours to name':mayGua.why)}.`}</span></div>
     <div class="bnote"><span class="faint" style="font-size:11px">Every writing button on every screen belongs to one of these. The class carries the step, the ceiling, the ban and a named guarantor — a screen carries none of that. Change a line here and every screen obeys it, including the ones you are not looking at.</span></div>
-    <table class="runs dcltab"><thead><tr><th>class · what it changes outside</th><th>step and ceiling</th><th>guarantor</th><th>your right</th><th>what the log says</th></tr></thead><tbody>${rows}</tbody></table>
+    <div class="dclwrap"><table class="runs dcltab"><thead><tr><th>class · what it changes outside</th><th>step and ceiling</th><th>guarantor</th><th>your right</th><th>what the log says</th></tr></thead><tbody>${rows}</tbody></table></div>
     <div class="bnote"><span class="faint" style="font-size:11px">A ceiling is the guarantor’s promise, not a lock: a calculation never lifts it, a hand can — and then the row burns and the log says who did it. A class with nobody named cannot have its ceiling lifted at all.</span></div></div>`;}
 /* Свобода агента больше не одна ручка на всё: она складывается из классов, в которых
    он пишет. Поэтому показываем не абстрактную «Autonomy», а строку на класс —
@@ -4799,7 +4825,7 @@ function agClsBlock(id){const cs=AGCLS[id]||[];
     <div class="dcls">${cs.map(c=>{const d=DCL[c],over=overCap(c);
       return `<div class="dclrow${over?' over':''}">
         <div class="grow"><b>${esc(d.nm)}</b><div class="note">${esc(d.out)} · guarantor ${esc(dguaTxt(c))}</div></div>
-        <div class="btns">${DSTEPS.slice().reverse().map(st=>`<button class="btn ${dstep(c)===st?'pri':''}" data-dcl="${c}:${st}" data-tip="${esc(DSTEPNM[st])}">${st==='auto'?'Auto':st==='approve'?'Approve':'By hand'}</button>`).join('')}</div>
+        <div class="btns">${DSTEPS.slice().reverse().map(st=>`<button class="btn ${dstep(c)===st?'pri':''}" data-dcl="${c}:${st}" ${mayDecide('step').ok?'':'disabled'} data-tip="${mayDecide('step').ok?esc(DSTEPNM[st]):esc(mayDecide('step').why)}">${st==='auto'?'Auto':st==='approve'?'Approve':'By hand'}</button>`).join('')}</div>
         ${over?`<div class="wrn">Above the ceiling — the guarantor (${esc(dguaTxt(c))}) allows only “${esc(DSTEPNM[d.cap])}”</div>`:''}
       </div>`;}).join('')}</div>`;}
 function renderAgentTab(id){const g=agBy(id),own=OURS.find(o=>o.id===g.owner);const logs=LOGS.concat(S.extraLogs||[]).filter(l=>l.ag===id).sort((a,b)=>b.w-a.w);
@@ -4919,6 +4945,8 @@ function renderOrg(){
      управления, а схема людей — описание. Прибор поймал её за сгибом при 1440×900:
      ящик открывался, но человеку нужна была прокрутка, чтобы его найти. */
   return `<div class="org">
+    <div class="bph"><h2>Our side</h2><span class="chip acc">${OURS.length} people · ${AGENTS.length} agents · ${MAIL.length} mailboxes</span></div>
+    <div class="bnote"><span class="faint" style="font-size:11px">Who answers for what, and how much we are able to send. An agent appears here too, but as somebody’s responsibility — what it is doing right now is in <button class="lnk" data-open="aglist">The machine ↗</button>.</span></div>
     <div class="hdr">Our capacity to send${mstop?` — <b class="down">${mstop} stopped by a human</b>`:mbad?` — <b class="down">${mbad} mailbox has spent its daily limit</b>`:''}</div>
     <div class="facts">${MAIL.map(mailbox).join('')}</div>
     <div class="note">A mailbox sends up to its daily limit and no further: above it, mail stops
@@ -6214,6 +6242,7 @@ document.addEventListener('click',e=>{
     S.sopFix=null;S.tri['t-knob']='done: fixed on the diagram';
     toast('Fixed. The agent now works to the new rule. The effect is in the forecast: move time to W42.');renderAll();return;}
   if(b.dataset.knobcycle){const [id,w]=b.dataset.knobcycle.split(':');
+    {const rt=mayDecide('step');if(!rt.ok){toast(rt.why+' \u2014 the freedom of an agent is not yours to change.');return;}}
     /* Второе место, где задаётся свобода, — шкала на этапе. Ходок 08.10 снял «Auto»
        в списке агентов и обнаружил, что на этапе первого письма «Auto» осталось:
        места два. Спрашиваем на входе в «Auto», где письма начинают уходить сами. */
@@ -6287,6 +6316,11 @@ document.addEventListener('click',e=>{
   if(b.dataset.lnoev){S.lnoev=!S.lnoev;if(S.lnoev)S.lkind=null;renderPanel();return;}
   if(b.dataset.dcl){const [c,st]=b.dataset.dcl.split(':');const was=dstep(c);
     if(was===st)return;
+    /* Ступень класса — сама по себе решение класса «agent step», его держит
+       GTM Eng. Кнопки у чужой роли выключены, но проверка стоит и здесь:
+       выключенная кнопка — это вид, а право должно держаться в одном месте. */
+    const rt=mayDecide('step');
+    if(!rt.ok){toast(rt.why+' \u2014 the step is not yours to move.');return;}
     const up=DSTEPS.indexOf(st)<DSTEPS.indexOf(was), overAfter=DSTEPS.indexOf(st)<DSTEPS.indexOf(DCL[c].cap);
     const go=()=>{S.dstep=S.dstep||{};S.dstep[c]=st;syncKnob();
       /* Улика под сменой ступени — то, что журнал говорит об этом классе.
@@ -6500,6 +6534,7 @@ document.addEventListener('click',e=>{
   if(b.dataset.seg!==undefined){pickSeg(b.dataset.seg);return;}
   if(b.id==='fDown'){S.downOnly=!S.downOnly;renderAll();return;}
   if(b.dataset.knob){const [id,k]=b.dataset.knob.split(':');
+    {const rt=mayDecide('step');if(!rt.ok){toast(rt.why+' \u2014 the freedom of an agent is not yours to change.');return;}}
     /* Свобода агента менялась одним нажатием и без вопроса: ходок 08.10 перевёл
        агента в «Auto» и заметил это только по журналу. Право отправлять без
        человека — не настройка вида, его дают сознательно. */
@@ -6539,7 +6574,10 @@ document.addEventListener('click',e=>{
           logAdd('seller',`Task declined by ${$('profile').selectedOptions[0].text}: ${v}`,['down','declined']);
           renderEditor();renderAll();}});
       return;}
-    if(k==='knob'){logAdd('qual',`Dial: ${KNOB[S.knob.qual]} \u2192 ${KNOB[1]} (${meNow()}) — set on the class “screening”`,['flat','edited'],{cls:'step',kind:'decision',by:S.profile});setAgStep('qual',1);}
+    /* Третья и четвёртая двери к той же ручке — разбор поломки и починка.
+       Право на класс «agent step» проверяется и здесь, иначе оно обходится. */
+    if(k==='knob'){const rt=mayDecide('step');if(!rt.ok){toast(rt.why+' \u2014 the step is not yours to move.');return;}
+      logAdd('qual',`Dial: ${KNOB[S.knob.qual]} \u2192 ${KNOB[1]} (${meNow()}) — set on the class “screening”`,['flat','edited'],{cls:'step',kind:'decision',by:S.profile});setAgStep('qual',1);}
     if(k==='resume'){agBy('seller').state='active';logAdd('seller','Put back to work after the alarm was reviewed',['up','decision']);}
     if(k.startsWith('rule:')){const [,ag,rid]=k.split(':');const r=(S.rules[ag]||[]).find(x=>x.id===rid);if(r){r.on=true;logAdd(ag,`Rule \u201c${r.t}\u201d turned on (${$('profile').selectedOptions[0].text})`,['up','edited']);}}
     if(k.startsWith('fact:')){const [,nid,v]=k.split(':');S.facts[nid]={0:v,1:v};}
@@ -6549,7 +6587,8 @@ document.addEventListener('click',e=>{
     /* Одна и та же перемена подписывалась «(GTM Eng)» через кнопку и «(approved by
        Nikolai)» через панель агента (GTM Eng, 09.10). Подпись берётся оттуда же,
        откуда её берёт кнопка: из того, кто вошёл. */
-    if(k==='knob'){logAdd('qual',`Dial: ${KNOB[S.knob.qual]} → ${KNOB[1]} (${meNow()}) — set on the class “screening”`,['flat','edited'],{cls:'step',kind:'decision',by:S.profile});setAgStep('qual',1);}
+    if(k==='knob'){const rt=mayDecide('step');if(!rt.ok){toast(rt.why+' \u2014 the step is not yours to move.');return;}
+      logAdd('qual',`Dial: ${KNOB[S.knob.qual]} → ${KNOB[1]} (${meNow()}) — set on the class “screening”`,['flat','edited'],{cls:'step',kind:'decision',by:S.profile});setAgStep('qual',1);}
     if(k==='resume'){agBy('seller').state='active';logAdd('seller','Put back to work after the alarm was reviewed',['up','decision']);}
     if(k.startsWith('rule:')){const [,ag,rid]=k.split(':');const r=(S.rules[ag]||[]).find(x=>x.id===rid);if(r){r.on=true;logAdd(ag,`Rule \u201c${r.t}\u201d turned on (${$('profile').selectedOptions[0].text})`,['up','edited']);}}
     if(k.startsWith('fact:')){const [,nid,v]=k.split(':');S.facts[nid]={0:v,1:v};}
