@@ -87,6 +87,7 @@ q{quotes:"«" "»"}
 /* Роль — первое, что читают: «главное в левом верхнем углу — кто я, из какой роли
    я на это смотрю» (Николай, 11.10). Она же задаёт, какие разделы и фильтры
    появятся слева, поэтому стоит рядом с именем системы, а не среди служебных кнопок. */
+.subrule.jrn{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding-top:0}
 .nevdo{padding:8px 10px;border:1px solid var(--border);border-left:3px solid var(--bad);border-radius:6px;font-size:12px;color:var(--fg)}
 .dcls{display:flex;flex-direction:column;gap:6px}
 .dclrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:7px 9px;border:1px solid var(--border);border-radius:6px}
@@ -1696,7 +1697,7 @@ const MEET=[
   {id:'mt3',acc:'a0',pid:'p-diaz',who:'Karen Diaz',w:38,when:'Fri 10:00 am',own:'head',brief:0,
    ttl:'Brightline: signature and the go-live date \u00b7 20 min',st:['up','on the calendar'],
    last:'silent for 9 days on LinkedIn'}];
-const BUILD='Oct 12, 12:47';   /* отметка сборки: единственное место, где она живёт */
+const BUILD='Oct 12, 12:56';   /* отметка сборки: единственное место, где она живёт */
 const S={t:NOW,seg:null,downOnly:false,sel:null,level:'segment',K:1,
   knob:{scout:2,qual:2,seller:2,pricer:1,service:1},profile:'head',
   /* Начальные ступени — не выдумка: они сняты с того, как агенты работают в демо
@@ -1994,14 +1995,25 @@ const MSGS={
   'p-hale':[{me:false,src:'aircall',act:'expressive',txt:'(6-min call) \u201c$38K is a lot. Right now we pay a freelancer $1,400 a month.\u201d',w:37,r:1}],
   'p-ortiz':[{me:false,src:'gmail',act:'expressive',txt:'Quarter close went smoothly this time, thank you.',w:36}],
   'p-annh':[{me:true,agent:'service',src:'quickbooks',act:'request',txt:'Reminder: invoice #1042 is 12 days past due.',w:38},{me:false,src:'gmail',act:'promise',txt:'We will pay next week, cash flow is tight after the quarter.',w:38}]};
+/* У каждой записи есть род: какой из четырёх журналов её держит. Palantir держит
+   их раздельно и прямо пишет, что ни один не полон; мы валили всё в одну ленту,
+   и она плохо отвечала на любой из четырёх вопросов. Разметка здесь — не выдумка:
+   семь существующих записей разнесены по смыслу того, что в них написано. */
 const LOGS=[
-  {ag:'seller',w:38,ttl:'Follow-up #4 sent to j.moss@\u2026 after the Sep 22 opt-out \u2192 stopped by an alarm',st:['down','alarm']},
-  {ag:'pricer',w:38,ttl:'Offer v2 draft for Brightline: 8 % discount \u2192 waiting on approval',st:['warn','waiting on a human']},
-  {ag:'qual',w:37,ttl:'Let Lone Star Auto Repair through: the answer was \u201cas cheap as possible\u201d \u2192 PASS',st:['down','screening miss']},
-  {ag:'scout',w:36,ttl:'Added the source \u201csmb-it-cheap-v2\u201d: +41 accounts in a week, 78 % of them want to cut the IT bill',st:['flat','decision within policy']},
-  {ag:'service',w:38,ttl:'Hale & Ortiz CPA: reminder about invoice #1042',st:['up','done']},
-  {ag:'scout',w:35,ttl:'Found Brightline Dental LLC: an \u201cIT help needed\u201d opening, 14 staff',st:['up','done']},
-  {ag:'qual',w:36,ttl:'Brightline: 4 screening questions \u2192 segment A \u00b7 pass the audit',st:['up','done']}];
+  {ag:'seller',w:38,ttl:'Follow-up #4 sent to j.moss@\u2026 after the Sep 22 opt-out \u2192 stopped by an alarm',st:['down','alarm'],cls:'reply',kind:'decision'},
+  {ag:'pricer',w:38,ttl:'Offer v2 draft for Brightline: 8 % discount \u2192 waiting on approval',st:['warn','waiting on a human'],cls:'disc',kind:'decision',act:'handed'},
+  {ag:'qual',w:37,ttl:'Let Lone Star Auto Repair through: the answer was \u201cas cheap as possible\u201d \u2192 PASS',st:['down','screening miss'],cls:'screen',kind:'decision'},
+  {ag:'scout',w:36,ttl:'Added the source \u201csmb-it-cheap-v2\u201d: +41 accounts in a week, 78 % of them want to cut the IT bill',st:['flat','decision within policy'],cls:'enrich',kind:'edit'},
+  {ag:'service',w:38,ttl:'Hale & Ortiz CPA: reminder about invoice #1042',st:['up','done'],cls:'inv',kind:'decision'},
+  {ag:'scout',w:35,ttl:'Found Brightline Dental LLC: an \u201cIT help needed\u201d opening, 14 staff',st:['up','done'],cls:'enrich',kind:'edit'},
+  {ag:'qual',w:36,ttl:'Brightline: 4 screening questions \u2192 segment A \u00b7 pass the audit',st:['up','done'],cls:'screen',kind:'decision'}];
+/* Четыре вопроса, на которые отвечают четыре журнала. Это не четыре экрана:
+   один список, четыре среза — иначе человек ходит между вкладками, чтобы собрать
+   одну историю. */
+const LKINDS=[['decision','decisions','who decided, and under which class'],
+              ['edit','edits','what changed in the objects'],
+              ['metric','metrics','how often it runs and how often it is checked'],
+              ['revert','reverts','what was taken back — and by which entry']];
 
 /* =================== helpers =================== */
 const $=id=>document.getElementById(id);
@@ -4823,7 +4835,20 @@ function feedItems(tab){
       return {src:'gmail',ttl:`${a?a.name:'—'} · ${d.who} — ${d.sub}`,
         mt:`<b>${esc(m.adr)}</b> · ${esc(m.kind)}`,
         when:ago(d.w),open:a?'acc:'+d.acc:null,av:a?logo(a,'sq'):`<span class="av sq">✉</span>`,sig:d.k!=='ok',status:d.k==='ok'?null:[c[1],c[0]],w:d.w,mail:d.mail};});}
-  if(tab==='agents'){const f=S.sel&&S.sel.type==='agent'?S.sel.id:null,rf=S.ef&&S.ef.arole;return LOGS.concat(S.extraLogs||[]).filter(l=>(!f||l.ag===f)&&(!rf||AGROLE[l.ag]===rf)&&l.w<=Math.max(t,NOW)).sort((x,y)=>y.w-x.w).map(l=>({src:'agent',ttl:`${agBy(l.ag)?agBy(l.ag).nm:'A human'}: ${l.ttl}`,mt:`answered for by <b>${esc(OURS.find(o=>o.id===(agBy(l.ag)||{owner:'h-nik'}).owner).nm)}</b> · autonomy: ${agBy(l.ag)?KNOB[S.knob[l.ag]]:'—'}`,when:ago(l.w),open:'agent:'+l.ag,av:agAv(l.ag),sig:true,status:l.st}));}
+  if(tab==='agents'){const f=S.sel&&S.sel.type==='agent'?S.sel.id:null,rf=S.ef&&S.ef.arole;
+    /* Срез по роду журнала. Он стоит здесь, а не отдельным экраном: история одна,
+       а вопросов к ней четыре. */
+    const lk=S.lkind||null;
+    return LOGS.concat(S.extraLogs||[]).filter(l=>(!f||l.ag===f)&&(!rf||AGROLE[l.ag]===rf)&&l.w<=Math.max(t,NOW)&&(!lk||(l.kind||'decision')===lk)).sort((x,y)=>y.w-x.w).map(l=>{
+      const c=l.cls&&DCL[l.cls], kd=l.kind||'decision';
+      /* Под строкой стоит то, что отвечает на вопрос этого журнала: у решения —
+         класс и кто поручился, у правки — что это правка и под каким решением. */
+      const mt=kd==='decision'
+        ? `<b>${esc(c?c.nm:'no class')}</b>${l.act==='rejected'?' · refused':l.act==='handed'?' · handed over':''} · guarantor ${esc(c?dguaTxt(l.cls):'—')}${c&&overCap(l.cls)?' · <span class="bad">above the ceiling</span>':''}`
+        : kd==='edit' ? `an edit under the class <b>${esc(c?c.nm:'—')}</b> · not a decision of its own`
+        : kd==='metric' ? `how this class runs · <b>${esc(c?c.nm:'—')}</b>`
+        : `compensating entry · the one it cancels stays above`;
+      return {src:'agent',ttl:`${agBy(l.ag)?agBy(l.ag).nm:'A human'}: ${l.ttl}`,mt,when:ago(l.w),open:'agent:'+l.ag,av:agAv(l.ag),sig:true,status:l.st,kind:kd};});}
 }
 /* Работа №1 кончается тем, что «список под тезис отобран». До сих пор этот список жил
    только как временное состояние фильтров и исчезал при перезагрузке. Срез — сохранённая
@@ -5062,7 +5087,14 @@ function renderPanel(){
   const nCom=S.ptab==='market'?MARKET.concat(S.addedFacts||[]).filter(n=>(!S.seg||n.seg===S.seg)&&isCommon(n)).length:0;
   const head=`<div class="subrule"><span><b class="logttl">Log</b> · ${esc(FLOGNM[S.ptab]||'what happened')} · showing <b>${items.length}</b> of ${V.all.length} · ${FEEDWHY[S.ptab][V.mode==='sig'?0:1]}${nCom?` · <b>${nCom}</b> the team already agreed on`+`` :''}${narrowLine()}</span>
     ${V.sig.length&&V.sig.length<V.all.length?`<span class="pick"><button data-fmode="sig" aria-pressed="${V.mode==='sig'}" data-tip="Only the lines that need a move">needs a move</button><button data-fmode="all" aria-pressed="${V.mode==='all'}" data-tip="The whole slice, unfiltered">all</button></span>`:''}
-    ${GLOSS[S.ptab]?`<span class="gloss">${GLOSS[S.ptab]}</span>`:''}</div>`;
+    ${GLOSS[S.ptab]?`<span class="gloss">${GLOSS[S.ptab]}</span>`:''}</div>`
+    /* Четыре журнала одной лентой. Счёт у каждого свой и считается, а не пишется:
+       пустой срез так и говорит «пока ни одного», а не исчезает молча. */
+    +(S.ptab==='agents'?(()=>{const all=LOGS.concat(S.extraLogs||[]).filter(l=>l.w<=Math.max(S.t,NOW));
+      const cnt=k=>all.filter(l=>(l.kind||'decision')===k).length;
+      return `<div class="subrule jrn"><span class="logttl">Four logs</span>
+        <span class="pick"><button data-lkind="" aria-pressed="${!S.lkind}" data-tip="Everything, in one list">all ${all.length}</button>${LKINDS.map(([k,nm,why])=>`<button data-lkind="${k}" aria-pressed="${S.lkind===k}" data-tip="${esc(why)}">${nm} ${cnt(k)}</button>`).join('')}</span>
+        <span class="gloss">${esc((LKINDS.find(x=>x[0]===S.lkind)||[0,0,'a decision, the edits it caused, how often it runs, and what was taken back — four different questions to the same history'])[2])}</span></div>`;})():'');
   const add=S.ptab==='market'?`<div class="addfact"><input id="myFact" placeholder="Write a fact or a thought about the market…"><button class="btn" id="addFact">Add</button><button class="btn" data-importfacts="1" data-tip="Log what you heard at a conference in one batch: each fact with its source and unconfirmed">＋ facts from a conference</button></div>`
     :(S.noteFor?`<div class="addfact"><input id="myNote" placeholder="Add your own — a note under your name…" autofocus><button class="btn" id="addNote">Add</button><button class="ib" data-notecancel="1">×</button></div>`:'');
   const body=items.length
@@ -5189,6 +5221,17 @@ function renderDB(){
    одного класса над многими объектами, а не много решений разом.
    Право разложено так, как решила Лиза 12.10: Head утверждает, SDR готовит. */
 const bselIds=()=>Object.keys(S.bsel||{}).filter(k=>(S.bsel||{})[k]);
+/* Знакомы мы с человеком или нет — вопрос с двумя источниками, и сначала я читала
+   только один. Переписка `MSGS` есть у немногих; у остальных контакт записан
+   репликой в ленте — «silent» тоже означает, что касание было, иначе молчать
+   было бы не после чего. Никогда не контактировали только те, у кого нет ни
+   того, ни другого. Разница важна: от неё зависит класс решения и поручитель. */
+function everTouched(pid){
+  if((MSGS[pid]||[]).length)return true;
+  const p=personById(pid); if(!p)return false;
+  const a=ACCBY[p.acc]; if(!a)return false;
+  const act=peopleActs(a,Math.min(S.t,NOW)).find(x=>x.p&&x.p.id===pid);
+  return !!(act&&act.act);}
 /* Решение над многими — не то же самое, что решение над одним. Цена ошибки растёт
    с числом объектов, поэтому у пачки свой поручитель, выше классового: Head.
    Решение Лизы 12.10: «Head утверждает, SDR готовит». Это не отменяет класс —
@@ -5201,8 +5244,7 @@ function batchCls(){
      не писали — первое касание, с кем переписка идёт — ответ. Смешивать нельзя:
      одно решение не может накрыть два класса с разными поручителями. */
   const ids=bselIds(); if(!ids.length)return null;
-  const k=ids.map(id=>{const pid=String(id).replace(/^person:/,'');
-    return (MSGS[pid]||[]).length?'reply':'touch';});
+  const k=ids.map(id=>everTouched(String(id).replace(/^person:/,''))?'reply':'touch');
   return k.every(x=>x===k[0])?k[0]:'mixed';}
 function batchBar(page){
   const ids=bselIds(), head=S.profile==='head';
@@ -5222,7 +5264,7 @@ function batchBar(page){
   if(cls==='mixed'){
     /* Отказ без выхода — не ответ. Экран говорит, на какие две пачки это делится,
        и даёт оставить одну нажатием: так правило помогает, а не запрещает. */
-    const kof=k=>ids.filter(id=>((MSGS[String(id).replace(/^person:/,'')]||[]).length?'reply':'touch')===k).length;
+    const kof=k=>ids.filter(id=>(everTouched(String(id).replace(/^person:/,''))?'reply':'touch')===k).length;
     return `<div class="bbar warnbar"><b>${ids.length} picked</b>
     <span>Two classes here, and they have different guarantors — one decision cannot cover both.</span>
     <span class="sp"></span>
@@ -5863,7 +5905,7 @@ function logAdd(ag,ttl,st,m){const o={ag,w:NOW,ttl,st};
 const LKIND={decision:'decision',edit:'edit',metric:'metric',revert:'revert'};
 const meNow=()=>WHOM[S.profile]||'—';
 document.addEventListener('click',e=>{
-  const b=e.target.closest('[data-dcl],[data-bkeep],[data-bdrop],[data-bsel],[data-bselall],[data-bgo],[data-bhand],[data-bclr],[data-fmul],[data-open],[data-side],[data-tab],[data-web],[data-tabclose],[data-tkopen],[data-tkact],[data-close],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-feeddown],[data-plus],[data-newchat],[data-agundo],[data-weekpick],[data-week],[data-calm],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-f],[data-freset],[data-fclr],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepsel],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-projset],[data-dbstate],[data-fmode],[data-dbsort],[data-dbmore],[data-dbkind],[data-camp],[data-camprun],[data-chan],[data-find],[data-slot],[data-next],[data-nextclr],[data-addp],[data-intent],[data-pst],[data-campsel],[data-campoff],[data-campblk],[data-campset],[data-campseq],[data-campbox],[data-camprunact],[data-inwin],[data-stuck],[data-mailclear],[data-mailopen],[data-mailstop],[data-mark],[data-note],[data-notecancel],[data-ent],[data-mail],[data-common],[data-importfacts],[data-nextbn],[data-influencer],[data-sim],[data-role],[data-tview],[data-triopen],#fDown,#addFact,#addNote');
+  const b=e.target.closest('[data-lkind],[data-dcl],[data-bkeep],[data-bdrop],[data-bsel],[data-bselall],[data-bgo],[data-bhand],[data-bclr],[data-fmul],[data-open],[data-side],[data-tab],[data-web],[data-tabclose],[data-tkopen],[data-tkact],[data-close],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-feeddown],[data-plus],[data-newchat],[data-agundo],[data-weekpick],[data-week],[data-calm],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-f],[data-freset],[data-fclr],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepsel],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-projset],[data-dbstate],[data-fmode],[data-dbsort],[data-dbmore],[data-dbkind],[data-camp],[data-camprun],[data-chan],[data-find],[data-slot],[data-next],[data-nextclr],[data-addp],[data-intent],[data-pst],[data-campsel],[data-campoff],[data-campblk],[data-campset],[data-campseq],[data-campbox],[data-camprunact],[data-inwin],[data-stuck],[data-mailclear],[data-mailopen],[data-mailstop],[data-mark],[data-note],[data-notecancel],[data-ent],[data-mail],[data-common],[data-importfacts],[data-nextbn],[data-influencer],[data-sim],[data-role],[data-tview],[data-triopen],#fDown,#addFact,#addNote');
   if(!b){if(S.wkOpen&&!e.target.closest('.wkpop')){S.wkOpen=false;renderFilters();}return;}
   if(S.wkOpen&&!b.dataset.weekpick&&!b.dataset.week&&!b.dataset.calm&&!e.target.closest('.wkpop')){S.wkOpen=false;renderFilters();}
   if(b.dataset.pal)$('pal').hidden=true;
@@ -6035,6 +6077,7 @@ document.addEventListener('click',e=>{
     const ids=[...document.querySelectorAll('[data-bsel]')].map(x=>x.dataset.bsel);
     S.bsel=S.bsel||{};const all=ids.length&&ids.every(id=>S.bsel[id]);
     ids.forEach(id=>{if(all)delete S.bsel[id];else S.bsel[id]=1;});renderDB();return;}
+  if(b.dataset.lkind!==undefined){S.lkind=b.dataset.lkind||null;renderPanel();return;}
   if(b.dataset.dcl){const [c,st]=b.dataset.dcl.split(':');const was=dstep(c);
     if(was===st)return;
     const up=DSTEPS.indexOf(st)<DSTEPS.indexOf(was), overAfter=DSTEPS.indexOf(st)<DSTEPS.indexOf(DCL[c].cap);
@@ -6051,8 +6094,7 @@ document.addEventListener('click',e=>{
     go();return;}
   if(b.dataset.bclr){S.bsel={};renderDB();return;}
   if(b.dataset.bkeep){const k=b.dataset.bkeep;const keep={};
-    bselIds().forEach(id=>{const pid=String(id).replace(/^person:/,'');
-      if(((MSGS[pid]||[]).length?'reply':'touch')===k)keep[id]=1;});
+    bselIds().forEach(id=>{if((everTouched(String(id).replace(/^person:/,''))?'reply':'touch')===k)keep[id]=1;});
     S.bsel=keep;renderDB();return;}
   if(b.dataset.bgo){batchRun(b.dataset.bgo,!!b.dataset.bhanded);return;}
   if(b.dataset.bdrop){const h=(S.handed||[]).find(x=>x.open);if(!h)return;
@@ -6378,7 +6420,7 @@ document.addEventListener('click',e=>{
     /* Письмо незнакомому и письмо знакомому — разные классы решений, и ступень у них
        разная: первое касание агент делает сам, ответ в переписке требует согласия.
        Знакомство определяется перепиской, а не нашим намерением. */
-    const sk=(MSGS[pid]||[]).length?'reply':'touch';
+    const sk=everTouched(pid)?'reply':'touch';
     /* Окно предупреждало про отписку и всё равно отправляло по нажатию: «the agent is
        not allowed to, and neither are you» стояло рядом с живой кнопкой — нашли три
        ходока независимо (09.10). Теперь это не вопрос, а отказ. */
