@@ -87,6 +87,12 @@ q{quotes:"«" "»"}
 /* Роль — первое, что читают: «главное в левом верхнем углу — кто я, из какой роли
    я на это смотрю» (Николай, 11.10). Она же задаёт, какие разделы и фильтры
    появятся слева, поэтому стоит рядом с именем системы, а не среди служебных кнопок. */
+.bbar{display:flex;align-items:center;gap:10px;padding:7px 10px;margin:0 0 6px;background:var(--selbg);border:1px solid var(--border);border-radius:6px;font-size:12px}
+.bbar .sp{flex:1 1 auto}
+.bbar.warnbar{background:color-mix(in srgb,var(--warn) 12%,transparent)}
+.bbar span{color:var(--fg2)}
+th.bsel,td.bsel{width:28px;text-align:center;padding-left:8px}
+tr.picked{background:var(--selbg)}
 .cfmsep{height:1px;background:var(--border);margin:8px 0}
 .profile{height:24px;font-size:11px;padding:0 6px;margin-left:10px;min-width:0;max-width:clamp(88px,17vw,200px);flex:none}
 .brand .profile{background:var(--side);border:1px solid var(--border);border-radius:5px;color:var(--fg);font-weight:500}
@@ -1653,7 +1659,7 @@ const MEET=[
   {id:'mt3',acc:'a0',pid:'p-diaz',who:'Karen Diaz',w:38,when:'Fri 10:00 am',own:'head',brief:0,
    ttl:'Brightline: signature and the go-live date \u00b7 20 min',st:['up','on the calendar'],
    last:'silent for 9 days on LinkedIn'}];
-const BUILD='Oct 12, 12:27';   /* отметка сборки: единственное место, где она живёт */
+const BUILD='Oct 12, 12:39';   /* отметка сборки: единственное место, где она живёт */
 const S={t:NOW,seg:null,downOnly:false,sel:null,level:'segment',K:1,
   knob:{scout:2,qual:2,seller:2,pricer:1,service:1},profile:'head',dstep:{},
   side:'tree',ent:'seg',agView:null,mapAcc:null,box:'',bn:0,sent:{},skin:'rev',ef:{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false},ptab:'market',job:'',stF:'',stage:'',primary:'map',source:null,orgOpen:false,sopAcc:'a0',lastRef:{},tview:'table',tabs:[{id:'map',kind:'map',ref:null,title:'Map'},{id:'acc',kind:'org',ref:'a0',title:'Account'},{id:'person',kind:'msg',ref:'p-hale',title:'Person'},{id:'flow',kind:'sop',ref:'a0',title:'Workflow'},{id:'doc',kind:'doc',ref:'d-msa',title:'Document'}],tab:'map',
@@ -5116,10 +5122,86 @@ function renderDB(){
           есть быстрые фильтры поверх списка, отдельно от продвинутых. Наши три
           кнопки — это язык светофора, тот же, что на карте и в колонке State. */''}
     ${kind==='acc'?`<div class="dbquick">${[['','all'],['down','\u25bc stuck or leaving'],['warn','\u25cf waiting on us'],['up','\u25b2 moving']].map(([k,l])=>`<button data-dbstate="${k}" aria-pressed="${(S.ltF||'')===k}">${l}</button>`).join('')}<span class="faint">the filters on the left narrow this table too</span></div>`:''}
-    <table class="db"><thead><tr>${cols.map(([k,t])=>`<th data-dbsort="${k}">${t}${sort.k===k?` <span class="ar">${sort.d>0?'▲':'▼'}</span>`:''}</th>`).join('')}</tr></thead>
-    <tbody>${page.map(r=>`<tr data-open="${r.id}">${cols.map(([k])=>cell(r,k)).join('')}</tr>`).join('')||`<tr><td colspan="${cols.length}" style="padding:16px;color:var(--fg3)">${esc(kind==='acc'?zeroLine():'Nothing matches these filters.')}</td></tr>`}</tbody></table>
+    ${kind==='person'?batchBar(page):''}
+    <table class="db"><thead><tr>${kind==='person'?`<th class="bsel"><input type="checkbox" data-bselall="1" aria-label="Select everyone on this page" ${page.length&&page.every(r=>(S.bsel||{})[r.id])?'checked':''}></th>`:''}${cols.map(([k,t])=>`<th data-dbsort="${k}">${t}${sort.k===k?` <span class="ar">${sort.d>0?'▲':'▼'}</span>`:''}</th>`).join('')}</tr></thead>
+    <tbody>${page.map(r=>`<tr data-open="${r.id}"${(S.bsel||{})[r.id]?' class="picked"':''}>${kind==='person'?`<td class="bsel"><input type="checkbox" data-bsel="${esc(r.id)}" aria-label="Pick ${esc(r.nm)}" ${(S.bsel||{})[r.id]?'checked':''}></td>`:''}${cols.map(([k])=>cell(r,k)).join('')}</tr>`).join('')||`<tr><td colspan="${cols.length+(kind==='person'?1:0)}" style="padding:16px;color:var(--fg3)">${esc(kind==='acc'?zeroLine():'Nothing matches these filters.')}</td></tr>`}</tbody></table>
     ${rows.length>page.length?`<button class="dbmore" data-dbmore="1">show ${int(Math.min(50,rows.length-page.length))} more · ${int(rows.length-page.length)} left</button>`:''}`;}
 
+/* =================== пачка =================== */
+/* Ответ на «1 sales к 32 sdr» (Николай, 12.10, 07:54): один человек не может
+   обработать тридцать два потока поштучно. Но пачка не имеет права быть обходом:
+   «путь записи один — через класс решения». Поэтому пачка — это одно решение
+   одного класса над многими объектами, а не много решений разом.
+   Право разложено так, как решила Лиза 12.10: Head утверждает, SDR готовит. */
+const bselIds=()=>Object.keys(S.bsel||{}).filter(k=>(S.bsel||{})[k]);
+/* Решение над многими — не то же самое, что решение над одним. Цена ошибки растёт
+   с числом объектов, поэтому у пачки свой поручитель, выше классового: Head.
+   Решение Лизы 12.10: «Head утверждает, SDR готовит». Это не отменяет класс —
+   класс остаётся тем же, меняется только кто ставит под ним подпись. */
+const BATCHGUA='head';
+const batchGuaTxt=()=>{const o=GUAWHO[BATCHGUA]?ourBy(GUAWHO[BATCHGUA]):null;
+  return (o?o.nm+' · ':'')+WHOM[BATCHGUA];};
+function batchCls(){
+  /* Класс пачки выводится из состояния людей, а не назначается рукой: кому ещё
+     не писали — первое касание, с кем переписка идёт — ответ. Смешивать нельзя:
+     одно решение не может накрыть два класса с разными поручителями. */
+  const ids=bselIds(); if(!ids.length)return null;
+  const k=ids.map(id=>{const pid=String(id).replace(/^person:/,'');
+    return (MSGS[pid]||[]).length?'reply':'touch';});
+  return k.every(x=>x===k[0])?k[0]:'mixed';}
+function batchBar(page){
+  const ids=bselIds(), head=S.profile==='head';
+  /* Переданная пачка видна тому, кто её держит: иначе «передал» означало бы
+     «уронил в тишину». У Head она стоит над таблицей, пока он не решит. */
+  const hand=(S.handed||[]).find(h=>h.open);
+  if(!ids.length){
+    if(hand&&head)return `<div class="bbar"><b>${hand.n} waiting on you</b>
+      <span>Prepared by ${esc(WHOM[hand.by]||hand.by)} · one decision · <b>${esc(DCL[hand.cls].nm)}</b></span>
+      <span class="sp"></span>
+      <button class="btn pri" data-bgo="${hand.cls}" data-bhanded="1">Approve all ${hand.n}</button>
+      <button class="btn" data-bdrop="1">Send it back</button></div>`;
+    if(hand&&!head)return `<div class="bbar"><b>${hand.n} handed over</b>
+      <span>Waiting on ${esc(batchGuaTxt())} · nothing has left yet</span></div>`;
+    return '';}
+  const cls=batchCls();
+  if(cls==='mixed'){
+    /* Отказ без выхода — не ответ. Экран говорит, на какие две пачки это делится,
+       и даёт оставить одну нажатием: так правило помогает, а не запрещает. */
+    const kof=k=>ids.filter(id=>((MSGS[String(id).replace(/^person:/,'')]||[]).length?'reply':'touch')===k).length;
+    return `<div class="bbar warnbar"><b>${ids.length} picked</b>
+    <span>Two classes here, and they have different guarantors — one decision cannot cover both.</span>
+    <span class="sp"></span>
+    ${kof('touch')?`<button class="btn" data-bkeep="touch">Keep the ${kof('touch')} never contacted</button>`:''}
+    ${kof('reply')?`<button class="btn" data-bkeep="reply">Keep the ${kof('reply')} mid-conversation</button>`:''}
+    <button class="btn" data-bclr="1">Clear</button></div>`;}
+  const c=DCL[cls];
+  return `<div class="bbar"><b>${ids.length} picked</b>
+    <span>One decision · <b>${esc(c.nm)}</b> · one by one ${esc(dguaTxt(cls))}, over many ${esc(batchGuaTxt())}</span>
+    <span class="sp"></span>
+    ${head?`<button class="btn pri" data-bgo="${cls}">Approve all ${ids.length}</button>`
+          :`<button class="btn pri" data-bhand="${cls}">Hand ${ids.length} to the Head</button>`}
+    <button class="btn" data-bclr="1">Clear</button></div>`;}
+/* Выборочный контроль. Человек не проверяет все сто — он называет, сколько
+   проверит руками, и видит, сколько уходит на ступени агента. Это и есть та ручка,
+   которой тридцать два потока складываются в один рабочий день. */
+function batchRun(cls,fromHand){
+  const h=fromHand?(S.handed||[]).find(x=>x.cls===cls&&x.open):null;
+  const ids=h?(h.ids||[]):bselIds(), n=h?h.n:ids.length, c=DCL[cls];
+  if(!n)return;
+  const opts=[1,3,10].filter(k=>k<n).concat([n]);
+  confirmAct({title:'Approve '+n+' under one decision?', danger:true, cta:'Approve all '+n, cls:cls,
+    html:`<div class="kvr"><span>I check by hand</span></div><select id="bk" class="inp">${opts.map(k=>`<option value="${k}">${k===n?'all '+n+' — nothing goes on the step':k+' of '+n+' — a sample'}</option>`).join('')}</select>`,
+    lines:[['Objects',n+' '+(n===1?'person':'people')],
+      ['Signed off by',batchGuaTxt()+' — a decision over many, whatever the class is one by one'],
+      ['Prepared by',h?(WHOM[h.by]||h.by)+', handed over':'you'],
+      'One decision is written down. The edits it causes are written down separately, with their number — so “who decided” stays answerable at any size.'],
+    onOk:()=>{const k=+(($('bk')||{}).value||n), auto=n-k;
+      logAdd('seller',`Batch of ${n} under “${c.nm}” approved by ${meNow()} — ${k} checked by hand, ${auto} on the agent’s step`,['up','one decision'],{cls,kind:'decision',by:S.profile});
+      logAdd('seller',`${n} contact${n===1?'':'s'} changed under that one decision`,['flat','edits under a decision'],{cls,kind:'edit'});
+      logAdd('seller',`Checked by hand: ${k} of ${n} · ${Math.round(auto/n*100)} % went on the step`,['flat','sample rate'],{cls,kind:'metric'});
+      S.bsel={};S.handed=(S.handed||[]).filter(x=>x.cls!==cls);
+      renderAll();
+      toast(`Approved · W${S.t}. One decision over ${n}, ${k} checked by hand.`);}});}
 /* =================== «Сегодня»: очередь ходов в центре =================== */
 /* Модель мира у всех одна, работа разная: центр показывает ходы всей команды,
    а сужает до «моего куска» только правая панель — «интерфейс от этого не поменяется»
@@ -5726,7 +5808,7 @@ function logAdd(ag,ttl,st,m){const o={ag,w:NOW,ttl,st};
 const LKIND={decision:'decision',edit:'edit',metric:'metric',revert:'revert'};
 const meNow=()=>WHOM[S.profile]||'—';
 document.addEventListener('click',e=>{
-  const b=e.target.closest('[data-fmul],[data-open],[data-side],[data-tab],[data-web],[data-tabclose],[data-tkopen],[data-tkact],[data-close],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-feeddown],[data-plus],[data-newchat],[data-agundo],[data-weekpick],[data-week],[data-calm],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-f],[data-freset],[data-fclr],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepsel],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-projset],[data-dbstate],[data-fmode],[data-dbsort],[data-dbmore],[data-dbkind],[data-camp],[data-camprun],[data-chan],[data-find],[data-slot],[data-next],[data-nextclr],[data-addp],[data-intent],[data-pst],[data-campsel],[data-campoff],[data-campblk],[data-campset],[data-campseq],[data-campbox],[data-camprunact],[data-inwin],[data-stuck],[data-mailclear],[data-mailopen],[data-mailstop],[data-mark],[data-note],[data-notecancel],[data-ent],[data-mail],[data-common],[data-importfacts],[data-nextbn],[data-influencer],[data-sim],[data-role],[data-tview],[data-triopen],#fDown,#addFact,#addNote');
+  const b=e.target.closest('[data-bkeep],[data-bdrop],[data-bsel],[data-bselall],[data-bgo],[data-bhand],[data-bclr],[data-fmul],[data-open],[data-side],[data-tab],[data-web],[data-tabclose],[data-tkopen],[data-tkact],[data-close],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-feeddown],[data-plus],[data-newchat],[data-agundo],[data-weekpick],[data-week],[data-calm],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-f],[data-freset],[data-fclr],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepsel],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-projset],[data-dbstate],[data-fmode],[data-dbsort],[data-dbmore],[data-dbkind],[data-camp],[data-camprun],[data-chan],[data-find],[data-slot],[data-next],[data-nextclr],[data-addp],[data-intent],[data-pst],[data-campsel],[data-campoff],[data-campblk],[data-campset],[data-campseq],[data-campbox],[data-camprunact],[data-inwin],[data-stuck],[data-mailclear],[data-mailopen],[data-mailstop],[data-mark],[data-note],[data-notecancel],[data-ent],[data-mail],[data-common],[data-importfacts],[data-nextbn],[data-influencer],[data-sim],[data-role],[data-tview],[data-triopen],#fDown,#addFact,#addNote');
   if(!b){if(S.wkOpen&&!e.target.closest('.wkpop')){S.wkOpen=false;renderFilters();}return;}
   if(S.wkOpen&&!b.dataset.weekpick&&!b.dataset.week&&!b.dataset.calm&&!e.target.closest('.wkpop')){S.wkOpen=false;renderFilters();}
   if(b.dataset.pal)$('pal').hidden=true;
@@ -5888,6 +5970,39 @@ document.addEventListener('click',e=>{
   if(b.dataset.fmul){fmulAsk(b.dataset.fmul);return;}
   if(b.dataset.tab){S.tab=b.dataset.tab;renderEditor();return;}
   /* Закрывать нечего: пять областей постоянны. */
+  /* Отметка строки не должна открывать строку: выбор и открытие — разные работы. */
+  if(b.dataset.bsel!==undefined){const id=b.dataset.bsel;S.bsel=S.bsel||{};
+    if(S.bsel[id])delete S.bsel[id];else S.bsel[id]=1;renderDB();return;}
+  if(b.dataset.bselall!==undefined){
+    /* Отмечать надо ровно то, что человек видит. Повтор выборки в обработчике давал
+       другой порядок, чем на экране: шапка отмечала пятьдесят чужих строк, а галочки
+       в видимых не загорались. Берём строки со страницы. */
+    const ids=[...document.querySelectorAll('[data-bsel]')].map(x=>x.dataset.bsel);
+    S.bsel=S.bsel||{};const all=ids.length&&ids.every(id=>S.bsel[id]);
+    ids.forEach(id=>{if(all)delete S.bsel[id];else S.bsel[id]=1;});renderDB();return;}
+  if(b.dataset.bclr){S.bsel={};renderDB();return;}
+  if(b.dataset.bkeep){const k=b.dataset.bkeep;const keep={};
+    bselIds().forEach(id=>{const pid=String(id).replace(/^person:/,'');
+      if(((MSGS[pid]||[]).length?'reply':'touch')===k)keep[id]=1;});
+    S.bsel=keep;renderDB();return;}
+  if(b.dataset.bgo){batchRun(b.dataset.bgo,!!b.dataset.bhanded);return;}
+  if(b.dataset.bdrop){const h=(S.handed||[]).find(x=>x.open);if(!h)return;
+    confirmAct({title:'Send the batch back?',cta:'Send it back',cls:h.cls,
+      html:'<textarea id="bdw" rows="2" placeholder="Why — one line is enough" style="width:100%;margin-top:8px"></textarea>',
+      lines:[['Objects',h.n],['Back to',WHOM[h.by]||h.by],
+        'A refusal over a batch is one fact too. Without a reason the next batch comes back the same.'],
+      onOk:()=>{const w=(($('bdw')||{}).value||'').trim();
+        if(!w){toast('A reason is required.');return false;}
+        logAdd('seller',`Batch of ${h.n} under “${DCL[h.cls].nm}” sent back by ${meNow()}: ${w}`,['down','rejected'],{cls:h.cls,kind:'decision',act:'rejected',by:S.profile});
+        S.handed=(S.handed||[]).filter(x=>x!==h);renderAll();
+        toast('Sent back \u00b7 W'+S.t+'. The refusal is in the log with its reason.');}});
+    return;}
+  if(b.dataset.bhand){const cls=b.dataset.bhand,n=bselIds().length;
+    /* SDR готовит — и это тоже запись: передача в чужие руки не должна быть тишиной. */
+    S.handed=(S.handed||[]).filter(h=>h.cls!==cls).concat([{cls,n,ids:bselIds(),by:S.profile,w:S.t,open:true}]);
+    logAdd('seller',`${n} prepared under “${DCL[cls].nm}” by ${meNow()} \u2014 waiting on ${batchGuaTxt()}`,['warn','waiting on a human'],{cls,kind:'decision',act:'handed',by:S.profile});
+    S.bsel={};renderAll();
+    toast(`Handed over \u00b7 W${S.t}. ${n} wait on ${batchGuaTxt()} \u2014 nothing has left yet.`);return;}
   if(b.dataset.clearsel){S.sel=null;renderAll();return;}
   if(b.dataset.mailclear){S.mail=null;renderPanel();return;}
   /* Пустая ячейка — это работа, а не прочерк. Агент ищет и записывает, ГДЕ взял:
