@@ -607,7 +607,12 @@ table.runs td{padding:4px 8px 4px 0;border-top:1px solid color-mix(in srgb,var(-
 .orgcard.bot .r{display:none}
 .orgcard.bot b{font-size:11px;font-weight:500}
 .orgcard.bot .chip{font-size:9px;padding:1px 5px;margin-left:auto}
-.orgcard.bot .grow{display:flex;align-items:center;gap:6px;min-width:0}
+.orgcard.bot .grow{display:flex;flex-direction:column;align-items:stretch;gap:2px;min-width:0}
+.orgcard.bot .l1{display:flex;align-items:center;gap:6px;min-width:0}
+/* Свобода и последнее действие переехали сюда из расформированной таблицы.
+   Кеглем они ниже имени: это признаки агента, а не его имя. */
+.orgcard.bot .free{font-size:9px;color:var(--fg3);text-transform:lowercase}
+.orgcard.bot .last{font-size:9.5px;color:var(--fg3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .orgcol{max-width:200px}
 .orgrow{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
 .orgcard{border:1px solid var(--border);border-radius:8px;padding:8px 11px;display:flex;gap:8px;align-items:center;min-width:210px;background:var(--editor);text-align:left}
@@ -2686,9 +2691,8 @@ function renderSide(){
     /* Три входа в одну зону, и по именам было не понять, чем они отличаются:
        «разве они не дублируют друг друга» (Лиза, 12.10). Один предмет — агент —
        правда виден в двух из них, но вопросы разные, и теперь вопрос стоит в имени. */
-    else if(S.ent==='ag'||S.ent==='us'){h+=`<button class="dblink" data-open="aglist">The machine — what the agents are doing ↗</button>`
-      +`<button class="dblink" data-open="dclist">Decision classes — the rules they obey ↗</button>`
-      +`<button class="dblink" data-open="us">Our side — who answers for them, what we can send ↗</button>`;}}
+    else if(S.ent==='ag'||S.ent==='us'){h+=`<button class="dblink" data-open="us">Our side — people, agents, mailboxes ↗</button>`
+      +`<button class="dblink" data-open="dclist">Decision classes — the rules they obey ↗</button>`;}}
   $('side').innerHTML=h;
 }
 function allEntities(){
@@ -2818,7 +2822,7 @@ function viewLabel(t){
   if(t.id==='web'){const [site,pid]=String(t.ref||'').split(':');const p=personById(pid);
     return [(SITES[site]||{nm:'Browser'}).nm, p?String(p.nm).split(' ').slice(-1)[0]:''];}
   if(t.id==='person')return ['Person', t.kind==='db'?'all people':t.kind==='replies'?'replies':cut((personById(t.ref)||{}).nm)];
-  if(t.id==='agent')return ['Agent', t.kind==='aglist'?'all':t.kind==='dclist'?'classes':t.kind==='ourp'?cut((OURS.find(o=>o.id===t.ref)||{}).nm):cut((agBy(t.ref)||{}).nm)];
+  if(t.id==='agent')return ['Agent', t.kind==='aglist'?'our side':t.kind==='dclist'?'classes':t.kind==='ourp'?cut((OURS.find(o=>o.id===t.ref)||{}).nm):cut((agBy(t.ref)||{}).nm)];
   if(t.id==='flow')return ['Workflow', t.kind==='flowlist'?'all':t.kind==='camp'?(t.ref&&t.ref!=='all'?cut((segBy(t.ref)||{}).name):'market'):cut((ACCBY[t.ref]||{}).name)];
   return ['Document', t.kind==='db'?'all documents':t.kind==='draft'?'draft':t.kind==='news'?'fact':t.kind==='price'?'price list':(t.ref&&DOCS[t.ref]?DOCS[t.ref].kind:'none')];}
 function renderTabs(){
@@ -2853,7 +2857,7 @@ function renderSource(t){if(t.kind==='ourp')return renderOurPerson(t.ref);
   if(t.kind==='doc'){if(!t.ref||!DOCS[t.ref]){const a=ACCBY[S.docEmptyAcc]||ACCBY[S.mapAcc];
     return `<div class="doc"><div class="doch"><div><h2>${a?esc(a.name):'No document'}</h2><div class="muted">no paper on record</div></div></div>
       <div class="note">Nothing has been signed, sent or billed here yet. The first document appears when the deal reaches an offer.</div></div>`;}
-    return renderDoc(t.ref);}if(t.kind==='msg')return renderMsg(t.ref);if(t.kind==='news')return renderNews(t.ref);if(t.kind==='org')return renderOrg();if(t.kind==='aglist')return renderAgentList();if(t.kind==='dclist')return renderClasses();if(t.kind==='agent')return renderAgentTab(t.ref);return '';}
+    return renderDoc(t.ref);}if(t.kind==='msg')return renderMsg(t.ref);if(t.kind==='news')return renderNews(t.ref);if(t.kind==='org')return renderOrg();if(t.kind==='aglist')return renderOrg();if(t.kind==='dclist')return renderClasses();if(t.kind==='agent')return renderAgentTab(t.ref);return '';}
 function renderEditor(){
   /* «Я ушла с map на person во views, но сбоку и снизу у меня всё ещё прошлое
      отображение» (Лиза, 06.10). setEnt менял переменную, но левую колонку, ленту,
@@ -4720,26 +4724,12 @@ function renderNews(id){const n=MARKET.find(x=>x.id===id),st=S.facts[id]||{};
    «что там с машиной», а получал одного Scout, будто он единственный. Ровно та же
    ошибка была у Workflows до 07.10: зона вела в один процесс, а не в список.
    «В чём суть, если там почему-то всегда конкретный агент открыт» (Лиза, 08.10). */
-function renderAgentList(){
-  const logs=LOGS.concat(S.extraLogs||[]);
-  const rows=AGENTS.map(g=>{
-    const own=OURS.find(o=>o.id===g.owner)||{};
-    const mine=logs.filter(l=>l.ag===g.id).sort((a,b)=>b.w-a.w);
-    const bad=mine.filter(l=>l.st&&l.st[0]==='down').length;
-    const last=mine[0];
-    return `<tr><td><button class="lnk" data-open="agent:${g.id}"><b>${esc(g.nm)}</b></button><div class="note">${esc(g.title)}</div></td>
-      <td>${esc(own.nm||'—')}</td>
-      <td>${esc(KNOB[(S.knob||{})[g.id]!=null?S.knob[g.id]:2]||'Auto')}</td>
-      <td><span class="chip ${ASTATE[g.state][0]}">${esc(ASTATE[g.state][1])}</span></td>
-      <td>${last?`${esc(String(last.ttl).slice(0,58))}<div class="note">W${last.w}${bad?` · ${bad} outside its rule`:''}</div>`:'<span class="note">nothing yet</span>'}</td></tr>`;}).join('');
-  const act=AGENTS.filter(a=>a.state==='active').length, wait=AGENTS.filter(a=>a.state==='awaiting').length, off=AGENTS.filter(a=>a.state==='paused').length;
-  return `<div class="bpmn">
-    <div class="bph"><h2>The machine</h2><span class="chip acc">${AGENTS.length} agents</span>
-      <span class="muted">${act} running · ${wait} waiting on a human · ${off} stopped — open one to change its freedom or stop it</span></div>
-    <div class="bnote"><span class="faint" style="font-size:11px">This answers one question: what the machine is doing. Who answers for whom and how many letters a day we can send is <button class="lnk" data-open="us">Our side ↗</button>, and the rules every one of them obeys are in <button class="lnk" data-open="dclist">Decision classes ↗</button>.</span></div>
-    <table class="runs"><thead><tr><th>agent</th><th>answers for it</th><th>freedom</th><th>state</th><th>last thing it did</th></tr></thead><tbody>${rows}</tbody></table>
-    <div class="bnote"><span class="faint" style="font-size:11px">Everything these agents did without you is in the feed below.</span>
-      <button class="lnk" data-open="dclist">Decision classes · ${Object.keys(DCL).length} ↗</button></div></div>`;}
+/* Экран «The machine» расформирован 12.10. В нём агент стоял строкой таблицы
+   с колонкой «кто за него отвечает», а на «нашей стороне» то же самое было
+   нарисовано схемой: «нельзя ли объединить, зачем нам три экрана» (Лиза).
+   Нельзя было ответить ничем, кроме истории: таблица появилась раньше схемы.
+   Свобода, состояние и последнее действие переехали на карточку агента внутри
+   схемы — там, где видно, кто за него отвечает. */
 /* =================== право и реестр классов =================== */
 /* «Если ты не можешь менять правила — ничего не получается» (Николай, 11.10).
    Правила — это и есть этот перечень. До сих пор право решать жило в трёх местах
@@ -4914,7 +4904,15 @@ function renderOrg(){
      человека, агенты под своим. Это же отвечает на вопрос Николая «куда-то агенты
      пропали»: они стоят там, где за них отвечают. */
   const human=p=>`<button class="orgcard" data-open="ourp:${p.id}">${face(p.nm,'mid',true)}<span class="grow"><b>${esc(p.nm)}</b><span class="r">${esc(p.title)}</span></span></button>`;
-  const bot=a=>`<button class="orgcard bot" data-open="agent:${a.id}">${agAv(a.id,'mid')}<span class="grow"><b>${esc(a.nm)}</b><span class="r">${esc(a.title)}</span><span class="chip ${ASTATE[a.state][0]}">${ASTATE[a.state][1]}</span></span></button>`;
+  /* На карточке агента стоит то, за чем раньше ходили в отдельную таблицу:
+     насколько он свободен и что сделал последним. Кто за него отвечает — видно
+     по тому, под кем он стоит, поэтому отдельной колонки «ответственный» больше нет. */
+  const alog=LOGS.concat(S.extraLogs||[]);
+  const bot=a=>{const mine=alog.filter(l=>l.ag===a.id).sort((x,y)=>y.w-x.w), last=mine[0];
+    const bad=mine.filter(l=>l.st&&l.st[0]==='down').length;
+    return `<button class="orgcard bot" data-open="agent:${a.id}">${agAv(a.id,'mid')}<span class="grow">
+      <span class="l1"><b>${esc(a.nm)}</b><span class="free">${esc(KNOB[(S.knob||{})[a.id]!=null?S.knob[a.id]:2]||'Auto')}</span><span class="chip ${ASTATE[a.state][0]}">${ASTATE[a.state][1]}</span></span>
+      <span class="last">${last?esc(String(last.ttl).slice(0,46))+(String(last.ttl).length>46?'…':'')+' · W'+last.w+(bad?` · <b class="down">${bad} outside its rule</b>`:''):'nothing yet'}</span></span></button>`;};
   const boss=OURS[0], reports=OURS.slice(1);
   const bossBots=AGENTS.filter(a=>a.owner===boss.id);
   const col=p=>{const mine=AGENTS.filter(a=>a.owner===p.id);
@@ -4941,22 +4939,24 @@ function renderOrg(){
         <button class="lnk" data-mail="${m.id}">What went out through it</button></span></div>
       <div class="crow"><span class="lbl faint">A stop takes effect at once: every campaign counts its capacity from the mailboxes that are still sending. Letters already gone are not recalled — nothing here can recall them.</span></div></div>`:'')
     +`</div>`;};
-  /* Ёмкость стоит выше оргсхемы: это единственная часть этого экрана с органами
-     управления, а схема людей — описание. Прибор поймал её за сгибом при 1440×900:
-     ящик открывался, но человеку нужна была прокрутка, чтобы его найти. */
+  /* Порядок переставлен 12.10, когда экран стал главным в зоне агентов. Раньше
+     ёмкость стояла первой: она была единственной частью с органами управления.
+     Теперь органы есть и у агентов — открыть, поменять свободу, остановить, —
+     а человек приходит в эту зону за агентами, не за ящиками. */
   return `<div class="org">
-    <div class="bph"><h2>Our side</h2><span class="chip acc">${OURS.length} people · ${AGENTS.length} agents · ${MAIL.length} mailboxes</span></div>
-    <div class="bnote"><span class="faint" style="font-size:11px">Who answers for what, and how much we are able to send. An agent appears here too, but as somebody’s responsibility — what it is doing right now is in <button class="lnk" data-open="aglist">The machine ↗</button>.</span></div>
-    <div class="hdr">Our capacity to send${mstop?` — <b class="down">${mstop} stopped by a human</b>`:mbad?` — <b class="down">${mbad} mailbox has spent its daily limit</b>`:''}</div>
-    <div class="facts">${MAIL.map(mailbox).join('')}</div>
-    <div class="note">A mailbox sends up to its daily limit and no further: above it, mail stops
-      landing instead of going out. The feed below is every send across all of them — pick
-      a mailbox to narrow it to one.</div>
+    <div class="bph"><h2>Our side</h2><span class="chip acc">${OURS.length} people · ${AGENTS.length} agents · ${MAIL.length} mailboxes</span>
+      <span class="muted">${AGENTS.filter(a=>a.state==='active').length} agents running · ${AGENTS.filter(a=>a.state==='awaiting').length} waiting on a human · ${AGENTS.filter(a=>a.state==='paused').length} stopped</span></div>
+    <div class="bnote"><span class="faint" style="font-size:11px">Everyone we have and everything we can send with. An agent stands under the person who answers for it — open one to change its freedom or stop it. The rules all of them obey are in <button class="lnk" data-open="dclist">Decision classes ↗</button>.</span></div>
     <div class="hdr">Who answers for what</div>
     <div class="orgrow">${human(boss)}</div>
     ${bossBots.length?`<div class="orgbots own">${bossBots.map(bot).join('')}</div>`:''}
     <div class="orgline"></div>
     <div class="orgcols">${reports.map(col).join('')}</div>
+    <div class="hdr">Our capacity to send${mstop?` — <b class="down">${mstop} stopped by a human</b>`:mbad?` — <b class="down">${mbad} mailbox has spent its daily limit</b>`:''}</div>
+    <div class="facts">${MAIL.map(mailbox).join('')}</div>
+    <div class="note">A mailbox sends up to its daily limit and no further: above it, mail stops
+      landing instead of going out. The feed below is every send across all of them — pick
+      a mailbox to narrow it to one.</div>
   </div>`;}
 
 /* =================== panel: three feeds + agents log, one uniform item =================== */
@@ -6072,7 +6072,7 @@ document.addEventListener('keydown',e=>{if((e.metaKey||e.ctrlKey)&&e.key.toLower
 function openRef(k){
   const [type,id,id2]=k.split(':');
   if(type==='flowlist'){openTab('flowlist',null);setEnt('flow');renderAllButMap();return;}
-  if(type==='aglist'){openTab('aglist',null);setEnt('ag');renderAllButMap();return;}
+  if(type==='aglist'){openTab('aglist',null);setEnt('us');renderAllButMap();return;}
   if(type==='dclist'){openTab('dclist',null);setEnt('ag');renderAllButMap();return;}
   if(type==='replies'){openTab('replies',null);setEnt('ppl');renderAllButMap();return;}
   if(type==='camp'){openTab('camp',id);S.campStep=1;setEnt('flow');renderAllButMap();return;}
@@ -6102,7 +6102,7 @@ function openRef(k){
   if(type==='sop'){S.sopAcc=id;S.sel={type:'acc',id};S.mapAcc=id;setView('org',id);openTab('sop',id);setEnt('flow');syncFilters();renderAllButMap();return;}
   if(type==='agent'){S.sel={type:'agent',id};setEnt('ag');openTab('agent',id,'Agent · '+agBy(id).nm);renderAllButMap();return;}
   if(type==='ourp'){setEnt('ag');S.sel=null;openTab('ourp',id);renderAllButMap();return;}
-  if(type==='us'){openTab('org','us','Us · people and agents');setEnt('us');S.sel=null;renderAllButMap();return;}
+  if(type==='us'){openTab('aglist',null,'Our side');setEnt('us');S.sel=null;renderAllButMap();return;}
   if(type==='db'){S.dbKind=id;S.dbN=50;S.dbSort=null;openTab('db',id,'Database · '+(id==='acc'?'accounts':'people'));return;}
 }
 /* У записи журнала два новых поля. `cls` — класс решения, под которым она сделана;
