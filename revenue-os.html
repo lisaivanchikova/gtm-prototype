@@ -87,6 +87,12 @@ q{quotes:"«" "»"}
 /* Роль — первое, что читают: «главное в левом верхнем углу — кто я, из какой роли
    я на это смотрю» (Николай, 11.10). Она же задаёт, какие разделы и фильтры
    появятся слева, поэтому стоит рядом с именем системы, а не среди служебных кнопок. */
+.nevdo{padding:8px 10px;border:1px solid var(--border);border-left:3px solid var(--bad);border-radius:6px;font-size:12px;color:var(--fg)}
+.dcls{display:flex;flex-direction:column;gap:6px}
+.dclrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:7px 9px;border:1px solid var(--border);border-radius:6px}
+.dclrow.over{border-color:var(--bad)}
+.dclrow .grow{flex:1 1 180px;min-width:0}
+.dclrow .wrn{flex:1 1 100%;color:var(--bad);font-size:11px}
 .bbar{display:flex;align-items:center;gap:10px;padding:7px 10px;margin:0 0 6px;background:var(--selbg);border:1px solid var(--border);border-radius:6px;font-size:12px}
 .bbar .sp{flex:1 1 auto}
 .bbar.warnbar{background:color-mix(in srgb,var(--warn) 12%,transparent)}
@@ -1476,14 +1482,19 @@ function dguaTxt(k){const g=dgua(k);if(!g)return '—';
   return g.person?g.person+' · '+WHOM[g.role]:WHOM[g.role]+' — no person named yet';}
 /* Ступень: расчёт может только понизить свободу относительно потолка поручителя
    (v4, Policy). Поэтому потолок — верхняя граница, а не значение по умолчанию. */
-function dstep(k){const c=DCL[k];if(!c)return 'hands';
-  const want=(S.dstep||{})[k]||c.cap;
-  return DSTEPS.indexOf(want)>DSTEPS.indexOf(c.cap)?c.cap:want;}
+function dstep(k){const c=DCL[k];if(!c)return 'hands';return (S.dstep||{})[k]||c.cap;}
+/* Потолок — это обязательство поручителя, а не замок на двери. Расчёт выше него
+   не поднимается никогда; человек рукой — мог, и тогда это нарушение, а не
+   настройка. Система такое не прячет и не правит молча: она это показывает. */
+function overCap(k){const c=DCL[k];if(!c)return false;
+  return DSTEPS.indexOf(dstep(k))<DSTEPS.indexOf(c.cap);}
+function capTxt(k){const c=DCL[k];return DSTEPNM[c.cap];}
 /* Строки, которые видит человек перед необратимым ходом. Класс называется раньше
    предмета: сначала «какое это решение», потом «над чем». */
 function dclLines(k){const c=DCL[k];if(!c)return [];
   const out=[['Decision class',c.nm],['Changes outside',c.out],
-    ['Guarantor',dguaTxt(k)],['Step now',DSTEPNM[dstep(k)]]];
+    ['Guarantor',dguaTxt(k)],['Step now',DSTEPNM[dstep(k)]+(overCap(k)?' — above the ceiling':'')]];
+  if(overCap(k))out.push('!This class runs freer than its guarantor allows. The ceiling is “'+DSTEPNM[c.cap]+'” and it was lifted by hand — no calculation can do that.');
   if(c.hard)out.push('!'+c.hard);
   if(!dgua(k).person)out.push('!No person is named for this class. Until someone is, nobody can lift the ceiling or veto it.');
   return out;}
@@ -1512,6 +1523,32 @@ const OURSIDE=[
   {stage:4,nm:'Lisa',what:'signing authority',wait:'waiting on her signature',warn:1,ref:'doc:d-msa'},
   {stage:4,nm:'Nikolai Bobrov',what:'the revenue owner signs',wait:'waiting on his signature',warn:1,ref:'doc:d-msa'},
   {stage:5,nm:'Ops director',what:'owns the SLA',wait:'the SLA is on him'}];
+/* =================== ступень живёт на классе =================== */
+/* «Ручка автономии стоит на классе решения, не на агенте и не на объекте»
+   (Николай, 11.10). До сегодня она стояла на агенте: у Scout была одна свобода
+   на всё, что он делает, хотя первое касание и обогащение карточки — решения
+   разной цены. Теперь источник правды — класс, а свобода агента из него следует.
+   Агент не свободнее самого строгого класса, в котором он пишет. */
+const AGCLS={scout:['touch','enrich'],qual:['screen'],seller:['reply','touch'],
+             pricer:['quote','disc'],service:['inv','cut']};
+/* Две шкалы смотрят в разные стороны: KNOB ['Suggest','Approve','Auto'] растёт
+   к свободе, DSTEPS ['auto','approve','hands'] — к строгости. Переводим явно,
+   чтобы это не приходилось держать в голове. */
+const STEP2KNOB={auto:2,approve:1,hands:0};
+const KNOB2STEP=['hands','approve','auto'];
+function agStep(id){const cs=AGCLS[id]||[];if(!cs.length)return 2;
+  return Math.min(...cs.map(c=>STEP2KNOB[dstep(c)]));}
+/* Старый S.knob остаётся — на нём стоят прогноз, формула и правила. Но он больше
+   не источник: он пересчитывается из классов и руками не ставится. */
+function syncKnob(){S.knob=S.knob||{};AGENTS.forEach(a=>{S.knob[a.id]=agStep(a.id);});}
+/* Обратный ход: человек крутит ручку у агента — это правка классов, в которых
+   агент пишет. Так старые входы продолжают работать, а правда остаётся одна. */
+function setAgStep(id,k){const cs=AGCLS[id]||[];const want=KNOB2STEP[k];
+  S.dstep=S.dstep||{};
+  cs.forEach(c=>{const cap=DCL[c].cap;
+    /* Расчёт может только понизить свободу относительно потолка (v4, Policy). */
+    S.dstep[c]=DSTEPS.indexOf(want)>DSTEPS.indexOf(cap)?cap:want;});
+  syncKnob();return agStep(id);}
 const AGENTS=[
   {id:'scout',nm:'Scout',title:'finds accounts, makes the first touch',owner:'h-sdr',works:'h-sdr',owns:[1],state:'active'},
   {id:'qual',nm:'Qualifier',title:'screens against the segment\u2019s causal criteria',owner:'h-sdr',owns:[2],state:'active'},
@@ -1659,9 +1696,15 @@ const MEET=[
   {id:'mt3',acc:'a0',pid:'p-diaz',who:'Karen Diaz',w:38,when:'Fri 10:00 am',own:'head',brief:0,
    ttl:'Brightline: signature and the go-live date \u00b7 20 min',st:['up','on the calendar'],
    last:'silent for 9 days on LinkedIn'}];
-const BUILD='Oct 12, 12:39';   /* отметка сборки: единственное место, где она живёт */
+const BUILD='Oct 12, 12:47';   /* отметка сборки: единственное место, где она живёт */
 const S={t:NOW,seg:null,downOnly:false,sel:null,level:'segment',K:1,
-  knob:{scout:2,qual:2,seller:2,pricer:1,service:1},profile:'head',dstep:{},
+  knob:{scout:2,qual:2,seller:2,pricer:1,service:1},profile:'head',
+  /* Начальные ступени — не выдумка: они сняты с того, как агенты работают в демо
+     сегодня. Отсюда и два нарушения потолка, которые уже стоили нам конверсии:
+     скрининг крутится на auto (Conv 36 → 12 %), и ответы в переписке тоже. */
+  dstep:{touch:'auto',enrich:'auto',screen:'auto',reply:'auto',quote:'approve',
+         disc:'approve',sign:'hands',inv:'approve',cut:'approve',
+         step:'hands',stop:'approve',fact:'approve'},
   side:'tree',ent:'seg',agView:null,mapAcc:null,box:'',bn:0,sent:{},skin:'rev',ef:{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false},ptab:'market',job:'',stF:'',stage:'',primary:'map',source:null,orgOpen:false,sopAcc:'a0',lastRef:{},tview:'table',tabs:[{id:'map',kind:'map',ref:null,title:'Map'},{id:'acc',kind:'org',ref:'a0',title:'Account'},{id:'person',kind:'msg',ref:'p-hale',title:'Person'},{id:'flow',kind:'sop',ref:'a0',title:'Workflow'},{id:'doc',kind:'doc',ref:'d-msa',title:'Document'}],tab:'map',
   facts:{},docs:{},tri:{},proj:{},plan:null,chat:[],layout:{side:true,panel:true,agent:true,panelRight:false,swap:false},sopEdit:false,sopFix:null,steps:JSON.parse(JSON.stringify(STEPS0)),fieldPol:{},hidden:{},dnc:{},knobW:{scout:1,qual:1,seller:1,pricer:1,service:1},rules:JSON.parse(JSON.stringify(RULES0))};
 try{const L=JSON.parse(localStorage.getItem('revos-layout-v4')||'null');if(L)Object.assign(S.layout,L);}catch(e){}
@@ -4572,11 +4615,23 @@ function renderAgentList(){
       <span class="muted">${act} running · ${wait} waiting on a human · ${off} stopped — open one to change its freedom or stop it</span></div>
     <table class="runs"><thead><tr><th>agent</th><th>answers for it</th><th>freedom</th><th>state</th><th>last thing it did</th></tr></thead><tbody>${rows}</tbody></table>
     <div class="bnote"><span class="faint" style="font-size:11px">Everything these agents did without you is in the feed below.</span></div></div>`;}
+/* Свобода агента больше не одна ручка на всё: она складывается из классов, в которых
+   он пишет. Поэтому показываем не абстрактную «Autonomy», а строку на класс —
+   со ступенью, потолком и поручителем. Где ступень выше потолка, строка горит. */
+function agClsBlock(id){const cs=AGCLS[id]||[];
+  if(!cs.length)return '<div class="note">This agent writes nothing outside — it has no decision class.</div>';
+  return `<div class="hdr">Freedom — one line per class it writes in</div>
+    <div class="dcls">${cs.map(c=>{const d=DCL[c],over=overCap(c);
+      return `<div class="dclrow${over?' over':''}">
+        <div class="grow"><b>${esc(d.nm)}</b><div class="note">${esc(d.out)} · guarantor ${esc(dguaTxt(c))}</div></div>
+        <div class="btns">${DSTEPS.slice().reverse().map(st=>`<button class="btn ${dstep(c)===st?'pri':''}" data-dcl="${c}:${st}" data-tip="${esc(DSTEPNM[st])}">${st==='auto'?'Auto':st==='approve'?'Approve':'By hand'}</button>`).join('')}</div>
+        ${over?`<div class="wrn">Above the ceiling — the guarantor (${esc(dguaTxt(c))}) allows only “${esc(DSTEPNM[d.cap])}”</div>`:''}
+      </div>`;}).join('')}</div>`;}
 function renderAgentTab(id){const g=agBy(id),own=OURS.find(o=>o.id===g.owner);const logs=LOGS.concat(S.extraLogs||[]).filter(l=>l.ag===id).sort((a,b)=>b.w-a.w);
   return `<div class="doc"><div class="doch">${agAv(g.id,'big')}<div><h2>${g.nm}</h2><div class="muted">${g.title} · ${esc(own.nm)} answers for it · <span class="chip ${ASTATE[g.state][0]}">${ASTATE[g.state][1]}</span></div><div class="note">An agent is a colleague: a role, a face, a log. Same form as a person — do not mistake one for the other.</div></div></div>
-    <div class="kv"><div><span>Autonomy</span><b>${KNOB[S.knob[id]]}</b></div><div><span>Runs stages</span><b>${g.owns.map(x=>STAGE[x]).join(', ')}</b></div><div><span>Never-do fired</span><b>${stopsFired(id)}×</b></div><div><span>Answers for it</span><b>${esc(own.nm.split(' ')[0])}</b></div></div>
-    <div class="hdr">Autonomy — how much freedom</div><div class="btns">${KNOB.map((k,i)=>`<button class="btn ${S.knob[id]===i?'pri':''}" data-knob="${id}:${i}">${k}</button>`).join('')}</div>
-    <div class="hdr">Never-do — where that freedom ends</div><div class="paper">Never: ${STOPS[id][0]}.</div>
+    <div class="kv"><div><span>Freedom</span><b>${KNOB[S.knob[id]]}</b><div class="note">the strictest of its classes</div></div><div><span>Runs stages</span><b>${g.owns.map(x=>STAGE[x]).join(', ')}</b></div><div><span>Never-do fired</span><b>${stopsFired(id)}×</b></div><div><span>Answers for it</span><b>${esc(own.nm.split(' ')[0])}</b></div></div>
+    ${agClsBlock(id)}
+    <div class="hdr">Never-do — where that freedom ends</div><div class="nevdo">Never: ${STOPS[id][0]}. ${overCap((AGCLS[id]||[])[0]||'touch')?'A never-do holds even above the ceiling — it is the one thing no step reaches.':'This holds at every step, including Auto.'}</div>
     ${id==='pricer'||id==='seller'?`<div class="btns"><button class="btn" data-open="price:1" data-tip="What we sell, what costs extra, and what we never promise">Open the price list</button></div>`:''}
     ${g.state==='paused'?`<div class="btns"><button class="btn" data-tri="t-seller|resume|Resume">Put it back to work</button><span class="note">Stopped by a hard stop. ${esc(own.nm)} decides.</span></div>`:''}
     <div class="hdr">Action log</div><div class="facts">${logs.map(l=>`<div class="fact"><div class="grow"><div>${esc(l.ttl)}</div><div class="note">W${l.w}</div></div><span class="chip ${l.st[0]}">${esc(l.st[1])}</span></div>`).join('')||'<div class="note">No entries.</div>'}</div></div>`;}
@@ -4866,7 +4921,7 @@ function renderEcard(){
       +params([['Stage',`<span class="${mcls(m)}">${arrow(m)} ${e?STAGE[e.s]:'—'}</span>`],['ACV',usdAcv(a)],['Stuck',(e?daysIn(e,t):0)+'d'],['People',peopleOf(a).length]])
       +`<button class="btn" data-open="sop:${sel.id}">Open the workflow</button>`;}
   else if(sel&&sel.type==='agent'){const g=agBy(sel.id);h=`<div class="top">${agAv(g.id,'big')}<div><h3>${g.nm}</h3><div class="sub">${g.title}</div></div></div>`+params([['State',`<span class="${ASTATE[g.state][0]}">${ASTATE[g.state][1]}</span>`],['Autonomy',KNOB[S.knob[g.id]]],['Answers for it',OURS.find(o=>o.id===g.owner).nm],['Runs stages',g.owns.map(s=>STAGE[s]).join(', ')]])+
-      `<div class="hdr">Autonomy \u2014 how much freedom</div><div class="btns">${KNOB.map((k,i)=>`<button class="btn ${S.knob[g.id]===i?'pri':''}" data-knob="${g.id}:${i}">${k}</button>`).join('')}</div>`;}
+      agClsBlock(g.id);}
   else if(tab==='market'){const g=S.seg?segBy(S.seg):null;h=`<div class="top"><span class="av sq big">${g?g.abc:'US'}</span><div><h3>${g?g.name:'US market · all segments'}</h3><div class="sub">${g?'Core job: “'+g.job+'”':'three segments by core job'}</div></div></div>`+params([['Accounts',int(formulaAt(t).N)],['Market',usd(SEGS.filter(x=>!S.seg||x.id===S.seg).reduce((s,x)=>s+segMetrics(x).mkt,0))],['Unverified',MARKET.filter(n=>!S.facts[n.id]).length]])+`<button class="btn pri" data-camp="${S.seg||'all'}" data-tip="Set who, what, when and which mailboxes — then launch">Make a campaign for ${g?esc(g.name):'the whole market'}</button>`;}
   else if(tab==='account'){const vis=ACC.filter(a=>stateAt(a,t)&&inF(a));h=`<div class="top"><span class="av sq big">⌂</span><div><h3>Accounts${S.seg?' · '+segBy(S.seg).name:''}</h3><div class="sub">an account speaks in documents — goods for money</div></div></div>`+params([['In pipeline',vis.filter(a=>{const e=stateAt(a,t);return e.s>=1&&e.s<=4;}).length],['In service',vis.filter(a=>isActive(stateAt(a,t))).length],['▼ stuck',vis.filter(a=>momentum(a,t)<0).length],['Awaiting signature',vis.filter(a=>stateAt(a,t).s===4).length]]);}
   else if(tab==='channel'){
@@ -5594,8 +5649,8 @@ function agentEdit(q){
     const g=sc.agent||AGENTS.find(x=>l.includes(x.nm.toLowerCase()))||(sc.area==='sop'?agBy((S.steps[sc.step]||{}).ag):null);
     if(g){const to=/auto/.test(l)?2:/approve/.test(l)?1:0, was=S.knob[g.id];
       if(was===to)return `${g.nm} is already on <b>${KNOB[to]}</b>.`;
-      S.knob[g.id]=to;
-      return editDone(`${g.nm}: the cold dial is now <b>${KNOB[to]}</b> — was ${KNOB[was]}.`,()=>{S.knob[g.id]=was;},'agent:'+g.id,'step');}
+      setAgStep(g.id,to);
+      return editDone(`${g.nm}: the cold dial is now <b>${KNOB[to]}</b> — was ${KNOB[was]}. It is set on the class${(AGCLS[g.id]||[]).length>1?'es':''} ${(AGCLS[g.id]||[]).map(c=>'“'+DCL[c].nm+'”').join(', ')}, not on the agent.`,()=>{setAgStep(g.id,was);},'agent:'+g.id,'step');}
     return 'Name the agent — I do not know whose dial you mean.';
   }
   /* проверка на шаге */
@@ -5808,7 +5863,7 @@ function logAdd(ag,ttl,st,m){const o={ag,w:NOW,ttl,st};
 const LKIND={decision:'decision',edit:'edit',metric:'metric',revert:'revert'};
 const meNow=()=>WHOM[S.profile]||'—';
 document.addEventListener('click',e=>{
-  const b=e.target.closest('[data-bkeep],[data-bdrop],[data-bsel],[data-bselall],[data-bgo],[data-bhand],[data-bclr],[data-fmul],[data-open],[data-side],[data-tab],[data-web],[data-tabclose],[data-tkopen],[data-tkact],[data-close],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-feeddown],[data-plus],[data-newchat],[data-agundo],[data-weekpick],[data-week],[data-calm],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-f],[data-freset],[data-fclr],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepsel],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-projset],[data-dbstate],[data-fmode],[data-dbsort],[data-dbmore],[data-dbkind],[data-camp],[data-camprun],[data-chan],[data-find],[data-slot],[data-next],[data-nextclr],[data-addp],[data-intent],[data-pst],[data-campsel],[data-campoff],[data-campblk],[data-campset],[data-campseq],[data-campbox],[data-camprunact],[data-inwin],[data-stuck],[data-mailclear],[data-mailopen],[data-mailstop],[data-mark],[data-note],[data-notecancel],[data-ent],[data-mail],[data-common],[data-importfacts],[data-nextbn],[data-influencer],[data-sim],[data-role],[data-tview],[data-triopen],#fDown,#addFact,#addNote');
+  const b=e.target.closest('[data-dcl],[data-bkeep],[data-bdrop],[data-bsel],[data-bselall],[data-bgo],[data-bhand],[data-bclr],[data-fmul],[data-open],[data-side],[data-tab],[data-web],[data-tabclose],[data-tkopen],[data-tkact],[data-close],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-feeddown],[data-plus],[data-newchat],[data-agundo],[data-weekpick],[data-week],[data-calm],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-f],[data-freset],[data-fclr],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepsel],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-projset],[data-dbstate],[data-fmode],[data-dbsort],[data-dbmore],[data-dbkind],[data-camp],[data-camprun],[data-chan],[data-find],[data-slot],[data-next],[data-nextclr],[data-addp],[data-intent],[data-pst],[data-campsel],[data-campoff],[data-campblk],[data-campset],[data-campseq],[data-campbox],[data-camprunact],[data-inwin],[data-stuck],[data-mailclear],[data-mailopen],[data-mailstop],[data-mark],[data-note],[data-notecancel],[data-ent],[data-mail],[data-common],[data-importfacts],[data-nextbn],[data-influencer],[data-sim],[data-role],[data-tview],[data-triopen],#fDown,#addFact,#addNote');
   if(!b){if(S.wkOpen&&!e.target.closest('.wkpop')){S.wkOpen=false;renderFilters();}return;}
   if(S.wkOpen&&!b.dataset.weekpick&&!b.dataset.week&&!b.dataset.calm&&!e.target.closest('.wkpop')){S.wkOpen=false;renderFilters();}
   if(b.dataset.pal)$('pal').hidden=true;
@@ -5900,13 +5955,13 @@ document.addEventListener('click',e=>{
         onOk:()=>{b.dataset.ruleOk='1';b.click();delete b.dataset.ruleOk;}});
       return;}
     r.on=!r.on;
-    if(r.knob==='qual'){S.knob.qual=r.on?1:2;}
+    if(r.knob==='qual'){setAgStep('qual',r.on?1:2);}
     logAdd(ag,`Step rule “${r.t}” ${r.on?'switched on':'switched off'} (${$('profile').selectedOptions[0].text})`,[r.on?'up':'down','edited']);
     toast(`Rule ${r.on?'switched on':'switched off'}. The formula has been recalculated.`);renderAll();return;}
   if(b.dataset.fix){S.sopFix=b.dataset.fix;renderEditorLight();
     setTimeout(()=>{const f=document.querySelector('.fixp');f&&f.scrollIntoView({block:'center',behavior:'smooth'});},30);return;}
   if(b.dataset.fixclose){S.sopFix=null;renderEditorLight();return;}
-  if(b.dataset.dofix){const ag=b.dataset.dofix;const r=S.rules[ag].find(x=>x.knob==='qual');if(r){r.on=true;S.knob[ag]=1;}
+  if(b.dataset.dofix){const ag=b.dataset.dofix;const r=S.rules[ag].find(x=>x.knob==='qual');if(r){r.on=true;setAgStep(ag,1);}
     logAdd(ag,'After the failure review: the budget check is on, the dial went Auto → Approve',['up','fixed after a failure']);
     S.sopFix=null;S.tri['t-knob']='done: fixed on the diagram';
     toast('Fixed. The agent now works to the new rule. The effect is in the forecast: move time to W42.');renderAll();return;}
@@ -5922,7 +5977,7 @@ document.addEventListener('click',e=>{
           'Its never-do rules still hold. The change is logged under your name.'],
         onOk:()=>{b.dataset.cycOk='1';b.click();delete b.dataset.cycOk;}});
       return;}
-    if(w==='cold'){S.knob[id]=(S.knob[id]+1)%3;logAdd(id,`Cold: dial → ${KNOB[S.knob[id]]}`,['flat','edited']);
+    if(w==='cold'){setAgStep(id,(S.knob[id]+1)%3);logAdd(id,`Cold: dial → ${KNOB[S.knob[id]]} — set on ${(AGCLS[id]||[]).map(c=>'“'+DCL[c].nm+'”').join(', ')}`,['flat','edited'],{cls:'step',kind:'decision',by:S.profile});
       const r=(S.rules[id]||[]).find(x=>x.knob==='qual');if(r)r.on=S.knob[id]<2;}
     else{if(S.knobW[id]>=1){S.knobW[id]=0;}else{S.knobW[id]=1;}
       logAdd(id,`Warm: dial → ${KNOB[S.knobW[id]]}`,['flat','edited']);
@@ -5980,6 +6035,20 @@ document.addEventListener('click',e=>{
     const ids=[...document.querySelectorAll('[data-bsel]')].map(x=>x.dataset.bsel);
     S.bsel=S.bsel||{};const all=ids.length&&ids.every(id=>S.bsel[id]);
     ids.forEach(id=>{if(all)delete S.bsel[id];else S.bsel[id]=1;});renderDB();return;}
+  if(b.dataset.dcl){const [c,st]=b.dataset.dcl.split(':');const was=dstep(c);
+    if(was===st)return;
+    const up=DSTEPS.indexOf(st)<DSTEPS.indexOf(was), overAfter=DSTEPS.indexOf(st)<DSTEPS.indexOf(DCL[c].cap);
+    const go=()=>{S.dstep=S.dstep||{};S.dstep[c]=st;syncKnob();
+      logAdd((Object.keys(AGCLS).find(a=>AGCLS[a].includes(c))||'scout'),
+        `Class “${DCL[c].nm}”: step ${DSTEPNM[was]} \u2192 ${DSTEPNM[st]} by ${meNow()}`,
+        [overAfter?'down':'flat','step changed'],{cls:'step',kind:'decision',by:S.profile});
+      renderAll();toast(`“${DCL[c].nm}” is now ${DSTEPNM[st]} \u00b7 W${S.t}.`);};
+    if(up){confirmAct({title:'Give the class “'+DCL[c].nm+'” more freedom?',danger:overAfter,cta:'Set it to '+DSTEPNM[st],cls:'step',
+      lines:[['Class',DCL[c].nm],['Now',DSTEPNM[was]],['After',DSTEPNM[st]],
+        ['Agents affected',(Object.keys(AGCLS).filter(a=>AGCLS[a].includes(c)).map(a=>(agBy(a)||{}).nm).join(', ')||'none')],
+        overAfter?'!This goes past the ceiling set by the guarantor ('+dguaTxt(c)+'). No calculation may lift it — you are lifting it by hand, and the log will say so.':null],
+      onOk:go});return;}
+    go();return;}
   if(b.dataset.bclr){S.bsel={};renderDB();return;}
   if(b.dataset.bkeep){const k=b.dataset.bkeep;const keep={};
     bselIds().forEach(id=>{const pid=String(id).replace(/^person:/,'');
@@ -6189,7 +6258,7 @@ document.addEventListener('click',e=>{
           'The change goes into the log with your name on it, and can be rolled back from there.'],
         onOk:()=>{b.dataset.knobOk='1';b.click();delete b.dataset.knobOk;}});
       return;}
-    logAdd(id,`Dial: ${KNOB[S.knob[id]]} → ${KNOB[+k]} (${$('profile').selectedOptions[0].text})`,['flat','edited']);S.knob[id]=+k;
+    logAdd(id,`Dial: ${KNOB[S.knob[id]]} → ${KNOB[+k]} (${meNow()}) — set on the classes ${(AGCLS[id]||[]).map(c=>'“'+DCL[c].nm+'”').join(', ')}`,['flat','edited'],{cls:'step',kind:'decision',by:S.profile});setAgStep(id,+k);
     S.ptab='agents';S.layout.panel=true;applyLayout();renderAll();return;}
   if(b.dataset.tview){S.tview=b.dataset.tview;renderEditor();return;}
   if(b.dataset.tkopen){const id=b.dataset.tkopen;
@@ -6213,7 +6282,7 @@ document.addEventListener('click',e=>{
           logAdd('seller',`Task declined by ${$('profile').selectedOptions[0].text}: ${v}`,['down','declined']);
           renderEditor();renderAll();}});
       return;}
-    if(k==='knob'){logAdd('qual',`Dial: ${KNOB[S.knob.qual]} \u2192 ${KNOB[1]} (${$('profile').selectedOptions[0].text})`,['flat','edited']);S.knob.qual=1;}
+    if(k==='knob'){logAdd('qual',`Dial: ${KNOB[S.knob.qual]} \u2192 ${KNOB[1]} (${meNow()}) — set on the class “screening”`,['flat','edited'],{cls:'step',kind:'decision',by:S.profile});setAgStep('qual',1);}
     if(k==='resume'){agBy('seller').state='active';logAdd('seller','Put back to work after the alarm was reviewed',['up','decision']);}
     if(k.startsWith('rule:')){const [,ag,rid]=k.split(':');const r=(S.rules[ag]||[]).find(x=>x.id===rid);if(r){r.on=true;logAdd(ag,`Rule \u201c${r.t}\u201d turned on (${$('profile').selectedOptions[0].text})`,['up','edited']);}}
     if(k.startsWith('fact:')){const [,nid,v]=k.split(':');S.facts[nid]={0:v,1:v};}
@@ -6223,7 +6292,7 @@ document.addEventListener('click',e=>{
     /* Одна и та же перемена подписывалась «(GTM Eng)» через кнопку и «(approved by
        Nikolai)» через панель агента (GTM Eng, 09.10). Подпись берётся оттуда же,
        откуда её берёт кнопка: из того, кто вошёл. */
-    if(k==='knob'){logAdd('qual',`Dial: ${KNOB[S.knob.qual]} → ${KNOB[1]} (${$('profile').selectedOptions[0].text})`,['flat','edited']);S.knob.qual=1;}
+    if(k==='knob'){logAdd('qual',`Dial: ${KNOB[S.knob.qual]} → ${KNOB[1]} (${meNow()}) — set on the class “screening”`,['flat','edited'],{cls:'step',kind:'decision',by:S.profile});setAgStep('qual',1);}
     if(k==='resume'){agBy('seller').state='active';logAdd('seller','Put back to work after the alarm was reviewed',['up','decision']);}
     if(k.startsWith('rule:')){const [,ag,rid]=k.split(':');const r=(S.rules[ag]||[]).find(x=>x.id===rid);if(r){r.on=true;logAdd(ag,`Rule \u201c${r.t}\u201d turned on (${$('profile').selectedOptions[0].text})`,['up','edited']);}}
     if(k.startsWith('fact:')){const [,nid,v]=k.split(':');S.facts[nid]={0:v,1:v};}
