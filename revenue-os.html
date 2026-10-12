@@ -71,6 +71,17 @@ input,select,textarea{font:inherit;color:var(--fg);background:var(--input);borde
 .up{color:var(--up)} .down{color:var(--down)} .flat{color:var(--flat)} .wn{color:var(--warn)}
 .picked .sgn{font-family:var(--ui);font-variant-numeric:tabular-nums;letter-spacing:0;font-size:10px;letter-spacing:.03em;border:1px solid currentColor;border-radius:8px;padding:0 6px;margin-left:4px}
 .muted{color:var(--fg2)} .faint{color:var(--fg3)}
+/* `.bad` ставился в разметке с 11.10 и не был объявлен: «выше потолка» печаталось
+   тем же серым, что и всё остальное. Цвет здесь — состояние, а не украшение. */
+.bad{color:var(--down)}
+/* Улика ведёт к подлиннику. Подчёркивание пунктиром, а не кнопка: внутри строки
+   ленты она лежит внутри кнопки, и вложенная кнопка — недопустимая разметка. */
+.evl{color:inherit;border-bottom:1px dotted var(--fg3);cursor:pointer}
+.evl:hover{color:var(--fg);border-bottom-color:var(--fg)}
+/* Род записи — метка одного кегля с остальной строкой, различается только цветом. */
+.lk{font-weight:600}
+.lk.decision{color:var(--fg2)} .lk.edit{color:var(--flat)}
+.lk.metric{color:var(--fg3)} .lk.revert{color:var(--warn)}
 .hdr{font-family:var(--ui);font-variant-numeric:tabular-nums;letter-spacing:0;font-size:10px;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:var(--fg2)}
 q{quotes:"«" "»"}
 
@@ -94,12 +105,12 @@ q{quotes:"«" "»"}
 .subrule{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .subrule .sp{flex:1 1 auto}
 .lscope{color:var(--fg2);border-bottom:1px dotted var(--border)}
-.nevdo{padding:8px 10px;border:1px solid var(--border);border-left:3px solid var(--bad);border-radius:6px;font-size:12px;color:var(--fg)}
+.nevdo{padding:8px 10px;border:1px solid var(--border);border-left:3px solid var(--down);border-radius:6px;font-size:12px;color:var(--fg)}
 .dcls{display:flex;flex-direction:column;gap:6px}
 .dclrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:7px 9px;border:1px solid var(--border);border-radius:6px}
-.dclrow.over{border-color:var(--bad)}
+.dclrow.over{border-color:var(--down)}
 .dclrow .grow{flex:1 1 180px;min-width:0}
-.dclrow .wrn{flex:1 1 100%;color:var(--bad);font-size:11px}
+.dclrow .wrn{flex:1 1 100%;color:var(--down);font-size:11px}
 .bbar{display:flex;align-items:center;gap:10px;padding:7px 10px;margin:0 0 6px;background:var(--selbg);border:1px solid var(--border);border-radius:6px;font-size:12px}
 .bbar .sp{flex:1 1 auto}
 .bbar.warnbar{background:color-mix(in srgb,var(--warn) 12%,transparent)}
@@ -639,6 +650,9 @@ table.runs td{padding:4px 8px 4px 0;border-top:1px solid color-mix(in srgb,var(-
 .fi .main{display:flex;flex-direction:column;gap:4px;min-width:0}
 .fi .ttl{font-size:13px}
 .fi .mt{font-size:11px;color:var(--fg3);display:flex;flex-wrap:nowrap;gap:4px 8px;align-items:center;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+/* В журнале вторая строка — сама запись, и обрезать её нельзя: обрезается всегда
+   последнее поле, то есть улика. В развёрнутом виде строка переносится. */
+#feed:not(.dense) .fi .mt{flex-wrap:wrap;white-space:normal;overflow:visible}
 .fi .mt b{color:var(--fg2);font-weight:600}
 .fi .mt b.due{color:var(--accent);font-weight:600}
 .fi .mt b.fm.up{color:var(--up)}
@@ -1474,6 +1488,7 @@ const DISCMAX=12;
    ступень, потолок, запрет и поручителя. Перечень — из `polish/BRIDGE.md`. */
 const DSTEPS=['auto','approve','hands'];
 const DSTEPNM={auto:'auto — the agent acts and tells',approve:'approve — a human says yes first',hands:'by hand only — no agent at all'};
+const DSTEPSH={auto:'auto',approve:'approve',hands:'by hand'};
 const DCL={
   touch: {nm:'first touch',  out:'a letter to a stranger',             gua:'sdr', cap:'auto'},
   enrich:{nm:'enrichment',   out:'an address, a phone, a profile',     gua:'sdr', cap:'auto'},
@@ -1487,7 +1502,13 @@ const DCL={
   cut:   {nm:'cut-off',      out:'the end of a service',               gua:'csm', cap:'hands'},
   step:  {nm:'agent step',   out:'how much freedom an agent has',      gua:'gtm', cap:'hands'},
   stop:  {nm:'agent stop',   out:'a hard stop and the way back',       gua:'gtm', cap:'approve'},
-  fact:  {nm:'market fact',  out:'what the system holds as true',      gua:'ae',  cap:'approve'}};
+  fact:  {nm:'market fact',  out:'what the system holds as true',      gua:'ae',  cap:'approve'},
+  /* Тринадцатый класс. Назначение поручителя — тоже решение, и до сих пор оно было
+     единственным, у которого не было ни класса, ни следа: поручители стояли в коде.
+     В v4 это Principal — отдельное понятие, и разбор его документа 11.10 просил
+     вынести Principal из Policy наружу. Вот он снаружи. */
+  gua:   {nm:'guarantor',    out:'who answers for a whole class of decisions', gua:'head', cap:'hands',
+          hard:'a class with nobody named cannot have its ceiling lifted \u2014 by anyone'}};
 /* Поручитель — человек, а не роль. У двух роль есть, а человека нет, и это
    не прячется: класс без названного человека держать некому. */
 const GUAWHO={head:'h-nik',sdr:'h-sdr',csm:'h-ops',ae:null,gtm:null};
@@ -1514,6 +1535,53 @@ function dclLines(k){const c=DCL[k];if(!c)return [];
   if(c.hard)out.push('!'+c.hard);
   if(!dgua(k).person)out.push('!No person is named for this class. Until someone is, nobody can lift the ceiling or veto it.');
   return out;}
+/* =================== улика =================== */
+/* «Кто · что сделал · с какой identity · когда · по какой улике» — его структура
+   записи журнала (11.10). Пятого поля не было ни в одной записи, а по принятой v4
+   именно из улики считается p_wrong: без неё расчёт ступени стоит на пустом месте.
+   У улики два знака, как в v4: откуда взято и насколько твёрдо. p_wrong берётся
+   по худшему из двух, а не по среднему — иначе ступень поднимется на пересказе. */
+const ESRC={first: ['first-hand','the original: a signature, the client’s own words, a public register'],
+            second:['second-hand','our own note about what was said — not the words themselves'],
+            model: ['model','the agent’s conclusion, not an observation']};
+const ETIER={conf: ['confirmed','a named human held it true'],
+             one:  ['one source','seen once, nothing to cross-check it against'],
+             claim:['claimed','stated by the other side, unverified']};
+const PWRONG={'first:conf':0.02,'first:one':0.06,'first:claim':0.12,
+              'second:conf':0.08,'second:one':0.18,'second:claim':0.30,
+              'model:conf':0.15,'model:one':0.35,'model:claim':0.55};
+function pwrong(ev){if(!ev||!ev.src||!ESRC[ev.src])return null;
+  const v=PWRONG[ev.src+':'+(ev.tier||'claim')];return v===undefined?null:v;}
+/* Одна строка на улику, одинаковая всюду. Если улики нет — так и написано:
+   молчание в этом месте читается как «улика есть», и это худшая из ошибок. */
+function evTxt(ev){
+  if(!ev||!ev.src)return `<span class="bad">no evidence on file</span> — p_wrong is not computable`;
+  const p=pwrong(ev), s=ESRC[ev.src], t=ETIER[ev.tier]||ETIER.claim;
+  const tip=esc(s[0]+' — '+s[1]+' · '+t[0]+' — '+t[1]);
+  /* Два знака улики — в подсказке, не в строке: в строке они съедают место,
+     которое принадлежит самой улике, и обрезается первой именно она. */
+  const body=`${esc(ev.txt||'\u2014')}${p!==null?` <span class="faint">\u2192 p_wrong ${Math.round(p*100)} %</span>`:''}`;
+  return ev.open?`<span class="evl" data-open="${esc(ev.open)}" data-tip="${tip}">${body}</span>`
+               :`<span data-tip="${tip}">${body}</span>`;}
+/* Шесть полей записи, один порядок, одно место в коде. До этого вторая строка
+   собиралась по-разному в ленте и в карточке агента, и журнал читался как два
+   разных журнала. Правило: род · класс · под какой identity · по какой улике. */
+/* Identity отвечает на вопрос «под чьим именем это ушло наружу», а не «кто нажал»:
+   кто нажал — это первое поле записи. Поэтому у человека здесь роль, под которой
+   он действовал, а у агента — его собственная служебная личность. */
+function logIdent(l){
+  if(l.by)return 'the '+(WHOM[l.by]||l.by)+' seat';
+  const g=agBy(l.ag);if(!g)return 'nobody named';
+  return g.nm+'’s own identity';}
+function logMeta(l){
+  const kd=l.kind||'decision', c=l.cls&&DCL[l.cls];
+  /* Имя класса ведёт в реестр: из записи видно не только под каким правилом
+     она сделана, но и где это правило живёт и кто за него отвечает. */
+  const cls=c?`<span class="evl" data-open="dclist:" data-tip="${esc('ceiling '+DSTEPSH[c.cap]+' · guarantor '+dguaTxt(l.cls))}">${esc(c.nm)}</span>`:'<span class="bad">no class</span>';
+  const act=l.act==='rejected'?' · refused':l.act==='handed'?' · handed over':'';
+  const over=c&&overCap(l.cls)?' · <span class="bad">above the ceiling</span>':'';
+  return `<b class="lk ${kd}">${kd}</b> · ${cls}${act}${over} · as ${esc(logIdent(l))} · ${evTxt(l.ev)}`;}
+const noEv=l=>!l.ev||!l.ev.src;
 const CAT=[
   {id:'mon', nm:'24/7 monitoring',            unit:'seat/mo', price:38, in:true,  note:'agent watches, human is paged'},
   {id:'help',nm:'Business-hours helpdesk',    unit:'seat/mo', price:41, in:true,  note:'8:00–18:00 local'},
@@ -2015,13 +2083,19 @@ const MSGS={
    и она плохо отвечала на любой из четырёх вопросов. Разметка здесь — не выдумка:
    семь существующих записей разнесены по смыслу того, что в них написано. */
 const LOGS=[
-  {ag:'seller',w:38,ttl:'Follow-up #4 sent to j.moss@\u2026 after the Sep 22 opt-out \u2192 stopped by an alarm',st:['down','alarm'],cls:'reply',kind:'decision'},
-  {ag:'pricer',w:38,ttl:'Offer v2 draft for Brightline: 8 % discount \u2192 waiting on approval',st:['warn','waiting on a human'],cls:'disc',kind:'decision',act:'handed'},
-  {ag:'qual',w:37,ttl:'Let Lone Star Auto Repair through: the answer was \u201cas cheap as possible\u201d \u2192 PASS',st:['down','screening miss'],cls:'screen',kind:'decision'},
+  {ag:'seller',w:38,ttl:'Follow-up #4 sent to j.moss@\u2026 after the Sep 22 opt-out \u2192 stopped by an alarm',st:['down','alarm'],cls:'reply',kind:'decision',
+   ev:{src:'first',tier:'conf',txt:'the opt-out line in the Sep 22 letter',open:'person:p-moss'}},
+  {ag:'pricer',w:38,ttl:'Offer v2 draft for Brightline: 8 % discount \u2192 waiting on approval',st:['warn','waiting on a human'],cls:'disc',kind:'decision',act:'handed',
+   ev:{src:'model',tier:'one',txt:'the agent’s own read of “just send me the price for 14 seats”',open:'person:p-moss'}},
+  {ag:'qual',w:37,ttl:'Let Lone Star Auto Repair through: the answer was \u201cas cheap as possible\u201d \u2192 PASS',st:['down','screening miss'],cls:'screen',kind:'decision',
+   ev:{src:'second',tier:'claim',txt:'a one-line note about the call, no recording kept',open:null}},
   {ag:'scout',w:36,ttl:'Added the source \u201csmb-it-cheap-v2\u201d: +41 accounts in a week, 78 % of them want to cut the IT bill',st:['flat','decision within policy'],cls:'enrich',kind:'edit'},
-  {ag:'service',w:38,ttl:'Hale & Ortiz CPA: reminder about invoice #1042',st:['up','done'],cls:'inv',kind:'decision'},
-  {ag:'scout',w:35,ttl:'Found Brightline Dental LLC: an \u201cIT help needed\u201d opening, 14 staff',st:['up','done'],cls:'enrich',kind:'edit'},
-  {ag:'qual',w:36,ttl:'Brightline: 4 screening questions \u2192 segment A \u00b7 pass the audit',st:['up','done'],cls:'screen',kind:'decision'}];
+  {ag:'service',w:38,ttl:'Hale & Ortiz CPA: reminder about invoice #1042',st:['up','done'],cls:'inv',kind:'decision',
+   ev:{src:'first',tier:'conf',txt:'invoice #1042, 12 days past due',open:'person:p-annh'}},
+  {ag:'scout',w:35,ttl:'Found Brightline Dental LLC: an \u201cIT help needed\u201d opening, 14 staff',st:['up','done'],cls:'enrich',kind:'edit',
+   ev:{src:'first',tier:'one',txt:'the job posting itself',open:null}},
+  {ag:'qual',w:36,ttl:'Brightline: 4 screening questions \u2192 segment A \u00b7 pass the audit',st:['up','done'],cls:'screen',kind:'decision',
+   ev:{src:'second',tier:'conf',txt:'four answers written down during the call',open:'person:p-moss'}}];
 /* Четыре вопроса, на которые отвечают четыре журнала. Это не четыре экрана:
    один список, четыре среза — иначе человек ходит между вкладками, чтобы собрать
    одну историю. */
@@ -2595,6 +2669,7 @@ function renderSide(){
     if(S.ent==='flow')h+=`<button class="dblink" data-open="flowlist">All campaigns and deals ↗</button>`;
     else if(dbk)h+=`<button class="dblink" data-open="db:${dbk}">Everything as a table ↗</button>`;
     else if(S.ent==='ag'||S.ent==='us'){h+=`<button class="dblink" data-open="aglist">All agents ↗</button>`
+      +`<button class="dblink" data-open="dclist">Decision classes — the rules themselves ↗</button>`
       +`<button class="dblink" data-open="us">Our people, agents and mailboxes ↗</button>`;}}
   $('side').innerHTML=h;
 }
@@ -2640,7 +2715,7 @@ function closeTab(v){
 /* Агент — не физлицо. Вкладка «Person · Scout» прямо врала: нажимаешь зону Agents,
    открывается вкладка человека с агентом внутри. «Мне это не нравится, это путает»
    (Лиза, 08.10). У агентов своя область; People остаётся только за людьми. */
-const VIEWOF={map:'map',today:'map',replies:'person',inbox:'inbox',tasks:'tasks',web:'web',sop:'flow',camp:'flow',flowlist:'flow',db:'acc',org:'acc',msg:'person',agent:'agent',ourp:'agent',aglist:'agent',doc:'doc',draft:'doc',news:'doc',price:'doc'};
+const VIEWOF={map:'map',today:'map',replies:'person',inbox:'inbox',tasks:'tasks',web:'web',sop:'flow',camp:'flow',flowlist:'flow',db:'acc',org:'acc',msg:'person',agent:'agent',ourp:'agent',aglist:'agent',dclist:'agent',doc:'doc',draft:'doc',news:'doc',price:'doc'};
 /* Таблица рода лежит в области этого рода. Вид `db` один на три таблицы, и все три
    жили в области Account: «Everything as a table» из People открывало вкладку
    «Account · all people» — область называла себя не тем, что в ней лежит. Это не
@@ -2662,7 +2737,7 @@ function openTab(kind,id,title){const v=setView(kind,id); if(!v)return; S.tab=v;
    Хозяин один — центр. Зона ведёт в него, фильтры и лента идут за ним. */
 const ENTVIEW={seg:'map',acc:'acc',ppl:'person',inb:'inbox',flow:'flow',doc:'doc',task:'tasks',ag:'agent'};
 const ENTKIND={seg:['map','today'],acc:['org','db'],ppl:['msg','replies','db'],inb:['inbox'],task:['tasks'],flow:['sop','camp','flowlist'],
-               doc:['doc','draft','news','price','db'],ag:['agent','ourp','aglist']};
+               doc:['doc','draft','news','price','db'],ag:['agent','ourp','aglist','dclist']};
 /* Ступень карты — тоже предмет: пузыри сегментов, точки юрлиц, люди вокруг одного. */
 const MAPENT={segment:'seg',accounts:'acc',people:'ppl'};
 /* Куда ведёт зона, если в её области лежит чужое. */
@@ -2725,7 +2800,7 @@ function viewLabel(t){
   if(t.id==='web'){const [site,pid]=String(t.ref||'').split(':');const p=personById(pid);
     return [(SITES[site]||{nm:'Browser'}).nm, p?String(p.nm).split(' ').slice(-1)[0]:''];}
   if(t.id==='person')return ['Person', t.kind==='db'?'all people':t.kind==='replies'?'replies':cut((personById(t.ref)||{}).nm)];
-  if(t.id==='agent')return ['Agent', t.kind==='aglist'?'all':t.kind==='ourp'?cut((OURS.find(o=>o.id===t.ref)||{}).nm):cut((agBy(t.ref)||{}).nm)];
+  if(t.id==='agent')return ['Agent', t.kind==='aglist'?'all':t.kind==='dclist'?'classes':t.kind==='ourp'?cut((OURS.find(o=>o.id===t.ref)||{}).nm):cut((agBy(t.ref)||{}).nm)];
   if(t.id==='flow')return ['Workflow', t.kind==='flowlist'?'all':t.kind==='camp'?(t.ref&&t.ref!=='all'?cut((segBy(t.ref)||{}).name):'market'):cut((ACCBY[t.ref]||{}).name)];
   return ['Document', t.kind==='db'?'all documents':t.kind==='draft'?'draft':t.kind==='news'?'fact':t.kind==='price'?'price list':(t.ref&&DOCS[t.ref]?DOCS[t.ref].kind:'none')];}
 function renderTabs(){
@@ -2760,7 +2835,7 @@ function renderSource(t){if(t.kind==='ourp')return renderOurPerson(t.ref);
   if(t.kind==='doc'){if(!t.ref||!DOCS[t.ref]){const a=ACCBY[S.docEmptyAcc]||ACCBY[S.mapAcc];
     return `<div class="doc"><div class="doch"><div><h2>${a?esc(a.name):'No document'}</h2><div class="muted">no paper on record</div></div></div>
       <div class="note">Nothing has been signed, sent or billed here yet. The first document appears when the deal reaches an offer.</div></div>`;}
-    return renderDoc(t.ref);}if(t.kind==='msg')return renderMsg(t.ref);if(t.kind==='news')return renderNews(t.ref);if(t.kind==='org')return renderOrg();if(t.kind==='aglist')return renderAgentList();if(t.kind==='agent')return renderAgentTab(t.ref);return '';}
+    return renderDoc(t.ref);}if(t.kind==='msg')return renderMsg(t.ref);if(t.kind==='news')return renderNews(t.ref);if(t.kind==='org')return renderOrg();if(t.kind==='aglist')return renderAgentList();if(t.kind==='dclist')return renderClasses();if(t.kind==='agent')return renderAgentTab(t.ref);return '';}
 function renderEditor(){
   /* «Я ушла с map на person во views, но сбоку и снизу у меня всё ещё прошлое
      отображение» (Лиза, 06.10). setEnt менял переменную, но левую колонку, ленту,
@@ -3817,7 +3892,7 @@ function docPaper(d,a){
   return `<b>${esc(d.kind)}</b> · ${nm}.<h3>Contents</h3>${tail?esc(tail)+'.':'Not stored in this system.'}`;
 }
 function renderDoc(id){const d=DOCS[id],a=ACCBY[d.acc],st=S.docs[id]||{};const P=peopleOf(a);
-  const isMSA=d.kind==='MSA',canSign=S.profile==='head';
+  const isMSA=d.kind==='MSA',canSign=mayDecide('sign').ok;
   /* AE-ходок 08.10: «Edit» открывал на правку уже подписанный оффер, без предупреждения.
      CSM-ходок: на счёте «Edit» включал режим правки, в котором нечего править.
      Правится только то, что ещё черновик агента. */
@@ -4644,7 +4719,77 @@ function renderAgentList(){
     <div class="bph"><h2>The machine</h2><span class="chip acc">${AGENTS.length} agents</span>
       <span class="muted">${act} running · ${wait} waiting on a human · ${off} stopped — open one to change its freedom or stop it</span></div>
     <table class="runs"><thead><tr><th>agent</th><th>answers for it</th><th>freedom</th><th>state</th><th>last thing it did</th></tr></thead><tbody>${rows}</tbody></table>
-    <div class="bnote"><span class="faint" style="font-size:11px">Everything these agents did without you is in the feed below.</span></div></div>`;}
+    <div class="bnote"><span class="faint" style="font-size:11px">Everything these agents did without you is in the feed below.</span>
+      <button class="lnk" data-open="dclist">Decision classes · ${Object.keys(DCL).length} ↗</button></div></div>`;}
+/* =================== право и реестр классов =================== */
+/* «Если ты не можешь менять правила — ничего не получается» (Николай, 11.10).
+   Правила — это и есть этот перечень. До сих пор право решать жило в трёх местах
+   кода: подпись (`canSign`), скидка (проверка в approve) и пачка (`BATCHGUA`).
+   Человек узнавал о нём только в момент отказа, а поручителя нельзя было назначить
+   вовсе — двум классам из двенадцати человек не назначен до сих пор. */
+const DWHO={
+  touch: ['sdr','head'],
+  enrich:['sdr','ae','csm','gtm','head'],
+  screen:['ae','head'],
+  reply: ['sdr','ae','head'],
+  quote: ['ae','head'],
+  disc:  ['head'],
+  sign:  ['head'],
+  inv:   ['csm','head'],
+  cut:   ['csm','head'],
+  step:  ['gtm','head'],
+  stop:  ['sdr','ae','csm','gtm','head'],
+  fact:  ['ae','head'],
+  gua:   ['head']};
+/* Один ответ на вопрос «могу ли я это решить». Отвечает одинаково экрану,
+   кнопке и журналу — иначе право снова разойдётся по трём местам. */
+function mayDecide(k,role){
+  const c=DCL[k];if(!c)return {ok:false,why:'no such class'};
+  role=role||S.profile;
+  if((DWHO[k]||[]).includes(role))return {ok:true,why:'yours to take'};
+  const g=dgua(k);
+  return {ok:false,why:(g.person?g.person+' · ':'')+WHOM[c.gua]+' decides this one'};}
+/* Пачка — отдельное правило поверх права: решение на N предметов сразу несёт
+   другую цену ошибки, чем то же решение на одном. Решение Лизы 12.10:
+   SDR готовит, Head утверждает. */
+const inBatch=k=>k==='touch'||k==='reply';
+/* Что журнал говорит о классе: сколько записей, сколько без улики, худший p_wrong.
+   Ступень поднимают не «потому что пора», а по этим трём числам. */
+function clsStats(k){
+  const all=LOGS.concat(S.extraLogs||[]).filter(l=>l.cls===k&&l.w<=Math.max(S.t,NOW));
+  const ps=all.map(l=>pwrong(l.ev)).filter(v=>v!==null);
+  return {n:all.length,nev:all.filter(noEv).length,worst:ps.length?Math.max.apply(null,ps):null};}
+function renderClasses(){
+  const me=S.profile, keys=Object.keys(DCL);
+  const mine=keys.filter(k=>mayDecide(k,me).ok).length;
+  const over=keys.filter(overCap).length, noman=keys.filter(k=>!dgua(k).person).length;
+  const rows=keys.map(k=>{
+    const d=DCL[k], r=mayDecide(k,me), st=clsStats(k), g=dgua(k), ov=overCap(k);
+    const ags=Object.keys(AGCLS).filter(a=>AGCLS[a].includes(k)).map(a=>(agBy(a)||{}).nm).filter(Boolean);
+    return `<tr class="${ov?'over':''}">
+      <td><b>${esc(d.nm)}</b><div class="note">${esc(d.out)}</div>
+        ${d.hard?`<div class="note down">never: ${esc(d.hard)}</div>`:''}
+        ${inBatch(k)?`<div class="note">in a batch — ${esc(batchGuaTxt())} approves, whatever the single-case right is</div>`:''}</td>
+      <td class="dstep">${DSTEPS.slice().reverse().map(x=>`<button class="btn ${dstep(k)===x?'pri':''}" data-dcl="${k}:${x}" data-tip="${esc(DSTEPNM[x])}">${x==='auto'?'Auto':x==='approve'?'Approve':'By hand'}</button>`).join('')}
+        <div class="note">${ov?`<span class="bad">above the ceiling</span> — the guarantor allows only “${esc(DSTEPSH[d.cap])}”`:`ceiling: ${esc(DSTEPSH[d.cap])}`}</div></td>
+      <td>${g.person?`<b>${esc(g.person)}</b><div class="note">${esc(WHOM[d.gua])}</div>`
+            :`<span class="bad">nobody named</span><div class="note">${esc(WHOM[d.gua])} — the role exists, the person does not</div>`}
+        <select data-setgua="${esc(d.gua)}" ${mayDecide('gua',me).ok?'':'disabled'} data-tip="${mayDecide('gua',me).ok?'Naming a guarantor is itself a decision — class “guarantor”, by hand, logged against you':esc(mayDecide('gua',me).why)}">
+          <option value="">— name a person —</option>
+          ${OURS.map(o=>`<option value="${o.id}" ${GUAWHO[d.gua]===o.id?'selected':''}>${esc(o.nm)}</option>`).join('')}
+        </select>${(()=>{const sib=keys.filter(x=>DCL[x].gua===d.gua);
+          /* Пояснение печатается один раз на роль, а не на каждой строке: поручитель
+             стоит на роли, и трижды повторённая фраза читается как три разных поля. */
+          return sib.length>1&&sib[0]===k?`<div class="note">one person for all ${sib.length} classes of ${esc(WHOM[d.gua])} — the role is guaranteed, not the single row</div>`:'';})()}</td>
+      <td>${r.ok?`<b class="up">yours to take</b>`:`<span class="muted">${esc(r.why)}</span>`}</td>
+      <td>${st.n?`${st.n} this quarter${st.nev?` · <span class="bad">${st.nev} without evidence</span>`:''}${st.worst!==null?`<div class="note">worst p_wrong ${Math.round(st.worst*100)} %</div>`:''}`:'<span class="note">nothing yet</span>'}
+        ${ags.length?`<div class="note">written by ${esc(ags.join(', '))}</div>`:'<div class="note">no agent writes here — a hand does</div>'}</td></tr>`;}).join('');
+  return `<div class="bpmn">
+    <div class="bph"><h2>Decision classes</h2><span class="chip acc">${keys.length}</span>
+      <span class="muted">${mine} of ${keys.length} are yours as ${esc(WHOM[me]||me)}${over?` · ${over} above the ceiling`:''}${noman?` · ${noman} with nobody named`:''}</span></div>
+    <div class="bnote"><span class="faint" style="font-size:11px">Every writing button on every screen belongs to one of these. The class carries the step, the ceiling, the ban and a named guarantor — a screen carries none of that. Change a line here and every screen obeys it, including the ones you are not looking at.</span></div>
+    <table class="runs dcltab"><thead><tr><th>class · what it changes outside</th><th>step and ceiling</th><th>guarantor</th><th>your right</th><th>what the log says</th></tr></thead><tbody>${rows}</tbody></table>
+    <div class="bnote"><span class="faint" style="font-size:11px">A ceiling is the guarantor’s promise, not a lock: a calculation never lifts it, a hand can — and then the row burns and the log says who did it. A class with nobody named cannot have its ceiling lifted at all.</span></div></div>`;}
 /* Свобода агента больше не одна ручка на всё: она складывается из классов, в которых
    он пишет. Поэтому показываем не абстрактную «Autonomy», а строку на класс —
    со ступенью, потолком и поручителем. Где ступень выше потолка, строка горит. */
@@ -4664,7 +4809,9 @@ function renderAgentTab(id){const g=agBy(id),own=OURS.find(o=>o.id===g.owner);co
     <div class="hdr">Never-do — where that freedom ends</div><div class="nevdo">Never: ${STOPS[id][0]}. ${overCap((AGCLS[id]||[])[0]||'touch')?'A never-do holds even above the ceiling — it is the one thing no step reaches.':'This holds at every step, including Auto.'}</div>
     ${id==='pricer'||id==='seller'?`<div class="btns"><button class="btn" data-open="price:1" data-tip="What we sell, what costs extra, and what we never promise">Open the price list</button></div>`:''}
     ${g.state==='paused'?`<div class="btns"><button class="btn" data-tri="t-seller|resume|Resume">Put it back to work</button><span class="note">Stopped by a hard stop. ${esc(own.nm)} decides.</span></div>`:''}
-    <div class="hdr">Action log</div><div class="facts">${logs.map(l=>`<div class="fact"><div class="grow"><div>${esc(l.ttl)}</div><div class="note">W${l.w}</div></div><span class="chip ${l.st[0]}">${esc(l.st[1])}</span></div>`).join('')||'<div class="note">No entries.</div>'}</div></div>`;}
+    <div class="hdr">Action log</div>
+    <div class="note">The same six fields as the shared log, in the same order: who · what · under which identity · when · on what evidence · which of the four journals. This is one journal seen through one object, not a second journal.</div>
+    <div class="facts">${logs.map(l=>`<div class="fact"><div class="grow"><div>${esc(l.ttl)}</div><div class="note">${logMeta(l)} · W${l.w}</div></div><span class="chip ${l.st[0]}">${esc(l.st[1])}</span></div>`).join('')||'<div class="note">No entries.</div>'}</div></div>`;}
 function renderDraft(id){
   const B=BNS().find(x=>x.id===id)||bnCur(), D=B.draft;
   const per=personById(D.to)||{nm:'—',role:'—',title:''}, a=ACCBY[D.acc];
@@ -4857,16 +5004,16 @@ function feedItems(tab){
     /* Срез по роду журнала. Он стоит здесь, а не отдельным экраном: история одна,
        а вопросов к ней четыре. */
     const lk=S.lkind||null;
-    return LOGS.concat(S.extraLogs||[]).filter(l=>(!f||l.ag===f)&&(!rf||AGROLE[l.ag]===rf)&&l.w<=Math.max(t,NOW)&&(!lk||(l.kind||'decision')===lk)).sort((x,y)=>y.w-x.w).map(l=>{
-      const c=l.cls&&DCL[l.cls], kd=l.kind||'decision';
-      /* Под строкой стоит то, что отвечает на вопрос этого журнала: у решения —
-         класс и кто поручился, у правки — что это правка и под каким решением. */
-      const mt=kd==='decision'
-        ? `<b>${esc(c?c.nm:'no class')}</b>${l.act==='rejected'?' · refused':l.act==='handed'?' · handed over':''} · guarantor ${esc(c?dguaTxt(l.cls):'—')}${c&&overCap(l.cls)?' · <span class="bad">above the ceiling</span>':''}`
-        : kd==='edit' ? `an edit under the class <b>${esc(c?c.nm:'—')}</b> · not a decision of its own`
-        : kd==='metric' ? `how this class runs · <b>${esc(c?c.nm:'—')}</b>`
-        : `compensating entry · the one it cancels stays above`;
-      return {src:'agent',ttl:`${agBy(l.ag)?agBy(l.ag).nm:'A human'}: ${l.ttl}`,mt,when:ago(l.w),open:'agent:'+l.ag,av:agAv(l.ag),sig:true,status:l.st,kind:kd};});}
+    return LOGS.concat(S.extraLogs||[]).filter(l=>(!f||l.ag===f)&&(!rf||AGROLE[l.ag]===rf)&&l.w<=Math.max(t,NOW)&&(!lk||(l.kind||'decision')===lk)&&(!S.lnoev||noEv(l))).sort((x,y)=>y.w-x.w).map(l=>{
+      const kd=l.kind||'decision';
+      /* Вторая строка собирается одной функцией — той же, что в карточке агента.
+         Пока их было две, один журнал читался как два разных. */
+      /* Первое поле записи — кто. У решения без агента это человек, и лицо
+         в ленте должно быть человеческим, иначе журнал приписывает машине то,
+         что сделала рука. */
+      const g=agBy(l.ag);
+      const who=g?g.nm:(l.by&&GUAWHO[l.by]&&ourBy(GUAWHO[l.by])?ourBy(GUAWHO[l.by]).nm:(WHOM[l.by]||'A human'));
+      return {src:'agent',ttl:`${who}: ${l.ttl}`,mt:logMeta(l),when:ago(l.w),open:g?'agent:'+l.ag:null,av:g?agAv(l.ag):face(who),sig:true,status:l.st,kind:kd};});}
 }
 /* Работа №1 кончается тем, что «список под тезис отобран». До сих пор этот список жил
    только как временное состояние фильтров и исчезал при перезагрузке. Срез — сохранённая
@@ -5101,7 +5248,7 @@ function renderPanel(){
     +`<span style="flex:1"></span><button class="xbtn" data-xpanel="1" aria-label="Close the log" data-tip="Close this panel — bring it back with Log above">×</button>`;
   renderEcard();
   const V=feedView(S.ptab), items=V.rows;
-  $('feed').classList.toggle('dense',S.dense!==false);
+  $('feed').classList.toggle('dense',S.dense!==false&&S.ptab!=='agents');
   const nCom=S.ptab==='market'?MARKET.concat(S.addedFacts||[]).filter(n=>(!S.seg||n.seg===S.seg)&&isCommon(n)).length:0;
   /* Шапка лога была в три этажа: имя, длинное объяснение, вторая строка-пояснение,
      а поверх ещё переключатель журналов. Человек, открывший задачи, видел четыре
@@ -5118,12 +5265,19 @@ function renderPanel(){
     ${V.sig.length&&V.sig.length<V.all.length?`<span class="pick"><button data-fmode="sig" aria-pressed="${V.mode==='sig'}" data-tip="Only the lines that need a move">needs a move</button><button data-fmode="all" aria-pressed="${V.mode==='all'}" data-tip="Everything, including what needs nothing">all</button></span>`:''}
     ${S.ptab==='agents'?(()=>{const all=LOGS.concat(S.extraLogs||[]).filter(l=>l.w<=Math.max(S.t,NOW));
       const cnt=k=>all.filter(l=>(l.kind||'decision')===k).length;
-      return `<span class="sp"></span><span class="pick" data-tip="A decision, the edits it caused, how often it runs, and what was taken back — four different questions to the same history"><button data-lkind="" aria-pressed="${!S.lkind}">all ${all.length}</button>${LKINDS.map(([k,nm,why])=>`<button data-lkind="${k}" aria-pressed="${S.lkind===k}" data-tip="${esc(why)}">${nm} ${cnt(k)}</button>`).join('')}</span>`;})():''}
+      /* Шестая кнопка — не род записи, а её негодность: записи без улики не дают
+         считать p_wrong, и их количество должно быть видно, а не выясняться. */
+      const nev=all.filter(noEv).length;
+      return `<span class="sp"></span><span class="pick" data-tip="A decision, the edits it caused, how often it runs, and what was taken back — four different questions to the same history"><button data-lkind="" aria-pressed="${!S.lkind&&!S.lnoev}">all ${all.length}</button>${LKINDS.map(([k,nm,why])=>`<button data-lkind="${k}" aria-pressed="${S.lkind===k}" data-tip="${esc(why)}">${nm} ${cnt(k)}</button>`).join('')}</span><span class="pick"><button data-lnoev="1" aria-pressed="${!!S.lnoev}" class="${nev?'bad':''}" data-tip="Entries with nothing attached. The step of a class is computed from p_wrong, and p_wrong comes from the evidence — so these entries carry a decision nobody can re-check">no evidence ${nev}</button></span>`;})():''}
     </div>`;
   const add=S.ptab==='market'?`<div class="addfact"><input id="myFact" placeholder="Write a fact or a thought about the market…"><button class="btn" id="addFact">Add</button><button class="btn" data-importfacts="1" data-tip="Log what you heard at a conference in one batch: each fact with its source and unconfirmed">＋ facts from a conference</button></div>`
     :(S.noteFor?`<div class="addfact"><input id="myNote" placeholder="Add your own — a note under your name…" autofocus><button class="btn" id="addNote">Add</button><button class="ib" data-notecancel="1">×</button></div>`:'');
   const body=items.length
-    ? (S.dense===false?items.map(it=>`<div class="fi roomy ${it.gone?'gone':''}"><span class="lead">${it.av||srcIc(it.src)}</span><button class="main" data-open="${it.open}"><span class="ttl">${esc(it.ttl)}</span><span class="mt">${it.mt}</span></button>${it.status?`<span class="chip st ${it.status[0]}">${esc(it.status[1])}</span>`:'<span class="st"></span>'}<span class="when">${it.when}</span>${it.acts?`<span class="acts">${it.acts}</span>`:''}</div>`).join(''):denseRows(items))
+    /* Журнал всегда в развёрнутой форме. Плотный вид прячет вторую строку —
+       а в журнале вторая строка и есть запись: под какой identity, по какой улике,
+       в каком из четырёх журналов. Для списка предметов плотность полезна,
+       для источника правды — нет. */
+    ? ((S.dense===false||S.ptab==='agents')?items.map(it=>`<div class="fi roomy ${it.gone?'gone':''}"><span class="lead">${it.av||srcIc(it.src)}</span><button class="main" data-open="${it.open}"><span class="ttl">${esc(it.ttl)}</span><span class="mt">${it.mt}</span></button>${it.status?`<span class="chip st ${it.status[0]}">${esc(it.status[1])}</span>`:'<span class="st"></span>'}<span class="when">${it.when}</span>${it.acts?`<span class="acts">${it.acts}</span>`:''}</div>`).join(''):denseRows(items))
     : (()=>{const on=filtersOn();
         return `<div class="note" style="padding:12px">${on.length
           ? `Nothing here in W${S.t} once you narrow by <b>${on.map(esc).join('</b>, <b>')}</b>.`
@@ -5891,6 +6045,7 @@ function openRef(k){
   const [type,id,id2]=k.split(':');
   if(type==='flowlist'){openTab('flowlist',null);setEnt('flow');renderAllButMap();return;}
   if(type==='aglist'){openTab('aglist',null);setEnt('ag');renderAllButMap();return;}
+  if(type==='dclist'){openTab('dclist',null);setEnt('ag');renderAllButMap();return;}
   if(type==='replies'){openTab('replies',null);setEnt('ppl');renderAllButMap();return;}
   if(type==='camp'){openTab('camp',id);S.campStep=1;setEnt('flow');renderAllButMap();return;}
   if(type==='draft'){
@@ -5927,12 +6082,15 @@ function openRef(k){
    Palantir держит четыре разных журнала и честно пишет, что ни один не полон;
    мы валили всё в одну ленту, поэтому она плохо отвечала на любой из четырёх вопросов. */
 function logAdd(ag,ttl,st,m){const o={ag,w:NOW,ttl,st};
-  if(m){if(m.cls)o.cls=m.cls;o.kind=m.kind||'decision';o.act=m.act||'done';if(m.by)o.by=m.by;}
+  if(m){if(m.cls)o.cls=m.cls;o.kind=m.kind||'decision';o.act=m.act||'done';if(m.by)o.by=m.by;
+    /* Улика не подставляется молча. Если её не передали — запись так и говорит,
+       что улики нет, и из неё ничего не считается. */
+    if(m.ev)o.ev=m.ev;}
   (S.extraLogs=S.extraLogs||[]).push(o);return o;}
 const LKIND={decision:'decision',edit:'edit',metric:'metric',revert:'revert'};
 const meNow=()=>WHOM[S.profile]||'—';
 document.addEventListener('click',e=>{
-  const b=e.target.closest('[data-xpanel],[data-lkind],[data-dcl],[data-bkeep],[data-bdrop],[data-bsel],[data-bselall],[data-bgo],[data-bhand],[data-bclr],[data-fmul],[data-open],[data-side],[data-tab],[data-web],[data-tabclose],[data-tkopen],[data-tkact],[data-close],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-feeddown],[data-plus],[data-newchat],[data-agundo],[data-weekpick],[data-week],[data-calm],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-f],[data-freset],[data-fclr],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepsel],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-projset],[data-dbstate],[data-fmode],[data-dbsort],[data-dbmore],[data-dbkind],[data-camp],[data-camprun],[data-chan],[data-find],[data-slot],[data-next],[data-nextclr],[data-addp],[data-intent],[data-pst],[data-campsel],[data-campoff],[data-campblk],[data-campset],[data-campseq],[data-campbox],[data-camprunact],[data-inwin],[data-stuck],[data-mailclear],[data-mailopen],[data-mailstop],[data-mark],[data-note],[data-notecancel],[data-ent],[data-mail],[data-common],[data-importfacts],[data-nextbn],[data-influencer],[data-sim],[data-role],[data-tview],[data-triopen],#fDown,#addFact,#addNote');
+  const b=e.target.closest('[data-xpanel],[data-lkind],[data-lnoev],[data-dcl],[data-bkeep],[data-bdrop],[data-bsel],[data-bselall],[data-bgo],[data-bhand],[data-bclr],[data-fmul],[data-open],[data-side],[data-tab],[data-web],[data-tabclose],[data-tkopen],[data-tkact],[data-close],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-feeddown],[data-plus],[data-newchat],[data-agundo],[data-weekpick],[data-week],[data-calm],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-f],[data-freset],[data-fclr],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepsel],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-projset],[data-dbstate],[data-fmode],[data-dbsort],[data-dbmore],[data-dbkind],[data-camp],[data-camprun],[data-chan],[data-find],[data-slot],[data-next],[data-nextclr],[data-addp],[data-intent],[data-pst],[data-campsel],[data-campoff],[data-campblk],[data-campset],[data-campseq],[data-campbox],[data-camprunact],[data-inwin],[data-stuck],[data-mailclear],[data-mailopen],[data-mailstop],[data-mark],[data-note],[data-notecancel],[data-ent],[data-mail],[data-common],[data-importfacts],[data-nextbn],[data-influencer],[data-sim],[data-role],[data-tview],[data-triopen],#fDown,#addFact,#addNote');
   if(!b){if(S.wkOpen&&!e.target.closest('.wkpop')){
     /* Начало отмечено, а конец не назван — значит человек выбрал одну неделю. */
     if(S.wkA!=null){S.t=S.wkA;S.win=1;S.wkA=null;S.wkOpen=false;renderAll();return;}
@@ -5963,7 +6121,8 @@ document.addEventListener('click',e=>{
        так, будто правки не было. Принятая v4 запрещает это прямо: «у правды нет
        исключений… Откат — компенсирующая запись, а не удаление». Теперь прежняя
        строка остаётся, а рядом встаёт вторая, которая её гасит. */
-    logAdd('seller','Rolled back by '+meNow()+': '+e.txt.split('.')[0],['warn','compensating entry'],{cls:e.cls||'enrich',kind:'revert',by:S.profile});
+    logAdd('seller','Rolled back by '+meNow()+': '+e.txt.split('.')[0],['warn','compensating entry'],{cls:e.cls||'enrich',kind:'revert',by:S.profile,
+      ev:{src:'first',tier:'conf',txt:'the entry it cancels — it stays above, unchanged',open:'agent:'+(e.ag||'seller')}});
     S.chat.push({u:0,t:'Rolled back — '+esc(e.txt.split('.')[0])+'. The model is as it was. The first entry stays in the log and a second one cancels it: nothing is erased.'});
     renderAll();return;}
   if(b.dataset.weekpick){S.wkOpen=!S.wkOpen;S.calM=null;S.calY=null;renderFilters();return;}
@@ -6124,14 +6283,21 @@ document.addEventListener('click',e=>{
     S.bsel=S.bsel||{};const all=ids.length&&ids.every(id=>S.bsel[id]);
     ids.forEach(id=>{if(all)delete S.bsel[id];else S.bsel[id]=1;});renderDB();return;}
   if(b.dataset.xpanel){S.layout.panel=false;applyLayout();return;}
-  if(b.dataset.lkind!==undefined){S.lkind=b.dataset.lkind||null;renderPanel();return;}
+  if(b.dataset.lkind!==undefined){S.lkind=b.dataset.lkind||null;S.lnoev=false;renderPanel();return;}
+  if(b.dataset.lnoev){S.lnoev=!S.lnoev;if(S.lnoev)S.lkind=null;renderPanel();return;}
   if(b.dataset.dcl){const [c,st]=b.dataset.dcl.split(':');const was=dstep(c);
     if(was===st)return;
     const up=DSTEPS.indexOf(st)<DSTEPS.indexOf(was), overAfter=DSTEPS.indexOf(st)<DSTEPS.indexOf(DCL[c].cap);
     const go=()=>{S.dstep=S.dstep||{};S.dstep[c]=st;syncKnob();
+      /* Улика под сменой ступени — то, что журнал говорит об этом классе.
+         Ручку двигают по этим числам, и в записи должно быть видно, по каким. */
+      const sv=clsStats(c);
       logAdd((Object.keys(AGCLS).find(a=>AGCLS[a].includes(c))||'scout'),
         `Class “${DCL[c].nm}”: step ${DSTEPNM[was]} \u2192 ${DSTEPNM[st]} by ${meNow()}`,
-        [overAfter?'down':'flat','step changed'],{cls:'step',kind:'decision',by:S.profile});
+        [overAfter?'down':'flat','step changed'],{cls:'step',kind:'decision',by:S.profile,
+         ev:sv.n?{src:'model',tier:sv.nev?'claim':'one',
+           txt:`${sv.n} entr${sv.n===1?'y':'ies'} of “${DCL[c].nm}” so far${sv.worst!==null?`, the shakiest of them ${Math.round(sv.worst*100)} %`:''}${sv.nev?`, ${sv.nev} with nothing attached`:''}`,
+           open:'dclist:'}:null});
       renderAll();toast(`“${DCL[c].nm}” is now ${DSTEPNM[st]} \u00b7 W${S.t}.`);};
     if(up){confirmAct({title:'Give the class “'+DCL[c].nm+'” more freedom?',danger:overAfter,cta:'Set it to '+DSTEPNM[st],cls:'step',
       lines:[['Class',DCL[c].nm],['Now',DSTEPNM[was]],['After',DSTEPNM[st]],
@@ -6201,7 +6367,8 @@ document.addEventListener('click',e=>{
   if(b.dataset.intent){const [pid,v]=b.dataset.intent.split(':'),p=personById(pid);
     S.intent=S.intent||{}; S.intent[pid]=S.intent[pid]===v?null:v;
     const l=(INTENT.find(x=>x[0]===v)||['','']) [1];
-    logAdd('seller',`${p.nm}: reply marked “${l}” (${$('profile').selectedOptions[0].text})`,['flat','marked'],{cls:'screen',kind:'decision',by:S.profile});
+    logAdd('seller',`${p.nm}: reply marked “${l}” (${$('profile').selectedOptions[0].text})`,['flat','marked'],{cls:'screen',kind:'decision',by:S.profile,
+      ev:{src:'first',tier:'conf',txt:`${(MSGS[pid]||[]).filter(m=>!m.me).length} letter${(MSGS[pid]||[]).filter(m=>!m.me).length===1?'':'s'} in their own words`,open:'person:'+pid}});
     renderEditor();renderAllButMap();return;}
   if(b.dataset.pst){const [pid,k]=b.dataset.pst.split(':'),p=personById(pid);
     /* «Убрать из работы» было только «убрать из ленты». Теперь это состояние, и оно
@@ -6277,7 +6444,8 @@ document.addEventListener('click',e=>{
     /* Пачка — это одно решение и много правок, а не много решений. Поэтому в журнал
        решений уходит одна строка, а правки лежат своей строкой со своим числом:
        иначе на 471 человека лента перестаёт отвечать на вопрос «кто решил». */
-    logAdd('seller',`Campaign · ${campWho(c)}: ${n} people queued, ${today} went out today \u2014 one decision by ${meNow()}`,['up','started by a human'],{cls:'touch',kind:'decision',by:S.profile});
+    logAdd('seller',`Campaign · ${campWho(c)}: ${n} people queued, ${today} went out today \u2014 one decision by ${meNow()}`,['up','started by a human'],{cls:'touch',kind:'decision',by:S.profile,
+      ev:{src:'model',tier:'one',txt:`the slice “${campWho(c)}” — the criteria picked these ${n}, nobody read them one by one`,open:null}});
     logAdd('seller',`${today} contact${today===1?'':'s'} touched under that one decision${n>today?`, ${n-today} still queued`:''}`,['flat','edits under a decision'],{cls:'touch',kind:'edit'});
     renderAllButMap();paintCentre();
     /* Число в сообщении должно совпадать с тем, что человек выбрал: тост брал ёмкость
@@ -6401,14 +6569,15 @@ document.addEventListener('click',e=>{
        подтверждение факта меняло цифры на экранах и не оставляло следа: спросить
        «кто решил, что это правда» было некого. */
     const mn=MARKET.find(x=>x.id===id), ft=mn&&mn.facts&&mn.facts[i];
-    if(v==='yes'||v==='no')logAdd('scout',`${(mn&&mn.nm)||id}: “${ft?String(ft[0]).slice(0,60):'fact '+i}” held as ${v==='yes'?'true':'not true'} by ${meNow()}`,[v==='yes'?'up':'down','market fact'],{cls:'fact',kind:'decision',by:S.profile});
+    if(v==='yes'||v==='no')logAdd('scout',`${(mn&&mn.ttl)||id}: “${ft?String(ft[0]).slice(0,60):'fact '+i}” held as ${v==='yes'?'true':'not true'} by ${meNow()}`,[v==='yes'?'up':'down','market fact'],{cls:'fact',kind:'decision',by:S.profile,
+      ev:ft?{src:'first',tier:v==='yes'?'conf':'one',txt:`the source behind it: ${String(ft[1]||'unnamed source').slice(0,48)}`,open:'news:'+id}:null});
     renderEditor();renderPanel();return;}
   if(b.dataset.factall){const [id,v]=b.dataset.factall.split(':');const n=MARKET.find(x=>x.id===id);S.facts[id]={all:v};n.facts.forEach((f,i)=>S.facts[id][i]=v);renderPanel();if(S.tabs.find(x=>x.id==='doc').ref===id)renderEditor();return;}
   if(b.dataset.sign){const did=b.dataset.sign,dd=DOCS[did],aa=ACCBY[dd.acc];
     /* Подпись названа необратимой в подписи под кнопкой, а ставилась одним нажатием. */
     /* Подпись — класс решения с потолком «только руками»: агента в этом классе
        не бывает вовсе, и поручитель назван. */
-    if(S.profile!=='head'){confirmAct({title:'Only the Head signs', only:true, cta:'Close', cls:'sign',
+    if(!mayDecide('sign').ok){confirmAct({title:'Only the Head signs', only:true, cta:'Close', cls:'sign',
       lines:[['Document',dd.kind+' · '+aa.name],['You are',meNow()],
         '!A signature binds the company. The ceiling on this class is by hand only, and the hand is the guarantor\u2019s.',
         'Prepare it and hand it over — the draft stays as it is.']});return;}
@@ -6418,7 +6587,8 @@ document.addEventListener('click',e=>{
         '!A signature cannot be taken back. It binds Bobroff MSP to everything written above.',
         'After this the document waits on the client, and the first invoice follows the agreement.'],
       onOk:()=>{S.docs[did]={...(S.docs[did]||{}),us:true};
-        logAdd('pricer',`${aa.name} ${dd.kind}: signed by ${$('profile').selectedOptions[0].text}`,['up','signature'],{cls:'sign',kind:'decision'});
+        logAdd('pricer',`${aa.name} ${dd.kind}: signed by ${$('profile').selectedOptions[0].text}`,['up','signature'],{cls:'sign',kind:'decision',by:S.profile,
+          ev:{src:'first',tier:'conf',txt:`the ${dd.kind} itself — the text that was signed`,open:'doc:'+did}});
         renderEditor();renderPanel();
         toast(`Signed \u00b7 W${S.t}. ${aa.name} ${dd.kind} now waits on the client.`);}});
     return;}
@@ -6433,7 +6603,7 @@ document.addEventListener('click',e=>{
       lines:[['Document',(dd.kind||'draft')+' · '+(aa.name||'')],['Discount asked',dsc+' %'],['Never computed above',DISCMAX+' %'],
         '!The hard rule runs before any calculation. No step of autonomy reaches past it — not the agent\u2019s, not yours.',
         'It takes the guarantor signing it by hand, as a separate decision.']});return;}
-    if(dk==='disc'&&S.profile!=='head'){confirmAct({title:'A discount is the Head\u2019s call', only:true, cta:'Close', cls:'disc',
+    if(dk==='disc'&&!mayDecide('disc').ok){confirmAct({title:'A discount is the Head\u2019s call', only:true, cta:'Close', cls:'disc',
       lines:[['Document',(dd.kind||'draft')+' · '+(aa.name||'')],['Discount',dsc+' %'],['You are',meNow()],
         '!You may prepare it. Approving a price below the list belongs to the guarantor of this class.',
         'Hand it over and it keeps the discount you set.']});return;}
@@ -6441,7 +6611,8 @@ document.addEventListener('click',e=>{
       lines:[['Document',(dd.kind||'draft')+' · '+(aa.name||'')],
         docDisc(dd)?['Price',usdx(aa.acv*(1-docDisc(dd)/100))+'/year — list '+usdx(aa.acv)+', discount '+docDisc(dd)+' %']:null,
         'The agent prepared it; approving it is what sends it out. It is logged against you.'],
-      onOk:()=>{logAdd('pricer',`${aa.name||''} ${dd.kind||'draft'}: approved by ${$('profile').selectedOptions[0].text} \u2192 sent to the client`,['up','approved'],{cls:dk,kind:'decision'});
+      onOk:()=>{logAdd('pricer',`${aa.name||''} ${dd.kind||'draft'}: approved by ${$('profile').selectedOptions[0].text} \u2192 sent to the client`,['up','approved'],{cls:dk,kind:'decision',by:S.profile,
+        ev:{src:'first',tier:'conf',txt:`the draft as sent · ${usdx(aa.acv||0)}/year on ${aa.emp||'—'} seats`,open:'doc:'+did}});
         S.tri['t-v2']='done';
         toast(`Approved and sent \u00b7 W${S.t}. Logged against you, not the agent.`);renderAll();}});
     return;}
@@ -6455,8 +6626,9 @@ document.addEventListener('click',e=>{
       lines:[['What happens','the draft goes back to the agent, nothing leaves the building'],
         'A refusal is a fact too. It is written down with its reason, so the next draft knows what to avoid.'],
       onOk:()=>{const w=$('rjw'),why=w&&w.value;
-        if(!why){if(w){w.style.borderColor='var(--bad)';w.focus();}return false;}
-        logAdd('pricer','Draft v2 sent back by '+meNow()+': '+why,['down','rejected'],{cls:rk,kind:'decision',act:'rejected',by:S.profile});
+        if(!why){if(w){w.style.borderColor='var(--down)';w.focus();}return false;}
+        logAdd('pricer','Draft v2 sent back by '+meNow()+': '+why,['down','rejected'],{cls:rk,kind:'decision',act:'rejected',by:S.profile,
+          ev:{src:'first',tier:'conf',txt:'the reason written here by hand: “'+String(why).slice(0,48)+'”',open:'doc:'+did}});
         toast('Sent back \u00b7 W'+S.t+'. The refusal is in the log with its reason.');renderAll();}});
     return;}
   if(b.dataset.send){const pid=b.dataset.send,pp=personById(pid);
@@ -6497,7 +6669,9 @@ document.addEventListener('click',e=>{
            и ход переходит к ним — в ленте, в счётчике и на карте разом. */
         (MSGS[pid]=MSGS[pid]||[]).push({me:true,src:CHAN[ch][1],act:'assertion',txt,w:S.t});
         if(ta)ta.value='';
-        logAdd('seller',`${pp.nm}: sent by ${CHAN[ch][0]} under ${$('profile').selectedOptions[0].text}`,['up','sent by a human'],{cls:sk,kind:'decision',by:S.profile});
+        logAdd('seller',`${pp.nm}: sent by ${CHAN[ch][0]} under ${$('profile').selectedOptions[0].text}`,['up','sent by a human'],{cls:sk,kind:'decision',by:S.profile,
+          ev:(MSGS[pp.id]||[]).some(m=>!m.me)?{src:'first',tier:'conf',txt:'their last letter — the one this answers',open:'person:'+pp.id}
+             :{src:'model',tier:'claim',txt:'no inbound letter — the reason to write is ours',open:'person:'+pp.id}});
         renderAll();
         toast(`Sent to ${pp.nm} by ${CHAN[ch][0]} \u00b7 W${S.t}. Logged against you, not the agent.`);}});
     return;}
@@ -6589,6 +6763,23 @@ const LISTENT=['inb','task'];   /* области, где лента и есть
 const lightCentre=()=>LISTENT.includes(S.ent)||S.primary==='db';
 function afterFilter(f){if(f.light){renderSide();renderPanel();if(lightCentre())renderEditor();}else renderAll();}
 document.addEventListener('change',e=>{const d=e.target.dataset||{};
+  /* Назначение поручителя идёт тем же путём, что и всё остальное: через класс.
+     Класс «guarantor» держит Head, ступень — только руками. */
+  if(d.setgua){const role=d.setgua, was=GUAWHO[role], val=e.target.value||null;
+    const r=mayDecide('gua');
+    if(!r.ok){e.target.value=was||'';toast(r.why+' — the registry is not yours to change.');return;}
+    if(val===was){return;}
+    GUAWHO[role]=val;
+    const hit=Object.keys(DCL).filter(k=>DCL[k].gua===role).map(k=>'\u201c'+DCL[k].nm+'\u201d');
+    logAdd('human',
+      `${WHOM[role]} is now answered for by ${val?ourBy(val).nm:'nobody'} \u2014 ${hit.length} class${hit.length===1?'':'es'}: ${hit.join(', ')}`,
+      [val?'up':'down','guarantor named'],
+      {cls:'gua',kind:'decision',by:S.profile,
+       ev:{src:'first',tier:'conf',txt:'named here by hand, in front of the whole registry',open:'dclist:'}});
+    renderAll();
+    toast(val?`${ourBy(val).nm} answers for ${hit.length} class${hit.length===1?'':'es'} \u00b7 W${S.t}. Logged against you.`
+             :`${WHOM[role]} has nobody named. Those classes cannot have their ceiling lifted.`);
+    return;}
   if(d.fsel){const f=FFLD[d.fsel];if(f){f.set(e.target.value);afterFilter(f);}return;}
   if(d.ftog){const f=FFLD[d.ftog];if(f){f.set(e.target.checked);afterFilter(f);}return;}
   /* Диапазон здесь больше не обрабатывается: у поля ввода «change» случается на потере
