@@ -87,6 +87,7 @@ q{quotes:"«" "»"}
 /* Роль — первое, что читают: «главное в левом верхнем углу — кто я, из какой роли
    я на это смотрю» (Николай, 11.10). Она же задаёт, какие разделы и фильтры
    появятся слева, поэтому стоит рядом с именем системы, а не среди служебных кнопок. */
+.cfmsep{height:1px;background:var(--border);margin:8px 0}
 .profile{height:24px;font-size:11px;padding:0 6px;margin-left:10px;min-width:0;max-width:clamp(88px,17vw,200px);flex:none}
 .brand .profile{background:var(--side);border:1px solid var(--border);border-radius:5px;color:var(--fg);font-weight:500}
 
@@ -1437,6 +1438,49 @@ const OURS=[
    integration — outside the catalogue» (09.10).
    Единица — место, потому что так считает договор: цена за место в месяц. */
 const DISCMAX=12;
+/* =================== класс решения =================== */
+/* «Путь записи один — и он идёт через класс решения. Ручка автономии стоит на классе,
+   не на агенте и не на объекте» (Николай, 11.10). Принятая v4 добавляет к этому
+   поручителя: названного человека, который держит потолок и имеет вето.
+   Поэтому ни один экран здесь не пишет сам: кнопка объявляет класс, класс несёт
+   ступень, потолок, запрет и поручителя. Перечень — из `polish/BRIDGE.md`. */
+const DSTEPS=['auto','approve','hands'];
+const DSTEPNM={auto:'auto — the agent acts and tells',approve:'approve — a human says yes first',hands:'by hand only — no agent at all'};
+const DCL={
+  touch: {nm:'first touch',  out:'a letter to a stranger',             gua:'sdr', cap:'auto'},
+  enrich:{nm:'enrichment',   out:'an address, a phone, a profile',     gua:'sdr', cap:'auto'},
+  screen:{nm:'screening',    out:'whether a lead belongs to a segment',gua:'ae',  cap:'approve'},
+  reply: {nm:'reply',        out:'a letter to someone we know',        gua:'sdr', cap:'approve'},
+  quote: {nm:'quote',        out:'a price named to a client',          gua:'ae',  cap:'approve'},
+  disc:  {nm:'discount',     out:'a price below the list',             gua:'head',cap:'approve',
+          hard:'a discount above '+DISCMAX+' % is never computed — it is signed by hand'},
+  sign:  {nm:'signature',    out:'a commitment by the company',        gua:'head',cap:'hands'},
+  inv:   {nm:'invoice',      out:'a demand for money',                 gua:'csm', cap:'approve'},
+  cut:   {nm:'cut-off',      out:'the end of a service',               gua:'csm', cap:'hands'},
+  step:  {nm:'agent step',   out:'how much freedom an agent has',      gua:'gtm', cap:'hands'},
+  stop:  {nm:'agent stop',   out:'a hard stop and the way back',       gua:'gtm', cap:'approve'},
+  fact:  {nm:'market fact',  out:'what the system holds as true',      gua:'ae',  cap:'approve'}};
+/* Поручитель — человек, а не роль. У двух роль есть, а человека нет, и это
+   не прячется: класс без названного человека держать некому. */
+const GUAWHO={head:'h-nik',sdr:'h-sdr',csm:'h-ops',ae:null,gtm:null};
+const ourBy=id=>OURS.find(o=>o.id===id);
+function dgua(k){const c=DCL[k];if(!c)return null;const o=GUAWHO[c.gua]?ourBy(GUAWHO[c.gua]):null;
+  return {role:c.gua,person:o?o.nm:null};}
+function dguaTxt(k){const g=dgua(k);if(!g)return '—';
+  return g.person?g.person+' · '+WHOM[g.role]:WHOM[g.role]+' — no person named yet';}
+/* Ступень: расчёт может только понизить свободу относительно потолка поручителя
+   (v4, Policy). Поэтому потолок — верхняя граница, а не значение по умолчанию. */
+function dstep(k){const c=DCL[k];if(!c)return 'hands';
+  const want=(S.dstep||{})[k]||c.cap;
+  return DSTEPS.indexOf(want)>DSTEPS.indexOf(c.cap)?c.cap:want;}
+/* Строки, которые видит человек перед необратимым ходом. Класс называется раньше
+   предмета: сначала «какое это решение», потом «над чем». */
+function dclLines(k){const c=DCL[k];if(!c)return [];
+  const out=[['Decision class',c.nm],['Changes outside',c.out],
+    ['Guarantor',dguaTxt(k)],['Step now',DSTEPNM[dstep(k)]]];
+  if(c.hard)out.push('!'+c.hard);
+  if(!dgua(k).person)out.push('!No person is named for this class. Until someone is, nobody can lift the ceiling or veto it.');
+  return out;}
 const CAT=[
   {id:'mon', nm:'24/7 monitoring',            unit:'seat/mo', price:38, in:true,  note:'agent watches, human is paged'},
   {id:'help',nm:'Business-hours helpdesk',    unit:'seat/mo', price:41, in:true,  note:'8:00–18:00 local'},
@@ -1609,9 +1653,9 @@ const MEET=[
   {id:'mt3',acc:'a0',pid:'p-diaz',who:'Karen Diaz',w:38,when:'Fri 10:00 am',own:'head',brief:0,
    ttl:'Brightline: signature and the go-live date \u00b7 20 min',st:['up','on the calendar'],
    last:'silent for 9 days on LinkedIn'}];
-const BUILD='Oct 12, 11:10';   /* отметка сборки: единственное место, где она живёт */
+const BUILD='Oct 12, 12:27';   /* отметка сборки: единственное место, где она живёт */
 const S={t:NOW,seg:null,downOnly:false,sel:null,level:'segment',K:1,
-  knob:{scout:2,qual:2,seller:2,pricer:1,service:1},profile:'head',
+  knob:{scout:2,qual:2,seller:2,pricer:1,service:1},profile:'head',dstep:{},
   side:'tree',ent:'seg',agView:null,mapAcc:null,box:'',bn:0,sent:{},skin:'rev',ef:{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false},ptab:'market',job:'',stF:'',stage:'',primary:'map',source:null,orgOpen:false,sopAcc:'a0',lastRef:{},tview:'table',tabs:[{id:'map',kind:'map',ref:null,title:'Map'},{id:'acc',kind:'org',ref:'a0',title:'Account'},{id:'person',kind:'msg',ref:'p-hale',title:'Person'},{id:'flow',kind:'sop',ref:'a0',title:'Workflow'},{id:'doc',kind:'doc',ref:'d-msa',title:'Document'}],tab:'map',
   facts:{},docs:{},tri:{},proj:{},plan:null,chat:[],layout:{side:true,panel:true,agent:true,panelRight:false,swap:false},sopEdit:false,sopFix:null,steps:JSON.parse(JSON.stringify(STEPS0)),fieldPol:{},hidden:{},dnc:{},knobW:{scout:1,qual:1,seller:1,pricer:1,service:1},rules:JSON.parse(JSON.stringify(RULES0))};
 try{const L=JSON.parse(localStorage.getItem('revos-layout-v4')||'null');if(L)Object.assign(S.layout,L);}catch(e){}
@@ -2050,8 +2094,12 @@ function openBrief(mid){const m=MEET.find(x=>x.id===mid);if(!m)return;
   S.layout.agent=true;applyLayout();renderAgent();toast('The context is in the agent panel.');}
 function confirmAct(o){
   $('cfmT').textContent=o.title;
+  /* Класс решения называется раньше предмета: человек сначала должен понять, какое
+     это решение и кто за него поручился, и только потом — над чем оно. */
+  if(o.cls)o.lines=dclLines(o.cls).concat(['\u2014'],(o.lines||[]));
   $('cfmB').innerHTML=(o.lines||[]).filter(Boolean).map(l=>Array.isArray(l)
     ?`<div class="kvr"><span>${esc(l[0])}</span><b>${esc(String(l[1]))}</b></div>`
+    :l==='\u2014'?'<div class="cfmsep"></div>'
     :`<div class="${/^!/.test(l)?'wrn':''}">${esc(String(l).replace(/^!/,''))}</div>`).join('');
   if(o.html)$('cfmB').innerHTML+=o.html;
   const go=$('cfmGo');go.textContent=o.cta||'Do it';go.className='btn '+(o.danger?'bad':'pri');
@@ -3722,7 +3770,7 @@ function renderDoc(id){const d=DOCS[id],a=ACCBY[d.acc],st=S.docs[id]||{};const P
          открыл и читаешь, а не читаешь карточку о том, что сейчас откроется. */''}
     <div class="paper" id="paper">${docPaper(d,a)}</div>
     ${/Offer|MSA/.test(d.kind)?`<div class="btns"><button class="btn alt" data-open="price:1" data-tip="What we sell, what costs extra, and what we never promise — this paper carries its own price">Open the price list</button></div>`:''}
-    <div class="btns cact">${draftable?`<button class="btn" data-edit="1">Edit</button>`:`<button class="btn" disabled title="${done?'A signed document is not edited \u2014 a new version is issued':'Sent to the client \u2014 changing it here would not change their copy'}">Edit</button>`}${isMSA?`<button class="btn pri" data-sign="${id}" ${canSign&&!st.us?'':'disabled'}>Sign as Nikolai Bobrov</button>`:''}${d.kind==='Offer v2'?`<button class="btn good" data-approve="${id}">Approve the agent’s draft</button><button class="btn bad" data-reject="${id}">Send it back to the agent</button>`:''}</div>
+    <div class="btns cact">${draftable?`<button class="btn" data-edit="1">Edit</button>`:`<button class="btn" disabled title="${done?'A signed document is not edited \u2014 a new version is issued':'Sent to the client \u2014 changing it here would not change their copy'}">Edit</button>`}${isMSA?`<button class="btn pri" data-sign="${id}" ${canSign&&!st.us?'':'disabled'}>${st.us?'Signed':canSign?'Sign as '+(dgua('sign').person||WHOM[DCL.sign.gua]):(dgua('sign').person||WHOM[DCL.sign.gua])+' signs this'}</button>`:''}${d.kind==='Offer v2'?`<button class="btn good" data-approve="${id}">Approve the agent’s draft</button><button class="btn bad" data-reject="${id}">Send it back to the agent</button>`:''}</div>
     <div class="hdr">Where it stands</div>
     <div class="signers">${signers.map((s,i)=>`<div class="signer">${(i===2?agAv('pricer'):face(s[0],'',i===1))}<div class="grow"><div>${esc(s[0])}</div><div class="note">${s[1]}</div></div><span class="chip ${s[2]==='signed'?'up':s[2]==='—'?'flat':'warn'}">${s[2]}</span></div>`).join('')}</div>
     <div class="hdr">Details</div>
@@ -5362,11 +5410,14 @@ function findPerson(q,acc,roleRe){
   }
   return best&&best.score<1000?best.p:null;
 }
-function editDone(txt,undo,ref){
+function editDone(txt,undo,ref,cls){
   /* откат привязан к своей правке: одна общая ячейка откатывала бы последнюю,
      а кнопка стоит под каждой — это была бы ложь */
   const id='e'+(S.editN=(S.editN||0)+1), plain=txt.replace(/<[^>]+>/g,'');
-  (S.edits=S.edits||{})[id]={undo,txt:plain};
+  (S.edits=S.edits||{})[id]={undo,txt:plain,cls:cls||'enrich'};
+  /* Правка агента — запись в журнал правок, а не только строка в ленте сделки:
+     «что изменилось в объекте» и «что решено» — два разных вопроса. */
+  logAdd('seller',plain,['flat','edit by the agent'],{cls:cls||'enrich',kind:'edit'});
   (S.own=S.own||[]).unshift({tab:'flow',kind:'edit',ref:ref||null,txt:plain,about:'',eid:id});
   return `<b>Done.</b> ${txt}<div class="btns" style="margin-top:6px"><button class="lnk" data-agundo="${id}">undo this</button>${ref?` <button class="lnk" data-open="${ref}">open it</button>`:''}</div>`
     +`<div class="note" style="margin-top:4px">It is in the log of this deal, below — so you can check me.</div>`;
@@ -5462,7 +5513,7 @@ function agentEdit(q){
     if(g){const to=/auto/.test(l)?2:/approve/.test(l)?1:0, was=S.knob[g.id];
       if(was===to)return `${g.nm} is already on <b>${KNOB[to]}</b>.`;
       S.knob[g.id]=to;
-      return editDone(`${g.nm}: the cold dial is now <b>${KNOB[to]}</b> — was ${KNOB[was]}.`,()=>{S.knob[g.id]=was;},'agent:'+g.id);}
+      return editDone(`${g.nm}: the cold dial is now <b>${KNOB[to]}</b> — was ${KNOB[was]}.`,()=>{S.knob[g.id]=was;},'agent:'+g.id,'step');}
     return 'Name the agent — I do not know whose dial you mean.';
   }
   /* проверка на шаге */
@@ -5474,7 +5525,7 @@ function agentEdit(q){
     const r=rs.find(x=>!x.lock&&x.on!==want)||rs.find(x=>!x.lock);
     if(!r)return `Every check on ${g.nm} is locked — I cannot touch those.`;
     const was=r.on; r.on=want;
-    return editDone(`${g.nm}: the check “${esc(r.t)}” is now <b>${want?'on':'off'}</b>.`,()=>{r.on=was;},'agent:'+g.id);
+    return editDone(`${g.nm}: the check “${esc(r.t)}” is now <b>${want?'on':'off'}</b>.`,()=>{r.on=was;},'agent:'+g.id,'step');
   }
   return hint;
 }
@@ -5665,7 +5716,15 @@ function openRef(k){
   if(type==='us'){openTab('org','us','Us · people and agents');setEnt('us');S.sel=null;renderAllButMap();return;}
   if(type==='db'){S.dbKind=id;S.dbN=50;S.dbSort=null;openTab('db',id,'Database · '+(id==='acc'?'accounts':'people'));return;}
 }
-function logAdd(ag,ttl,st){(S.extraLogs=S.extraLogs||[]).push({ag,w:NOW,ttl,st});}
+/* У записи журнала два новых поля. `cls` — класс решения, под которым она сделана;
+   `kind` — какой это журнал из четырёх: решение · правка · метрика · откат.
+   Palantir держит четыре разных журнала и честно пишет, что ни один не полон;
+   мы валили всё в одну ленту, поэтому она плохо отвечала на любой из четырёх вопросов. */
+function logAdd(ag,ttl,st,m){const o={ag,w:NOW,ttl,st};
+  if(m){if(m.cls)o.cls=m.cls;o.kind=m.kind||'decision';o.act=m.act||'done';if(m.by)o.by=m.by;}
+  (S.extraLogs=S.extraLogs||[]).push(o);return o;}
+const LKIND={decision:'decision',edit:'edit',metric:'metric',revert:'revert'};
+const meNow=()=>WHOM[S.profile]||'—';
 document.addEventListener('click',e=>{
   const b=e.target.closest('[data-fmul],[data-open],[data-side],[data-tab],[data-web],[data-tabclose],[data-tkopen],[data-tkact],[data-close],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-feeddown],[data-plus],[data-newchat],[data-agundo],[data-weekpick],[data-week],[data-calm],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-f],[data-freset],[data-fclr],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepsel],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-projset],[data-dbstate],[data-fmode],[data-dbsort],[data-dbmore],[data-dbkind],[data-camp],[data-camprun],[data-chan],[data-find],[data-slot],[data-next],[data-nextclr],[data-addp],[data-intent],[data-pst],[data-campsel],[data-campoff],[data-campblk],[data-campset],[data-campseq],[data-campbox],[data-camprunact],[data-inwin],[data-stuck],[data-mailclear],[data-mailopen],[data-mailstop],[data-mark],[data-note],[data-notecancel],[data-ent],[data-mail],[data-common],[data-importfacts],[data-nextbn],[data-influencer],[data-sim],[data-role],[data-tview],[data-triopen],#fDown,#addFact,#addNote');
   if(!b){if(S.wkOpen&&!e.target.closest('.wkpop')){S.wkOpen=false;renderFilters();}return;}
@@ -5691,7 +5750,12 @@ document.addEventListener('click',e=>{
     const mark='data-agundo="'+id+'">undo this</button>';
     S.chat.forEach(m=>{if(!m.u&&m.t.indexOf(mark)>=0)
       m.t=m.t.replace('<button class="lnk" '+mark,'<span class="faint">rolled back</span>');});
-    S.chat.push({u:0,t:'Rolled back — '+esc(e.txt.split('.')[0])+'. The model is as it was, and the line is gone from the log.'});
+    /* Было: «the line is gone from the log» — журнал терял строку, и откат выглядел
+       так, будто правки не было. Принятая v4 запрещает это прямо: «у правды нет
+       исключений… Откат — компенсирующая запись, а не удаление». Теперь прежняя
+       строка остаётся, а рядом встаёт вторая, которая её гасит. */
+    logAdd('seller','Rolled back by '+meNow()+': '+e.txt.split('.')[0],['warn','compensating entry'],{cls:e.cls||'enrich',kind:'revert',by:S.profile});
+    S.chat.push({u:0,t:'Rolled back — '+esc(e.txt.split('.')[0])+'. The model is as it was. The first entry stays in the log and a second one cancels it: nothing is erased.'});
     renderAll();return;}
   if(b.dataset.weekpick){S.wkOpen=!S.wkOpen;S.calM=null;S.calY=null;renderFilters();return;}
   if(b.dataset.week){S.t=+b.dataset.week;S.wkOpen=false;renderAll();return;}
@@ -5864,7 +5928,7 @@ document.addEventListener('click',e=>{
   if(b.dataset.intent){const [pid,v]=b.dataset.intent.split(':'),p=personById(pid);
     S.intent=S.intent||{}; S.intent[pid]=S.intent[pid]===v?null:v;
     const l=(INTENT.find(x=>x[0]===v)||['','']) [1];
-    logAdd('seller',`${p.nm}: reply marked “${l}” (${$('profile').selectedOptions[0].text})`,['flat','marked']);
+    logAdd('seller',`${p.nm}: reply marked “${l}” (${$('profile').selectedOptions[0].text})`,['flat','marked'],{cls:'screen',kind:'decision',by:S.profile});
     renderEditor();renderAllButMap();return;}
   if(b.dataset.pst){const [pid,k]=b.dataset.pst.split(':'),p=personById(pid);
     /* «Убрать из работы» было только «убрать из ленты». Теперь это состояние, и оно
@@ -5908,7 +5972,7 @@ document.addEventListener('click',e=>{
     const go=Math.min(live.length,cap.leftToday);
     const names=live.slice(0,5).map(x=>x.nm+' · '+x.acc.name);
     confirmAct({title:'Start a send to '+live.length+' '+(live.length===1?'person':'people')+'?',
-      danger:true, cta:'Send to '+go+' now',
+      danger:true, cta:'Send to '+go+' now', cls:'touch',
       lines:[
         ['Who',campWho(cc)+', '+live.length+' people'],
         ['Out today',go+(live.length>go?' — the other '+(live.length-go)+' are queued':'')],
@@ -5937,7 +6001,11 @@ document.addEventListener('click',e=>{
     S.campRuns.unshift({w:S.t,nm:campWho(c)+' · '+tp.nm,
       ch:c.seq.filter(s=>s.on).map(s=>s.ch).filter((v,i,a)=>a.indexOf(v)===i).join(', '),
       n,sent:today,failed:0,skipped:Object.keys(off).filter(k=>off[k]).length+banned,state:'sending'});
-    logAdd('seller',`Campaign · ${campWho(c)}: ${n} people queued, ${today} went out today`,['up','started by a human']);
+    /* Пачка — это одно решение и много правок, а не много решений. Поэтому в журнал
+       решений уходит одна строка, а правки лежат своей строкой со своим числом:
+       иначе на 471 человека лента перестаёт отвечать на вопрос «кто решил». */
+    logAdd('seller',`Campaign · ${campWho(c)}: ${n} people queued, ${today} went out today \u2014 one decision by ${meNow()}`,['up','started by a human'],{cls:'touch',kind:'decision',by:S.profile});
+    logAdd('seller',`${today} contact${today===1?'':'s'} touched under that one decision${n>today?`, ${n-today} still queued`:''}`,['flat','edits under a decision'],{cls:'touch',kind:'edit'});
     renderAllButMap();paintCentre();
     /* Число в сообщении должно совпадать с тем, что человек выбрал: тост брал ёмкость
        всех ящиков, а не отмеченных, и говорил 62 в день там, где на экране стояло 37. */
@@ -6000,7 +6068,7 @@ document.addEventListener('click',e=>{
                    'prepares and asks — you approve each one',
                    'acts on its own — messages leave without you'];
       confirmAct({title:'Give '+(agBy(id)||{nm:'the agent'}).nm+' a different freedom?',
-        danger:now>was, cta:'Change it to '+KNOB[now],
+        danger:now>was, cta:'Change it to '+KNOB[now], cls:'step',
         lines:[['Now',KNOB[was]+' — '+MEANS[was]],['After',KNOB[now]+' — '+MEANS[now]],
           now===2?'!At Auto this agent writes to clients without you seeing it first. Its never-do rules still hold; everything else is its call.':null,
           'The change goes into the log with your name on it, and can be rolled back from there.'],
@@ -6055,40 +6123,82 @@ document.addEventListener('click',e=>{
   if(b.dataset.do){const k=b.dataset.do;if(k==='today'){goEnt('task');return;}
     if(k==='buffer'){S.buf=!S.buf;renderAgent();return;}if(k==='alarm'){S.agView=S.agView==='alarm'?null:'alarm';renderAgent();return;}if(k==='openfilters'){S.side='tree';S.layout.side=true;applyLayout();renderActivity();renderSide();return;}if(k==='openchannel'){setEnt('us');S.ptab='channel';S.layout.panel=true;applyLayout();renderActivity();renderSide();renderPanel();return;}if(k==='opendocs'){setEnt('acc');S.layout.panel=true;applyLayout();renderActivity();renderSide();renderPanel();return;}if(k==='planclear'){S.plan=null;renderEditor();renderAllButMap();toast('Plan dropped. The moves it added are gone; the rest of the queue is untouched.');return;}if(k==='resetscope'){S.seg=null;S.job='';S.stF='';S.stage='';S.downOnly=false;renderAll();return;}if(k==='focuscard'){S.agView=null;renderAgent();const f=document.querySelector('#agbody .focus');f&&f.scrollIntoView({block:'nearest'});return;}if(false){S.layout.agent=true;applyLayout();const f=document.querySelector('.focus');f&&f.scrollIntoView({block:'nearest'});f&&f.animate([{outline:'2px solid var(--focus)'},{outline:'2px solid transparent'}],{duration:600});return;}if(k==='showtx'){S.seg='price';S.downOnly=true;if(S.tab!=='map'){S.tab='map';renderEditor();}S.sel=null;renderAll();zoomToFeature(statesF.find(f=>f.abbr==='TX'));return;}
     if(k==='showdfw'){S.seg=null;S.sel=null;if(S.tab!=='map'){S.tab='map';renderEditor();}renderAll();zoomTo(bx,by,7);return;}if(k.startsWith('open:'))openRef(k.slice(5));return;}
-  if(b.dataset.fact){const [id,i,v]=b.dataset.fact.split(':');S.facts[id]=S.facts[id]||{};S.facts[id][i]=v;renderEditor();renderPanel();return;}
+  if(b.dataset.fact){const [id,i,v]=b.dataset.fact.split(':');S.facts[id]=S.facts[id]||{};S.facts[id][i]=v;
+    /* «Что система считает правдой» — класс решения, а не пометка вида. Раньше
+       подтверждение факта меняло цифры на экранах и не оставляло следа: спросить
+       «кто решил, что это правда» было некого. */
+    const mn=MARKET.find(x=>x.id===id), ft=mn&&mn.facts&&mn.facts[i];
+    if(v==='yes'||v==='no')logAdd('scout',`${(mn&&mn.nm)||id}: “${ft?String(ft[0]).slice(0,60):'fact '+i}” held as ${v==='yes'?'true':'not true'} by ${meNow()}`,[v==='yes'?'up':'down','market fact'],{cls:'fact',kind:'decision',by:S.profile});
+    renderEditor();renderPanel();return;}
   if(b.dataset.factall){const [id,v]=b.dataset.factall.split(':');const n=MARKET.find(x=>x.id===id);S.facts[id]={all:v};n.facts.forEach((f,i)=>S.facts[id][i]=v);renderPanel();if(S.tabs.find(x=>x.id==='doc').ref===id)renderEditor();return;}
   if(b.dataset.sign){const did=b.dataset.sign,dd=DOCS[did],aa=ACCBY[dd.acc];
     /* Подпись названа необратимой в подписи под кнопкой, а ставилась одним нажатием. */
-    confirmAct({title:'Sign for Bobroff MSP?', danger:true, cta:'Sign it',
+    /* Подпись — класс решения с потолком «только руками»: агента в этом классе
+       не бывает вовсе, и поручитель назван. */
+    if(S.profile!=='head'){confirmAct({title:'Only the Head signs', only:true, cta:'Close', cls:'sign',
+      lines:[['Document',dd.kind+' · '+aa.name],['You are',meNow()],
+        '!A signature binds the company. The ceiling on this class is by hand only, and the hand is the guarantor\u2019s.',
+        'Prepare it and hand it over — the draft stays as it is.']});return;}
+    confirmAct({title:'Sign for Bobroff MSP?', danger:true, cta:'Sign it', cls:'sign',
       lines:[['Document',dd.kind+' · '+aa.name],['Amount',usdx(aa.acv)+'/year'],['Term','36 months'],
         ['Signing as',$('profile').selectedOptions[0].text],
         '!A signature cannot be taken back. It binds Bobroff MSP to everything written above.',
         'After this the document waits on the client, and the first invoice follows the agreement.'],
       onOk:()=>{S.docs[did]={...(S.docs[did]||{}),us:true};
-        logAdd('pricer',`${aa.name} ${dd.kind}: signed by ${$('profile').selectedOptions[0].text}`,['up','signature']);
+        logAdd('pricer',`${aa.name} ${dd.kind}: signed by ${$('profile').selectedOptions[0].text}`,['up','signature'],{cls:'sign',kind:'decision'});
         renderEditor();renderPanel();
         toast(`Signed \u00b7 W${S.t}. ${aa.name} ${dd.kind} now waits on the client.`);}});
     return;}
   if(b.dataset.approve){const did=b.dataset.approve,dd=DOCS[did]||{},aa=ACCBY[dd.acc]||{};
-    /* «Approve» не согласовывает — оно отправляет клиенту. Так и надо спросить. */
-    confirmAct({title:'Approve and send to the client?', cta:'Approve and send',
+    /* «Approve» не согласовывает — оно отправляет клиенту. Так и надо спросить.
+       Класс здесь зависит от цены: названная цена — котировка, цена ниже прайса —
+       скидка, и у неё другой поручитель. */
+    const dsc=docDisc(dd), dk=dsc?'disc':'quote';
+    /* Запрет срабатывает раньше расчёта (v4, deny-overrides): скидку выше потолка
+       не вычисляют и не согласовывают — её вообще нет в этом пути. */
+    if(dsc>DISCMAX){confirmAct({title:'This discount is not approved here', only:true, cta:'Close', cls:'disc',
+      lines:[['Document',(dd.kind||'draft')+' · '+(aa.name||'')],['Discount asked',dsc+' %'],['Never computed above',DISCMAX+' %'],
+        '!The hard rule runs before any calculation. No step of autonomy reaches past it — not the agent\u2019s, not yours.',
+        'It takes the guarantor signing it by hand, as a separate decision.']});return;}
+    if(dk==='disc'&&S.profile!=='head'){confirmAct({title:'A discount is the Head\u2019s call', only:true, cta:'Close', cls:'disc',
+      lines:[['Document',(dd.kind||'draft')+' · '+(aa.name||'')],['Discount',dsc+' %'],['You are',meNow()],
+        '!You may prepare it. Approving a price below the list belongs to the guarantor of this class.',
+        'Hand it over and it keeps the discount you set.']});return;}
+    confirmAct({title:'Approve and send to the client?', cta:'Approve and send', cls:dk,
       lines:[['Document',(dd.kind||'draft')+' · '+(aa.name||'')],
         docDisc(dd)?['Price',usdx(aa.acv*(1-docDisc(dd)/100))+'/year — list '+usdx(aa.acv)+', discount '+docDisc(dd)+' %']:null,
         'The agent prepared it; approving it is what sends it out. It is logged against you.'],
-      onOk:()=>{logAdd('pricer',`${aa.name||''} ${dd.kind||'draft'}: approved by ${$('profile').selectedOptions[0].text} \u2192 sent to the client`,['up','approved']);
+      onOk:()=>{logAdd('pricer',`${aa.name||''} ${dd.kind||'draft'}: approved by ${$('profile').selectedOptions[0].text} \u2192 sent to the client`,['up','approved'],{cls:dk,kind:'decision'});
         S.tri['t-v2']='done';
         toast(`Approved and sent \u00b7 W${S.t}. Logged against you, not the agent.`);renderAll();}});
     return;}
-  if(b.dataset.reject){logAdd('pricer','Draft v2 sent back to the agent: the discount was not justified',['down','sent back']);toast('Sent back to the agent.');renderAll();return;}
+  if(b.dataset.reject){
+    /* «Отказ тоже факт: он пишется в леджер своим типом» (v4, Command). Раньше
+       отказ уходил строкой без класса и без причины, и спросить «почему не ушло»
+       было некого. Теперь причина обязательна — она и есть содержание записи. */
+    const rdd=DOCS[b.dataset.reject]||DOCS['d-v2']||{}, rk=docDisc(rdd)?'disc':'quote';
+    confirmAct({title:'Send it back — say why', cta:'Send it back', cls:rk,
+      html:`<div class="kvr"><span>Reason</span></div><select id="rjw" class="inp"><option value="">choose one</option><option>the discount was not justified</option><option>the price is below what we can deliver</option><option>the scope is not what we agreed</option><option>the client never asked for this</option></select>`,
+      lines:[['What happens','the draft goes back to the agent, nothing leaves the building'],
+        'A refusal is a fact too. It is written down with its reason, so the next draft knows what to avoid.'],
+      onOk:()=>{const w=$('rjw'),why=w&&w.value;
+        if(!why){if(w){w.style.borderColor='var(--bad)';w.focus();}return false;}
+        logAdd('pricer','Draft v2 sent back by '+meNow()+': '+why,['down','rejected'],{cls:rk,kind:'decision',act:'rejected',by:S.profile});
+        toast('Sent back \u00b7 W'+S.t+'. The refusal is in the log with its reason.');renderAll();}});
+    return;}
   if(b.dataset.send){const pid=b.dataset.send,pp=personById(pid);
     /* Уходило с одного нажатия и молча — у SDR и у AE. Теперь видно, кому и чем. */
     const ch=chanOf(pid)||'email', cs=chanState(pid,ch);
     const ta=$('draft'), txt=((ta&&ta.value)||'').trim();
     const oo=optedOut(pid);
+    /* Письмо незнакомому и письмо знакомому — разные классы решений, и ступень у них
+       разная: первое касание агент делает сам, ответ в переписке требует согласия.
+       Знакомство определяется перепиской, а не нашим намерением. */
+    const sk=(MSGS[pid]||[]).length?'reply':'touch';
     /* Окно предупреждало про отписку и всё равно отправляло по нажатию: «the agent is
        not allowed to, and neither are you» стояло рядом с живой кнопкой — нашли три
        ходока независимо (09.10). Теперь это не вопрос, а отказ. */
-    if(oo){confirmAct({title:'No letter goes to '+pp.nm, danger:true, cta:'Close', only:true,
+    if(oo){confirmAct({title:'No letter goes to '+pp.nm, danger:true, cta:'Close', only:true, cls:sk,
       lines:[['To',pp.nm+' · '+pp.title],['At',ACCBY[pp.acc].name],['Opted out',oo],
         '!Writing again breaks CAN-SPAM and the never-do rule. Nobody here may do it — not the agent, not you.',
         'It takes them writing to us first, and that arrives as their reply.'],
@@ -6096,13 +6206,13 @@ document.addEventListener('click',e=>{
     /* Запрет живёт у действия, а не у кнопки: до карточки человека можно дойти
        мимо неё — из ленты, из поиска, из черновика агента. */
     const pk=pstateK(pid);
-    if(pk!=='active'){confirmAct({title:'Nothing goes to '+pp.nm+' yet', danger:true, cta:'Close', only:true,
+    if(pk!=='active'){confirmAct({title:'Nothing goes to '+pp.nm+' yet', danger:true, cta:'Close', only:true, cls:sk,
       lines:[['To',pp.nm+' · '+pp.title],['At',ACCBY[pp.acc].name],['State',PSTATE[pk][0]],
         '!'+(pk==='out'?'They were taken out of play. No send reaches them — not this campaign, not the next one.'
                        :'They are on hold. Nothing goes out while the hold stands.'),
         'Put them back in play on their card, and the draft goes out as usual.'],
       onOk:()=>{}});return;}
-    confirmAct({title:'Send to '+pp.nm+'?', danger:true, cta:'Send it now',
+    confirmAct({title:'Send to '+pp.nm+'?', danger:true, cta:'Send it now', cls:sk,
       lines:[['To',pp.nm+' · '+pp.title],['At',ACCBY[pp.acc].name],
         ['By',CHAN[ch][0]+' — '+cs[1]],
         txt?'First line: \u201c'+txt.split('\n')[0].slice(0,120)+'\u201d':'!The draft is empty — nothing would be sent.',
@@ -6114,7 +6224,7 @@ document.addEventListener('click',e=>{
            и ход переходит к ним — в ленте, в счётчике и на карте разом. */
         (MSGS[pid]=MSGS[pid]||[]).push({me:true,src:CHAN[ch][1],act:'assertion',txt,w:S.t});
         if(ta)ta.value='';
-        logAdd('seller',`${pp.nm}: sent by ${CHAN[ch][0]} under ${$('profile').selectedOptions[0].text}`,['up','sent by a human']);
+        logAdd('seller',`${pp.nm}: sent by ${CHAN[ch][0]} under ${$('profile').selectedOptions[0].text}`,['up','sent by a human'],{cls:sk,kind:'decision',by:S.profile});
         renderAll();
         toast(`Sent to ${pp.nm} by ${CHAN[ch][0]} \u00b7 W${S.t}. Logged against you, not the agent.`);}});
     return;}
