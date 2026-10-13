@@ -525,6 +525,19 @@ body.focus-mode .ptabs{cursor:pointer}
 .scr:hover{border-color:var(--accent)}
 .scr .scn{font-size:11.5px;color:var(--fg)}
 .scr .scc{font-size:10px;color:var(--fg3)}
+/* Сценарий в панели агента: шаги столбиком, пройденные гаснут, текущий назван. */
+.scen{display:flex;flex-direction:column;gap:6px;padding:10px 12px}
+.scen .scr.sw{width:100%}
+.sstep{display:grid;grid-template-columns:18px minmax(0,1fr) auto;gap:8px;align-items:baseline;font-size:11.5px;color:var(--fg3)}
+.sstep .sn{font-family:var(--ui);font-variant-numeric:tabular-nums;font-size:10px;text-align:right}
+.sstep.ok{color:var(--fg3);text-decoration:line-through}
+.sstep.now{color:var(--fg);font-weight:600}
+.sstep.now .sn{color:var(--accent)}
+/* Вспышка на органе, который означает шаг. Полторы секунды — и назад: это подсказка,
+   а не состояние. */
+.scenhi{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px;
+  animation:scenpulse .6s ease-in-out 3}
+@keyframes scenpulse{0%,100%{outline-color:var(--accent)}50%{outline-color:transparent}}
 /* Тип контакта в шапке карточки: четыре слова в строку, выбранное отмечено. */
 .ctyr{align-items:baseline;gap:8px;margin-top:4px}
 .ctyr button[aria-pressed="true"]{color:var(--accent);font-weight:600}
@@ -1384,7 +1397,7 @@ table.db.tasks td:first-child{max-width:340px}
         <div class="sugg" id="sugg"></div>
         <div class="askbox">
           <textarea id="askIn" rows="2" placeholder="Ask the agent, or @name a person to pass it on…"></textarea>
-          <div class="askrow"><span class="ctx" id="askCtx"></span><select id="askMode" aria-label="Mode"><option>Ask</option><option>Assign</option></select><button class="send" id="askSend" aria-label="Send">➤</button></div>
+          <div class="askrow"><span class="ctx" id="askCtx"></span><button class="lbtn" data-photo="1" aria-label="Hand a photo to the agent" data-tip="A badge photographed at a conference: the agent reads it and finds the person">⧉</button><select id="askMode" aria-label="Mode"><option>Ask</option><option>Assign</option></select><button class="send" id="askSend" aria-label="Send">➤</button></div>
         </div>
       </div>
     </aside>
@@ -6013,16 +6026,110 @@ function BNS(){
 }
 function bnCur(){const L=BNS();return L[Math.min(S.bn||0,L.length-1)];}
 function bnDone(){const L=BNS();return (S.bn||0)>=L.length-1?null:L[(S.bn||0)+1];}
+/* ============ Сценарии · рабочие инструкции внутри демо ============
+   Поручение Николая 13.10 [13:59]: «Сгенерируйте эти рабочие инструкции сценария…
+   должны быть протестированы все сценарии на прототипе» — до кодинга. Ливон просил
+   вложить сценарии в само демо, чтобы забрать из него шаги в автотесты
+   (Claude + Playwright), и назвал первые три: добавить клиента · запустить кампанию
+   аутрича · добавить контакт по фото.
+
+   Поэтому сценарий живёт не отдельным разделом, а в агенте: вести человека по шагам —
+   это его работа, а не новая область. Один и тот же `sel` служит трём делам сразу:
+   им шаг подсвечивается, им же он засчитывается, и он же уезжает в автотест. Шаг
+   отмечается сам, когда человек действительно нажал то, что написано, — не галочкой
+   «я сделал», а самим действием: инструкция, которую нельзя пройти не пройдя.
+
+   Если шаг не отмечается — значит инструкция врёт, и это ровно то, что Николай просил
+   проверить до кодинга. */
+const SCEN=[
+ {id:'client',nm:'Add a client by hand',who:'SDR',
+  why:'you met someone and they are not in the base — a conference, a referral, a call',
+  check:'their card opens under their own name, and the log carries one entry under yours',
+  steps:[
+   {t:'Open People in the rail',sel:'[data-ent="ppl"]'},
+   {t:'Press “Add a person by hand”',sel:'[data-addp]'},
+   {t:'Type their name',sel:'#apNm',fill:1},
+   {t:'Type the company — a new name, not one from the list',sel:'#apCo',fill:1},
+   {t:'Pick the segment: which market the new company counts in',sel:'#apSg',fill:1},
+   {t:'Type the seats — the price is built from them',sel:'#apEm',fill:1},
+   {t:'Press “Add them”',sel:'#cfmGo'}]},
+ {id:'camp',nm:'Launch an outreach campaign',who:'SDR',
+  why:'a segment has to be reached, and it goes out under a person’s name',
+  check:'the send says how many letters went, from which mailbox, and what stopped the rest',
+  steps:[
+   {t:'Open Workflows in the rail',sel:'[data-ent="flow"]'},
+   {t:'Go to “All campaigns and deals”',sel:'[data-open="flowlist"]'},
+   {t:'Open a campaign — one segment, one campaign',sel:'[data-open^="camp:"]'},
+   {t:'Take out anyone who should not get it',sel:'[data-campoff]'},
+   {t:'Press “Start the send” — it goes out under your name',sel:'[data-camprun]'}]},
+ {id:'photo',nm:'Add a contact from a photo',who:'SDR',
+  why:'a badge at a conference is all you have, and the hands are busy',
+  check:'the agent names them, opens the card, and the next touch stands in the queue',
+  steps:[
+   {t:'Hand the photo of the badge to the agent',sel:'[data-photo]'},
+   {t:'Set when the next touch goes — otherwise the contact is lost',sel:'[data-next]'}]},
+ {id:'answer',nm:'Answer the one who is waiting',who:'SDR · AE',
+  why:'an answer owed and not sent is the cheapest deal we lose',
+  check:'the letter goes out by the channel they wrote from, under your name, into the log',
+  steps:[
+   {t:'Open Messages in the rail',sel:'[data-ent="inb"]'},
+   {t:'Open a line from “Needs an answer” — the draft is already written',sel:'[data-open^="msg:"]'},
+   {t:'Press “Send under my name”',sel:'[data-send]'}]}];
+const SCENBY=Object.fromEntries(SCEN.map(x=>[x.id,x]));
+function scenCur(){return S.scen?SCENBY[S.scen.id]:null;}
+function scenDone(){const sc=scenCur();return !!sc&&S.scen.i>=sc.steps.length;}
+/* Шаг засчитывается самим действием. Слушатели стоят в фазе перехвата: до того, как
+   рабочий обработчик перерисует экран и нажатый орган исчезнет из DOM. */
+function scenWatch(e){
+  const sc=scenCur(); if(!sc||scenDone())return;
+  const st=sc.steps[S.scen.i]; if(!st||!e.target||!e.target.closest)return;
+  let el=null; try{el=e.target.closest(st.sel);}catch(_){return;}
+  if(!el)return;
+  if(st.fill){ if(e.type==='click')return; if(!String(el.value||'').trim())return; }
+  else if(e.type!=='click')return;
+  S.scen.i++;
+  /* Перерисовка — следующим тиком: сначала своё дело делает тот обработчик, ради
+     которого нажатие и было. */
+  setTimeout(()=>{renderAgent();
+    if(scenDone())toast(`${sc.nm} — all ${sc.steps.length} steps walked. ${sc.check}.`);},0);}
+document.addEventListener('click',scenWatch,true);
+document.addEventListener('change',scenWatch,true);
+document.addEventListener('input',scenWatch,true);
+function scenHTML(){
+  const sc=scenCur();
+  if(!sc)return `<div class="scen"><div class="scl">Work instructions · ${SCEN.length}</div>
+    <div class="note">Walk one and the step ticks itself off when you actually do it. The same step is what the automated test takes.</div>
+    ${SCEN.map(x=>`<button class="scr sw" data-scenrun="${x.id}">
+      <span class="scn">${esc(x.nm)}</span>
+      <span class="scc">${esc(x.who)} · ${x.steps.length} steps · ${esc(x.why)}</span></button>`).join('')}</div>`;
+  const i=S.scen.i, done=scenDone();
+  const row=(st,k)=>`<div class="sstep${k<i?' ok':k===i?' now':''}">
+    <span class="sn">${k<i?'✓':k+1}</span>
+    <span class="st">${esc(st.t)}</span>
+    ${k===i?`<button class="lnk" data-scenwhere="${k}" data-tip="Flash the control this step means">where</button>`:''}</div>`;
+  return `<div class="scen"><div class="scl">${esc(sc.nm)} · ${done?'walked':`step ${i+1} of ${sc.steps.length}`}</div>
+    ${done?`<div class="note">All ${sc.steps.length} steps walked. What to check: ${esc(sc.check)}.</div>`
+      :`<div class="note">${esc(sc.why)}</div>`}
+    ${sc.steps.map(row).join('')}
+    <div class="btns"><button class="lnk" data-scenstop="1">${done?'Close it':'Stop walking'}</button>
+      <button class="lnk" data-scenrun="${sc.id}">Start over</button>
+      <button class="lnk" data-scencopy="${sc.id}" data-tip="The steps as selectors — for the automated test">Copy the steps</button></div></div>`;}
 function renderAgEntry(){
   const alarm=AGENTS.filter(a=>a.state==='paused').length;
   const b=(k,lbl,n,cls)=>`<button data-do="${k}" class="${cls||''}" aria-pressed="${S.agView===k}">${lbl}${n?` <b>${n}</b>`:''}</button>`;
   /* Today отсюда ушла: «вот эта вкладка today — это и есть просто перечень тасков»
      (Николай, 09.10, 32:20), а у задач теперь своя область. Осталось то, что не
      список, а запрет: «только Hard stop там оставить» (Карина, 58:53). */
-  $('agentry').innerHTML=alarm?b('alarm','Hard stop',alarm,'alarm'):'';}
+  /* Вход в сценарии стоит здесь же: вести по рабочей инструкции — работа агента,
+     а не отдельная область. */
+  $('agentry').innerHTML=(alarm?b('alarm','Hard stop',alarm,'alarm'):'')
+    +b('scen',S.scen?'Walking a scenario':'Scenarios',S.scen?null:SCEN.length);}
 function renderAgent(){
   renderAgEntry();
   if(S.agView==='alarm'){$('agbody').innerHTML=alarmHTML();renderAgAsk();return;}
+  /* Пока сценарий идёт, панель показывает его: человек работает в центре, а здесь
+     стоит, на каком он шаге. Открытый список — тот же вход, только без начатого. */
+  if(S.scen||S.agView==='scen'){$('agbody').innerHTML=scenHTML();renderAgAsk();return;}
   const p=S.profile,f=focusFor(p),tri=triageFor(p);
   /* Подпись агента — Core Job роли, по одной на каждую из пяти. После переименования
      профиля owner → head здесь осталась старая пара и выдавала undefined. */
@@ -6521,7 +6628,7 @@ function logAdd(ag,ttl,st,m){const o={ag,w:NOW,d:NOWDAY,ttl,st};
 const LKIND={decision:'decision',edit:'edit',metric:'metric',revert:'revert'};
 const meNow=()=>WHOM[S.profile]||'—';
 document.addEventListener('click',e=>{
-  const b=e.target.closest('[data-xpanel],[data-lkind],[data-lnoev],[data-dcl],[data-bkeep],[data-bdrop],[data-bsel],[data-bselall],[data-bgo],[data-bhand],[data-bclr],[data-fmul],[data-open],[data-side],[data-tab],[data-web],[data-tabclose],[data-tkopen],[data-tkact],[data-thrclr],[data-tpluse],[data-close],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-feeddown],[data-plus],[data-newchat],[data-agundo],[data-weekpick],[data-week],[data-day],[data-calm],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-f],[data-freset],[data-fclr],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepsel],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-projset],[data-dbstate],[data-fmode],[data-dbsort],[data-dbmore],[data-dbkind],[data-camp],[data-camprun],[data-chan],[data-find],[data-slot],[data-next],[data-nextclr],[data-addp],[data-intent],[data-pst],[data-ctype],[data-campsel],[data-campoff],[data-campblk],[data-campset],[data-campseq],[data-campbox],[data-camprunact],[data-inwin],[data-stuck],[data-mailclear],[data-mailopen],[data-mailstop],[data-mark],[data-note],[data-notecancel],[data-ent],[data-mail],[data-common],[data-importfacts],[data-nextbn],[data-influencer],[data-sim],[data-role],[data-tview],[data-triopen],#fDown,#addFact,#addNote');
+  const b=e.target.closest('[data-xpanel],[data-lkind],[data-lnoev],[data-dcl],[data-bkeep],[data-bdrop],[data-bsel],[data-bselall],[data-bgo],[data-bhand],[data-bclr],[data-fmul],[data-open],[data-side],[data-tab],[data-web],[data-tabclose],[data-tkopen],[data-tkact],[data-thrclr],[data-tpluse],[data-scenrun],[data-scenstop],[data-scenwhere],[data-scencopy],[data-close],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-feeddown],[data-plus],[data-newchat],[data-agundo],[data-weekpick],[data-week],[data-day],[data-calm],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-f],[data-freset],[data-fclr],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepsel],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-projset],[data-dbstate],[data-fmode],[data-dbsort],[data-dbmore],[data-dbkind],[data-camp],[data-camprun],[data-chan],[data-find],[data-slot],[data-next],[data-nextclr],[data-addp],[data-intent],[data-pst],[data-ctype],[data-campsel],[data-campoff],[data-campblk],[data-campset],[data-campseq],[data-campbox],[data-camprunact],[data-inwin],[data-stuck],[data-mailclear],[data-mailopen],[data-mailstop],[data-mark],[data-note],[data-notecancel],[data-ent],[data-mail],[data-common],[data-importfacts],[data-nextbn],[data-influencer],[data-sim],[data-role],[data-tview],[data-triopen],#fDown,#addFact,#addNote');
   if(!b){if(S.wkOpen&&!e.target.closest('.wkpop')){
     /* Начало отмечено, а конец не назван — значит человек выбрал одну неделю. */
     if(S.wkA!=null){S.t=S.wkA;S.win=1;S.wkA=null;S.wkOpen=false;renderAll();return;}
@@ -6978,6 +7085,24 @@ document.addEventListener('click',e=>{
   /* Тип контакта ставит человек, и запись об этом идёт в журнал правок: это
      изменение объекта, а не вид экрана. Повторное нажатие снимает — тогда тип
      снова выводится из записанного. */
+  if(b.dataset.scenrun){S.scen={id:b.dataset.scenrun,i:0};S.agView=null;renderAgent();
+    toast(`${SCENBY[b.dataset.scenrun].nm} — step 1 of ${SCENBY[b.dataset.scenrun].steps.length}. Do it in the screen; the step ticks itself.`);return;}
+  if(b.dataset.scenstop){S.scen=null;S.agView=null;renderAgent();return;}
+  if(b.dataset.scenwhere!==undefined){const sc=scenCur();if(!sc)return;
+    const st=sc.steps[+b.dataset.scenwhere];let el=null;
+    try{el=document.querySelector(st.sel);}catch(_){}
+    if(!el){toast('That control is not on the screen right now — the step before it opens the place where it lives.');return;}
+    el.scrollIntoView({block:'center',behavior:'smooth'});
+    el.classList.add('scenhi');setTimeout(()=>el.classList.remove('scenhi'),1800);return;}
+  /* Шаги уезжают в автотест как есть: тот же селектор, по которому шаг и
+     засчитывается здесь. Второго описания сценария не существует. */
+  if(b.dataset.scencopy){const sc=SCENBY[b.dataset.scencopy];
+    const txt=`# ${sc.nm} — ${sc.who}\n# ${sc.why}\n`
+      +sc.steps.map((x,i)=>`${i+1}. ${x.t}\n   ${x.fill?'fill':'click'}: ${x.sel}`).join('\n')
+      +`\n# check: ${sc.check}`;
+    try{navigator.clipboard.writeText(txt);toast('The steps are in the clipboard — selectors and all.');}
+    catch(_){toast('The clipboard is closed in this window.');}
+    return;}
   if(b.dataset.ctype){const [pid,v]=b.dataset.ctype.split(':'),pp=personById(pid);
     S.ctype=S.ctype||{};
     if(S.ctype[pid]===v){delete S.ctype[pid];toast(`${pp?pp.nm:'They'} — no type set; read from the title again.`);}
@@ -7037,7 +7162,7 @@ document.addEventListener('click',e=>{
     if(S.ent!=='task'){setEnt('ag');S.ptab='agents';}
     S.layout.panel=true;applyLayout();renderAll();return;}
   if(b.dataset.do){const k=b.dataset.do;if(k==='today'){goEnt('task');return;}
-    if(k==='buffer'){S.buf=!S.buf;renderAgent();return;}if(k==='alarm'){S.agView=S.agView==='alarm'?null:'alarm';renderAgent();return;}if(k==='openfilters'){S.side='tree';S.layout.side=true;applyLayout();renderActivity();renderSide();return;}if(k==='openchannel'){setEnt('us');S.ptab='channel';S.layout.panel=true;applyLayout();renderActivity();renderSide();renderPanel();return;}if(k==='opendocs'){setEnt('acc');S.layout.panel=true;applyLayout();renderActivity();renderSide();renderPanel();return;}if(k==='planclear'){S.plan=null;renderEditor();renderAllButMap();toast('Plan dropped. The moves it added are gone; the rest of the queue is untouched.');return;}if(k==='resetscope'){S.seg=null;S.job='';S.stF='';S.stage='';S.downOnly=false;renderAll();return;}if(k==='focuscard'){S.agView=null;renderAgent();const f=document.querySelector('#agbody .focus');f&&f.scrollIntoView({block:'nearest'});return;}if(false){S.layout.agent=true;applyLayout();const f=document.querySelector('.focus');f&&f.scrollIntoView({block:'nearest'});f&&f.animate([{outline:'2px solid var(--focus)'},{outline:'2px solid transparent'}],{duration:600});return;}if(k==='showtx'){S.seg='price';S.downOnly=true;if(S.tab!=='map'){S.tab='map';renderEditor();}S.sel=null;renderAll();zoomToFeature(statesF.find(f=>f.abbr==='TX'));return;}
+    if(k==='buffer'){S.buf=!S.buf;renderAgent();return;}if(k==='alarm'){S.agView=S.agView==='alarm'?null:'alarm';renderAgent();return;}if(k==='scen'){S.agView=S.agView==='scen'?null:'scen';renderAgent();return;}if(k==='openfilters'){S.side='tree';S.layout.side=true;applyLayout();renderActivity();renderSide();return;}if(k==='openchannel'){setEnt('us');S.ptab='channel';S.layout.panel=true;applyLayout();renderActivity();renderSide();renderPanel();return;}if(k==='opendocs'){setEnt('acc');S.layout.panel=true;applyLayout();renderActivity();renderSide();renderPanel();return;}if(k==='planclear'){S.plan=null;renderEditor();renderAllButMap();toast('Plan dropped. The moves it added are gone; the rest of the queue is untouched.');return;}if(k==='resetscope'){S.seg=null;S.job='';S.stF='';S.stage='';S.downOnly=false;renderAll();return;}if(k==='focuscard'){S.agView=null;renderAgent();const f=document.querySelector('#agbody .focus');f&&f.scrollIntoView({block:'nearest'});return;}if(false){S.layout.agent=true;applyLayout();const f=document.querySelector('.focus');f&&f.scrollIntoView({block:'nearest'});f&&f.animate([{outline:'2px solid var(--focus)'},{outline:'2px solid transparent'}],{duration:600});return;}if(k==='showtx'){S.seg='price';S.downOnly=true;if(S.tab!=='map'){S.tab='map';renderEditor();}S.sel=null;renderAll();zoomToFeature(statesF.find(f=>f.abbr==='TX'));return;}
     if(k==='showdfw'){S.seg=null;S.sel=null;if(S.tab!=='map'){S.tab='map';renderEditor();}renderAll();zoomTo(bx,by,7);return;}if(k.startsWith('open:'))openRef(k.slice(5));return;}
   if(b.dataset.fact){const [id,i,v]=b.dataset.fact.split(':');S.facts[id]=S.facts[id]||{};S.facts[id][i]=v;
     /* «Что система считает правдой» — класс решения, а не пометка вида. Раньше
