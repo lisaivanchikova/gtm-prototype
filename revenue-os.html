@@ -531,6 +531,10 @@ body.focus-mode .ptabs{cursor:pointer}
 .scen .scl2{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--fg3);margin-top:6px}
 .scen .scr.sw.gap{border-style:dashed;opacity:.8}
 .scen .gapn{color:var(--warn)}
+/* Подсказки под строкой: имена инструкций, в которых встретились набранные слова. */
+.sugg{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:baseline;padding:0 12px 6px}
+.sugg .scl{font-size:9.5px}
+hr.ansep{border:0;border-top:1px solid var(--border);margin:8px 0}
 .sstep{display:grid;grid-template-columns:18px minmax(0,1fr) auto;gap:8px;align-items:baseline;font-size:11.5px;color:var(--fg3)}
 .sstep .sn{font-family:var(--ui);font-variant-numeric:tabular-nums;font-size:10px;text-align:right}
 .sstep.ok{color:var(--fg3);text-decoration:line-through}
@@ -6218,6 +6222,25 @@ const SCEN=[
   steps:[{t:'Open Segments in the rail',sel:'[data-ent="seg"]'},
    {t:'Hold a fact true or refute it',sel:'[data-fact]'}]}];
 const SCENBY=Object.fromEntries(SCEN.map(x=>[x.id,x]));
+/* Отдельного списка сценариев на экране нет и не должно быть: «не хочу, чтобы они
+   в визуальном интерфейсе были отдельно» (Лиза, 13.10). Вход один — строка к агенту:
+   человек начинает печатать, по словам всплывают подсказки, агент отвечает в чате
+   теми же шагами. Инструкция — это ответ агента, а не раздел. */
+function scenHay(x){return [x.nm,x.who,x.why,x.gap||'',(x.steps||[]).map(t=>t.t).join(' ')].join(' ').toLowerCase();}
+function scenMatch(q,lim){
+  const w=String(q||'').toLowerCase().replace(/[^a-zа-яё0-9 ]/gi,' ').split(/\s+/)
+    .filter(x=>x.length>2&&!/^(the|and|how|for|you|can|with|что|как|мне)$/.test(x));
+  if(!w.length)return [];
+  return SCEN.map(x=>{const h=scenHay(x);return {x,n:w.filter(k=>h.includes(k)).length};})
+    .filter(r=>r.n>0).sort((a,b)=>b.n-a.n).slice(0,lim||4).map(r=>r.x);}
+/* Ответ агента — те же шаги, которыми идёт проводник. Второго описания нет. */
+function scenAnswer(sc){
+  if(!sc.steps)return `<b>${esc(sc.nm)}</b> — this cannot be done here yet.<br>${esc(sc.gap)}`;
+  return `<b>${esc(sc.nm)}</b> <span class="faint">· ${esc(sc.who)}</span><br>`
+    +sc.steps.map((x,i)=>`${i+1}. ${esc(x.t)}`).join('<br>')
+    +`<br><span class="faint">Then check: ${esc(sc.check)}.</span>`
+    +(sc.stops?`<br><span class="bad">The automated walk stops at step ${sc.stops}: the control the next one names does not appear from here.</span>`:'')
+    +`<br><button class="btn" data-scenrun="${sc.id}">Walk me through it</button>`;}
 /* Сценарии выставлены наружу намеренно: Ливон забирает шаги в автотесты, и забирать
    он должен тот же набор, по которому здесь ходит человек, а не его копию. */
 window.SCENARIOS=SCEN;
@@ -6242,17 +6265,6 @@ document.addEventListener('change',scenWatch,true);
 document.addEventListener('input',scenWatch,true);
 function scenHTML(){
   const sc=scenCur();
-  if(!sc){
-    const roles=[...new Set(SCEN.map(x=>x.who))];
-    const walk=SCEN.filter(x=>x.steps).length;
-    return `<div class="scen"><div class="scl">Work instructions · ${SCEN.length}</div>
-      <div class="note">Every one of them is a task from the bench, in the words it was given in.
-        ${SCEN.filter(x=>x.steps&&!x.stops).length} walk end to end, ${SCEN.filter(x=>x.stops).length} stop at a named step, ${SCEN.length-walk} say what is missing instead of pretending.
-        A step ticks itself off when you actually do it.</div>
-      ${roles.map(r=>`<div class="scl2">${esc(r)}</div>`
-        +SCEN.filter(x=>x.who===r).map(x=>`<button class="scr sw${x.steps?'':' gap'}" data-scenrun="${x.id}">
-          <span class="scn">${esc(x.nm)}</span>
-          <span class="scc">${x.steps?(x.stops?'walks to step '+x.stops+' of '+x.steps.length:x.steps.length+' steps'):'not possible yet'} · ${esc(x.why)}</span></button>`).join('')).join('')}</div>`;}
   if(!sc.steps)return `<div class="scen"><div class="scl">${esc(sc.nm)} · not possible yet</div>
     <div class="note">${esc(sc.why)}</div>
     <div class="note gapn">${esc(sc.gap)}</div>
@@ -6278,14 +6290,13 @@ function renderAgEntry(){
      список, а запрет: «только Hard stop там оставить» (Карина, 58:53). */
   /* Вход в сценарии стоит здесь же: вести по рабочей инструкции — работа агента,
      а не отдельная область. */
-  $('agentry').innerHTML=(alarm?b('alarm','Hard stop',alarm,'alarm'):'')
-    +b('scen',S.scen?'Walking a scenario':'Scenarios',S.scen?null:SCEN.length);}
+  $('agentry').innerHTML=alarm?b('alarm','Hard stop',alarm,'alarm'):'';}
 function renderAgent(){
   renderAgEntry();
   if(S.agView==='alarm'){$('agbody').innerHTML=alarmHTML();renderAgAsk();return;}
   /* Пока сценарий идёт, панель показывает его: человек работает в центре, а здесь
      стоит, на каком он шаге. Открытый список — тот же вход, только без начатого. */
-  if(S.scen||S.agView==='scen'){$('agbody').innerHTML=scenHTML();renderAgAsk();return;}
+  if(S.scen){$('agbody').innerHTML=scenHTML();renderAgAsk();return;}
   const p=S.profile,f=focusFor(p),tri=triageFor(p);
   /* Подпись агента — Core Job роли, по одной на каждую из пяти. После переименования
      профиля owner → head здесь осталась старая пара и выдавала undefined. */
@@ -6327,7 +6338,16 @@ function renderAgAsk(){
      подсказки (06.10), потом Лиза — последнюю оставшуюся кнопку (08.10). Панель
      агента говорит, что делать, и не предлагает слов. Цена записана: работа
      «вспомнить, кто это по лицу» входа больше не имеет. */
-  $('sugg').innerHTML='';}
+  /* Строка подсказок вернулась, но не словарём, а делом: пока человек печатает,
+     здесь стоят те рабочие инструкции, в которых эти слова встречаются. Пустой
+     ввод — пустая строка, как и было. */
+  renderSugg();}
+function renderSugg(){
+  const el=$('sugg'), inp=$('askIn'); if(!el)return;
+  const q=inp?inp.value:'';
+  const hits=scenMatch(q,4);
+  el.innerHTML=hits.length?`<span class="scl">Instructions</span>`
+    +hits.map(x=>`<button class="lnk" data-scenask="${x.id}">${esc(x.nm)}</button>`).join(''):'';}
 /* ===== E1 · агент знает, в какой области я нахожусь =====
    «Я ему пишу вот сюда в чат… а он должен знать, что я нахожусь сейчас в окне СОПа,
    и оно активно» (Николай, 30.09, 17:15). Область — не строка для показа, а то,
@@ -6588,6 +6608,9 @@ function answer(q){const F=formulaAt(S.t),P=formulaAt(S.t-win()),l=q.toLowerCase
     return `In ${a.name}: ${d?d.nm:'nobody'} decides${pay?`, and waits on ${pay.nm} (pays)`:''}. On our side the revenue owner signs — an agent cannot. Change a role and this answer changes with it.`;}
   if(/dial|autonomy|forecast/.test(l)){const s=S.knob.qual;S.knob.qual=1;const t=S.t;S.t=TMAX;const B=formulaAt(TMAX);S.knob.qual=2;const A=formulaAt(TMAX);S.knob.qual=s;S.t=t;return `Forecast for W42: Conv ${pct(A.conv)} → ${pct(B.conv)}, less reach, ARR almost the same (${usd(A.end)} against ${usd(B.end)}). We will check it against the actual W42 number.`;}
   if(/brightline|moss/.test(l))return accPhrase(BRIGHT,S.t)+'. The constraint is Tom Hale’s agreement. A reply to him is drafted in the People feed.';
+  /* Прежде чем сказать «спроси меня о предмете», агент смотрит, не спрашивают ли его
+     «как это сделать». «How to make a campaign?» получал заглушку — на снимке Лизы
+     это и видно. */
   return 'Ask me about any object in the model of the world: a segment, an account, a person, a document, an agent.';}
 /* «Я ему пишу: переделай конструктор, перепиши вот этот воркфлоу… Он там быстренько
    переписывает, я согласен — не согласен» и «агент, просимулируй, как мне выручку
@@ -6710,7 +6733,12 @@ function ask(q){if(!q.trim())return;
   const ed=agentEdit(q);                       /* E2: сначала правка модели */
   if(ed){S.chat.push({u:0,t:typeof ed==='string'?ed:ed.t});renderAll();agScroll();return;}
   const rich=answerRich(q);
-  S.chat.push(rich?{u:0,t:rich.t}:{u:0,t:esc(answer(q))});renderAgent();agScroll();}
+  /* Инструкция приходит размеченной: шаги — это список, а не абзац. Остальные ответы
+     экранируются, как и раньше. */
+  const ins=rich?null:scenMatch(q,2);
+  S.chat.push(rich?{u:0,t:rich.t}
+    :(ins&&ins.length)?{u:0,t:ins.map(scenAnswer).join('<hr class="ansep">')}
+    :{u:0,t:esc(answer(q))});renderAgent();agScroll();}
 function agScroll(){const b=$('agbody');if(!b)return;const turns=b.querySelectorAll('.turn');
   const last=turns[turns.length-1];if(last&&last.scrollIntoView)last.scrollIntoView({block:'nearest'});}
 
@@ -6784,7 +6812,7 @@ function logAdd(ag,ttl,st,m){const o={ag,w:NOW,d:NOWDAY,ttl,st};
 const LKIND={decision:'decision',edit:'edit',metric:'metric',revert:'revert'};
 const meNow=()=>WHOM[S.profile]||'—';
 document.addEventListener('click',e=>{
-  const b=e.target.closest('[data-xpanel],[data-lkind],[data-lnoev],[data-dcl],[data-bkeep],[data-bdrop],[data-bsel],[data-bselall],[data-bgo],[data-bhand],[data-bclr],[data-fmul],[data-open],[data-side],[data-tab],[data-web],[data-tabclose],[data-tkopen],[data-tkact],[data-thrclr],[data-tpluse],[data-scenrun],[data-scenstop],[data-scenwhere],[data-scencopy],[data-close],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-feeddown],[data-plus],[data-newchat],[data-agundo],[data-weekpick],[data-week],[data-day],[data-calm],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-f],[data-freset],[data-fclr],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepsel],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-projset],[data-dbstate],[data-fmode],[data-dbsort],[data-dbmore],[data-dbkind],[data-camp],[data-camprun],[data-chan],[data-find],[data-slot],[data-next],[data-nextclr],[data-addp],[data-intent],[data-pst],[data-ctype],[data-campsel],[data-campoff],[data-campblk],[data-campset],[data-campseq],[data-campbox],[data-camprunact],[data-inwin],[data-stuck],[data-mailclear],[data-mailopen],[data-mailstop],[data-mark],[data-note],[data-notecancel],[data-ent],[data-mail],[data-common],[data-importfacts],[data-nextbn],[data-influencer],[data-sim],[data-role],[data-tview],[data-triopen],#fDown,#addFact,#addNote');
+  const b=e.target.closest('[data-xpanel],[data-lkind],[data-lnoev],[data-dcl],[data-bkeep],[data-bdrop],[data-bsel],[data-bselall],[data-bgo],[data-bhand],[data-bclr],[data-fmul],[data-open],[data-side],[data-tab],[data-web],[data-tabclose],[data-tkopen],[data-tkact],[data-thrclr],[data-tpluse],[data-scenrun],[data-scenask],[data-scenstop],[data-scenwhere],[data-scencopy],[data-close],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-feeddown],[data-plus],[data-newchat],[data-agundo],[data-weekpick],[data-week],[data-day],[data-calm],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-f],[data-freset],[data-fclr],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepsel],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-projset],[data-dbstate],[data-fmode],[data-dbsort],[data-dbmore],[data-dbkind],[data-camp],[data-camprun],[data-chan],[data-find],[data-slot],[data-next],[data-nextclr],[data-addp],[data-intent],[data-pst],[data-ctype],[data-campsel],[data-campoff],[data-campblk],[data-campset],[data-campseq],[data-campbox],[data-camprunact],[data-inwin],[data-stuck],[data-mailclear],[data-mailopen],[data-mailstop],[data-mark],[data-note],[data-notecancel],[data-ent],[data-mail],[data-common],[data-importfacts],[data-nextbn],[data-influencer],[data-sim],[data-role],[data-tview],[data-triopen],#fDown,#addFact,#addNote');
   if(!b){if(S.wkOpen&&!e.target.closest('.wkpop')){
     /* Начало отмечено, а конец не назван — значит человек выбрал одну неделю. */
     if(S.wkA!=null){S.t=S.wkA;S.win=1;S.wkA=null;S.wkOpen=false;renderAll();return;}
@@ -7241,15 +7269,15 @@ document.addEventListener('click',e=>{
   /* Тип контакта ставит человек, и запись об этом идёт в журнал правок: это
      изменение объекта, а не вид экрана. Повторное нажатие снимает — тогда тип
      снова выводится из записанного. */
+  /* Подсказка под строкой ввода спрашивает за человека: то же, что он набрал бы сам. */
+  if(b.dataset.scenask){const sc=SCENBY[b.dataset.scenask];
+    const inp=$('askIn'); if(inp)inp.value='';
+    ask('How do I '+sc.nm.charAt(0).toLowerCase()+sc.nm.slice(1)+'?');
+    renderSugg(); return;}
   if(b.dataset.scenrun){const sc=SCENBY[b.dataset.scenrun];
     S.scen={id:sc.id,i:0};S.agView=null;
-    /* Ответ агента ложится и в разговор: спросили «как запустить аутрич» — он ответил
-       «зайди туда, нажми то», и ответ остался в ленте, а не только в панели шагов. */
-    S.chat.push({u:1,t:esc('How do I do this: '+sc.nm+'?')});
-    S.chat.push({u:0,t:sc.steps
-      ? `<b>${esc(sc.nm)}</b> — ${esc(sc.who)}.<br>`+sc.steps.map((x,i)=>`${i+1}. ${esc(x.t)}`).join('<br>')
-        +`<br><span class="faint">Then check: ${esc(sc.check)}.</span>`
-      : `<b>${esc(sc.nm)}</b> — this cannot be done here yet.<br>${esc(sc.gap)}`});
+    /* Ответ уже лежит в разговоре — его написал агент. Здесь остаётся только
+       провести по шагам, иначе один и тот же текст встал бы дважды. */
     renderAgent();
     toast(sc.steps?`${sc.nm} — step 1 of ${sc.steps.length}. Do it in the screen; the step ticks itself.`
       :`${sc.nm} — not possible yet. The panel says what is missing.`);return;}
@@ -7481,6 +7509,7 @@ document.addEventListener('change',e=>{
   if(v)S.thour[id]=v; else delete S.thour[id];
   renderEditor();});
 document.addEventListener('input',e=>{
+  if(e.target&&e.target.id==='askIn'){renderSugg();return;}
   /* Диапазон — на каждом нажатии, у того поля, в котором набирают. Фокус возвращается
      туда же, откуда ушёл, и соседнее поле больше не перехватывает ввод. */
   const dm=(e.target.dataset||{}).maillim;
