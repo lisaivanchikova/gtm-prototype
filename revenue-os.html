@@ -74,6 +74,10 @@ input,select,textarea{font:inherit;color:var(--fg);background:var(--input);borde
 /* `.bad` ставился в разметке с 11.10 и не был объявлен: «выше потолка» печаталось
    тем же серым, что и всё остальное. Цвет здесь — состояние, а не украшение. */
 .bad{color:var(--down)}
+.calrow .cd[data-day]{cursor:pointer;border-radius:4px}
+.calrow .cd[data-day]:hover{background:color-mix(in srgb,var(--accent) 18%,transparent)}
+.calrow .cd.dsel{background:var(--accent);color:var(--on-accent)}
+.calrow .cd.dnow{font-weight:700;text-decoration:underline}
 /* Улика ведёт к подлиннику. Подчёркивание пунктиром, а не кнопка: внутри строки
    ленты она лежит внутри кнопки, и вложенная кнопка — недопустимая разметка. */
 .evl{color:inherit;border-bottom:1px dotted var(--fg3);cursor:pointer}
@@ -530,6 +534,10 @@ body.focus-mode .ptabs{cursor:pointer}
 .cseq{display:flex;gap:6px;flex-wrap:wrap}
 .cstep{border:1px solid var(--border);border-radius:6px;padding:3px 7px;font-size:11px;color:var(--fg);background:var(--editor)}
 .cstep[aria-pressed="false"]{opacity:.42;text-decoration:line-through}
+table.db tr.dbf th{padding:2px 6px 5px 0;font-weight:400}
+table.db tr.dbf select,table.db tr.dbf input{width:100%;max-width:150px;font:inherit;font-size:10px;padding:1px 4px;border:1px solid var(--border);border-radius:4px;background:var(--editor);color:var(--fg)}
+table.db tr.dbf .rng{display:flex;gap:3px}
+table.db tr.dbf .rng input{max-width:52px}
 table.runs{width:100%;border-collapse:collapse;font-size:11px;margin-top:6px}
 /* Реестр классов не сжимается ниже своей ширины: при трёх открытых шторках
    колонки крошились, тройка кнопок ступени разваливалась на три строки,
@@ -2103,18 +2111,18 @@ const MSGS={
    и она плохо отвечала на любой из четырёх вопросов. Разметка здесь — не выдумка:
    семь существующих записей разнесены по смыслу того, что в них написано. */
 const LOGS=[
-  {ag:'seller',w:38,ttl:'Follow-up #4 sent to j.moss@\u2026 after the Sep 22 opt-out \u2192 stopped by an alarm',st:['down','alarm'],cls:'reply',kind:'decision',
+  {ag:'seller',w:38,d:2,ttl:'Follow-up #4 sent to j.moss@\u2026 after the Sep 22 opt-out \u2192 stopped by an alarm',st:['down','alarm'],cls:'reply',kind:'decision',
    ev:{src:'first',tier:'conf',txt:'the opt-out line in the Sep 22 letter',open:'person:p-moss'}},
-  {ag:'pricer',w:38,ttl:'Offer v2 draft for Brightline: 8 % discount \u2192 waiting on approval',st:['warn','waiting on a human'],cls:'disc',kind:'decision',act:'handed',
+  {ag:'pricer',w:38,d:3,ttl:'Offer v2 draft for Brightline: 8 % discount \u2192 waiting on approval',st:['warn','waiting on a human'],cls:'disc',kind:'decision',act:'handed',
    ev:{src:'model',tier:'one',txt:'the agent’s own read of “just send me the price for 14 seats”',open:'person:p-moss'}},
-  {ag:'qual',w:37,ttl:'Let Lone Star Auto Repair through: the answer was \u201cas cheap as possible\u201d \u2192 PASS',st:['down','screening miss'],cls:'screen',kind:'decision',
+  {ag:'qual',w:37,d:-4,ttl:'Let Lone Star Auto Repair through: the answer was \u201cas cheap as possible\u201d \u2192 PASS',st:['down','screening miss'],cls:'screen',kind:'decision',
    ev:{src:'second',tier:'claim',txt:'a one-line note about the call, no recording kept',open:null}},
-  {ag:'scout',w:36,ttl:'Added the source \u201csmb-it-cheap-v2\u201d: +41 accounts in a week, 78 % of them want to cut the IT bill',st:['flat','decision within policy'],cls:'enrich',kind:'edit'},
-  {ag:'service',w:38,ttl:'Hale & Ortiz CPA: reminder about invoice #1042',st:['up','done'],cls:'inv',kind:'decision',
+  {ag:'scout',w:36,d:-10,ttl:'Added the source \u201csmb-it-cheap-v2\u201d: +41 accounts in a week, 78 % of them want to cut the IT bill',st:['flat','decision within policy'],cls:'enrich',kind:'edit'},
+  {ag:'service',w:38,d:1,ttl:'Hale & Ortiz CPA: reminder about invoice #1042',st:['up','done'],cls:'inv',kind:'decision',
    ev:{src:'first',tier:'conf',txt:'invoice #1042, 12 days past due',open:'person:p-annh'}},
-  {ag:'scout',w:35,ttl:'Found Brightline Dental LLC: an \u201cIT help needed\u201d opening, 14 staff',st:['up','done'],cls:'enrich',kind:'edit',
+  {ag:'scout',w:35,d:-18,ttl:'Found Brightline Dental LLC: an \u201cIT help needed\u201d opening, 14 staff',st:['up','done'],cls:'enrich',kind:'edit',
    ev:{src:'first',tier:'one',txt:'the job posting itself',open:null}},
-  {ag:'qual',w:36,ttl:'Brightline: 4 screening questions \u2192 segment A \u00b7 pass the audit',st:['up','done'],cls:'screen',kind:'decision',
+  {ag:'qual',w:36,d:-9,ttl:'Brightline: 4 screening questions \u2192 segment A \u00b7 pass the audit',st:['up','done'],cls:'screen',kind:'decision',
    ev:{src:'second',tier:'conf',txt:'four answers written down during the call',open:'person:p-moss'}}];
 /* Четыре вопроса, на которые отвечают четыре журнала. Это не четыре экрана:
    один список, четыре среза — иначе человек ходит между вкладками, чтобы собрать
@@ -2145,6 +2153,19 @@ function isCommon(n){
   return age>=COMMON_W;
 }
 const DN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+/* =================== день =================== */
+/* Календарь рисовал дни, а выбирал недели: глаз обещал одно, клик давал другое.
+   «Человек должен сам выбрать дату начала и конца» (Лиза, 13.10) — значит день
+   должен быть выбираемой величиной, а не подписью.
+   D0 — понедельник недели NOW. День считается от него и может быть отрицательным. */
+const D0=new Date(2026,8,14);
+const dayOfDate=d=>Math.round((new Date(d.getFullYear(),d.getMonth(),d.getDate())-D0)/864e5);
+const dateOfDay=n=>{const d=new Date(D0);d.setDate(D0.getDate()+n);return d;};
+const weekOfDay=n=>NOW+Math.floor(n/7);
+/* «Сегодня» внутри недели NOW: четверг. Это не произвол — это день, на который
+   встал прототип, и он назван один раз здесь, а не разбросан по экранам. */
+const NOWDAY=3;
+const dayNm=n=>{const d=dateOfDay(n);return `${DN[d.getMonth()]} ${d.getDate()}`;};
 function wkd(w){const d=new Date(2026,8,14+(w-NOW)*7),e=new Date(d);e.setDate(d.getDate()+6);return `${DN[d.getMonth()]} ${d.getDate()}\u2013${d.getMonth()!==e.getMonth()?DN[e.getMonth()]+' ':''}${e.getDate()}`;}
 const ago=w=>{const d=(S.t-w)*7;return d<=0?'now':d+'d';};
 const arrow=m=>m>0?'▲':m<0?'▼':'■';
@@ -3410,7 +3431,9 @@ function weekPopover(){
     const w=weekOfDate(d0), ok=w>=TMIN&&w<=TMAX;
     let cells='';
     for(let i2=0;i2<7;i2++){const d=new Date(d0); d.setDate(d0.getDate()+i2);
-      cells+=`<span class="cd${d.getMonth()!==m?' out':''}">${d.getDate()}</span>`;}
+      const dn=dayOfDate(d), dok=w>=TMIN&&w<=TMAX;
+      const sel=(S.dA!=null&&S.dB!=null&&dn>=Math.min(S.dA,S.dB)&&dn<=Math.max(S.dA,S.dB))||(S.dA!=null&&S.dB==null&&dn===S.dA);
+      cells+=`<span class="cd${d.getMonth()!==m?' out':''}${sel?' dsel':''}${dn===NOWDAY?' dnow':''}"${dok?` data-day="${dn}"`:''}>${d.getDate()}</span>`;}
     const inRange=w<=S.t&&w>S.t-win();
     rows+=`<div class="calrow${w===S.t?' on':''}${inRange&&w!==S.t?' inr':''}${w===S.wkA?' aw':''}${w>NOW?' fc':''}${ok?'':' off'}"${ok?` data-week="${w}"`:''}>`
       +cells+`<i>${ok?'W'+w+(w===NOW?' · now':w>NOW?' · forecast':''):'no data'}</i></div>`;}
@@ -3422,9 +3445,16 @@ function weekPopover(){
       <button class="calnav" data-calm="1" ${curK>=maxK?`disabled data-tip="Later months hold no data — the model ends at ${wkd(TMAX)} 2026"`:''} aria-label="Next month">›</button></div>
     <div class="caldow">${['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(x=>`<span>${x}</span>`).join('')}<i></i></div>
     ${rows}
+    ${/* Готовых периодов «1w · 2w · 4w · 8w» здесь больше нет. «Никогда нет смысла
+         давать конкретные периоды: человек должен сам выбрать начало и конец, как
+         на сайте авиакомпании» (Лиза, 13.10). Предложенный период отвечает на чужой
+         вопрос: кому-то нужно позавчера, а кнопки такого не знают. */''}
     <div class="wkq">${S.t===NOW&&win()===4?'':`<button data-week="${NOW}" data-wreset="1">back to this week</button>`}
-      <span class="pick">${[1,2,4,8].map(n=>`<button data-wwin="${n}" aria-pressed="${win()===n}" data-tip="${n===1?'One week':n+' weeks back from the week you picked'}">${n}w</button>`).join('')}</span>
-      <span class="calnote">${S.wkA!=null?`Start W${S.wkA} picked — click the second day to close the range.`:'Click a day for one week, or two days for any range.'}</span></div>
+      <span class="calnote">${S.dA!=null&&S.dB==null?`${dayNm(S.dA)} picked — click a second day to close the range, or leave it as one day.`
+        :S.dA!=null?`${dayNm(Math.min(S.dA,S.dB))} \u2013 ${dayNm(Math.max(S.dA,S.dB))}`
+        :S.wkA!=null?`Start W${S.wkA} picked — click the second day to close the range.`
+        :'Click a day for that day, or two days for any range. Click the week bar on the right for a whole week.'}</span>
+      <span class="calnote faint">The log counts by the day an action happened. The other feeds still count by the week \u2014 the model has no day for them yet.</span></div>
   </div>`;
 }
 /* =================== SOP: service blueprint =================== */
@@ -5032,7 +5062,13 @@ function feedItems(tab){
     /* Срез по роду журнала. Он стоит здесь, а не отдельным экраном: история одна,
        а вопросов к ней четыре. */
     const lk=S.lkind||null;
-    return LOGS.concat(S.extraLogs||[]).filter(l=>(!f||l.ag===f)&&(!rf||AGROLE[l.ag]===rf)&&l.w<=Math.max(t,NOW)&&(!lk||(l.kind||'decision')===lk)&&(!S.lnoev||noEv(l))).sort((x,y)=>y.w-x.w).map(l=>{
+    /* Журнал — единственная лента, у которой есть день: у записи он записан,
+       а не выведен из недели. Поэтому выбор дня в календаре отсекает здесь,
+       а остальные ленты продолжают считать неделями. */
+    const dA=S.dA!=null?Math.min(S.dA,S.dB==null?S.dA:S.dB):null;
+    const dB=S.dA!=null?Math.max(S.dA,S.dB==null?S.dA:S.dB):null;
+    return LOGS.concat(S.extraLogs||[]).filter(l=>(!f||l.ag===f)&&(!rf||AGROLE[l.ag]===rf)&&l.w<=Math.max(t,NOW)&&(!lk||(l.kind||'decision')===lk)&&(!S.lnoev||noEv(l))
+      &&(dA==null||(l.d!=null&&l.d>=dA&&l.d<=dB))).sort((x,y)=>y.w-x.w).map(l=>{
       const kd=l.kind||'decision';
       /* Вторая строка собирается одной функцией — той же, что в карточке агента.
          Пока их было две, один журнал читался как два разных. */
@@ -5333,6 +5369,14 @@ const DBCOLS={
    Остывание — 30 дней после последнего касания, как у Skyp (период остывания перед повторным входом). */
 const COOL=30;
 function touchState(d){return d>=9999?['never wrote','up']:d<COOL?['cooling off '+(COOL-d)+'d','warn']:['safe to write','flat'];}
+/* Значение столбца словами — ровно то, что стоит в ячейке. Фильтр обязан
+   совпадать с написанным, иначе человек выбирает одно, а отбирается другое. */
+function colVal(r,k){
+  if(k==='state')return r.state;
+  if(k==='touch')return touchState(r.touch)[0];
+  if(k==='next')return r.next;
+  if(k==='proj')return r.proj==='no project'?'no project':r.proj;
+  return r[k]==null?'':String(r[k]);}
 function dbRows(kind){
   const t=S.t,q=(S.dbQ||'').toLowerCase().trim();
   const base=ACC.filter(a=>stateAt(a,t)&&inF(a));
@@ -5384,6 +5428,30 @@ function renderDB(){
   const total=kind==='doc'?Object.keys(DOCS).length
     :kind==='acc'?live.length:live.reduce((n,a)=>n+peopleOf(a).length,0);
   let rows=dbRows(kind);
+  /* Фильтр на каждом столбце. Общий поиск отвечает «найди слово», а работа Карины
+     звучит иначе: «у кого не подписан NDA» — это два столбца и два значения.
+     Числовые столбцы берут диапазон «от» и «до», остальные — значение из того,
+     что реально есть в столбце: предлагать вид документа, которого в базе нет,
+     значит врать о составе данных. */
+  const DBNUM=['acv','emp','last','touch'];
+  const fsel=(S.dbF||{})[kind]||{};
+  /* Значения для выпадающих списков считаются один раз по неотфильтрованному
+     набору: иначе выбранное значение исчезало бы из списка сразу после выбора. */
+  const keep=(r,skip)=>cols.every(([k])=>{
+    if(k===skip)return true;
+    const f=fsel[k]; if(!f)return true;
+    if(DBNUM.includes(k)){const v=+r[k];
+      if(f.from!=null&&f.from!==''&&v<+f.from)return false;
+      if(f.to!=null&&f.to!==''&&v>+f.to)return false;
+      return true;}
+    return String(colVal(r,k))===String(f);});
+  /* Счётчик у значения считается с учётом остальных столбцов, но без своего:
+     выбрав «NDA», человек должен видеть состояния этих 476 бумаг, а не всех 2655,
+     и при этом иметь возможность сменить сам вид документа. */
+  const fvals={};
+  cols.forEach(([k])=>{if(DBNUM.includes(k))return;const m={};
+    rows.forEach(r=>{if(!keep(r,k))return;const v=colVal(r,k);if(v!=='')m[v]=(m[v]||0)+1;});fvals[k]=m;});
+  rows=rows.filter(r=>keep(r,null));
   /* Состояние сортируется по месту в работе, а не по первой букве фразы. */
   const sk=(kind==='person'&&sort.k==='state')?'rk':sort.k;
   rows.sort((x,y)=>{const a=x[sk],b=y[sk];
@@ -5391,6 +5459,9 @@ function renderDB(){
     /* Внутри одного состояния сверху тот, кто ждёт дольше: очередь и есть порядок работы. */
     return c||(sk==='rk'?(y.last-x.last):0);});
   const n=S.dbN||50,page=rows.slice(0,n);
+  /* Значение столбца словами — то же, что видит глаз в ячейке. Фильтр обязан
+     совпадать с тем, что написано в строке, иначе человек выбирает одно,
+     а отбирается другое. */
   const cell=(r,k)=>{
     if(k==='nm')return `<td class="nm">${kind==='acc'?logo(r.a,'sq'):kind==='doc'?logo(r.a,'sq'):face(r.nm)}${esc(r.nm)}</td>`;
     if(k==='stt')return `<td><span class="chip ${r.d&&r.d.status?r.d.status[0]:''}">${esc(r.stt)}</span></td>`;
@@ -5417,7 +5488,16 @@ function renderDB(){
           кнопки — это язык светофора, тот же, что на карте и в колонке State. */''}
     ${kind==='acc'?`<div class="dbquick">${[['','all'],['down','\u25bc stuck or leaving'],['warn','\u25cf waiting on us'],['up','\u25b2 moving']].map(([k,l])=>`<button data-dbstate="${k}" aria-pressed="${(S.ltF||'')===k}">${l}</button>`).join('')}<span class="faint">the filters on the left narrow this table too</span></div>`:''}
     ${kind==='person'?batchBar(page):''}
-    <table class="db"><thead><tr>${kind==='person'?`<th class="bsel"><input type="checkbox" data-bselall="1" aria-label="Select everyone on this page" ${page.length&&page.every(r=>(S.bsel||{})[r.id])?'checked':''}></th>`:''}${cols.map(([k,t])=>`<th data-dbsort="${k}">${t}${sort.k===k?` <span class="ar">${sort.d>0?'▲':'▼'}</span>`:''}</th>`).join('')}</tr></thead>
+    <table class="db"><thead><tr>${kind==='person'?`<th class="bsel"><input type="checkbox" data-bselall="1" aria-label="Select everyone on this page" ${page.length&&page.every(r=>(S.bsel||{})[r.id])?'checked':''}></th>`:''}${cols.map(([k,t])=>`<th data-dbsort="${k}">${t}${sort.k===k?` <span class="ar">${sort.d>0?'\u25b2':'\u25bc'}</span>`:''}</th>`).join('')}</tr>
+      ${/* Вторая строка шапки — отбор. Значения берутся из самого столбца: что в нём
+           есть, то и предлагается, и видно сколько строк за каждым значением. */''}
+      <tr class="dbf">${kind==='person'?'<th class="bsel"></th>':''}${cols.map(([k])=>{
+        const f=((S.dbF||{})[kind]||{})[k];
+        if(DBNUM.includes(k))return `<th><span class="rng"><input type="text" inputmode="numeric" data-dbfn="${kind}|${k}|from" value="${f&&f.from!=null?esc(String(f.from)):''}" placeholder="from" aria-label="${esc(k)} from"><input type="text" inputmode="numeric" data-dbfn="${kind}|${k}|to" value="${f&&f.to!=null?esc(String(f.to)):''}" placeholder="to" aria-label="${esc(k)} to"></span></th>`;
+        const vals=fvals[k]||{};
+        const keys=Object.keys(vals).sort((a,b)=>vals[b]-vals[a]||String(a).localeCompare(String(b),'ru'));
+        if(!keys.length)return '<th></th>';
+        return `<th><select data-dbf="${kind}|${k}"><option value="">any</option>${keys.map(v=>`<option value="${esc(v)}" ${String(f)===String(v)?'selected':''}>${esc(v.length>26?v.slice(0,26)+'\u2026':v)} · ${vals[v]}</option>`).join('')}</select></th>`;}).join('')}</tr></thead>
     <tbody>${page.map(r=>`<tr data-open="${r.id}"${(S.bsel||{})[r.id]?' class="picked"':''}>${kind==='person'?`<td class="bsel"><input type="checkbox" data-bsel="${esc(r.id)}" aria-label="Pick ${esc(r.nm)}" ${(S.bsel||{})[r.id]?'checked':''}></td>`:''}${cols.map(([k])=>cell(r,k)).join('')}</tr>`).join('')||`<tr><td colspan="${cols.length+(kind==='person'?1:0)}" style="padding:16px;color:var(--fg3)">${esc(kind==='acc'?zeroLine():'Nothing matches these filters.')}</td></tr>`}</tbody></table>
     ${rows.length>page.length?`<button class="dbmore" data-dbmore="1">show ${int(Math.min(50,rows.length-page.length))} more · ${int(rows.length-page.length)} left</button>`:''}`;}
 
@@ -6109,7 +6189,7 @@ function openRef(k){
    `kind` — какой это журнал из четырёх: решение · правка · метрика · откат.
    Palantir держит четыре разных журнала и честно пишет, что ни один не полон;
    мы валили всё в одну ленту, поэтому она плохо отвечала на любой из четырёх вопросов. */
-function logAdd(ag,ttl,st,m){const o={ag,w:NOW,ttl,st};
+function logAdd(ag,ttl,st,m){const o={ag,w:NOW,d:NOWDAY,ttl,st};
   if(m){if(m.cls)o.cls=m.cls;o.kind=m.kind||'decision';o.act=m.act||'done';if(m.by)o.by=m.by;
     /* Улика не подставляется молча. Если её не передали — запись так и говорит,
        что улики нет, и из неё ничего не считается. */
@@ -6118,7 +6198,7 @@ function logAdd(ag,ttl,st,m){const o={ag,w:NOW,ttl,st};
 const LKIND={decision:'decision',edit:'edit',metric:'metric',revert:'revert'};
 const meNow=()=>WHOM[S.profile]||'—';
 document.addEventListener('click',e=>{
-  const b=e.target.closest('[data-xpanel],[data-lkind],[data-lnoev],[data-dcl],[data-bkeep],[data-bdrop],[data-bsel],[data-bselall],[data-bgo],[data-bhand],[data-bclr],[data-fmul],[data-open],[data-side],[data-tab],[data-web],[data-tabclose],[data-tkopen],[data-tkact],[data-close],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-feeddown],[data-plus],[data-newchat],[data-agundo],[data-weekpick],[data-week],[data-calm],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-f],[data-freset],[data-fclr],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepsel],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-projset],[data-dbstate],[data-fmode],[data-dbsort],[data-dbmore],[data-dbkind],[data-camp],[data-camprun],[data-chan],[data-find],[data-slot],[data-next],[data-nextclr],[data-addp],[data-intent],[data-pst],[data-campsel],[data-campoff],[data-campblk],[data-campset],[data-campseq],[data-campbox],[data-camprunact],[data-inwin],[data-stuck],[data-mailclear],[data-mailopen],[data-mailstop],[data-mark],[data-note],[data-notecancel],[data-ent],[data-mail],[data-common],[data-importfacts],[data-nextbn],[data-influencer],[data-sim],[data-role],[data-tview],[data-triopen],#fDown,#addFact,#addNote');
+  const b=e.target.closest('[data-xpanel],[data-lkind],[data-lnoev],[data-dcl],[data-bkeep],[data-bdrop],[data-bsel],[data-bselall],[data-bgo],[data-bhand],[data-bclr],[data-fmul],[data-open],[data-side],[data-tab],[data-web],[data-tabclose],[data-tkopen],[data-tkact],[data-close],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-feeddown],[data-plus],[data-newchat],[data-agundo],[data-weekpick],[data-week],[data-day],[data-calm],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-f],[data-freset],[data-fclr],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepsel],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-projset],[data-dbstate],[data-fmode],[data-dbsort],[data-dbmore],[data-dbkind],[data-camp],[data-camprun],[data-chan],[data-find],[data-slot],[data-next],[data-nextclr],[data-addp],[data-intent],[data-pst],[data-campsel],[data-campoff],[data-campblk],[data-campset],[data-campseq],[data-campbox],[data-camprunact],[data-inwin],[data-stuck],[data-mailclear],[data-mailopen],[data-mailstop],[data-mark],[data-note],[data-notecancel],[data-ent],[data-mail],[data-common],[data-importfacts],[data-nextbn],[data-influencer],[data-sim],[data-role],[data-tview],[data-triopen],#fDown,#addFact,#addNote');
   if(!b){if(S.wkOpen&&!e.target.closest('.wkpop')){
     /* Начало отмечено, а конец не назван — значит человек выбрал одну неделю. */
     if(S.wkA!=null){S.t=S.wkA;S.win=1;S.wkA=null;S.wkOpen=false;renderAll();return;}
@@ -6154,8 +6234,16 @@ document.addEventListener('click',e=>{
     S.chat.push({u:0,t:'Rolled back — '+esc(e.txt.split('.')[0])+'. The model is as it was. The first entry stays in the log and a second one cancels it: nothing is erased.'});
     renderAll();return;}
   if(b.dataset.weekpick){S.wkOpen=!S.wkOpen;S.calM=null;S.calY=null;renderFilters();return;}
-  if(b.dataset.wwin){S.win=+b.dataset.wwin;S.wkA=null;renderAll();renderFilters();return;}
-  if(b.dataset.week){const w=+b.dataset.week;
+  /* День выбирается двумя кликами, как промежуток в билетах: первый — начало,
+     второй — конец. Один клик без второго остаётся одним днём, а не неделей. */
+  if(b.dataset.day!==undefined){const dn=+b.dataset.day;
+    if(S.dA==null||S.dB!=null){S.dA=dn;S.dB=null;}
+    else S.dB=dn;
+    const a=Math.min(S.dA,S.dB==null?S.dA:S.dB), z=Math.max(S.dA,S.dB==null?S.dA:S.dB);
+    /* Недельные ленты идут за дневным выбором: неделя та, в которую попал конец. */
+    S.t=weekOfDay(z); S.win=Math.max(1,weekOfDay(z)-weekOfDay(a)+1); S.wkA=null;
+    renderAll();renderFilters();return;}
+  if(b.dataset.week){const w=+b.dataset.week;S.dA=null;S.dB=null;
     if(b.dataset.wreset){S.t=w;S.win=4;S.wkA=null;S.wkOpen=false;renderAll();return;}
     /* Первый день задаёт начало промежутка, второй — конец. Одиночное нажатие,
        которое ничем не продолжили, остаётся выбором одной недели: закрывать
@@ -6802,6 +6890,15 @@ const LISTENT=['inb','task'];   /* области, где лента и есть
 const lightCentre=()=>LISTENT.includes(S.ent)||S.primary==='db';
 function afterFilter(f){if(f.light){renderSide();renderPanel();if(lightCentre())renderEditor();}else renderAll();}
 document.addEventListener('change',e=>{const d=e.target.dataset||{};
+  /* Отбор по столбцу. Хранится по виду таблицы: у компаний, людей и документов
+     столбцы разные, и общий ключ смешал бы их отборы. */
+  if(d.dbf){const [kind,k]=d.dbf.split('|');S.dbF=S.dbF||{};S.dbF[kind]=S.dbF[kind]||{};
+    if(e.target.value)S.dbF[kind][k]=e.target.value; else delete S.dbF[kind][k];
+    renderDB();return;}
+  if(d.dbfn){const [kind,k,side]=d.dbfn.split('|');S.dbF=S.dbF||{};S.dbF[kind]=S.dbF[kind]||{};
+    const cur=S.dbF[kind][k]||{};cur[side]=e.target.value;
+    if(cur.from===''&&cur.to==='')delete S.dbF[kind][k]; else S.dbF[kind][k]=cur;
+    renderDB();return;}
   /* Назначение поручителя идёт тем же путём, что и всё остальное: через класс.
      Класс «guarantor» держит Head, ступень — только руками. */
   if(d.setgua){const role=d.setgua, was=GUAWHO[role], val=e.target.value||null;
