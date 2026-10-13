@@ -1443,11 +1443,18 @@ const PROJECTS=[
   {id:'audit',nm:'November audit push',  due:'ends Nov 30', goal:'get the Texas compliance deals signed before the November audits',
    seed:'tagged after three breaches in the OCR registry put their neighbours in line for an audit'},
   {id:'renew',nm:'Q4 renewals',          due:'ends Dec 31', goal:'renew everything that comes up this quarter',
-   seed:'tagged where a renewal already stands in the deal history'}];
+   seed:'tagged where a renewal already stands in the deal history'},
+  /* Четвёртый проект — другая сторона стола: здесь не мы продаём, а нам продают.
+     Разделяет его ровно тот орган, который для этого и заведён, — фильтр проекта.
+     Пока он не выбран, этих компаний нет ни в одном продажном списке, ни в формуле,
+     ни на карте; выбран — экран целиком про покупку. */
+  {id:'buy',  nm:'MSP acquisitions',     due:'ends Mar 31', goal:'buy three MSPs in the Dallas and Tampa corridors',
+   seed:'tagged where a broker sent a listing'}];
 const PRJBY=Object.fromEntries(PROJECTS.map(p=>[p.id,p]));
 /* С чего начинали: кого отметили, когда проект открывали. Каждый набор привязан
    к факту, который лежит в ленте рынка, — выдуманных отметок здесь нет. */
 function projSeed(a){
+  if(a.side==='buy')return 'buy';
   if(a.mi===4)return 'dfw';
   if(a.seg==='cmp'&&a.st==='TX')return 'audit';
   if(a.ev&&a.ev.some(e=>e.s===6))return 'renew';
@@ -1459,6 +1466,11 @@ const segWho=g=>'companies that want to '+g.name;
 /* signature читалось двояко — ждём подпись или уже подписано. Процесс называется
    signing, факт подписи живёт дальше, в service (09.10). */
 const STAGE=['in segment','interest','request','offer','signing','service','renewal','lost','churn'];
+/* Шкала стадий одна, слова на ней разные. На стороне покупки «offer» означало бы,
+   что оффер выставили мы, а выставили его нам; «signing» — что подписываем мы.
+   Поэтому у этой шкалы второй набор имён, и выбирает его сторона стола, а не экран. */
+const BUYSTAGE=['','listed','NDA signed','CIM in hand','LOI out','owned','owned','passed','\u2014'];
+const stgNm=(a,sNum)=>((a&&a.side==='buy')?BUYSTAGE:STAGE)[sNum]||'\u2014';
 const POP={AL:5.1,AK:.7,AZ:7.4,AR:3.1,CA:39,CO:5.9,CT:3.6,DE:1,DC:.7,FL:22.6,GA:11,HI:1.4,ID:2,IL:12.5,IN:6.9,IA:3.2,KS:2.9,KY:4.5,LA:4.6,ME:1.4,MD:6.2,MA:7,MI:10,MN:5.7,MS:2.9,MO:6.2,MT:1.1,NE:2,NV:3.2,NH:1.4,NJ:9.3,NM:2.1,NY:19.6,NC:10.8,ND:.8,OH:11.8,OK:4,OR:4.2,PA:13,RI:1.1,SC:5.4,SD:.9,TN:7.1,TX:30.5,UT:3.4,VT:.6,VA:8.7,WA:7.8,WV:1.8,WI:5.9,WY:.6};
 const ABBR={"Alabama":"AL","Alaska":"AK","Arizona":"AZ","Arkansas":"AR","California":"CA","Colorado":"CO","Connecticut":"CT","Delaware":"DE","District of Columbia":"DC","Florida":"FL","Georgia":"GA","Hawaii":"HI","Idaho":"ID","Illinois":"IL","Indiana":"IN","Iowa":"IA","Kansas":"KS","Kentucky":"KY","Louisiana":"LA","Maine":"ME","Maryland":"MD","Massachusetts":"MA","Michigan":"MI","Minnesota":"MN","Mississippi":"MS","Missouri":"MO","Montana":"MT","Nebraska":"NE","Nevada":"NV","New Hampshire":"NH","New Jersey":"NJ","New Mexico":"NM","New York":"NY","North Carolina":"NC","North Dakota":"ND","Ohio":"OH","Oklahoma":"OK","Oregon":"OR","Pennsylvania":"PA","Rhode Island":"RI","South Carolina":"SC","South Dakota":"SD","Tennessee":"TN","Texas":"TX","Utah":"UT","Vermont":"VT","Virginia":"VA","Washington":"WA","West Virginia":"WV","Wisconsin":"WI","Wyoming":"WY"};
 const METROS=[['Los Angeles','CA',-118.24,34.05,9],['San Francisco','CA',-122.42,37.77,6],['San Diego','CA',-117.16,32.72,4],['Sacramento','CA',-121.49,38.58,2],['Dallas','TX',-96.80,32.78,7],['Houston','TX',-95.37,29.76,7],['Austin','TX',-97.74,30.27,4],['San Antonio','TX',-98.49,29.42,3],['Miami','FL',-80.19,25.76,6],['Tampa','FL',-82.46,27.95,4],['Orlando','FL',-81.38,28.54,4],['Jacksonville','FL',-81.66,30.33,2],['New York','NY',-74.00,40.71,9],['Chicago','IL',-87.63,41.88,6],['Atlanta','GA',-84.39,33.75,5],['Charlotte','NC',-80.84,35.23,3],['Raleigh','NC',-78.64,35.78,3],['Phoenix','AZ',-112.07,33.45,4],['Denver','CO',-104.99,39.74,4],['Seattle','WA',-122.33,47.61,4],['Boston','MA',-71.06,42.36,4],['Newark','NJ',-74.17,40.74,3],['Philadelphia','PA',-75.17,39.95,4],['Pittsburgh','PA',-79.99,40.44,2],['Columbus','OH',-83.00,39.96,2],['Cleveland','OH',-81.69,41.50,2],['Nashville','TN',-86.78,36.16,3],['Richmond','VA',-77.44,37.54,2],['Minneapolis','MN',-93.27,44.98,2],['Salt Lake City','UT',-111.89,40.76,1]];
@@ -1517,6 +1529,28 @@ for(let i=0;i<260;i++){const metro=wpick(METROS,m=>m[4]),seg=wpick(SEGS,s=>({cmp
   if(a.ev.some(e=>e.s===5)&&R()<.15)a.valW=a.ev.find(e=>e.s===5).w+2; if(a.ev.some(e=>e.s===7))a.reason=REASONS[rint(0,4)];}
 const HOT=METROS.filter(m=>m[1]==='TX'||m[1]==='FL');
 for(let i=0;i<150;i++){const metro=wpick(HOT,m=>m[4]),seg=R()<.85?'price':'dfm';const a=makeAcc({metro,seg,cheap:true,ev:pipe(rint(36,41),[.6,.7,.12],true)});if(a.ev.some(e=>e.s===7))a.reason=REASONS[rint(0,4)];}
+/* ============ Цели покупки ============
+   Шесть MSP, которые продаются. Создаются последними: генератор случайных чисел
+   общий, и вклинься они раньше — поехала бы вся база (то же правило, что при
+   добавлении поля отрасли).
+
+   Сегмента у них нет: сегмент отвечает «чего они хотят от нас», а они не хотят
+   ничего. ACV ноль по той же причине — это не наша выручка с них. Стадия та же
+   шкала 1–6, но называется по-своему: у покупки свои слова, и ставит их BUYSTAGE.
+   Своя воронка целиком — отдельная работа; здесь ровно то, что просила Карина:
+   листинги с состоянием. */
+const MSPS=[
+  ['Trailhead Managed IT','Austin','TX',19,2,'Flatiron M&A'],
+  ['Gulf Coast Network Services','Tampa','FL',31,3,'Flatiron M&A'],
+  ['Red River IT Group','Dallas','TX',12,4,'Cordova Partners'],
+  ['Beacon Hill Managed Services','Boston','MA',24,1,'Cordova Partners'],
+  ['Sandia Systems Support','Phoenix','AZ',9,1,'direct approach'],
+  ['Keystone Desk Services','Philadelphia','PA',41,2,'Flatiron M&A']];
+const BUYACC=MSPS.map(([nm,city,st,emp,stage,via],i)=>{
+  const metro=METROS.find(m=>m[0]===city)||METROS[0];
+  const a=makeAcc({metro,seg:null,name:nm,city,emp,acv:0,ev:[{s:stage,w:38-stage,d:i%6}]});
+  a.side='buy'; a.ind='MSP'; a.via=via; a.itown='yes';
+  return a;});
 const ACCBY=Object.fromEntries(ACC.map(a=>[a.id,a]));
 
 /* us: our company is a point on the same map */
@@ -1858,7 +1892,10 @@ const isActive=e=>e&&(e.s===5||e.s===6);
 /* У компании, внесённой руками, никто ещё ничего не предлагал: сумма сделки берётся из
    оффера, а оффера нет. Генератор ставил ей $32K — ходок увидел число, которого не
    вводил (09.10). Ноль говорит правду, подпись объясняет ноль. */
-const usdAcv=a=>(a&&a.byhand&&!a.acv)?'not quoted yet':usd(a.acv);
+/* У цели покупки годовой суммы контракта нет и быть не может: мы ей ничего не
+   продаём. Ноль здесь читался бы как «сделка на ноль», а правда — что этой величины
+   у неё нет вовсе. */
+const usdAcv=a=>(a&&a.side==='buy')?'\u2014':(a&&a.byhand&&!a.acv)?'not quoted yet':usd(a.acv);
 const acvAt=(a,t)=>a.ev.some(e=>e.s===6&&e.w<=t)?Math.round(a.acv*1.1):a.acv;
 const daysIn=(e,t)=>(t-e.w)*7+e.d;
 const stuck=(a,e,t)=>e&&e.s>=1&&e.s<=3&&daysIn(e,t)>=8;
@@ -1939,7 +1976,13 @@ function groupLight(arr,t){if(!arr.length)return 'flat';
   if(d/arr.length>=REDSHARE)return 'down';
   return (d||w)?'warn':'up';}
 function lightCol(k){return k==='up'?cssv('--up'):k==='down'?cssv('--down'):k==='warn'?cssv('--warn'):cssv('--flat');}
-function inF(a){if(S.stage){const e=stateAt(a,S.t);if(!e||e.s!==+S.stage)return false;}
+function inF(a){
+  /* Две стороны стола на одном экране разделяет фильтр проекта: пока он не выбран,
+     целей покупки нет нигде — ни в списках, ни в формуле, ни на карте; выбран
+     «MSP acquisitions» — экран целиком про покупку. Одна строка вместо тридцати
+     проверок по дороге, потому что через inF проходит каждая продажная выборка. */
+  if((a.side==='buy')!==(S.projF==='buy'))return false;
+  if(S.stage){const e=stateAt(a,S.t);if(!e||e.s!==+S.stage)return false;}
   if(S.ind&&a.ind!==S.ind)return false;
   if(S.szFrom&&a.emp<+S.szFrom)return false;
   if(S.szTo&&a.emp>+S.szTo)return false;
@@ -2094,7 +2137,7 @@ function peopleActs(a,t){const e=stateAt(a,t),P=peopleOf(a);if(!e)return[];const
 const SRC={
   sos:['TX SOS','#5c6b7a'],hhs:['HHS','#1c5cab'],indeed:['Indeed','#2557a7'],fed:['FedReg','#4a3aa7'],dbj:['DBJ','#b0413e'],ms:['MSFT','#00a4ef'],rmsp:['r/msp','#ff4500'],me:['Me','#8b8b8b'],
   docusign:['DocuSign','#d4a017'],pandadoc:['PandaDoc','#1baf7a'],quickbooks:['QuickBooks','#2ca01c'],rmm:['RMM','#6b7280'],crm:['CRM','#7a4fd6'],pdf:['PDF','#e34948'],
-  conf:['conference','#8a6fd6'],hand:['by hand','#8b8b8b'],wa:['WhatsApp','#25d366'],gmail:['Gmail','#d44638'],linkedin:['LinkedIn','#0a66c2'],aircall:['Aircall','#00b388'],teams:['Teams','#5b5fc7'],agent:['agent log','#7a4fd6']};
+  broker:['broker','#b8762e'],conf:['conference','#8a6fd6'],hand:['by hand','#8b8b8b'],wa:['WhatsApp','#25d366'],gmail:['Gmail','#d44638'],linkedin:['LinkedIn','#0a66c2'],aircall:['Aircall','#00b388'],teams:['Teams','#5b5fc7'],agent:['agent log','#7a4fd6']};
 /* Третье поле — имя, которое человек прочитает. «Fed, DBJ — что это вообще?»
    (Лиза, 10.10): кружок из первых трёх букв узнаёт только тот, кто уже знает
    источник. В ленте стоит имя целиком, кружок остался там, где рядом есть
@@ -2102,7 +2145,7 @@ const SRC={
 const SRCNM={sos:'Texas Secretary of State',hhs:'HHS breach registry',indeed:'Indeed',
   fed:'Federal Register',dbj:'Dallas Business Journal',ms:'Microsoft',rmsp:'r/msp forum',
   docusign:'DocuSign',pandadoc:'PandaDoc',quickbooks:'QuickBooks',rmm:'our RMM',crm:'our CRM',
-  pdf:'a PDF',conf:'a conference',hand:'entered by hand',agent:'agent log',me:'us'};
+  pdf:'a PDF',broker:'a broker',conf:'a conference',hand:'entered by hand',agent:'agent log',me:'us'};
 const srcNm=k=>SRCNM[k]||(SRC[k]?SRC[k][0]:k);
 const MARKET=[
   {id:'m1',src:'sos',when:'2h',ttl:'214 new dental practices registered in DFW in September',seg:'cmp',st:'TX',hits:'Segment',facts:[['214 registrations Sep 1\u201323','SOSDirect \u00b7 business filings, SIC 8021'],['up 18 % on August','same query, Aug 1\u201331']],url:'sos.state.tx.us'},
@@ -2120,6 +2163,28 @@ const DOCS={
   'd-msa':{acc:'a0',src:'docusign',kind:'MSA',ttl:'MSA \u00b7 $38,000/year \u00b7 awaiting signatures from Dr. Moss and the revenue owner since Monday',w:38,status:['warn','awaiting signature'],act:'declaration'},
   'd-inv':{acc:'a1',src:'quickbooks',kind:'Invoice',ttl:'Invoice #1042 \u00b7 $2,583 \u00b7 12 days overdue',w:37,status:['down','overdue'],act:'request'},
   'd-sla':{acc:'a1',src:'rmm',kind:'SLA report',ttl:'August SLA report: 99.7 % uptime, 14 tickets, all on time',w:36,status:['up','SLA met'],act:'assertion'}};
+/* ============ Листинги ============
+   «Листинги отдельным блоком» (Карина, 13.10). Блок — это проект: выбран
+   «MSP acquisitions», и экран целиком про покупку. Сам листинг — не новый раздел,
+   а род документа, как NDA или MSA, и состояние у него своё: New · NDA · CIM · LOI.
+   Числа выведены из численности: выручка MSP ≈ $180K на человека, мест под
+   управлением ≈ 120 на человека, EBITDA 15 % — демо-данные, но считанные одним
+   правилом, а не набранные порознь. */
+const LSTATE={1:['flat','New'],2:['up','NDA'],3:['up','CIM'],4:['warn','LOI']};
+(function makeListings(){
+  /* Деньги печатаются здесь своими руками: общие usd и int объявлены ниже по файлу,
+     а этот блок выполняется при разборе — обращение к ним было бы обращением
+     к ещё не созданной переменной. */
+  const M=v=>'$'+(v/1e6).toFixed(1)+'M', K=v=>'$'+Math.round(v/1e3)+'K',
+        N=v=>v.toLocaleString('en-US');
+  BUYACC.forEach((a,i)=>{
+    const st=a.ev[0].s, rev=a.emp*180000, seats=a.emp*120, eb=Math.round(rev*0.15/1000)*1000;
+    const body={1:`Listing · ${M(rev)} revenue, ${N(seats)} seats under management — asking 5.5× EBITDA`,
+      2:`NDA signed with ${a.via} — the CIM is due from them`,
+      3:`CIM received · ${M(rev)} revenue, ${K(eb)} EBITDA, ${N(seats)} seats — ours to verify`,
+      4:`LOI sent · ${M(eb*5.5)} at 5.5× EBITDA — waiting on their answer`}[st];
+    DOCS['d-lst'+i]={acc:a.id,src:'broker',kind:'Listing',ttl:a.name+' — '+body,
+      w:38-st,status:LSTATE[st],act:'assertion'};});})();
 /* В демо документы были только у двух юрлиц из 652 — куда ни кликни, смотреть нечего.
    Бумаги порождаются из пройденных стадий сделки: до какой дошли, такие и лежат. */
 const DOCGEN=[[2,'NDA','docusign','NDA signed by both sides','declaration'],
@@ -2130,7 +2195,9 @@ const DOCGEN=[[2,'NDA','docusign','NDA signed by both sides','declaration'],
   [5,'SLA report','rmm','Monthly SLA report','assertion']];
 (function makeDocs(){
   for(const a of ACC){
-    if(a.feat||a.id==='us')continue;
+    /* Бумаги порождаются из пройденных стадий ПРОДАЖИ. У цели покупки этих стадий
+       нет: ей не выставляют счёт и с ней не подписывают MSA — у неё листинг. */
+    if(a.feat||a.id==='us'||a.side==='buy')continue;
     const e=stateAt(a,NOW); if(!e)continue;
     const h=(a.seed*2246822519)>>>0;
     DOCGEN.forEach(([st,kind,src,ttl,act],i)=>{
@@ -2190,7 +2257,12 @@ function usdx(v){return '$'+Math.round(v).toLocaleString('en-US');}
 const usd=v=>v>=1e9?'$'+(v/1e9).toFixed(1)+'B':v>=1e6?'$'+(v/1e6).toFixed(2)+'M':v>=1e3?'$'+Math.round(v/1e3)+'K':'$'+Math.round(v);
 const pct=(v,d=1)=>(Number.isFinite(v)?(v*100).toFixed(d):'0.0')+'\u00a0%';
 const int=v=>Math.round(v).toLocaleString('en-US');
-const segBy=id=>SEGS.find(s=>s.id===id);
+/* Сегмент — это «чего они хотят от нас». У компании, которую мы покупаем, такого
+   ответа нет: она нам ничего не хочет. Вместо падения на segBy — явный «не наш
+   рынок»: одно место вместо тридцати проверок по экрану. */
+const SEGNONE={id:'',abc:'\u2014',name:'not one of our markets',job:'\u2014',
+  naics:['\u2014'],acv:0,perM:0,col:'#8b8b8b'};
+const segBy=id=>SEGS.find(s=>s.id===id)||SEGNONE;
 const agBy=id=>AGENTS.find(a=>a.id===id);
 /* «Сигнал сегодня не является сигналом послезавтра… по формуле Шеннона сигнал — это
    отклонение от нормы» (Николай, 25.09, 52:00). Факт перестаёт быть сигналом двумя путями:
@@ -2368,7 +2440,7 @@ document.addEventListener('keydown',e=>{if($('cfm').hidden)return;
   if(e.key==='Enter'){const t=e.target;
     if(t&&t.closest&&t.closest('#cfmB')&&/^(INPUT|SELECT|TEXTAREA)$/.test(t.tagName))return;
     e.preventDefault();$('cfmGo').click();}});
-function accPhrase(a,t){const e=stateAt(a,t);if(!e)return a.name;let s=`${a.name} · ${a.city}, ${a.st} · ${STAGE[e.s]} · ${usd(acvAt(a,t))}`;
+function accPhrase(a,t){const e=stateAt(a,t);if(!e)return a.name;let s=`${a.name} · ${a.city}, ${a.st} · ${stgNm(a,e.s)} · ${usd(acvAt(a,t))}`;
   /* Цвет точки обязан объяснять себя сам: «клик по красной точке — что там в Юте
      происходит» (Николай, 09.10, 44:07). Причина стоит первой строкой подсказки. */
   s+=` · ${LTSIGN[light(a,t)]} ${lightWhy(a,t)}`;
@@ -2669,7 +2741,7 @@ function renderSide(){
         return `<button class="row acc ${S.sel&&S.sel.id===a.id?'on':''}" data-open="acc:${a.id}" data-tip="${esc(a.name+' · '+a.city+', '+a.st+' · '+usdAcv(a)+(a.acv?'/year':''))}">
           ${logo(a,'sq')}
           <span class="nm">${esc(a.name)}</span>
-          <span class="rt">${why?`<span class="why ${mcls(m)}">${why}</span>`:`<span class="stg">${e?STAGE[e.s]:'—'}</span>`}</span></button>`;}).join('');
+          <span class="rt">${why?`<span class="why ${mcls(m)}">${why}</span>`:`<span class="stg">${e?stgNm(a,e.s):'—'}</span>`}</span></button>`;}).join('');
       /* Кнопка «Everything as a table» убрана: теперь таблица и есть то, что
          открывает кнопка Accounts слева, когда компания не выбрана. Два входа
          в одно место — это дубль, а не удобство. */
@@ -3690,7 +3762,7 @@ function renderSOP(a){
     :prow(face(inf.nm),inf.nm,'reaches '+bl[0].nm+' · added by you',
       ST.map(st=>st.stage===4?DOT('up',null,inf.why):DOT('none',null,'—')));
   let h=`<div class="bpmn" style="--sn:${N}">
-    <div class="bph"><h2>Workflow · ${esc(a.name)}</h2><span class="chip acc">${STAGE[e.s]}</span><span class="muted">${esc(a.city)}, ${a.st} · ${segBy(a.seg).name} · ${usdAcv(a)}</span></div>
+    <div class="bph"><h2>Workflow · ${esc(a.name)}</h2><span class="chip acc">${stgNm(a,e.s)}</span><span class="muted">${esc(a.city)}, ${a.st} · ${segBy(a.seg).name} · ${usdAcv(a)}</span></div>
     <div class="sopbar">
       <span class="modesw"><button data-sopmode="0" aria-pressed="${!S.sopEdit}">Read</button><button data-sopmode="1" aria-pressed="${S.sopEdit}">Edit</button></span>
       ${S.sopEdit?`<span>Rename a stage right on it. ⠿ drags it, ＋ inserts, × removes.</span>`:''}
@@ -5388,7 +5460,7 @@ function renderEcard(){
   const params=arr=>`<div class="params">${arr.map(([k,v])=>`<div>${k}<b>${v}</b></div>`).join('')}</div>`;
   if(sel&&sel.type==='acc'){const a=ACCBY[sel.id],e=stateAt(a,t),m=momentum(a,t);
     h=`<div class="top">${logo(a,'sq big')}<div><h3>${esc(a.name)}</h3><div class="sub">${a.city}, ${a.st} · ${segBy(a.seg).name}</div></div></div>`+fields([
-      ['State',`<span class="${mcls(m)}">${arrow(m)} ${e?STAGE[e.s]:'—'}</span>`,'sys'],
+      ['State',`<span class="${mcls(m)}">${arrow(m)} ${e?stgNm(a,e.s):'—'}</span>`,'sys'],
       ['ACV',usdAcv(a),'own'],
       ['Staff',a.emp,'enr'],
       ['Last touch',ago(e?e.w:S.t),'sys']],a.id)+
@@ -5414,7 +5486,7 @@ function renderEcard(){
       +`<button class="btn" data-open="doc:${sel.id}">Open the document</button>`+`<button class="btn alt" data-stuck="${sel.id}" data-tip="Who is holding it — in the SOP">Where it is stuck</button>`;}
   else if(sel&&sel.type==='sop'){const a=ACCBY[sel.id],e=stateAt(a,t),m=momentum(a,t);
     h=`<div class="top">${logo(a,'sq big')}<div><h3>Flow · ${esc(a.name)}</h3><div class="sub">who owes what to whom to get the document signed</div></div></div>`
-      +params([['Stage',`<span class="${mcls(m)}">${arrow(m)} ${e?STAGE[e.s]:'—'}</span>`],['ACV',usdAcv(a)],['Stuck',(e?daysIn(e,t):0)+'d'],['People',peopleOf(a).length]])
+      +params([['Stage',`<span class="${mcls(m)}">${arrow(m)} ${e?stgNm(a,e.s):'—'}</span>`],['ACV',usdAcv(a)],['Stuck',(e?daysIn(e,t):0)+'d'],['People',peopleOf(a).length]])
       +`<button class="btn" data-open="sop:${sel.id}">Open the workflow</button>`;}
   else if(sel&&sel.type==='agent'){const g=agBy(sel.id);h=`<div class="top">${agAv(g.id,'big')}<div><h3>${g.nm}</h3><div class="sub">${g.title}</div></div></div>`+params([['State',`<span class="${ASTATE[g.state][0]}">${ASTATE[g.state][1]}</span>`],['Autonomy',KNOB[S.knob[g.id]]],['Answers for it',OURS.find(o=>o.id===g.owner).nm],['Runs stages',g.owns.map(s=>STAGE[s]).join(', ')]])+
       agClsBlock(g.id);}
@@ -5443,7 +5515,7 @@ function renderEcard(){
       +params([['Companies',int(accs.length)],['People',int(n)],['Per day',int(cap.perDay)],['Gone out',run?int(run.sent):'—']]);}
   else if(tab==='flow'){const a=ACCBY[S.sopAcc],e=stateAt(a,t),m=momentum(a,t),d=e?daysIn(e,t):0;
     h=`<div class="top">${logo(a,'sq big')}<div><h3>${esc(a.name)}</h3><div class="sub">the flow of one deal: who owes what to whom to get the document signed</div></div></div>`
-      +params([['Stage',`<span class="${mcls(m)}">${arrow(m)} ${e?STAGE[e.s]:'—'}</span>`],['ACV',usdAcv(a)],['Stuck',d+'d'],['People',peopleOf(a).length]])
+      +params([['Stage',`<span class="${mcls(m)}">${arrow(m)} ${e?stgNm(a,e.s):'—'}</span>`],['ACV',usdAcv(a)],['Stuck',d+'d'],['People',peopleOf(a).length]])
       +(S.primary==='sop'&&!S.flowList?'':`<button class="btn" data-open="sop:${a.id}">Open the workflow</button>`);}
   else if(tab==='people'){
     /* Единственная карточка без единого числа: эмодзи и фраза про речевые акты —
@@ -5633,7 +5705,7 @@ function dbRows(kind){
   const base=ACC.filter(a=>stateAt(a,t)&&inF(a));
   if(kind==='acc'){
     let r=base.map(a=>{const e=stateAt(a,t);return {id:'acc:'+a.id,a,
-      nm:a.name,seg:segBy(a.seg).name,loc:a.city+', '+a.st,stg:e?STAGE[e.s]:'—',
+      nm:a.name,seg:segBy(a.seg).name,loc:a.city+', '+a.st,stg:e?stgNm(a,e.s):'—',
       ind:a.ind||'—',emp:a.emp,
       mv:momentum(a,t),acv:a.acv,last:e?(t-e.w)*7:9999,touch:e?(t-e.w)*7:9999,
       lt:light(a,t),state:lightWhy(a,t),proj:projNm(projOf(a))};});
@@ -5721,7 +5793,7 @@ function renderDB(){
       return `<td class="num ${mcls(r.mv)}" title="${w}" aria-label="${w}">${arrow(r.mv)}</td>`;}
     if(k==='state')return `<td class="st ${r.lt}"><i class="lt"></i>${esc(r.state)}</td>`;
     if(k==='proj')return `<td>${r.proj==='no project'?'<span class="faint">—</span>':esc(r.proj)}</td>`;
-    if(k==='acv')return `<td class="num">${usd(r.acv)}</td>`;
+    if(k==='acv')return `<td class="num">${usdAcv(r.a)}</td>`;
     if(k==='emp')return `<td class="num">${esc(String(r.emp))}</td>`;
     if(k==='last')return `<td class="num">${r.last>=9999?'—':r.last+'d'}</td>`;
     if(k==='touch'){const ts=touchState(r.touch);return `<td><span class="chip ${ts[1]}">${esc(ts[0])}</span></td>`;}
