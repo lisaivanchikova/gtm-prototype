@@ -5068,7 +5068,8 @@ function feedItems(tab){
     const dA=S.dA!=null?Math.min(S.dA,S.dB==null?S.dA:S.dB):null;
     const dB=S.dA!=null?Math.max(S.dA,S.dB==null?S.dA:S.dB):null;
     return LOGS.concat(S.extraLogs||[]).filter(l=>(!f||l.ag===f)&&(!rf||AGROLE[l.ag]===rf)&&l.w<=Math.max(t,NOW)&&(!lk||(l.kind||'decision')===lk)&&(!S.lnoev||noEv(l))
-      &&(dA==null||(l.d!=null&&l.d>=dA&&l.d<=dB))).sort((x,y)=>y.w-x.w).map(l=>{
+      &&(dA==null||(l.d!=null&&l.d>=dA&&l.d<=dB))
+      &&(!S.lwho||(S.lwho.startsWith('by:')?l.by===S.lwho.slice(3):(l.ag===S.lwho.slice(3)&&!l.by)))).sort((x,y)=>y.w-x.w).map(l=>{
       const kd=l.kind||'decision';
       /* Вторая строка собирается одной функцией — той же, что в карточке агента.
          Пока их было две, один журнал читался как два разных. */
@@ -5332,7 +5333,16 @@ function renderPanel(){
       /* Шестая кнопка — не род записи, а её негодность: записи без улики не дают
          считать p_wrong, и их количество должно быть видно, а не выясняться. */
       const nev=all.filter(noEv).length;
-      return `<span class="sp"></span><span class="pick" data-tip="A decision, the edits it caused, how often it runs, and what was taken back — four different questions to the same history"><button data-lkind="" aria-pressed="${!S.lkind&&!S.lnoev}">all ${all.length}</button>${LKINDS.map(([k,nm,why])=>`<button data-lkind="${k}" aria-pressed="${S.lkind===k}" data-tip="${esc(why)}">${nm} ${cnt(k)}</button>`).join('')}</span><span class="pick"><button data-lnoev="1" aria-pressed="${!!S.lnoev}" class="${nev?'bad':''}" data-tip="Entries with nothing attached. The step of a class is computed from p_wrong, and p_wrong comes from the evidence — so these entries carry a decision nobody can re-check">no evidence ${nev}</button></span>`;})():''}
+      return `<span class="sp"></span><span class="pick" data-tip="A decision, the edits it caused, how often it runs, and what was taken back — four different questions to the same history"><button data-lkind="" aria-pressed="${!S.lkind&&!S.lnoev}">all ${all.length}</button>${LKINDS.map(([k,nm,why])=>`<button data-lkind="${k}" aria-pressed="${S.lkind===k}" data-tip="${esc(why)}">${nm} ${cnt(k)}</button>`).join('')}</span><span class="pick"><button data-lnoev="1" aria-pressed="${!!S.lnoev}" class="${nev?'bad':''}" data-tip="Entries with nothing attached. The step of a class is computed from p_wrong, and p_wrong comes from the evidence — so these entries carry a decision nobody can re-check">no evidence ${nev}</button></span>
+      ${/* Кто сделал. Отчёт активности — не отдельный экран: это журнал, суженный
+           до человека и до дня. «Что сделала Алина вчера» — два выбора здесь. */''}
+      <select id="lwho" data-lwho="1" data-tip="Whose actions to show. With a day picked in the calendar this is the activity report for that person">
+        <option value="">everyone</option>
+        ${Object.keys(WHOM).map(r=>{const o=GUAWHO[r]&&ourBy(GUAWHO[r]);const n=all.filter(l=>l.by===r).length;
+          return `<option value="by:${r}" ${S.lwho==='by:'+r?'selected':''}>${esc(o?o.nm:WHOM[r])} · ${WHOM[r]} · ${n}</option>`;}).join('')}
+        ${AGENTS.map(g=>{const n=all.filter(l=>l.ag===g.id&&!l.by).length;
+          return `<option value="ag:${g.id}" ${S.lwho==='ag:'+g.id?'selected':''}>${esc(g.nm)} · agent · ${n}</option>`;}).join('')}
+      </select>`;})():''}
     </div>`;
   const add=S.ptab==='market'?`<div class="addfact"><input id="myFact" placeholder="Write a fact or a thought about the market…"><button class="btn" id="addFact">Add</button><button class="btn" data-importfacts="1" data-tip="Log what you heard at a conference in one batch: each fact with its source and unconfirmed">＋ facts from a conference</button></div>`
     :(S.noteFor?`<div class="addfact"><input id="myNote" placeholder="Add your own — a note under your name…" autofocus><button class="btn" id="addNote">Add</button><button class="ib" data-notecancel="1">×</button></div>`:'');
@@ -6892,6 +6902,7 @@ function afterFilter(f){if(f.light){renderSide();renderPanel();if(lightCentre())
 document.addEventListener('change',e=>{const d=e.target.dataset||{};
   /* Отбор по столбцу. Хранится по виду таблицы: у компаний, людей и документов
      столбцы разные, и общий ключ смешал бы их отборы. */
+  if(d.lwho!==undefined){S.lwho=e.target.value||null;renderPanel();return;}
   if(d.dbf){const [kind,k]=d.dbf.split('|');S.dbF=S.dbF||{};S.dbF[kind]=S.dbF[kind]||{};
     if(e.target.value)S.dbF[kind][k]=e.target.value; else delete S.dbF[kind][k];
     renderDB();return;}
