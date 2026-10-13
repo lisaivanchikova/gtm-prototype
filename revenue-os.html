@@ -513,7 +513,21 @@ body.focus-mode .ptabs{cursor:pointer}
 .msg.me .bub2{background:var(--accent-soft)}
 .msg .meta{font-size:11px;color:var(--fg3);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .compose{display:flex;flex-direction:column;gap:8px}
-.compose textarea{min-height:48px;max-height:30vh;resize:vertical;width:100%}
+/* Заготовка стала длиннее одной строки: ответ про цену — это три строки, и поле
+   должно показывать его целиком, иначе человек листает собственный черновик. */
+.compose textarea{min-height:76px;max-height:30vh;resize:vertical;width:100%}
+/* Скрипты стадии стоят под полем ответа: это не отдельный раздел, а то, чем это поле
+   заполняют. Нажатие кладёт текст в поле — и дальше он правится как свой. */
+.scrw{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.scl{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--fg3)}
+.scr{display:flex;flex-direction:column;gap:1px;text-align:left;
+  border:1px solid var(--border);border-radius:4px;padding:3px 8px;background:var(--side)}
+.scr:hover{border-color:var(--accent)}
+.scr .scn{font-size:11.5px;color:var(--fg)}
+.scr .scc{font-size:10px;color:var(--fg3)}
+/* Тип контакта в шапке карточки: четыре слова в строку, выбранное отмечено. */
+.ctyr{align-items:baseline;gap:8px;margin-top:4px}
+.ctyr button[aria-pressed="true"]{color:var(--accent);font-weight:600}
 .facts{display:flex;flex-direction:column;gap:8px}
 /* Настройка рассылки: четыре блока в строку — кого, что, когда, чем. Раньше их не
    было вовсе: экран кампании кончался просьбой «попроси агента словами», и работа
@@ -769,6 +783,7 @@ table.db.tasks td:first-child{max-width:340px}
 .cday.today{background:color-mix(in srgb,var(--accent) 7%,var(--editor))}
 .cdh{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--fg3);white-space:nowrap}
 .cday.today .cdh{color:var(--accent)}
+.cdh .cdn{display:block;letter-spacing:0;text-transform:none;color:var(--fg3);font-size:9.5px}
 .cev{display:flex;flex-direction:column;gap:2px;align-items:flex-start;text-align:left;width:100%;
   background:var(--side);border:1px solid var(--border);border-left:2px solid var(--flat);border-radius:4px;
   padding:5px 7px;cursor:pointer;color:var(--fg2);font-size:11.5px;line-height:1.3}
@@ -1081,6 +1096,19 @@ table.db.tasks td:first-child{max-width:340px}
 .pick{display:inline-flex;border:1px solid var(--border);border-radius:4px;overflow:hidden;flex:none}
 .pick button{font-size:10px;padding:0 6px;height:18px;color:var(--fg3);background:transparent;white-space:nowrap}
 .pick button[aria-pressed="true"]{background:var(--accent);color:var(--on-accent);font-weight:600}
+/* Переключатель вида — это навигация области, а не настройка: на 10px его не видно,
+   и Pipeline никто не нашёл. Орган управления размером со строку, которую он меняет. */
+.pick.view button{height:24px;padding:0 11px;font-size:12px;color:var(--fg2)}
+.pick.view button:hover{color:var(--fg)}
+/* Своё правило цвета перебило общее для нажатой кнопки — одинаковая сила селектора,
+   а объявлено ниже: выбранный вид оказался синим прямоугольником без надписи.
+   Та же ошибка, что ловили 12.10: считать правила на селектор, а не их порядок. */
+.pick.view button[aria-pressed="true"]{color:var(--on-accent)}
+/* Срок по часам стоит у кнопок задачи: это тоже ход по ней, а не свойство сбоку. */
+.thr{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;color:var(--fg3);margin-left:auto}
+.thr.on{color:var(--fg2)}
+.thr input{font:inherit;font-size:11px;color:inherit;background:var(--side);border:1px solid var(--border);border-radius:4px;padding:1px 4px}
+.thr.on input{color:var(--fg);border-color:var(--accent)}
 .sidebody .row{width:100%;display:flex;align-items:center;gap:8px;padding:4px 12px;min-height:24px;text-align:left}
 .sidebody .row .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px}
 .sidebody .row .rt{flex:none;display:inline-flex;align-items:baseline;gap:8px;font-size:11px;max-width:40%}
@@ -1817,7 +1845,7 @@ const S={t:NOW,seg:null,downOnly:false,sel:null,level:'segment',K:1,
   dstep:{touch:'auto',enrich:'auto',screen:'auto',reply:'auto',quote:'approve',
          disc:'approve',sign:'hands',inv:'approve',cut:'approve',
          step:'hands',stop:'approve',fact:'approve'},
-  side:'tree',ent:'seg',agView:null,mapAcc:null,box:'',bn:0,sent:{},skin:'rev',ef:{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false},ptab:'market',job:'',stF:'',stage:'',primary:'map',source:null,orgOpen:false,sopAcc:'a0',lastRef:{},tview:'table',tabs:[{id:'map',kind:'map',ref:null,title:'Map'},{id:'acc',kind:'org',ref:'a0',title:'Account'},{id:'person',kind:'msg',ref:'p-hale',title:'Person'},{id:'flow',kind:'sop',ref:'a0',title:'Workflow'},{id:'doc',kind:'doc',ref:'d-msa',title:'Document'}],tab:'map',
+  side:'tree',ent:'seg',agView:null,mapAcc:null,box:'',bn:0,sent:{},skin:'rev',thour:{},ctype:{},ef:{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false},ptab:'market',job:'',stF:'',stage:'',primary:'map',source:null,orgOpen:false,sopAcc:'a0',lastRef:{},tview:'table',tabs:[{id:'map',kind:'map',ref:null,title:'Map'},{id:'acc',kind:'org',ref:'a0',title:'Account'},{id:'person',kind:'msg',ref:'p-hale',title:'Person'},{id:'flow',kind:'sop',ref:'a0',title:'Workflow'},{id:'doc',kind:'doc',ref:'d-msa',title:'Document'}],tab:'map',
   facts:{},docs:{},tri:{},proj:{},plan:null,chat:[],layout:{side:true,panel:true,agent:true,panelRight:false,swap:false},sopEdit:false,sopFix:null,steps:JSON.parse(JSON.stringify(STEPS0)),fieldPol:{},hidden:{},dnc:{},knobW:{scout:1,qual:1,seller:1,pricer:1,service:1},rules:JSON.parse(JSON.stringify(RULES0))};
 try{const L=JSON.parse(localStorage.getItem('revos-layout-v4')||'null');if(L)Object.assign(S.layout,L);}catch(e){}
 if(window.innerWidth<1280&&!(()=>{try{return localStorage.getItem('revos-layout-v4')}catch(e){return null}})())S.layout.side=false;
@@ -1953,6 +1981,29 @@ function formulaAt(t,st){const t0=t-win();let start=0,end=0,kept=0,newA=0,newC=0
 /* роль в сделке может быть переназначена человеком через агента (E2). Хранится отдельно
    от данных: peopleOf для несохранённых юрлиц собирает людей заново при каждом вызове. */
 function roleOv(p){const r=ROLEOV[p.id];return r&&r!==p.role?{...p,role:r}:p;}
+/* ============ Тип контакта ============
+   «Фильтр по типу контакта: таргет, советник, партнёр» (Карина, 13.10). Это другая
+   ось, чем роль в сделке: роль говорит, что человек решает внутри своей компании,
+   тип — на чьей он стороне. Схема Гульнар держит обе ветки — партнёров и брокеров —
+   и ни одна из них не покрыта ничем; полем и фильтром они покрываются без нового
+   раздела.
+
+   Тип ставит человек, как и проект: это единственное, что про контакт знает он,
+   а не база. Пока не поставлен — он выводится из записанного: внешний бухгалтер
+   не в штате компании, он ей советует, значит советник; все остальные — таргеты.
+   Выдумывать брокеров нечем: ни одного в этих данных нет, и в списке фильтра
+   такого значения не предлагают, пока его кому-нибудь не поставят. */
+const CTYPE=[['target','target','someone at a company we are selling to'],
+  ['partner','partner','brings us in, or we bring them in'],
+  ['broker','broker','sells somebody else’s business, not their own'],
+  ['advisor','advisor','advises the company from outside it']];
+const CTYPENM=Object.fromEntries(CTYPE.map(x=>[x[0],x[1]]));
+function ctypeSet(pid){return (S.ctype||{})[pid]||null;}
+function ctypeOf(p){const id=typeof p==='string'?p:p.id;
+  const set=ctypeSet(id); if(set)return set;
+  const pp=typeof p==='string'?personById(p):p;
+  if(pp&&/extern|\(ext/i.test(String(pp.title||'')))return 'advisor';
+  return 'target';}
 function peopleOf(a){if(a.people)return a.people.map(roleOv);const h=(a.seed*2654435761)>>>0;const f=i=>FIRST[(h>>>i)%FIRST.length],g=i=>GIVEN[(h>>>(i+11))%GIVEN.length];
   return [{id:a.id+'-p0',nm:(a.seg==='cmp'?'Dr. ':'')+g(1)+' '+f(2),title:a.seg==='cmp'?'practice owner':'owner',role:'decides',src:'Gmail'},
     {id:a.id+'-p1',nm:g(4)+' '+f(5),title:'office manager',role:'champions',src:'LinkedIn'},
@@ -2464,6 +2515,10 @@ const FOPT={
     return [['','all work']].concat(PROJECTS.map(p=>[p.id,p.nm,p.goal+' · '+p.due+' · '+n(p.id)+' companies']))
       .concat([['none','no project','companies nobody has put on a project · '+n('')+' of them']]);},
   stage:()=>[['','all stages']].concat([1,2,3,4,5,6,7,8].map(k=>[String(k),STAGE[k]])),
+  /* Предлагаются только те типы, которые на кого-то поставлены или выводятся:
+     значение, дающее ноль, — это предложение пустого экрана (правило 06.10). */
+  ctype:()=>{const have={};ACC.filter(a=>stateAt(a,S.t)).forEach(a=>peopleOf(a).forEach(x=>{const k=ctypeOf(x);have[k]=(have[k]||0)+1;}));
+    return [['','all contacts']].concat(CTYPE.filter(c=>have[c[0]]).map(c=>[c[0],c[1],c[2]+' · '+have[c[0]]+' of them']));},
   role:()=>[['','all'],['decides','decides','has the last word'],['champions','champions','moves the deal inside the company'],['pays','pays','approves the budget and signs the invoice']],
   src:()=>[['','all'],['gmail','email'],['linkedin','LinkedIn'],['wa','WhatsApp'],['aircall','call'],['teams','meeting'],['quickbooks','invoice']],
   pst:()=>PSTF.map(x=>x.slice(0,2)),
@@ -2498,6 +2553,8 @@ const FFLD={
   itown: {lbl:'In-house IT',hint:'this comes from what people say in the correspondence, and there is no source feeding it yet — for most accounts it is simply not known',
           get:()=>S.itown||'', set:v=>{S.itown=v;}},
   role:  {lbl:'Role in the deal',light:1,get:()=>S.ef.role||'',  set:v=>{S.ef.role=v;}},
+  ctype: {lbl:'Contact',light:1,hint:'whose side this person is on — it is set by hand, like the project',
+          get:()=>S.ctypeF||'', set:v=>{S.ctypeF=v;}},
   src:   {lbl:'Channel',light:1,get:()=>S.ef.src||'',            set:v=>{S.ef.src=v;}},
   /* Состояние человека — главный срез работы с людьми: кому мы должны ответ, кого
      придержали, кому писать нельзя. Поле стоит там, где стояло мёртвое «Channel». */
@@ -2521,7 +2578,7 @@ const FFLD={
 /* Фильтр работы убран с верхнего уровня: пока сегмент не выбран, он дублирует его —
    две из четырёх работ дословно совпадают с именами сегментов (09.10). Внутри сегмента
    он остаётся и означает подсегмент: та же работа, более узкий контекст (канон §10). */
-const FSET={seg:['seg','proj','newonly'],inb:['box','src','proj','unan'],task:['proj','towner','tkind','tby'],acc:['seg','proj','job','ind','st','size','itown','stage','down'],ppl:['proj','role','pst'],
+const FSET={seg:['seg','proj','newonly'],inb:['box','src','proj','unan'],task:['proj','towner','tkind','tby'],acc:['seg','proj','job','ind','st','size','itown','stage','down'],ppl:['proj','ctype','role','pst'],
             /* Сегмент — главный способ сузить поток: рассылка делается по сегменту,
                и список обещает это прямо в подписи. */
             /* Рассылка режется теми же признаками, что и список: «штат есть только на
@@ -3549,8 +3606,8 @@ function personLight(a,p,i){
 }
 function influencerFor(a){
   const cands=ACC.filter(x=>x.id!==a.id&&x.mi===a.mi&&stateAt(x,S.t)).slice(0,1);
-  const via=cands[0];
-  return {nm:via?peopleOf(via)[0].nm:'Referral partner',from:via?via.name:'the partner network',
+  const via=cands[0], pp=via?peopleOf(via)[0]:null;
+  return {nm:pp?pp.nm:'Referral partner',pid:pp?pp.id:null,from:via?via.name:'the partner network',
     why:via?'a shared vendor and the same metro — '+via.city:'through the partner network'};
 }
 function renderSOP(a){
@@ -3658,16 +3715,55 @@ function renderSOP(a){
 /* Шаблоны писем — то, чем рассылка отличается от «отправить письмо». Пустая тема
    значит, что её пишет модель под каждого получателя: это свойство шаблона, а не
    разовая просьба агенту (так это и устроено в движке, которым команда пользуется). */
+/* Стадия у шаблона. Алина: «CRM предлагает скрипты из библиотеки воронки этого
+   направления — под текущую стадию», и дальше — вставить, поправить, отправить прямо
+   из карточки. Привязка идёт по тому, что в письме написано, а не по разнарядке:
+   записка в LinkedIn и короткое «две минуты» — это первое касание (interest);
+   чеклист перед аудитом — разговор после интереса (request); сравнение счёта с SLA
+   отвечает на цену, то есть живёт на оффере. Стадий шесть, писем четыре — и карточка
+   говорит это прямо там, где библиотека для стадии пуста: четыре письма на шесть
+   стадий это настоящая дырка в содержании, и замазывать её выдуманными письмами
+   значит её спрятать. */
 const TPL=[
- {id:'t-sla',  ch:'email',   nm:'IT bill vs an SLA',        kind:'AI',
+ {id:'t-sla',  ch:'email',   nm:'IT bill vs an SLA',        kind:'AI', stage:3,
   subj:'', body:'You pay {{current}} a month for one freelancer. Our {{price}} covers 24/7 monitoring, HIPAA audit prep and a 1-hour SLA.'},
- {id:'t-audit',ch:'email',   nm:'HIPAA audit in November',  kind:'Static',
+ {id:'t-audit',ch:'email',   nm:'HIPAA audit in November',  kind:'Static', stage:2,
   subj:'Your HIPAA audit is in November', body:'Three dental practices in DFW were fined last quarter. Here is the checklist we run before an audit.'},
- {id:'t-li',   ch:'linkedin',nm:'Connect note \u00b7 MSP',     kind:'Static',
+ {id:'t-li',   ch:'linkedin',nm:'Connect note \u00b7 MSP',     kind:'Static', stage:1,
   subj:'', body:'Saw you run IT for {{company}} \u2014 we look after dental practices in {{metro}}.'},
- {id:'t-wa',   ch:'whatsapp',nm:'Short intro',              kind:'AI',
+ {id:'t-wa',   ch:'whatsapp',nm:'Short intro',              kind:'AI', stage:1,
   subj:'', body:'{{first_name}}, two minutes on your IT cover \u2014 worth a look before the audit?'}];
 const TPLBY=Object.fromEntries(TPL.map(t=>[t.id,t]));
+/* Подстановки берутся из записи. Чему значения нет — то и остаётся скобками, и
+   карточка называет такое поле: письмо с {{current}} внутри уходить не должно,
+   а молча подставить туда ноль значит соврать клиенту его же числом. */
+function tplFill(t,pid){
+  const p=personById(pid); if(!p)return t.body;
+  const a=ACCBY[p.acc], pr=dealPrice(a);
+  const their=(owedReplies(pid).map(m=>theirMoney(m.txt,a)).find(v=>v)||null);
+  const V={first_name:String(p.nm).replace(/^Dr\.\s*/,'').split(' ')[0],
+    company:a?a.name:'', metro:a?a.city:'',
+    /* Единицу даёт сам шаблон: «You pay {{current}} a month» — значит подставляется
+       сумма, и только сумма, иначе выходит «$1,400 a month a month». */
+    price:pr?usdx(pr.mo)+'/mo':'', current:their?usdx(their):''};
+  return String(t.body).replace(/\{\{(\w+)\}\}/g,(m,k)=>V[k]||m);}
+function tplGaps(t,pid){const out=[];
+  String(tplFill(t,pid)).replace(/\{\{(\w+)\}\}/g,(m,k)=>{out.push(k);return m;});
+  return out;}
+/* Скрипты стадии в карточке человека: стадия берётся у его компании, письма — из
+   той же библиотеки, которой пользуется рассылка. Второй библиотеки нет. */
+function stageScripts(pid){
+  const p=personById(pid); if(!p)return '';
+  const a=ACCBY[p.acc], e=a?stateAt(a,S.t):null, st=e?Math.min(e.s,6):null;
+  if(!st)return '';
+  const L=TPL.filter(t=>t.stage===st);
+  const row=t=>{const g=tplGaps(t,pid);
+    return `<button class="scr" data-tpluse="${esc(pid)}:${t.id}" data-tip="${esc('Puts this text in the box above — it is yours to change before it goes out')}">
+      <span class="scn">${esc(t.nm)}</span>
+      <span class="scc">${esc(CHAN[t.ch]?CHAN[t.ch][0]:t.ch)} · ${esc(t.kind==='AI'?'model writes the subject':'fixed subject')}${g.length?' · '+esc(g.join(', '))+' has no value here':''}</span></button>`;};
+  return `<div class="scrw"><span class="scl">Scripts for “${esc(STAGE[st])}”</span>
+    ${L.length?L.map(row).join('')
+      :`<span class="note">The library has none for this stage — four letters cover “${esc(STAGE[1])}”, “${esc(STAGE[2])}” and “${esc(STAGE[3])}”, and nothing is written for the rest. Whatever goes out from here is written by hand.</span>`}</div>`;}
 const CHAN3=[['email','Email'],['linkedin','LinkedIn'],['whatsapp','WhatsApp']];
 /* Цепочка касаний по дням: одно письмо не рассылка. Дни и канал на каждом шаге. */
 const SEQ0=[{d:1,ch:'email'},{d:4,ch:'linkedin'},{d:7,ch:'email'},{d:10,ch:'call'}];
@@ -3708,6 +3804,7 @@ function filtersOn(){
   const E=S.ef||{};
   if(E.role)w.push('role in the deal: '+E.role);
   if(S.pstF)w.push('people: '+(PSTF.find(x=>x[0]===S.pstF)||['',S.pstF])[1]);
+  if(S.ctypeF)w.push('contact: '+(CTYPENM[S.ctypeF]||S.ctypeF));
   if(E.src)w.push('channel '+(SRC[E.src]?SRC[E.src][0]:E.src));
   if(E.dkind)w.push('type '+E.dkind);
   if(E.astate)w.push('status '+E.astate);
@@ -4040,6 +4137,96 @@ function threadOf(pid){const p=personById(pid);if(!p)return [];
   const a=ACCBY[p.acc];if(!a)return [];
   return peopleActs(a,S.t).filter(x=>x.p.id===pid&&x.act)
     .map(x=>({me:false,src:srcKey(p),act:x.act,txt:x.txt,w:S.t}));}
+/* ============ Ответ, предложенный сразу ============
+   «Need answer должен сразу предлагать ответ, а не показывать всю историю»
+   (Карина, видео 13.10). Заготовка лежала у двух человек из 1593 — она была вписана
+   руками в код; у остальных поле ответа было пустым, и лента «needs an answer»
+   приводила к переписке, где работа начиналась с чистого листа.
+
+   Заготовка собирается из записанного: род речевого акта последней реплики, числа
+   из самой реплики и цена этой сделки. Выдуманного в ней нет — поэтому там, где
+   ответ собрать не из чего, поле остаётся пустым и прямо говорит, чего не хватает.
+
+   Цена берётся из ACV сделки, то есть из того же числа, что стоит в оффере, в MSA,
+   в счёте и в формуле. Суммы прайс-листа здесь нет сознательно: $106 за место в месяц
+   на 14 мест дают $1,484 в месяц, а все бумаги по этой сделке говорят $38K в год —
+   это два источника на одно число, и выбор между ними не правка, а решение. */
+function moneyAll(txt){const out=[],re=/\$([\d,]+(?:\.\d+)?)\s*(K|k|M|m)?/g;let m;
+  while((m=re.exec(String(txt||'')))){let v=parseFloat(m[1].replace(/,/g,''));
+    if(/k/i.test(m[2]||''))v*=1e3; if(/m/i.test(m[2]||''))v*=1e6; if(v)out.push(v);}
+  return out;}
+/* Наша же цена, повторённая клиентом, — не его расход. Без этой проверки «$38K — это
+   много, сейчас платим фрилансеру $1,400» прочиталось бы как счёт на 38 тысяч. */
+function theirMoney(txt,a){const ours=[a&&a.acv||0,(a&&a.acv||0)/12];
+  const theirs=moneyAll(txt).filter(v=>!ours.some(o=>o&&Math.abs(v-o)/o<0.05));
+  return theirs.length?Math.min.apply(null,theirs):null;}
+/* Месячная цена округляется до десятка — не потому, что так красивее, а потому что
+   так её уже пишут все шесть мест, где она встречается: $38,000 в год это $3,166.67
+   в месяц, а в задаче, в возражении Тома, в письме и в ответе агента стоит $3,170.
+   Считать по-своему значило бы поставить рядом два числа об одном. */
+function dealPrice(a){const yr=a&&a.acv?a.acv:0;
+  return yr?{yr,mo:Math.round(yr/12/10)*10,seats:a.emp||null}:null;}
+/* Имена позиций берутся из прайс-листа как есть. Сплошной toLowerCase ломал HIPAA
+   и SLA: аббревиатура — это имя, а не слово в середине фразы. Убирается только
+   заглавная первая буква, и только если за ней не идёт вторая заглавная. */
+const COVERS=()=>catIn().filter(x=>x.unit==='seat/mo')
+  .map(x=>String(x.nm).replace(/^[A-Z](?![A-Z])/,c=>c.toLowerCase())).join(', ');
+/* Реплики, которые ждут ответа, — от свежей к старой. Первая, на которую ответ
+   собирается, и становится заготовкой: «удобнее в WhatsApp» — просьба про канал,
+   на неё отвечает строка канала выше, а открытым остаётся вопрос про цену. */
+function owedReplies(pid){const T=threadOf(pid),out=[];
+  for(let i=T.length-1;i>=0;i--){const m=T[i];
+    if(!m.me&&m.w<=S.t&&m.act&&m.act!=='silence'&&m.r)out.push(m);}
+  if(out.length)return out;
+  const p=personById(pid),a=p&&ACCBY[p.acc];
+  const x=a?(peopleActs(a,S.t).find(y=>y.p.id===pid)||null):null;
+  return x&&x.reply&&x.act?[{me:false,act:x.act,txt:x.txt,w:S.t,r:1}]:[];}
+/* Ветки — по тому, что в этих данных действительно ждёт ответа. Их ровно столько,
+   сколько разных реплик с пометкой «ждёт ответа» есть в переписке и в приписанных
+   действиях: цена с их числом · цена без числа · просьба о цене · аудит · бумаги ·
+   расторжение · «всё ломается» · просьба о звонке. Ветки под обещание не нужно:
+   ни одно обещание в этих данных ответа не ждёт — «оплатим на следующей неделе»
+   и «вернём опросник завтра» помечены как объявления, и это правильно. */
+function draftOne(pid,m){
+  const p=personById(pid),a=ACCBY[p.acc],pr=dealPrice(a);
+  const first=String(p.nm).replace(/^Dr\.\s*/,'').split(' ')[0];
+  const txt=String(m.txt||''), their=theirMoney(txt,a);
+  if(m.act==='declaration'&&/terminat|cancel/i.test(txt))
+    return `${first}, understood. Before the notice runs out I would like fifteen minutes to hear what went wrong — whatever you decide, I would rather know than guess.`;
+  if(their&&pr)
+    return `${first}, you are at ${usdx(their)} a month today. Ours is ${usdx(pr.mo)} a month — ${COVERS()}. Can I put the two side by side with you for fifteen minutes?`;
+  if(/expensive|too much|a lot\b/i.test(txt)&&pr)
+    return `${first}, ${usdx(pr.mo)} a month is what it costs, and this is what sits inside it: ${COVERS()}. Tell me what you pay today and I will put the two next to each other — if ours is not worth the difference, I would rather you knew that from me.`;
+  if(/pric|cost|quote|\bper seat\b/i.test(txt)&&pr){
+    /* Число мест называется обратно только если его назвали они. ACV в этих данных
+       не считается от мест, и фраза «за N мест это $X» в чужой карточке читалась бы
+       как ставка за место, которой нет: 16 мест за $49K и 40 мест за $41,5K стоят
+       рядом в базе. Эхо их слов — не ставка. */
+    /* И только если названное число сходится с тем, что у нас записано. Приписанная
+       реплика третьей стадии говорит «send pricing for 14 seats» у всех порождённых
+       юрлиц, а мест у них от 6 до 60: эхо такого числа повторило бы чужую ошибку
+       клиенту в лицо. Не сходится — значит про места в ответе молчим. */
+    const ask=/(\d+)\s*seats?/i.exec(txt);
+    const head=(ask&&a.emp&&+ask[1]===a.emp)?`for ${a.emp} seats it is`:'it is';
+    return `${first}, ${head} ${usdx(pr.mo)} a month, ${usdx(pr.yr)} a year. That covers ${COVERS()}. Anything outside it is a separate line, and I say so before it is quoted.`;}
+  if(/audit/i.test(txt))
+    return `${first}, that is the order we work in: the HIPAA controls and the access log go in first, then the questionnaire, then the audit itself. Fifteen minutes this week and I will walk you through what the auditor asks for.`;
+  if(/\bW-9\b|invoice|paperwork/i.test(txt))
+    return `${first}, the W-9 and the invoice are going out now. Anything else your bookkeeper needs from us — one line back and it goes the same day.`;
+  /* Жалоба должна быть про их ИТ, а не про что угодно в беспорядке: «easier on
+     WhatsApp — the practice inbox is a mess» это просьба про канал, и отвечать на неё
+     рассказом про наши услуги значит не услышать человека. На неё отвечает строка
+     канала выше, а заготовка идёт к следующей реплике, которая ответа ждёт. */
+  if(/\bIT\b|system|computer|network|server|everything/i.test(txt)
+     &&/mess|break|not work|nothing works|left|no one looks/i.test(txt))
+    return `${first}, that is how most of our clients arrived. From day one we carry ${COVERS()} — and the job we are hired for here is to ${segBy(a.seg).job}. Fifteen minutes this week and I will tell you what we would pick up first.`;
+  if(m.act==='request'&&/demo|call|meeting|walk/i.test(txt))
+    return `${first}, glad to. The times below are mine this week — take whichever suits you and it is booked.`;
+  return '';}
+function draftFor(pid){
+  for(const m of owedReplies(pid)){const d=draftOne(pid,m); if(d)return {txt:d,on:m};}
+  const o=owedReplies(pid)[0];
+  return {txt:'',on:o||null};}
 function renderMsg(pid){const p=personById(pid),a=ACCBY[p.acc];
   const M=threadOf(pid);
   const oo=optedOut(pid);
@@ -4048,18 +4235,32 @@ function renderMsg(pid){const p=personById(pid),a=ACCBY[p.acc];
      Лента обещает «no send reaches them — not this campaign, not the next one»;
      обещание принадлежит человеку, а не экрану, на котором его дали. */
   const pk=pstateK(pid), held=!oo&&pk!=='active';
-  const draft=pid==='p-hale'?'Tom, you pay $1,400/mo for one freelancer today. Our $3,170/mo covers 24/7 monitoring, HIPAA audit prep and a 1-hour SLA. Can I show the side-by-side in 15 minutes?':pid==='p-diaz'?'Karen, quick one: is Dr. Moss waiting for anything from us before the audit prep?':'';
-  return `<div class="doc"><div class="doch">${face(p.nm,'big '+((personWorth(pid)||{eff:{}}).eff.c||''))}<div><h2>${esc(p.nm)}</h2><div class="muted">${esc(p.title)} · ${esc(a.name)} · role in the deal: <b>${p.role}</b></div><div class="note">came in from ${esc(p.src)}</div>${oo?`<div class="note"><span class="chip down">opted out in ${oo}</span> nobody may write to them again — not the agent, not you</div>`:''}${held?`<div class="note"><span class="chip ${pk==='out'?'down':'warn'}">${PSTATE[pk][0]}</span> ${pk==='out'?'you took them out of play, so nothing goes out to them':'they are on hold, so nothing goes out for now'} · <button class="lnk" data-pst="${pid}:active">Put back in play</button></div>`:''}</div></div>
+  const D=draftFor(pid), compose=composeBlock(pid,oo,held,pk,D);
+  return `<div class="doc"><div class="doch">${face(p.nm,'big '+((personWorth(pid)||{eff:{}}).eff.c||''))}<div><h2>${esc(p.nm)}</h2><div class="muted">${esc(p.title)} · ${esc(a.name)} · role in the deal: <b>${p.role}</b></div><div class="note">came in from ${esc(p.src)}</div>
+      <div class="btns ctyr"><span class="scl">Contact</span>${CTYPE.map(([v,l,h])=>`<button class="lnk" data-ctype="${esc(pid)}:${v}" aria-pressed="${ctypeOf(p)===v}" data-tip="${esc(h)}">${esc(l)}</button>`).join('')}${ctypeSet(pid)?'':`<span class="note">nobody has said — read as <b>${esc(CTYPENM[ctypeOf(p)])}</b> from the title</span>`}</div>${oo?`<div class="note"><span class="chip down">opted out in ${oo}</span> nobody may write to them again — not the agent, not you</div>`:''}${held?`<div class="note"><span class="chip ${pk==='out'?'down':'warn'}">${PSTATE[pk][0]}</span> ${pk==='out'?'you took them out of play, so nothing goes out to them':'they are on hold, so nothing goes out for now'} · <button class="lnk" data-pst="${pid}:active">Put back in play</button></div>`:''}</div></div>
+    ${D.on?compose:''}
     ${renderChannels(pid)}
     ${renderSlots(pid)}
     ${renderNext(pid)}
-    <div class="compose"><div class="hdr">Agent draft</div><textarea id="draft" aria-label="Draft">${esc(draft)}</textarea><div class="btns cact">${oo
+    ${D.on?'':compose}
+    <div class="hdr">The conversation so far</div>
+    <div class="thread">${M.map(m=>`<div class="msg ${m.me?'me':''}">${m.me?agAv(m.agent,'mid'):face(p.nm,'mid')}<div class="bub2"><div class="meta">${srcIc(m.src).replace('class="src"','class="av sq"')} ${m.me?'the '+agBy(m.agent).nm+' agent':esc(p.nm)} · W${m.w}${m.act?` · <span class="act">${m.act}</span>`:''}</div><div>${esc(m.txt)}</div></div></div>`).join('')||'<div class="note">No correspondence yet.</div>'}</div>
+</div>`;}
+/* Блок ответа собирается отдельно, потому что стоит в двух разных местах: когда
+   ответ должны мы — первым, до каналов и слотов; когда не должны — там, где он
+   стоял, под ними. «Need answer должен сразу предлагать ответ» значит, что заготовка
+   встречает человека раньше истории, а не после неё. */
+function composeBlock(pid,oo,held,pk,D){
+  const draft=D.txt;
+  return `<div class="compose"><div class="hdr">${D.on?'Answer them':'Agent draft'}</div>
+    ${D.on?`<div class="note">Answering: ${esc(D.on.txt)} <span class="act">${esc(D.on.act)}</span> · W${D.on.w}</div>`:''}
+    <textarea id="draft" aria-label="Draft" placeholder="${esc(D.on?'What they said is not a question this can be answered from — write it yourself, it goes out under your name.':'Nobody is waiting on an answer here. Anything written goes out under your name.')}">${esc(draft)}</textarea>
+    ${stageScripts(pid)}
+    <div class="btns cact">${oo
       ? `<button class="btn" disabled data-tip="They opted out in ${oo} — writing again breaks CAN-SPAM and the never-do rule">Sending is closed on this person</button><span class="note">They opted out in ${oo}. The draft stays for the record; nothing goes out from here.</span>`
       : held
       ? `<button class="btn" disabled data-tip="${pk==='out'?'They are out of play':'They are on hold'} — put them back in play first">Sending is closed on this person</button><span class="note">${pk==='out'?'They are out of play':'They are on hold'}. The draft stays for the record; it goes out only once somebody puts them back in play.</span>`
-      : `<button class="btn pri" data-send="${pid}">${chanOf(pid)?'Send by '+esc(CHAN[chanOf(pid)][0])+' under my name':'Send under my name'}</button><span class="note">Mail under a person’s name goes out only on that person’s click.</span>`}</div></div>    <div class="hdr">The conversation so far</div>
-    <div class="thread">${M.map(m=>`<div class="msg ${m.me?'me':''}">${m.me?agAv(m.agent,'mid'):face(p.nm,'mid')}<div class="bub2"><div class="meta">${srcIc(m.src).replace('class="src"','class="av sq"')} ${m.me?'the '+agBy(m.agent).nm+' agent':esc(p.nm)} · W${m.w}${m.act?` · <span class="act">${m.act}</span>`:''}</div><div>${esc(m.txt)}</div></div></div>`).join('')||'<div class="note">No correspondence yet.</div>'}</div>
-</div>`;}
+      : `<button class="btn pri" data-send="${pid}">${chanOf(pid)?'Send by '+esc(CHAN[chanOf(pid)][0])+' under my name':'Send under my name'}</button><span class="note">Mail under a person’s name goes out only on that person’s click.</span>`}</div></div>`;}
 /* Канал выбирался молча: письмо уходило почтой, даже если почта отбивалась. Работа
    «выбрать канал, которым дойдёт» кончается тем, что канал назначен, — значит на
    экране должен стоять выбор, а рядом с каждым каналом то, что о нём известно
@@ -4176,6 +4377,7 @@ const PSTF=[['','all'],['ans','needs an answer'],['none','nothing to answer'],['
    видно: таблицу в центре и ленту под ней. */
 function pplKeep(p,a,t,act){
   if(S.ef&&S.ef.role&&p.role!==S.ef.role)return false;
+  if(S.ctypeF&&ctypeOf(p)!==S.ctypeF)return false;
   if(S.pstF&&personState(p,act!==undefined?act:personAct(p,a,t))[2]!==S.pstF)return false;
   return true;}
 function intentOf(pid){return (S.intent&&S.intent[pid])||null;}
@@ -4428,8 +4630,11 @@ const TVIEW=[['table','Table'],['cal','Calendar'],['pipe','Pipeline']];
 function taskWhen(x){
   if(x.done)return String(x.done);
   if(x.meet)return x.meet.when==='not scheduled'?'no date yet':(x.brief?'before '+x.meet.when:x.meet.when);
-  if(x.when)return x.when;
-  return x.due==='now'?'today':'this week';}
+  /* Час печатается рядом со словом, а не вместо него: «today» отвечает на «когда»,
+     час — на «к которому часу», и это два разных вопроса. */
+  const h=taskHour(x);
+  if(x.when)return x.when+(h?' · '+h:'');
+  return (x.due==='now'?'today':'this week')+(h?' · '+h:'');}
 function taskAccOf(x){const id=taskAcc(x);return (id&&ACCBY[id])||null;}
 function taskStage(x){const a=taskAccOf(x);if(!a)return null;const e=stateAt(a,S.t);return e?e.s:null;}
 /* Светофор у задачи — тот же, что везде: ждёт тебя сейчас — жёлтый, встреча стоит
@@ -4438,11 +4643,42 @@ function taskStage(x){const a=taskAccOf(x);if(!a)return null;const e=stateAt(a,S
 function taskLight(x){if(x.meet&&x.meet.st)return x.meet.st[0];return x.due==='now'?'warn':'flat';}
 /* Почему задача здесь, кто её поставил и что с ней можно сделать. Один кусок на все
    три вида: кнопки у задачи обязаны быть одни и те же, где бы она ни показалась. */
-function taskBody(x){
+/* Срок по часам. Алина: «у каждой задачи есть срок по часам дня, и список задач на
+   день выстраивается по нему». Час берётся там, где он уже есть: у встречи — её время,
+   у брифа — время той встречи, к которой он готовит. Остальным его ставит человек —
+   и ставит любой: готовых «до 12:00» здесь нет, как нет готовых промежутков в календаре.
+   У чего часа нет — то стоит после того, у чего он есть, а не раскладывается наугад. */
+/* Время встреч в данных записано по-американски — «2:00 pm», «10:00 am». Без разбора
+   полудня встреча в два дня встала бы в календаре в два ночи и ушла в начало дня. */
+function hhmm(w){const m=/(\d{1,2}):(\d{2})\s*(a\.?m\.?|p\.?m\.?)?/i.exec(String(w||''));
+  if(!m)return null;
+  let h=+m[1]; const ap=String(m[3]||'').toLowerCase();
+  if(ap.charAt(0)==='p'&&h<12)h+=12;
+  if(ap.charAt(0)==='a'&&h===12)h=0;
+  return String(Math.min(23,h)).padStart(2,'0')+':'+m[2];}
+function taskHourSet(x){return (S.thour||{})[x.id]||null;}
+function taskHour(x){return taskHourSet(x)||(x.meet?hhmm(x.meet.when):null);}
+function taskMins(x){const h=taskHour(x);if(!h)return null;const [a,b]=h.split(':');return (+a)*60+(+b);}
+/* Порядок внутри дня — по часам; безчасовые в конец, в своём порядке. */
+function byHour(A){return A.map((x,i)=>[x,i]).sort((p,q)=>{const a=taskMins(p[0]),b=taskMins(q[0]);
+  if(a==null&&b==null)return p[1]-q[1];
+  if(a==null)return 1; if(b==null)return -1;
+  /* На одном часу бриф стоит раньше встречи, к которой он готовит: иначе порядок
+     предлагает идти на звонок, а готовиться после него. */
+  return a-b||((q[0].brief?1:0)-(p[0].brief?1:0))||p[1]-q[1];}).map(p=>p[0]);}
+function taskHourCtl(x){
+  const set=taskHourSet(x), der=!set&&x.meet?hhmm(x.meet.when):null;
+  return `<label class="thr${set?' on':''}" data-tip="${esc(der?'follows the meeting at '+der+' — change it and the task keeps its own hour':'the hour this is due; nobody has set one')}">
+    <span>by</span><input type="time" data-thr="${esc(String(x.id))}" value="${esc(set||der||'')}" aria-label="Due by, hour of the day">${
+    set?`<button class="lnk" data-thrclr="${esc(String(x.id))}" data-tip="Back to no hour">×</button>`:''}</label>`;}
+/* lean — в таблице: там «кто поставил» и «на кого» стоят столбцами, и строка под
+   строкой повторяла их словами. Кнопки всюду одни и те же — это не меняется. */
+function taskBody(x,lean){
   return `<span class="s">${esc(x.why)}</span>
-    <div class="note">put here by ${esc(TBYNM[x.by]||x.by)}${x.agent?' · '+esc(agBy(x.agent).nm):''} · on ${esc(TOWNNM[x.owner]||x.owner)}</div>
+    ${lean?'':`<div class="note">put here by ${esc(TBYNM[x.by]||x.by)}${x.agent?' · '+esc(agBy(x.agent).nm):''} · on ${esc(TOWNNM[x.owner]||x.owner)}</div>`}
     <div class="btns">${x.acts.map(([lbl,k],j)=>`<button class="${j===0?'btn':'lnk'}" data-tkact="${x.id}|${k}|${esc(lbl)}">${esc(lbl)}</button>`).join('')}
-      ${x.by==='agent'&&!x.acts.some(a=>/decline|refute|keep it stopped/i.test(a[0]))?`<button class="lnk" data-tkact="${x.id}|decline|Decline">Decline</button>`:''}</div>`;}
+      ${x.by==='agent'&&!x.acts.some(a=>/decline|refute|keep it stopped/i.test(a[0]))?`<button class="lnk" data-tkact="${x.id}|decline|Decline">Decline</button>`:''}
+      ${x.done?'':taskHourCtl(x)}</div>`;}
 /* В таблице подробности раскрываются прямо под строкой, в календаре и на доске —
    полосой под сеткой: у клетки и у карточки на это нет ширины, а у кнопок она есть
    (так же стоит панель задачи у Spotler и дневная колонка у Saleswah). */
@@ -4461,14 +4697,14 @@ function tasksTable(G,openId){
         <td><span class="chip">${esc(TKND[x.kind])}</span></td>
         <td>${esc(TBYNM[x.by]||x.by)}${x.agent?' · '+esc(agBy(x.agent).nm):''}</td>
         <td>${esc(TOWNNM[x.owner]||x.owner)}</td></tr>`
-      +(on?`<tr class="det"><td colspan="6">${taskBody(x)}</td></tr>`:'');};
+      +(on?`<tr class="det"><td colspan="6">${taskBody(x,1)}</td></tr>`:'');};
   /* Порядок фокуса, а не сортировка по столбцу (приём Linear): сначала то, что ждёт
      сегодня, потом календарь, потом неделя, в конце решённое. Группы — заголовками
      строк, как в любой CRM-таблице с группировкой. */
   const grp=(ttl,arr)=>arr.length?`<tr class="grp"><td colspan="6">${esc(ttl)} · ${arr.length}</td></tr>`+arr.map(trow).join(''):'';
   const all=G.now.length+G.cal.length+G.week.length+G.done.length;
   return `<table class="db tasks"><thead><tr><th>Task</th><th>When</th><th>Account</th><th>Kind</th><th>Put here by</th><th>On</th></tr></thead>
-    <tbody>${all?grp('Now',G.now)+grp('Meetings',G.cal)+grp('This week',G.week)+grp('Settled',G.done)
+    <tbody>${all?grp('Now',byHour(G.now))+grp('Meetings',byHour(G.cal))+grp('This week',byHour(G.week))+grp('Settled',G.done)
       :`<tr><td colspan="6" style="padding:16px;color:var(--fg3)">${tnarrow()?`Nothing here once you narrow by <b>${tnarrow()}</b>.`:'Nothing is waiting on you.'}</td></tr>`}</tbody></table>`;}
 
 function tasksCal(R,openId){
@@ -4476,10 +4712,14 @@ function tasksCal(R,openId){
   const ev=x=>`<button class="cev ${taskLight(x)}${x.id===openId?' on':''}" data-tkopen="${x.id}">
       <span class="ct">${esc(x.ttl)}</span>
       <span class="cm">${esc(x.meet&&x.meet.when!=='not scheduled'
-        ?(x.brief?'before ':'')+x.meet.when.replace(/^\w+\s/,''):TKND[x.kind])}</span></button>`;
-  const cell=d=>{const L=open.filter(x=>x.day===d);
+        ?(x.brief?'before ':'')+x.meet.when.replace(/^\w+\s/,'')
+        :taskHour(x)?taskHour(x)+' · '+TKND[x.kind]:TKND[x.kind])}</span></button>`;
+  /* Клетка дня — это и есть «мой день»: внутри неё дела стоят по часам, а те, у кого
+     часа нет, идут после них, и клетка говорит, сколько их. Отдельного вида «Мой день»
+     нет: он был бы четвёртой проекцией того же множества. */
+  const cell=d=>{const L=byHour(open.filter(x=>x.day===d)), noh=L.filter(x=>taskMins(x)==null).length;
     return `<div class="cday${d===TODAYD?' today':''}">
-      <div class="cdh">${DAYW[d]}${d===TODAYD?' · today':''}</div>${L.map(ev).join('')}</div>`;};
+      <div class="cdh">${DAYW[d]}${d===TODAYD?' · today':''}${L.length&&noh?`<span class="cdn">${L.length-noh}/${L.length} by the clock</span>`:''}</div>${L.map(ev).join('')}</div>`;};
   const shelf=open.filter(x=>x.day==null);
   /* Своих стрелок у календаря нет: неделю выбирают внизу слева, и там же её выбор
      двигает карту, формулу и ленту. Вторая пара стрелок означала бы, что у задач
@@ -4512,7 +4752,7 @@ function tasksPipe(R,openId){
   return `<div class="pipe">${cols.map(([k,ttl,L])=>{const m=k==='none'?0:money(L);
       return `<div class="pcol"><div class="pch"><span class="pt">${esc(ttl)}</span>
         <span class="pn">${L.length}${m?' · '+usd(m):''}</span></div>
-        ${L.map(card).join('')||'<div class="note">—</div>'}</div>`;}).join('')
+        ${byHour(L).map(card).join('')||'<div class="note">—</div>'}</div>`;}).join('')
       ||'<div class="note">Nothing open under these filters.</div>'}</div>
     ${taskDetail(sel)}`;}
 
@@ -4520,29 +4760,26 @@ function renderTasks(){
   const R=taskRows(S.t);
   /* Бриф — не отдельный род работы, а состояние встречи: «этот flow вокруг звонка
      довольно большой» (Карина, 09.10, 39:50). Поэтому он в том же роде и в той же
-     полосе, а в счёте не прибавляется к встречам, а говорит, какой из них не хватает
-     подготовки. */
+     полосе, что и сама встреча. */
   const cal =R.filter(x=>x.kind==='meet'&&!x.done),
-        brf =cal.filter(x=>String(x.id).startsWith('br-')),
-        meet=cal.filter(x=>!String(x.id).startsWith('br-')),
         now =R.filter(x=>x.due==='now'&&!x.done&&x.kind!=='meet'),
         week=R.filter(x=>x.due==='week'&&!x.done&&x.kind!=='meet'),
         done=R.filter(x=>x.done);
   const openId=S.tkOpen!==undefined?S.tkOpen:((now[0]||cal[0]||{}).id);
   const view=TVIEW.some(v=>v[0]===S.tview)?S.tview:'table';
-  /* «Your day» одной фразой — приём Clarify. Дешевле дашборда и полезнее: четыре
-     счётчика в ряд говорят то же самое, но их надо складывать глазами. */
-  const say=[meet.length?`${meet.length} meeting${meet.length===1?'':'s'}`:'',
-             brf.length?`${brf.length} of them ${brf.length===1?'has':'have'} no briefing yet`:'',
-             now.length?`${now.length} thing${now.length===1?'':'s'} need${now.length===1?'s':''} you now`:'',
-             week.length?`${week.length} more this week`:''].filter(Boolean).join(' · ')||'nothing is waiting on you';
   const body=view==='cal'?tasksCal(R,openId)
             :view==='pipe'?tasksPipe(R,openId)
             :tasksTable({now,cal,week,done},openId);
-  return `<div class="doc"><div class="doch"><div><h2>Tasks</h2>
-      <div class="muted">${esc(say)}</div></div>
-      <span class="pick">${TVIEW.map(([k,t])=>`<button data-tview="${k}" aria-pressed="${view===k}">${t}</button>`).join('')}</span></div>
-    <div class="note">One queue for people and agents, shown three ways — the same tasks, the same filters on the left, the same buttons inside. A task from an agent comes already done: open it, and either send it as it stands, change it, or decline with a reason. Nothing here goes out on its own.</div>
+  /* Две надписи отсюда убраны дословно по Карине (видео 13.10): фраза дня
+     «3 meetings · 1 of them…» и абзац «One queue for people and agents…» —
+     «много лишнего текста, это никто не читает». Ни одно число с ними не ушло:
+     встречи, срочное и недельное стоят заголовками групп в таблице, день без часа
+     называет календарь, деньги по стадиям — шапки колонок воронки. Задача на экране
+     осталась тем, чем она и должна быть: что · к кому · кнопка.
+     Переключатель вида стал переключателем, а не пометкой в углу: Карина не нашла
+     Pipeline, потому что три слова по 10px читаются как служебная надпись. */
+  return `<div class="doc"><div class="doch"><div><h2>Tasks</h2></div>
+      <span class="pick view">${TVIEW.map(([k,t])=>`<button data-tview="${k}" aria-pressed="${view===k}">${t}</button>`).join('')}</span></div>
     ${body}</div>`;}
 
 /* ============ Окно в окне ============
@@ -4684,6 +4921,7 @@ function addPersonDialog(){
     html:row('Name','<input id="apNm" placeholder="Dr. Mara Ellison" autocomplete="off">','Person name')
       +row('Title','<input id="apTi" placeholder="owner, dentist" autocomplete="off">')
       +row('Role',`<select id="apRo"><option value="decides">decides</option><option value="champions">champions</option><option value="pays">pays</option></select>`)
+      +row('Contact',`<select id="apCt">${CTYPE.map(([v,l,h])=>`<option value="${v}" title="${esc(h)}">${esc(l)}</option>`).join('')}</select>`,'Contact type')
       +row('Company',`<input id="apCo" list="apCoL" placeholder="an existing one, or a new name" autocomplete="off"><datalist id="apCoL">${accs.slice(0,400).map(n=>`<option value="${esc(n)}">`).join('')}</datalist>`)
       +row('State',`<select id="apSt">${sts.map(x=>`<option value="${x}">${x}</option>`).join('')}</select>`)
       +row('Industry',`<select id="apIn"><option value="">not known yet</option>${inds.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join('')}</select>`)
@@ -4728,7 +4966,10 @@ function addPersonByHand(){
            byhand:true,met:g('apMt')||null,by:$('profile').selectedOptions[0].text,w:S.t};
   a.people.push(p); PEOPLE[pid]={...p,acc:a.id};
   S.chan=S.chan||{}; S.chan[pid]=g('apCh')||'email';
-  logAdd('seller',`${nm} added by hand${madeAcc?' with a new account '+a.name:' at '+a.name}${p.met?' · met at '+p.met:''} (${p.by})`,['up','new person']);
+  /* Тип контакта у внесённого руками — сказанный, а не выведенный: его назвал тот,
+     кто этого человека встретил. Брокер и партнёр попадают в базу только так. */
+  const ct=g('apCt')||'target'; S.ctype=S.ctype||{}; S.ctype[pid]=ct;
+  logAdd('seller',`${nm} added by hand as ${CTYPENM[ct]||ct}${madeAcc?' with a new account '+a.name:' at '+a.name}${p.met?' · met at '+p.met:''} (${p.by})`,['up','new person']);
   selectAcc(a); openTab('msg',pid,'Profile · '+nm); setEnt('ppl'); S.sel={type:'person',id:pid};
   renderAllButMap();
   toast(`${nm} added from a card · ${a.name}${madeAcc?' (new account)':''} · W${S.t}. Logged under your name.`);
@@ -5373,7 +5614,7 @@ const DBCOLS={
   acc:[['nm','Account'],['state','State'],['acv','ACV'],['stg','Stage'],['proj','Project'],['last','Last touch'],['touch','Wrote'],['ind','Industry'],['emp','Seats'],['seg','Segment'],['loc','City, state']],
   /* Состояние человека — первой колонкой после имени, как у компаний: таблица
      должна отвечать «с кого начать» раньше, чем «кто это». */
-  person:[['nm','Person'],['state','State'],['last','Last touch'],['next','Next touch'],['acc','Account'],['role','Role in the deal'],['title','Title'],['src','Came in from']],
+  person:[['nm','Person'],['state','State'],['last','Last touch'],['next','Next touch'],['acc','Account'],['ctype','Contact'],['role','Role in the deal'],['title','Title'],['src','Came in from']],
   doc:[['nm','Document'],['acc','Account'],['kind','Kind'],['stt','State'],['last','Age'],['src','Where it lives']]};
 /* «Писали» отвечает на работу №2: дотянуться, не задев тех, кому уже писали.
    Остывание — 30 дней после последнего касания, как у Skyp (период остывания перед повторным входом). */
@@ -5416,12 +5657,12 @@ function dbRows(kind){
       if(!pplKeep(pp,a,t,act))continue;
       const ps=personState(pp,act);
       r.push({id:'person:'+pp.id,a,p:pp,
-        nm:pp.nm,acc:a.name,role:pp.role,title:pp.title,src:pp.src,
+        nm:pp.nm,acc:a.name,ctype:CTYPENM[ctypeOf(pp)]||ctypeOf(pp),role:pp.role,title:pp.title,src:pp.src,
         last:(act&&act.days!=null)?act.days:9999,lt:ps[0],state:ps[1],
         rk:PSTRANK.indexOf(ps[2]),
         /* Пусто — тоже значение: человек без назначенного касания и есть работа. */
         next:nextWords(pp.id)||'—'});}}
-  if(q)r=r.filter(x=>(x.nm+' '+x.acc+' '+x.role+' '+x.title+' '+x.state+' '+emailOf(x.p,x.a)).toLowerCase().includes(q));
+  if(q)r=r.filter(x=>(x.nm+' '+x.acc+' '+x.ctype+' '+x.role+' '+x.title+' '+x.state+' '+emailOf(x.p,x.a)).toLowerCase().includes(q));
   return r;}
 function renderDB(){
   const kind=DBCOLS[S.dbKind]?S.dbKind:'acc';
@@ -6208,7 +6449,7 @@ function logAdd(ag,ttl,st,m){const o={ag,w:NOW,d:NOWDAY,ttl,st};
 const LKIND={decision:'decision',edit:'edit',metric:'metric',revert:'revert'};
 const meNow=()=>WHOM[S.profile]||'—';
 document.addEventListener('click',e=>{
-  const b=e.target.closest('[data-xpanel],[data-lkind],[data-lnoev],[data-dcl],[data-bkeep],[data-bdrop],[data-bsel],[data-bselall],[data-bgo],[data-bhand],[data-bclr],[data-fmul],[data-open],[data-side],[data-tab],[data-web],[data-tabclose],[data-tkopen],[data-tkact],[data-close],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-feeddown],[data-plus],[data-newchat],[data-agundo],[data-weekpick],[data-week],[data-day],[data-calm],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-f],[data-freset],[data-fclr],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepsel],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-projset],[data-dbstate],[data-fmode],[data-dbsort],[data-dbmore],[data-dbkind],[data-camp],[data-camprun],[data-chan],[data-find],[data-slot],[data-next],[data-nextclr],[data-addp],[data-intent],[data-pst],[data-campsel],[data-campoff],[data-campblk],[data-campset],[data-campseq],[data-campbox],[data-camprunact],[data-inwin],[data-stuck],[data-mailclear],[data-mailopen],[data-mailstop],[data-mark],[data-note],[data-notecancel],[data-ent],[data-mail],[data-common],[data-importfacts],[data-nextbn],[data-influencer],[data-sim],[data-role],[data-tview],[data-triopen],#fDown,#addFact,#addNote');
+  const b=e.target.closest('[data-xpanel],[data-lkind],[data-lnoev],[data-dcl],[data-bkeep],[data-bdrop],[data-bsel],[data-bselall],[data-bgo],[data-bhand],[data-bclr],[data-fmul],[data-open],[data-side],[data-tab],[data-web],[data-tabclose],[data-tkopen],[data-tkact],[data-thrclr],[data-tpluse],[data-close],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-feeddown],[data-plus],[data-newchat],[data-agundo],[data-weekpick],[data-week],[data-day],[data-calm],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-f],[data-freset],[data-fclr],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepsel],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-projset],[data-dbstate],[data-fmode],[data-dbsort],[data-dbmore],[data-dbkind],[data-camp],[data-camprun],[data-chan],[data-find],[data-slot],[data-next],[data-nextclr],[data-addp],[data-intent],[data-pst],[data-ctype],[data-campsel],[data-campoff],[data-campblk],[data-campset],[data-campseq],[data-campbox],[data-camprunact],[data-inwin],[data-stuck],[data-mailclear],[data-mailopen],[data-mailstop],[data-mark],[data-note],[data-notecancel],[data-ent],[data-mail],[data-common],[data-importfacts],[data-nextbn],[data-influencer],[data-sim],[data-role],[data-tview],[data-triopen],#fDown,#addFact,#addNote');
   if(!b){if(S.wkOpen&&!e.target.closest('.wkpop')){
     /* Начало отмечено, а конец не назван — значит человек выбрал одну неделю. */
     if(S.wkA!=null){S.t=S.wkA;S.win=1;S.wkA=null;S.wkOpen=false;renderAll();return;}
@@ -6313,6 +6554,10 @@ document.addEventListener('click',e=>{
     renderAll();renderEditorLight();const tb=S.tabs.find(x=>x.id==='draft:'+id);if(tb)renderEditor();return;}
   if(b.dataset.influencer){const id=b.dataset.influencer,inf=influencerFor(ACCBY[id]);
     S.infl=S.infl||{};S.infl[id]=inf;
+    /* Введённый в поток и есть партнёр: его не выдумали, он живой человек в базе,
+       и в этом ходе он сработал не как таргет, а как тот, кто приводит. Тип ставится
+       этим же нажатием — и снимается на его карточке, если это было не так. */
+    if(inf.pid){S.ctype=S.ctype||{};S.ctype[inf.pid]='partner';}
     logAdd('seller',`${inf.nm} (${inf.from}) added to the ${ACCBY[id].name} flow — they can reach the person who is blocking`,['up','flow edited']);
     toast(`${inf.nm} added to the flow: ${inf.why}.`);renderAll();return;}
   if(b.dataset.sopmode!==undefined){S.sopEdit=b.dataset.sopmode==='1';if(!S.sopEdit)S.sopFix=null;renderEditorLight();return;}
@@ -6656,6 +6901,27 @@ document.addEventListener('click',e=>{
     /* Строка в колонке слева ведёт в ту же область, иначе нажатие там молчит. */
     if(S.tab!=='tasks'){const tb=tabOf('tasks');if(tb){S.tab='tasks';setEnt('task');}}
     renderEditor();renderAll();return;}
+  /* Скрипт кладётся в поле без перерисовки: перерисовка стёрла бы то, что человек
+     уже успел там поправить, а это его текст, а не наш. */
+  /* Тип контакта ставит человек, и запись об этом идёт в журнал правок: это
+     изменение объекта, а не вид экрана. Повторное нажатие снимает — тогда тип
+     снова выводится из записанного. */
+  if(b.dataset.ctype){const [pid,v]=b.dataset.ctype.split(':'),pp=personById(pid);
+    S.ctype=S.ctype||{};
+    if(S.ctype[pid]===v){delete S.ctype[pid];toast(`${pp?pp.nm:'They'} — no type set; read from the title again.`);}
+    else{S.ctype[pid]=v;logAdd('scout',`${pp?pp.nm:pid} marked as ${CTYPENM[v]} by ${meNow()}`,['flat','edited by hand'],
+      {cls:'enrich',kind:'edit',by:S.profile,ev:{src:'first',tier:'claim',txt:'marked by hand on the card — nothing outside confirms it',open:'person:'+pid}});
+      toast(`${pp?pp.nm:'They'} — ${CTYPENM[v]}.`);}
+    /* renderAll идёт лёгким путём и карточку человека не перерисовывает: тип
+       менялся в состоянии, а на экране оставался прежний. Тот же путь, что у
+       разметки намерения, — центр и всё остальное, кроме карты. */
+    renderEditor();renderAllButMap();return;}
+  if(b.dataset.tpluse){const [pid,tid]=b.dataset.tpluse.split(':'),t=TPLBY[tid],el=$('draft');
+    if(t&&el){el.value=tplFill(t,pid);el.focus();
+      const g=tplGaps(t,pid);
+      toast(g.length?`Script in the box. ${g.join(', ')} has no value on this record — fill it before sending.`:'Script in the box — change it before it goes out.');}
+    return;}
+  if(b.dataset.thrclr){S.thour=S.thour||{};delete S.thour[b.dataset.thrclr];renderEditor();return;}
   if(b.dataset.tkact){const [id,k,label]=b.dataset.tkact.split('|');
     if(k.startsWith('open:')){openRef(k.slice(5));return;}
     if(k.startsWith('brief:')){openBrief(k.slice(6));return;}
@@ -6841,6 +7107,16 @@ document.addEventListener('click',e=>{
   if(b.id==='addFact'){const v=$('myFact').value.trim();if(!v)return;MARKET.unshift({id:'u'+Date.now(),src:'me',when:'now',ttl:v,seg:S.seg||'cmp',st:null,hits:'hypothesis',facts:[v],url:'my note'});renderPanel();return;}
 });
 
+/* Час задачи — на change, а не на input: у поля времени input срабатывает на каждой
+   цифре, и перерисовка забирала бы каретку из середины ввода (та же ошибка, что была
+   у диапазона мест). change приходит уже готовым значением. */
+document.addEventListener('change',e=>{
+  const id=(e.target.dataset||{}).thr;
+  if(id===undefined)return;
+  S.thour=S.thour||{};
+  const v=String(e.target.value||'');
+  if(v)S.thour[id]=v; else delete S.thour[id];
+  renderEditor();});
 document.addEventListener('input',e=>{
   /* Диапазон — на каждом нажатии, у того поля, в котором набирают. Фокус возвращается
      туда же, откуда ушёл, и соседнее поле больше не перехватывает ввод. */
