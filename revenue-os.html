@@ -528,6 +528,9 @@ body.focus-mode .ptabs{cursor:pointer}
 /* Сценарий в панели агента: шаги столбиком, пройденные гаснут, текущий назван. */
 .scen{display:flex;flex-direction:column;gap:6px;padding:10px 12px}
 .scen .scr.sw{width:100%}
+.scen .scl2{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--fg3);margin-top:6px}
+.scen .scr.sw.gap{border-style:dashed;opacity:.8}
+.scen .gapn{color:var(--warn)}
 .sstep{display:grid;grid-template-columns:18px minmax(0,1fr) auto;gap:8px;align-items:baseline;font-size:11.5px;color:var(--fg3)}
 .sstep .sn{font-family:var(--ui);font-variant-numeric:tabular-nums;font-size:10px;text-align:right}
 .sstep.ok{color:var(--fg3);text-decoration:line-through}
@@ -6042,46 +6045,188 @@ function bnDone(){const L=BNS();return (S.bn||0)>=L.length-1?null:L[(S.bn||0)+1]
    Если шаг не отмечается — значит инструкция врёт, и это ровно то, что Николай просил
    проверить до кодинга. */
 const SCEN=[
- {id:'client',nm:'Add a client by hand',who:'SDR',
-  why:'you met someone and they are not in the base — a conference, a referral, a call',
+ /* ===== SDR ===== */
+ {id:'s1',who:'SDR',nm:'Launch outreach into a chosen slice',
+  why:'“Запусти аутрич по клиникам на 20–100 сотрудников, у которых нет своего IT” (стенд, S1)',
+  check:'the send says how many letters went, from which mailbox, and what stopped the rest',
+  steps:[{t:'Open Workflows in the rail',sel:'[data-ent="flow"]'},
+   {t:'Go to “All campaigns and deals”',sel:'[data-open="flowlist"]'},
+   {t:'Open the campaign of the segment you are after',sel:'[data-open^="camp:"]'},
+   {t:'Take out anyone who should not get it',sel:'[data-campoff]'},
+   {t:'Press “Start the send” — it goes out under your name',sel:'[data-camprun]'}]},
+ {id:'s2',who:'SDR',nm:'Enter someone you met at a conference',
+  why:'“Вчера познакомилась с Dr. Mara Ellison — занеси её” (стенд, S2)',
   check:'their card opens under their own name, and the log carries one entry under yours',
-  steps:[
-   {t:'Open People in the rail',sel:'[data-ent="ppl"]'},
+  steps:[{t:'Open People in the rail',sel:'[data-ent="ppl"]'},
    {t:'Press “Add a person by hand”',sel:'[data-addp]'},
    {t:'Type their name',sel:'#apNm',fill:1},
    {t:'Type the company — a new name, not one from the list',sel:'#apCo',fill:1},
    {t:'Pick the segment: which market the new company counts in',sel:'#apSg',fill:1},
    {t:'Type the seats — the price is built from them',sel:'#apEm',fill:1},
    {t:'Press “Add them”',sel:'#cfmGo'}]},
- {id:'camp',nm:'Launch an outreach campaign',who:'SDR',
-  why:'a segment has to be reached, and it goes out under a person’s name',
-  check:'the send says how many letters went, from which mailbox, and what stopped the rest',
-  steps:[
-   {t:'Open Workflows in the rail',sel:'[data-ent="flow"]'},
-   {t:'Go to “All campaigns and deals”',sel:'[data-open="flowlist"]'},
-   {t:'Open a campaign — one segment, one campaign',sel:'[data-open^="camp:"]'},
-   {t:'Take out anyone who should not get it',sel:'[data-campoff]'},
-   {t:'Press “Start the send” — it goes out under your name',sel:'[data-camprun]'}]},
- {id:'photo',nm:'Add a contact from a photo',who:'SDR',
-  why:'a badge at a conference is all you have, and the hands are busy',
+ {id:'s2b',who:'SDR',nm:'Add a contact from a photo of a badge',
+  why:'JOB-028 — занести человека с визитки, не открывая интерфейс',
   check:'the agent names them, opens the card, and the next touch stands in the queue',
-  steps:[
-   {t:'Hand the photo of the badge to the agent',sel:'[data-photo]'},
+  steps:[{t:'Hand the photo of the badge to the agent',sel:'[data-photo]'},
    {t:'Set when the next touch goes — otherwise the contact is lost',sel:'[data-next]'}]},
- {id:'answer',nm:'Answer the one who is waiting',who:'SDR · AE',
-  why:'an answer owed and not sent is the cheapest deal we lose',
+ {id:'s3',stops:2,who:'SDR',nm:'Find who blocks the deal and go through someone else',
+  why:'“По Brightline три недели тишина — зайди через другого” (стенд, S3) · JOB-029',
+  check:'the one who can reach them is named, added to the flow, and marked a partner',
+  steps:[{t:'Open the Workflow tab — the deal that is stuck',sel:'[data-tab="flow"]'},
+   {t:'Press “Find someone who can reach…” at the bottom of the funnel',sel:'[data-influencer]'}]},
+ {id:'s4',who:'SDR',nm:'Sort last week’s replies and book the ones who want to talk',
+  why:'“Разбери, кто правда хочет разговор, остальных убери” (стенд, S4) · JOB-008',
+  check:'everyone marked, nobody written to who asked to be left alone',
+  steps:[{t:'Open People in the rail',sel:'[data-ent="ppl"]'},
+   {t:'Open “Replies”',sel:'[data-open="replies"]'},
+   {t:'Mark one “wants to talk”',sel:'[data-intent$=":talk"]'},
+   {t:'Take someone out of play who said no',sel:'[data-pst$=":out"]'}]},
+ {id:'s5',who:'SDR',nm:'Answer the one who is waiting',
+  why:'JOB-030 — проверить и отправить заготовку, а не писать с нуля',
   check:'the letter goes out by the channel they wrote from, under your name, into the log',
-  steps:[
-   {t:'Open Messages in the rail',sel:'[data-ent="inb"]'},
+  steps:[{t:'Open Messages in the rail',sel:'[data-ent="inb"]'},
    {t:'Open a line from “Needs an answer” — the draft is already written',sel:'[data-open^="msg:"]'},
-   {t:'Press “Send under my name”',sel:'[data-send]'}]}];
+   {t:'Press “Send under my name”',sel:'[data-send]'}]},
+ {id:'s6',who:'SDR',nm:'See where the meetings are lost',
+  why:'“Мало встреч, и я не понимаю почему” (стенд, S5) · JOB-032 · JOB-016',
+  check:'the step that loses the most is named, with the number behind it',
+  steps:[{t:'Open the Workflow tab — the funnel left to right',sel:'[data-tab="flow"]'},
+   {t:'Open the step that loses the most',sel:'[data-stepsel]'}]},
+ /* ===== HEAD ===== */
+ {id:'h1',who:'Head',nm:'See what we lose if the biggest contract does not renew',
+  why:'“В январе кончается контракт — покажи, сколько потеряем” (стенд, H1) · JOB-018',
+  gap:'времени крупнее недели в системе нет: модель кончается 18 октября 2026, января задать нечем. Найдено стендом 08.10, не закрыто.'},
+ {id:'h2',stops:3,who:'Head',nm:'Find who the revenue dip came from',
+  why:'“Выручка просела — найди, из-за какого канала, человека или сегмента” (стенд, H2) · JOB-016',
+  check:'the cause is one named thing, not a chart',
+  steps:[{t:'Open Accounts in the rail',sel:'[data-ent="acc"]'},
+   {t:'Switch on “stuck or leaving only”',sel:'[data-ftog="down"]'},
+   {t:'Open the whole table and read what the state says',sel:'[data-open="db:acc"]'}]},
+ {id:'h3',who:'Head',nm:'Switch the work to another market',
+  why:'“Со следующего квартала продаём бухгалтерским фирмам до 50 человек” (стенд, H3) · JOB-010',
+  check:'the list, the map and the campaign all show the same slice',
+  steps:[{t:'Open Accounts in the rail',sel:'[data-ent="acc"]'},
+   {t:'Pick the industry',sel:'[data-fsel="ind"]',fill:1},
+   {t:'Pick the state',sel:'[data-fsel="st"]',fill:1},
+   {t:'Set the ceiling on seats',sel:'[data-frng="size:1"]',fill:1}]},
+ {id:'h4',who:'Head',nm:'Leave for two weeks without the agents going loose',
+  why:'“Сделай так, чтобы агенты работали сами, но никому новому не писали” (стенд, H4) · JOB-020',
+  check:'the class is on “approve”, and the log says who changed it and when',
+  steps:[{t:'Open Agents in the rail',sel:'[data-ent="ag"]'},
+   {t:'Open “Decision classes”',sel:'[data-open="dclist"]'},
+   {t:'Take the first touch off auto',sel:'[data-dcl]'}]},
+ {id:'h5',stops:2,who:'Head',nm:'Check whether an agent wrote to someone who opted out',
+  why:'“Проверь, было ли, и сделай так, чтобы не повторилось” (стенд, H5) · JOB-021',
+  check:'the entry carries the evidence and what stopped it',
+  steps:[{t:'Open the log',sel:'#tPanel'},
+   {t:'Show the decisions only',sel:'[data-lkind="decision"]'}]},
+ /* ===== AE ===== */
+ {id:'a1',who:'AE',nm:'Get ready for a meeting in an hour',
+  why:'“Кто придёт, о чём договорились, что болит” (стенд, A1) · JOB-027',
+  check:'the briefing names the people, the last word and the open question',
+  steps:[{t:'Open Tasks in the rail',sel:'[data-ent="task"]'},
+   {t:'Switch to the calendar',sel:'[data-tview="cal"]'},
+   {t:'Open the meeting',sel:'.cev'},
+   {t:'Press what the task offers — the briefing',sel:'[data-tkact]'}]},
+ {id:'a2',stops:2,who:'AE',nm:'Check what we may promise before quoting',
+  why:'“Клиент просит бэкап в своё хранилище — можем ли” (стенд, A5) · JOB-023',
+  check:'the answer is in the price list, with the reason we do not promise it',
+  steps:[{t:'Open the Document tab',sel:'[data-tab="doc"]'},
+   {t:'Open the price list',sel:'[data-open="price:1"]'}]},
+ {id:'a3',stops:2,who:'AE',nm:'Sign what only a human signs',
+  why:'JOB-023 — подписать то, что подписывает только человек',
+  check:'the signature is yours, the entry is under your name, and the ceiling held',
+  steps:[{t:'Open Tasks in the rail',sel:'[data-ent="task"]'},
+   {t:'Open the task about the signature',sel:'tr[data-tkopen]'},
+   {t:'Press the button it offers',sel:'[data-tkact]'}]},
+ {id:'a4',who:'AE',nm:'Put a script of this stage into the answer',
+  why:'Алина 13.10 — «CRM предлагает скрипты под текущую стадию» · JOB-030',
+  check:'the text lands in the box with the record’s own numbers in it',
+  steps:[{t:'Open Messages in the rail',sel:'[data-ent="inb"]'},
+   {t:'Open a conversation',sel:'[data-open^="msg:"]'},
+   {t:'Put the stage script into the box',sel:'[data-tpluse]'}]},
+ {id:'a5',who:'AE',nm:'Pick the channel that reaches them',
+  why:'JOB-031 — выбрать канал, которым дойдёт',
+  check:'the send button says which channel it goes by',
+  steps:[{t:'Open Messages in the rail',sel:'[data-ent="inb"]'},
+   {t:'Open a conversation',sel:'[data-open^="msg:"]'},
+   {t:'Choose the channel',sel:'[data-chan]'}]},
+ /* ===== CSM ===== */
+ {id:'c1',who:'CSM',nm:'Mark what the client is waiting for',
+  why:'“Собери, что им наобещали, и назначь владельца” (стенд, C1) · JOB-013',
+  check:'every promise has a named owner',
+  steps:[{t:'Open Tasks in the rail',sel:'[data-ent="task"]'},
+   {t:'Narrow to what is on you',sel:'[data-fsel="towner"]',fill:1},
+   {t:'Give the one that matters an hour',sel:'.thr input',fill:1}]},
+ {id:'c2',who:'CSM',nm:'Check the invoice against the contract',
+  why:'“Выстави счёт ровно по договору” (стенд, C2) · JOB-025',
+  check:'the number in the invoice is the number in the contract',
+  steps:[{t:'Open Documents in the rail',sel:'[data-ent="doc"]'},
+   {t:'Open the whole table',sel:'[data-open="db:doc"]'},
+   {t:'Narrow to invoices',sel:'[data-dbf="doc|kind"]',fill:1}]},
+ {id:'c3',stops:2,who:'CSM',nm:'Find who signed and never started',
+  why:'“Найди тех, кто до сих пор не начал пользоваться” (стенд, C3) · JOB-026',
+  check:'the list is the ones at risk, not everyone',
+  steps:[{t:'Open Accounts in the rail',sel:'[data-ent="acc"]'},
+   {t:'Open the whole table',sel:'[data-open="db:acc"]'},
+   {t:'Narrow by the stage',sel:'[data-dbf="acc|stg"]',fill:1}]},
+ {id:'c4',who:'CSM',nm:'See what we come to the renewal with',
+  why:'“Что обещали, что сделали, сколько тикетов” (стенд, C4) · JOB-024',
+  check:'promises and facts stand side by side',
+  steps:[{t:'Open Documents in the rail',sel:'[data-ent="doc"]'},
+   {t:'Open a document of that client',sel:'[data-open^="docnode:"]'}]},
+ {id:'c5',who:'CSM',nm:'Check whether we really promised that',
+  why:'“Говорят, обещали бесплатную миграцию — проверь, кто обещал” (стенд, C5) · JOB-025',
+  check:'the answer is a line in the correspondence, with a name and a date',
+  steps:[{t:'Open Messages in the rail',sel:'[data-ent="inb"]'},
+   {t:'Open the conversation of that client',sel:'[data-open^="msg:"]'}]},
+ /* ===== GTM Engineer ===== */
+ {id:'g1',stops:3,who:'GTM Eng',nm:'Check whether an agent broke a rule, with the evidence',
+  why:'“Покажи улику: что сделал, какое правило, кому ушло” (стенд, G1) · JOB-014',
+  check:'every entry names who, under which class, on what evidence',
+  steps:[{t:'Open Agents in the rail',sel:'[data-ent="ag"]'},
+   {t:'Open our side',sel:'[data-open="us"]'},
+   {t:'Show the decisions only',sel:'[data-lkind="decision"]'}]},
+ {id:'g2',who:'GTM Eng',nm:'Stop the mailbox that risks the domain',
+  why:'“Проверь ёмкость отправки и останови то, что рискует” (стенд, G2) · JOB-004',
+  check:'the capacity of the rest is recomputed, and the entry says who stopped it',
+  steps:[{t:'Open Agents in the rail',sel:'[data-ent="ag"]'},
+   {t:'Open our side — the mailboxes are there',sel:'[data-open="us"]'},
+   {t:'Open a mailbox',sel:'[data-mailopen]'},
+   {t:'Stop it',sel:'[data-mailstop]'}]},
+ {id:'g3',who:'GTM Eng',nm:'Take the right to send away, leave the right to prepare',
+  why:'“Убери право отправлять без проверки, оставь право готовить” (стенд, G4) · JOB-020',
+  check:'the class sits on “approve”, and the ceiling of the guarantor held',
+  steps:[{t:'Open Agents in the rail',sel:'[data-ent="ag"]'},
+   {t:'Open “Decision classes”',sel:'[data-open="dclist"]'},
+   {t:'Move the step of the class',sel:'[data-dcl]'}]},
+ {id:'g4',who:'GTM Eng',nm:'Rewrite the process in words, not in code',
+  why:'“Опиши процесс так, чтобы его можно было менять без разработчика” (стенд, G5) · JOB-022',
+  check:'the funnel on the screen is the one the deals walk',
+  steps:[{t:'Open the Workflow tab',sel:'[data-tab="flow"]'},
+   {t:'Switch to editing',sel:'[data-sopmode="1"]'},
+   {t:'Add a step',sel:'[data-stepadd]'}]},
+ {id:'g5',stops:3,who:'GTM Eng',nm:'Roll back what an agent did',
+  why:'JOB-017 — отмотать назад и увидеть, когда сломалось',
+  check:'the edit stays and a compensating entry stands beside it — nothing disappears',
+  steps:[{t:'Open Agents in the rail',sel:'[data-ent="ag"]'},
+   {t:'Open our side',sel:'[data-open="us"]'},
+   {t:'Roll one back',sel:'[data-agundo]'}]},
+ {id:'g6',stops:2,who:'GTM Eng',nm:'Tell a fact from a rumour before it reaches a number',
+  why:'JOB-025 — отличить факт от слуха',
+  check:'the number moves only after someone held the fact true, and the log says who',
+  steps:[{t:'Open Segments in the rail',sel:'[data-ent="seg"]'},
+   {t:'Hold a fact true or refute it',sel:'[data-fact]'}]}];
 const SCENBY=Object.fromEntries(SCEN.map(x=>[x.id,x]));
+/* Сценарии выставлены наружу намеренно: Ливон забирает шаги в автотесты, и забирать
+   он должен тот же набор, по которому здесь ходит человек, а не его копию. */
+window.SCENARIOS=SCEN;
 function scenCur(){return S.scen?SCENBY[S.scen.id]:null;}
-function scenDone(){const sc=scenCur();return !!sc&&S.scen.i>=sc.steps.length;}
+function scenDone(){const sc=scenCur();return !!sc&&!!sc.steps&&S.scen.i>=sc.steps.length;}
 /* Шаг засчитывается самим действием. Слушатели стоят в фазе перехвата: до того, как
    рабочий обработчик перерисует экран и нажатый орган исчезнет из DOM. */
 function scenWatch(e){
-  const sc=scenCur(); if(!sc||scenDone())return;
+  const sc=scenCur(); if(!sc||!sc.steps||scenDone())return;
   const st=sc.steps[S.scen.i]; if(!st||!e.target||!e.target.closest)return;
   let el=null; try{el=e.target.closest(st.sel);}catch(_){return;}
   if(!el)return;
@@ -6097,11 +6242,21 @@ document.addEventListener('change',scenWatch,true);
 document.addEventListener('input',scenWatch,true);
 function scenHTML(){
   const sc=scenCur();
-  if(!sc)return `<div class="scen"><div class="scl">Work instructions · ${SCEN.length}</div>
-    <div class="note">Walk one and the step ticks itself off when you actually do it. The same step is what the automated test takes.</div>
-    ${SCEN.map(x=>`<button class="scr sw" data-scenrun="${x.id}">
-      <span class="scn">${esc(x.nm)}</span>
-      <span class="scc">${esc(x.who)} · ${x.steps.length} steps · ${esc(x.why)}</span></button>`).join('')}</div>`;
+  if(!sc){
+    const roles=[...new Set(SCEN.map(x=>x.who))];
+    const walk=SCEN.filter(x=>x.steps).length;
+    return `<div class="scen"><div class="scl">Work instructions · ${SCEN.length}</div>
+      <div class="note">Every one of them is a task from the bench, in the words it was given in.
+        ${SCEN.filter(x=>x.steps&&!x.stops).length} walk end to end, ${SCEN.filter(x=>x.stops).length} stop at a named step, ${SCEN.length-walk} say what is missing instead of pretending.
+        A step ticks itself off when you actually do it.</div>
+      ${roles.map(r=>`<div class="scl2">${esc(r)}</div>`
+        +SCEN.filter(x=>x.who===r).map(x=>`<button class="scr sw${x.steps?'':' gap'}" data-scenrun="${x.id}">
+          <span class="scn">${esc(x.nm)}</span>
+          <span class="scc">${x.steps?(x.stops?'walks to step '+x.stops+' of '+x.steps.length:x.steps.length+' steps'):'not possible yet'} · ${esc(x.why)}</span></button>`).join('')).join('')}</div>`;}
+  if(!sc.steps)return `<div class="scen"><div class="scl">${esc(sc.nm)} · not possible yet</div>
+    <div class="note">${esc(sc.why)}</div>
+    <div class="note gapn">${esc(sc.gap)}</div>
+    <div class="btns"><button class="lnk" data-scenstop="1">Close it</button></div></div>`;
   const i=S.scen.i, done=scenDone();
   const row=(st,k)=>`<div class="sstep${k<i?' ok':k===i?' now':''}">
     <span class="sn">${k<i?'✓':k+1}</span>
@@ -6110,6 +6265,7 @@ function scenHTML(){
   return `<div class="scen"><div class="scl">${esc(sc.nm)} · ${done?'walked':`step ${i+1} of ${sc.steps.length}`}</div>
     ${done?`<div class="note">All ${sc.steps.length} steps walked. What to check: ${esc(sc.check)}.</div>`
       :`<div class="note">${esc(sc.why)}</div>`}
+    ${sc.stops?`<div class="note gapn">The automated walk gets to step ${sc.stops} and stops: the control the next step names does not appear from here. Written down as it is, not smoothed over.</div>`:''}
     ${sc.steps.map(row).join('')}
     <div class="btns"><button class="lnk" data-scenstop="1">${done?'Close it':'Stop walking'}</button>
       <button class="lnk" data-scenrun="${sc.id}">Start over</button>
@@ -7085,8 +7241,18 @@ document.addEventListener('click',e=>{
   /* Тип контакта ставит человек, и запись об этом идёт в журнал правок: это
      изменение объекта, а не вид экрана. Повторное нажатие снимает — тогда тип
      снова выводится из записанного. */
-  if(b.dataset.scenrun){S.scen={id:b.dataset.scenrun,i:0};S.agView=null;renderAgent();
-    toast(`${SCENBY[b.dataset.scenrun].nm} — step 1 of ${SCENBY[b.dataset.scenrun].steps.length}. Do it in the screen; the step ticks itself.`);return;}
+  if(b.dataset.scenrun){const sc=SCENBY[b.dataset.scenrun];
+    S.scen={id:sc.id,i:0};S.agView=null;
+    /* Ответ агента ложится и в разговор: спросили «как запустить аутрич» — он ответил
+       «зайди туда, нажми то», и ответ остался в ленте, а не только в панели шагов. */
+    S.chat.push({u:1,t:esc('How do I do this: '+sc.nm+'?')});
+    S.chat.push({u:0,t:sc.steps
+      ? `<b>${esc(sc.nm)}</b> — ${esc(sc.who)}.<br>`+sc.steps.map((x,i)=>`${i+1}. ${esc(x.t)}`).join('<br>')
+        +`<br><span class="faint">Then check: ${esc(sc.check)}.</span>`
+      : `<b>${esc(sc.nm)}</b> — this cannot be done here yet.<br>${esc(sc.gap)}`});
+    renderAgent();
+    toast(sc.steps?`${sc.nm} — step 1 of ${sc.steps.length}. Do it in the screen; the step ticks itself.`
+      :`${sc.nm} — not possible yet. The panel says what is missing.`);return;}
   if(b.dataset.scenstop){S.scen=null;S.agView=null;renderAgent();return;}
   if(b.dataset.scenwhere!==undefined){const sc=scenCur();if(!sc)return;
     const st=sc.steps[+b.dataset.scenwhere];let el=null;
