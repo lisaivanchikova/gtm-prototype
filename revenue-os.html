@@ -339,6 +339,10 @@ body.focus-mode .ptabs{cursor:pointer}
 .crumb:hover{background:var(--hover);color:var(--fg)}
 .crumb.on{color:var(--fg);font-weight:600}
 .view{flex:1;min-height:0;overflow:auto;position:relative}
+/* Рабочая область — мера ширины для раскладок внутри неё. Класс .view носит ещё и
+   переключатель вида задач (.pick.view), ему containment ломает строку кнопок —
+   поэтому контейнер объявлен на самих областях по их именам. */
+#view,#view2{container-type:inline-size;container-name:work}
 
 /* map view */
 .mapview{display:flex;flex-direction:column;height:100%;min-height:0}
@@ -1079,7 +1083,10 @@ table.db.tasks td:first-child{max-width:340px}
 .ecard .av.big{width:28px;height:28px;font-size:11px}
 .ecard h3{font-size:13px;line-height:1.25}
 .ecard .sub{font-size:11px;color:var(--fg3);line-height:1.3}
-.ecard .params{grid-template-columns:1fr 1fr;gap:4px 8px}
+/* Две колонки в шторке жёстко: почта и состояние рвались по слогам, когда шторка
+   узкая (Лиза, 14.10). Колонок столько, сколько влезает по 132px — обычно две,
+   в узкой шторке одна, и значение стоит целиком. */
+.ecard .params{grid-template-columns:repeat(auto-fit,minmax(132px,1fr));gap:6px 10px}
 .ecard .params b{font-size:11px}
 .ecard .hdr{font-size:10px}
 .ecard .row{height:20px;font-size:11px}
@@ -1447,6 +1454,18 @@ table.db tr.det .s{display:block;font-family:var(--mono);font-size:11px;line-hei
 .frow button.fx:hover{color:var(--fg)}
 .frow.fchk{cursor:pointer}
 .frow.fchk input{margin-left:auto}
+/* Выбор по столбцу: кнопка говорит, что выбрано, список под ней — чем выбирать. */
+.frow .fv.fmul{display:flex;align-items:center;gap:6px;justify-content:flex-end}
+.frow .fv.fmul i{font-style:normal;color:var(--fg3);font-size:9px}
+.frow .fv.fmul.on{color:var(--accent)}
+.fmbox{display:flex;flex-direction:column;max-height:220px;overflow:auto;padding:4px 6px 8px 12px;
+  background:color-mix(in srgb,var(--hover) 55%,transparent)}
+.fmbox label{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--fg2);
+  padding:4px 4px;cursor:pointer;border-radius:5px}
+.fmbox label:hover{background:var(--hover);color:var(--fg)}
+.fmbox input{margin:0;accent-color:var(--accent)}
+.fmbox label span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fmbox label b{color:var(--fg3);font-weight:500;font-variant-numeric:tabular-nums}
 
 .dblink{display:block;width:100%;text-align:left;padding:8px 12px;margin-top:8px;background:none;border:0;
   border-top:1px solid var(--border);color:var(--accent);font:inherit;font-size:11px;cursor:pointer}
@@ -1621,8 +1640,8 @@ body{font-family:var(--ui)!important;-webkit-font-smoothing:antialiased}
 .dbh .cnt{font-family:var(--mono)!important;font-size:11px!important;color:var(--link)!important;padding:3px 9px;border-radius:999px;background:var(--accent-soft);border:1px solid var(--line)}
 .dbh input{height:34px!important;border-radius:10px!important;background:var(--input)!important;border:1px solid var(--line)!important;padding:0 12px!important;font-size:12.5px!important}
 .dbh .pick button,.dbh .ib.wd{border-radius:999px!important;height:26px!important;padding:0 12px!important}
-.dbquick{padding:4px 22px 10px!important;border-bottom:0!important;gap:8px!important}
-.dbquick button{height:28px!important;padding:0 12px!important;border-radius:999px!important;font-size:12px!important;background:var(--card)!important;border:1px solid var(--border)!important;color:var(--fg2)!important;transition:all .15s}
+.dbquick{padding:4px 22px 10px!important;border-bottom:0!important;gap:8px!important;flex-wrap:wrap}
+.dbquick button{height:28px!important;padding:0 12px!important;white-space:nowrap;flex:0 0 auto;border-radius:999px!important;font-size:12px!important;background:var(--card)!important;border:1px solid var(--border)!important;color:var(--fg2)!important;transition:all .15s}
 .dbquick button:hover{border-color:var(--line)!important;color:var(--fg)!important}
 .dbquick button[aria-pressed="true"]{background:var(--signal)!important;border-color:var(--signal)!important;color:#fff!important;box-shadow:var(--sig-glow)}
 
@@ -1703,11 +1722,13 @@ body{font-family:var(--ui)!important;-webkit-font-smoothing:antialiased}
    то под имя, то в середину, имя ломалось по слогам (Лиза, 14.10). Теперь это одна
    сетка на всех: знак · имя с ролью · состояние справа. */
 .signer{border-radius:var(--r-lg)!important;background:var(--card);padding:13px 15px!important;
-  display:grid!important;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:4px 11px}
-.signer>.pav,.signer>.gl,.signer>span:first-child{grid-row:1/3}
-.signer b{grid-column:2;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.signer .who,.signer>span:not(:first-child){grid-column:2;font-size:11.5px;color:var(--fg3);min-width:0}
-.signer .chip{grid-column:3;grid-row:1/3;justify-self:end;white-space:nowrap}
+  display:grid!important;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:8px 11px}
+.signer>.pav,.signer>.gl{grid-column:1;grid-row:1}
+.signer>.grow{grid-column:2;grid-row:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.signer>.grow>div:first-child{font-size:13px;font-weight:600;color:var(--fg);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.signer>.grow>.note{font-size:11.5px;color:var(--fg3);line-height:1.35}
+.signer>.chip{grid-column:1/3;grid-row:2;justify-self:start;white-space:nowrap}
 .kv{gap:10px!important}
 .kv div{border-radius:12px!important;background:var(--card);padding:12px 14px!important}
 .kv b{font-size:15px!important}
@@ -1739,6 +1760,7 @@ body{font-family:var(--ui)!important;-webkit-font-smoothing:antialiased}
 .mslice.hud{left:16px!important;top:16px!important;z-index:5;max-width:min(460px,calc(100% - 90px))!important;padding:16px 18px!important;display:flex;flex-direction:column;gap:14px;
   background:var(--glass)!important;border:1px solid var(--line)!important;border-radius:18px!important;backdrop-filter:blur(18px) saturate(1.3);box-shadow:var(--shadow);animation:v3rise .5s var(--ease) both}
 .mslice.hud.one{gap:4px}
+.mslice.hud .btn.sm{align-self:start;margin-top:8px;height:28px;padding:0 14px;font-size:12px;border-radius:999px}
 .hud .hk{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--link)}
 .hud .hrow{display:grid;grid-template-columns:auto minmax(0,1fr);gap:22px;align-items:end}
 .hud .hmain{display:flex;flex-direction:column;gap:4px}
@@ -1979,7 +2001,6 @@ body{font-family:var(--ui)!important;-webkit-font-smoothing:antialiased}
 .kcf{display:flex;align-items:center;gap:10px;font-size:11px}
 .kcf .mn{font-weight:600;color:var(--fg)}
 .kcf .num{margin-left:auto}
-@media (max-width:1100px){.recgrid{grid-template-columns:1fr}.recside{position:static}}
 .fld{display:grid!important;align-items:baseline}
 .fld b{text-align:left!important;justify-self:start}
 .pers .recgrid{grid-template-columns:minmax(0,1fr) minmax(340px,420px)}
@@ -1992,6 +2013,11 @@ body{font-family:var(--ui)!important;-webkit-font-smoothing:antialiased}
 .pers .recside .reach{grid-template-columns:62px minmax(0,1fr);align-items:start;row-gap:5px;padding:8px 0}
 .pers .recside .reach .rv{white-space:normal;text-overflow:clip;overflow:visible;overflow-wrap:anywhere}
 .pers .recside .reach .chip,.pers .recside .reach .ract{grid-column:2;justify-self:start}
+
+/* Раскладка записи меряется рабочей областью, а не окном: при открытых фильтрах
+   и агенте от окна в 1280 центру остаётся около 600 — колонка «как дотянуться»
+   сжималась до десяти знаков в строке, и карточка человека «плыла» (Лиза, 14.10). */
+@container work (max-width:900px){.recgrid,.pers .recgrid{grid-template-columns:minmax(0,1fr)}.recside{position:static}}
 
 </style>
 
@@ -3350,9 +3376,19 @@ const DBVALS={};
 const DBENT={acc:'acc',ppl:'person',doc:'doc'};
 const DBSKIP={acc:['nm','state','acv','last','touch','emp','stg','proj','ind','seg','loc0'],
               person:['nm','role','pst','ctype','proj','state'],doc:['nm','kind','proj','seg']};
+/* Шторку рисуют и тогда, когда таблицу ни разу не открывали: у документов отборы
+   Account · State · Where it lives не появлялись вовсе — значения столбцов считала
+   только таблица (Лиза, 14.10). Теперь шторка считает их сама по тем же строкам.
+   Без учёта других отборов: их наложит таблица, когда её откроют. */
+function dbValsAll(kind){
+  const out={},rows=dbRows(kind);
+  (DBCOLS[kind]||[]).forEach(([k])=>{const m={};
+    rows.forEach(r=>{const v=colVal(r,k);if(v!=='')m[v]=(m[v]||0)+1;});out[k]=m;});
+  return out;}
 function dbExtraRows(ent){
   const kind=DBENT[ent]; if(!kind)return '';
-  const vals=DBVALS[kind]||{};
+  let vals=DBVALS[kind];
+  if(!vals||!Object.keys(vals).length)vals=DBVALS[kind]=dbValsAll(kind);
   const NUM=['acv','emp','last','touch','next'];
   const cols=(DBCOLS[kind]||[]).filter(([k])=>!(DBSKIP[kind]||[]).includes(k)
     &&(NUM.includes(k)||(vals[k]&&Object.keys(vals[k]).length>1)));
@@ -3363,12 +3399,24 @@ function dbExtraRows(ent){
         +`<span class="frng"><input type="text" inputmode="numeric" autocomplete="off" data-dbfrng="${kind}|${k}|0" value="${esc(v[0])}" placeholder="from" aria-label="${esc(lbl)} from">`
         +`<i>–</i><input type="text" inputmode="numeric" autocomplete="off" data-dbfrng="${kind}|${k}|1" value="${esc(v[1])}" placeholder="to" aria-label="${esc(lbl)} to"></span>`
         +`${v[0]||v[1]?`<button class="fx" data-dbfclr="${kind}|${k}" aria-label="Clear ${esc(lbl)}">×</button>`:'<span class="fx"></span>'}</div>`;}
-    const m=vals[k],cur=String(((S.dbF||{})[kind]||{})[k]||'');
+    /* «Чтобы можно было несколько из выпадающих выбрать — галочками отметить»
+       (Лиза, 14.10). Одиночный список отвечал только на «какой именно», а работа
+       звучит иначе: «NDA и MSA», «Техас и Флорида». Выбранное стоит в самой кнопке,
+       список раскрывается под ней — один раскрытый за раз, иначе шторка превращается
+       в простыню из всех значений всех столбцов. */
+    const m=vals[k],sel=dbSelOf(kind,k);
     const keys=Object.keys(m).sort((a,b)=>m[b]-m[a]||String(a).localeCompare(String(b)));
-    return `<div class="frow"><span class="fk">${esc(lbl)}</span><select class="fv" data-dbfsel="${kind}|${k}">`
-      +`<option value="">all</option>`
-      +keys.map(v=>`<option value="${esc(v)}" ${cur===String(v)?'selected':''}>${esc(v.length>24?v.slice(0,24)+'\u2026':v)} · ${m[v]}</option>`).join('')
-      +`</select>${cur?`<button class="fx" data-dbfclr="${kind}|${k}" aria-label="Clear ${esc(lbl)}">×</button>`:'<span class="fx"></span>'}</div>`;}).join('');}
+    const open=S.dbFOpen===kind+'|'+k;
+    const lab=!sel.length?'all':sel.length===1?sel[0]:sel.length+' of '+keys.length;
+    return `<div class="frow"><span class="fk">${esc(lbl)}</span>`
+      +`<button class="fv fmul${sel.length?' on':''}" data-dbfopen="${kind}|${k}" aria-expanded="${open?'true':'false'}">`
+      +`<span>${esc(lab.length>22?lab.slice(0,22)+'\u2026':lab)}</span><i>\u25be</i></button>`
+      +`${sel.length?`<button class="fx" data-dbfclr="${kind}|${k}" aria-label="Clear ${esc(lbl)}">×</button>`:'<span class="fx"></span>'}</div>`
+      +(open?`<div class="fmbox">`+keys.map(v=>`<label><input type="checkbox" data-dbfchk="${kind}|${k}" value="${esc(v)}" ${sel.includes(String(v))?'checked':''}>`
+        +`<span>${esc(v.length>26?v.slice(0,26)+'\u2026':v)}</span><b>${m[v]}</b></label>`).join('')+`</div>`:'');}).join('');}
+/* Выбор по столбцу — всегда набор значений, даже когда оно одно. */
+function dbSelOf(kind,key){const v=((S.dbF||{})[kind]||{})[key];
+  return Array.isArray(v)?v.map(String):(v==null||v===''||typeof v==='object'?[]:[String(v)]);}
 function filterBar(ent){
   S.ef=S.ef||{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false};
   const keys=FSET[ent]||FSET.acc, allf=keys.map(k=>[k,FFLD[k]]).filter(x=>x[1]);
@@ -4063,7 +4111,10 @@ function renderSlice(t,seg,clustered){
   const el=$('mslice');if(!el)return;
   if(S.mapAcc&&ACCBY[S.mapAcc]){const a=ACCBY[S.mapAcc];
     el.className='mslice hud one';
-    el.innerHTML=`<span class="hk">Account</span><b class="hn">${esc(a.name)}</b><span class="faint">its people, papers and flow · colour = state</span>`;
+    /* Переход с карты внутрь: сама карта показывает, где компания и из чего она
+       состоит, но её запись открывается только отсюда (Лиза, 14.10). */
+    el.innerHTML=`<span class="hk">Account</span><b class="hn">${esc(a.name)}</b><span class="faint">its people, papers and flow · colour = state</span>`
+      +(openNow('acc',a.id)?'':`<button class="btn sm" data-open="acc:${a.id}">Open the record</button>`);
     el.hidden=false;return;}
   /* Счёт тот же, что был в строке над картой; v2 показывает его панелью поверх карты. */
   const all=ACC.filter(a=>{const e=stateAt(a,t);return e&&inF(a)&&!(e.s>=7&&t-e.w>=3);});
@@ -6445,6 +6496,14 @@ function renderInwin(){
     <div class="iwf">A window inside the window — the agent keeps the session, you only look and answer.</div>`;
   host.style.position=host.style.position||'relative';
   host.appendChild(el);}
+/* Открыт ли сейчас этот объект рабочей областью: область та же и ссылка та же.
+   По этому вопросу решается, нужна ли кнопка перехода — орган управления не стоит
+   там, где ему нечего делать. */
+function openNow(type,id){
+  const v=VIEWOF[type==='acc'?'org':type==='person'?'msg':type];
+  if(!v||S.tab!==v)return false;
+  const tb=S.tabs.find(x=>x.id===v);
+  return !!(tb&&String(tb.ref)===String(id));}
 function renderEcard(){
   /* Карточка объекта стояла слева от ленты на семи экранах и пересказывала то, что уже
      открыто в центре, вместе с кнопкой «открыть то, что открыто». Лента — отделение
@@ -6478,7 +6537,7 @@ function renderEcard(){
       (()=>{const pr=projOf(a),P=pr?PRJBY[pr]:null;
         return `<div class="params flds"><div class="fld dnc"><span class="fk">Project</span>
           <button class="fpol ${pr?'on':''}" data-projset="${esc(a.id)}" data-tip="${esc(P?P.nm+' — '+P.goal+' · '+P.due+(S.proj&&a.id in S.proj?' · you put this on by hand':' · '+P.seed):'Nobody has put this company on a project. Click to put it on one')}">${esc(P?P.nm:'none')}</button></div></div>`;})()+
-      `<div class="hdr">People</div>`+peopleOf(a).map(p=>`<button class="row" data-open="person:${p.id}">${face(p.nm,(personWorth(p.id)||{eff:{}}).eff.c||'')}<span class="nm">${esc(p.nm)}</span><span class="rt">${p.role}</span></button>`).join('')+`<button class="btn" data-open="sop:${a.id}">Open the workflow</button>`;}
+      `<div class="hdr">People</div>`+peopleOf(a).map(p=>`<button class="row" data-open="person:${p.id}">${face(p.nm,(personWorth(p.id)||{eff:{}}).eff.c||'')}<span class="nm">${esc(p.nm)}</span><span class="rt">${p.role}</span></button>`).join('')+(openNow('acc',a.id)?'':`<button class="btn" data-open="acc:${a.id}">Open the account</button>`)+`<button class="btn alt" data-open="sop:${a.id}">Open the workflow</button>`;}
   else if(sel&&sel.type==='person'){const p=personById(sel.id),a=ACCBY[p.acc],w=personWorth(sel.id);
     h=`<div class="top">${face(p.nm,'big')}<div><h3>${esc(p.nm)}</h3><div class="sub">${esc(p.title)} · ${esc(a.name)}</div></div></div>`
       +params([['Role in the deal',p.role],['Moves ACV',`<span class="num">${w?usd(w.money):usdAcv(a)}</span>`],['Which way',w?`<span class="${w.eff.c}">${w.eff.l}</span>`:'—'],['Email',esc(emailOf(p,a))]])
@@ -6487,6 +6546,12 @@ function renderEcard(){
          то, что уже открыто, и ходок записал её мёртвой (HEAD, 09.10). У органа не
          бывает работы «подтвердить то, что уже случилось». Остались LinkedIn и
          WhatsApp: они открывают сессию внутри системы, это другая работа. */
+      /* «Тыкаю на человечка на карте — и никак не перейти на его карточку, как и на
+         компанию: нет кнопочки» (Лиза, 14.10). Клик по узлу карты по решению Николая
+         только переставляет память областей, центр за ним не идёт, — значит переход
+         нужен органом. Кнопка стоит ровно тогда, когда ей есть что делать: если
+         карточка этого человека уже открыта, её здесь нет. */
+      +(openNow('person',p.id)?'':`<button class="btn" data-open="person:${p.id}">Open the profile</button>`)
       +`<button class="btn alt" data-inwin="linkedin:${p.id}" data-tip="Opens inside the system, not in a browser tab">LinkedIn</button>`+`<button class="btn alt" data-inwin="whatsapp:${p.id}" data-tip="Opens inside the system, not in a browser tab">WhatsApp</button>`;}
   else if(sel&&sel.type==='doc'){const d=DOCS[sel.id],a=ACCBY[d.acc];
     h=`<div class="top"><span class="av sq big">${SRC[d.src][0].slice(0,3)}</span><div><h3>${esc(d.kind)}</h3><div class="sub">${esc(a.name)}</div></div></div>`
@@ -6775,6 +6840,7 @@ function renderDB(){
       if(f.from!=null&&f.from!==''&&v<+f.from)return false;
       if(f.to!=null&&f.to!==''&&v>+f.to)return false;
       return true;}
+    if(Array.isArray(f))return f.map(String).includes(String(colVal(r,k)));
     return String(colVal(r,k))===String(f);});
   /* Счётчик у значения считается с учётом остальных столбцов, но без своего:
      выбрав «NDA», человек должен видеть состояния этих 476 бумаг, а не всех 2655,
@@ -7899,7 +7965,7 @@ function logAdd(ag,ttl,st,m){const o={ag,w:NOW,d:NOWDAY,ttl,st};
 const LKIND={decision:'decision',edit:'edit',metric:'metric',revert:'revert'};
 const meNow=()=>WHOM[S.profile]||'—';
 document.addEventListener('click',e=>{
-  const b=e.target.closest('[data-xpanel],[data-lkind],[data-lnoev],[data-dcl],[data-bkeep],[data-bdrop],[data-bsel],[data-bselall],[data-bgo],[data-bhand],[data-bclr],[data-fmul],[data-open],[data-side],[data-tab],[data-web],[data-tabclose],[data-hudmin],[data-tkopen],[data-tkact],[data-thrclr],[data-tpluse],[data-scenrun],[data-scenask],[data-scenstop],[data-scenwhere],[data-scencopy],[data-close],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-feeddown],[data-plus],[data-newchat],[data-agundo],[data-weekpick],[data-week],[data-day],[data-calm],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-f],[data-freset],[data-fclr],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepsel],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-projset],[data-dbstate],[data-fmode],[data-dbsort],[data-dbmore],[data-dbkind],[data-camp],[data-camprun],[data-chan],[data-find],[data-slot],[data-next],[data-nextclr],[data-addp],[data-intent],[data-pst],[data-ctype],[data-campsel],[data-strict],[data-campoff],[data-campblk],[data-campset],[data-campseq],[data-campbox],[data-camprunact],[data-inwin],[data-stuck],[data-mailclear],[data-mailopen],[data-mailstop],[data-mark],[data-note],[data-notecancel],[data-ent],[data-mail],[data-common],[data-importfacts],[data-nextbn],[data-influencer],[data-sim],[data-role],[data-tview],[data-triopen],[data-triskip],[data-stepword],#fDown,#addFact,#addNote');
+  const b=e.target.closest('[data-xpanel],[data-lkind],[data-lnoev],[data-dcl],[data-bkeep],[data-bdrop],[data-bsel],[data-bselall],[data-bgo],[data-bhand],[data-bclr],[data-fmul],[data-open],[data-side],[data-tab],[data-web],[data-tabclose],[data-hudmin],[data-tkopen],[data-tkact],[data-thrclr],[data-tpluse],[data-scenrun],[data-scenask],[data-scenstop],[data-scenwhere],[data-scencopy],[data-close],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-feeddown],[data-plus],[data-newchat],[data-agundo],[data-weekpick],[data-week],[data-day],[data-calm],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-f],[data-freset],[data-fclr],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepsel],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-projset],[data-dbstate],[data-dbfopen],[data-fmode],[data-dbsort],[data-dbmore],[data-dbkind],[data-camp],[data-camprun],[data-chan],[data-find],[data-slot],[data-next],[data-nextclr],[data-addp],[data-intent],[data-pst],[data-ctype],[data-campsel],[data-strict],[data-campoff],[data-campblk],[data-campset],[data-campseq],[data-campbox],[data-camprunact],[data-inwin],[data-stuck],[data-mailclear],[data-mailopen],[data-mailstop],[data-mark],[data-note],[data-notecancel],[data-ent],[data-mail],[data-common],[data-importfacts],[data-nextbn],[data-influencer],[data-sim],[data-role],[data-tview],[data-triopen],[data-triskip],[data-stepword],#fDown,#addFact,#addNote');
   if(!b){if(S.wkOpen&&!e.target.closest('.wkpop')){
     /* Начало отмечено, а конец не назван — значит человек выбрал одну неделю. */
     if(S.wkA!=null){S.t=S.wkA;S.win=1;S.wkA=null;S.wkOpen=false;renderAll();return;}
@@ -8417,6 +8483,7 @@ document.addEventListener('click',e=>{
   /* Пропуск — не решение: задача остаётся в очереди такой же, меняется только то,
      на что человек смотрит. Последнюю строку пропускать некуда — она и остаётся. */
   if(b.dataset.triskip){triMove(1);return;}
+  if(b.dataset.dbfopen){S.dbFOpen=S.dbFOpen===b.dataset.dbfopen?null:b.dataset.dbfopen;renderSide();return;}
   if(b.dataset.dbfclr){const [k,c]=b.dataset.dbfclr.split('|');
     if(S.dbF&&S.dbF[k])delete S.dbF[k][c];
     renderEditorLight();renderSide();return;}
@@ -8760,6 +8827,12 @@ document.addEventListener('change',e=>{const d=e.target.dataset||{};
     return;}
   if(d.dbfrng){const [k,c,i]=d.dbfrng.split('|'); const v=dbRngGet(k,c); v[+i]=e.target.value.trim();
     dbRngSet(k,c,v); S.dbPage=0; renderEditorLight(); return;}
+  if(d.dbfchk){const [k,c]=d.dbfchk.split('|'); const v=e.target.value;
+    const cur=dbSelOf(k,c).filter(x=>x!==v);
+    if(e.target.checked)cur.push(v);
+    S.dbF=S.dbF||{}; S.dbF[k]=S.dbF[k]||{};
+    if(!cur.length)delete S.dbF[k][c]; else S.dbF[k][c]=cur;
+    S.dbPage=0; renderEditorLight(); renderSide(); return;}
   if(d.dbfsel){const [k,c]=d.dbfsel.split('|'); const v=e.target.value;
     S.dbF=S.dbF||{}; S.dbF[k]=S.dbF[k]||{};
     if(v==='')delete S.dbF[k][c]; else S.dbF[k][c]=v;
