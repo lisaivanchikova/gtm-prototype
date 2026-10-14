@@ -1240,6 +1240,11 @@ table.db.tasks td:first-child{max-width:340px}
 /* Флаг течи — слово, а не только цвет: цвет говорит «плохо», слово говорит «здесь». */
 .rst .lkh{align-self:flex-start;font-size:9px;padding:0 5px;height:15px;letter-spacing:.04em;text-transform:uppercase}
 .rst.leaks{border-color:var(--down)}
+/* Два числа и фраза в шапке очереди. Крупное число с мелкой подписью — тот же приём,
+   что на входе, и тот же класс: второй раз рисовать его нечем. */
+.tdesk{display:flex;align-items:flex-start;gap:22px;flex-wrap:wrap;padding-bottom:4px;border-bottom:1px solid var(--border)}
+.tdesk .welcn b{font-size:22px}
+.tdline{flex:1 1 260px;min-width:0;font-size:11px;color:var(--fg2);align-self:center}
 .swords{display:flex;flex-direction:column;gap:6px;margin-top:8px;padding-top:8px;border-top:1px solid var(--border)}
 .swords textarea{width:100%;font-size:11px;min-height:46px;max-height:22vh;resize:vertical}
 .swords .btns{align-items:center}
@@ -5152,8 +5157,21 @@ function renderTasks(){
      осталась тем, чем она и должна быть: что · к кому · кнопка.
      Переключатель вида стал переключателем, а не пометкой в углу: Карина не нашла
      Pipeline, потому что три слова по 10px читаются как служебная надпись. */
+  /* Шапка очереди по разбору Карины (экран 02): обращение по имени, итог недели
+     фразой и два крупных числа с мелкой подписью. Числа считаются здесь же:
+     оба числа и фраза берутся теми же функциями, что на входе, — иначе дверь и
+     очередь скажут про одну неделю разное. «O/N» у Карины — ночь; у нас время живёт
+     неделями, и в подписи стоит неделя. */
+  const mach=welcNums().sent;
+  const need=R.filter(x=>x.due==='now'&&!x.done).length;
+  const me1=String(PROFNM[S.profile]||WHOM[S.profile]||'').split(' ')[0];
+  const wl=welcLine();
   return `<div class="doc${view==='tri'?' wide':''}"><div class="doch"><div><h2>Tasks</h2></div>
       <span class="pick view">${TVIEW.map(([k,t])=>`<button data-tview="${k}" aria-pressed="${view===k}">${t}</button>`).join('')}</span></div>
+    <div class="tdesk">
+      <span class="welcn"><b>${int(mach)}</b><span>letters the agents sent this week</span></span>
+      <span class="welcn"><b>${int(need)}</b><span>need you today</span></span>
+      ${wl?`<span class="tdline">${me1?esc(me1)+' — ':''}${esc(wl.charAt(0).toLowerCase()+wl.slice(1))}</span>`:''}</div>
     ${body}</div>`;}
 
 /* ============ Окно в окне ============
