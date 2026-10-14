@@ -671,6 +671,15 @@ table.runs td{padding:4px 8px 4px 0;border-top:1px solid color-mix(in srgb,var(-
 .fact.mb{background:none;font:inherit;color:inherit;text-align:left;cursor:pointer;align-items:center}
 .fact.mb:hover{background:var(--hover)}
 .fact.mb .note{font-weight:400}
+/* Строка очереди вместе со своей заготовкой: что они сказали — сверху, что уйдёт
+   в ответ — под ней, и кнопка, которой это уходит. */
+.inbitem{display:flex;flex-direction:column}
+.inbdraft{display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+  padding:9px 14px 10px 60px;font-size:11.5px;color:var(--fg2);line-height:1.45}
+.inbdraft .dq{flex:1;min-width:220px;color:var(--fg2)}
+.inbdraft .dq::before{content:"\201c"} .inbdraft .dq::after{content:"\201d"}
+.inbdraft .dact{display:flex;align-items:center;gap:8px;margin-left:auto}
+.inbdraft .btn{min-height:26px;padding:4px 12px;font-size:11.5px}
 .org{padding:16px;display:flex;flex-direction:column;gap:12px;min-width:640px}
 .orgcols{display:flex;gap:16px;align-items:flex-start;justify-content:center;flex-wrap:wrap}
 .orgcol{display:flex;flex-direction:column;align-items:center;gap:0;min-width:0}
@@ -3315,6 +3324,9 @@ const FOPT={
   src:()=>[['','all'],['gmail','email'],['linkedin','LinkedIn'],['wa','WhatsApp'],['aircall','call'],['teams','meeting'],['quickbooks','invoice']],
   pst:()=>PSTF.map(x=>x.slice(0,2)),
   box:()=>[['','all of ours']].concat(BOXES.map(b=>[b[0],b[1]])),
+  inper:()=>{try{const R=inboxAt(S.t);const seen={};const out=[];
+    R.forEach(r=>{if(seen[r.pid])return;seen[r.pid]=1;out.push([r.pid,r.p.nm,r.a.name+' · last word '+r.age]);});
+    return [['','anyone']].concat(out.sort((a,b)=>String(a[1]).localeCompare(String(b[1]))));}catch(e){return [['','anyone']];}},
   towner:()=>[['','anyone'],['me','me']].concat(Object.keys(TOWNNM).map(k=>[k,TOWNNM[k]])),
   tkind:()=>[['','all kinds']].concat(Object.keys(TKND).map(k=>[k,TKND[k]])),
   tby:()=>[['','anyone'],['agent','an agent'],['me','you'],['meeting','the calendar']],
@@ -3364,6 +3376,13 @@ const FFLD={
   /* Ящик — наш, не их: у него семь почт, и первый вопрос к общей ленте не «от кого
      письмо», а «все ли мои ящики сюда заведены». Поле отвечает на него списком. */
   box:   {lbl:'Our account',light:1,hint:'which of our own mailboxes, numbers and profiles this landed in',get:()=>S.box||'',set:v=>{S.box=v;}},
+  /* «Нет фильтра по людям, нет фильтра по дате — что было сделано вчера, например,
+     Алиной? Я этого не вижу» (Вера, 12.10). Два поля на ленту сообщений: с кем
+     разговор и как давно было последнее слово. Дата здесь и есть «как давно»:
+     лента живёт последней неделей, и человек спрашивает «что было вчера», а не
+     «что было 13 сентября». */
+  inper: {lbl:'Person',light:1,hint:'one conversation instead of all of them',get:()=>S.inPer||'',set:v=>{S.inPer=v;}},
+  inday: {lbl:'Last word, days',type:'rng',light:1,get:()=>[S.inD0||'',S.inD1||''],set:v=>{S.inD0=v[0];S.inD1=v[1];}},
   unan:  {lbl:'needs an answer only',type:'tog',get:()=>!!S.unan,set:v=>{S.unan=v;}},
   /* «Кто поставил» — приём Breakcold: четыре класса автора на одной очереди.
      Без него у агента пришлось бы заводить свой экран задач, а он не нужен. */
@@ -3380,7 +3399,7 @@ const FFLD={
 /* Фильтр работы убран с верхнего уровня: пока сегмент не выбран, он дублирует его —
    две из четырёх работ дословно совпадают с именами сегментов (09.10). Внутри сегмента
    он остаётся и означает подсегмент: та же работа, более узкий контекст (канон §10). */
-const FSET={seg:['seg','proj','newonly'],inb:['box','src','proj','unan'],task:['proj','tslice','towner','tkind','tby'],acc:['seg','proj','job','ind','st','size','acv','last','touch','itown','stage','down'],ppl:['proj','ctype','role','pst'],
+const FSET={seg:['seg','proj','newonly'],inb:['box','src','inper','inday','proj','unan'],task:['proj','tslice','towner','tkind','tby'],acc:['seg','proj','job','ind','st','size','acv','last','touch','itown','stage','down'],ppl:['proj','ctype','role','pst'],
             /* Сегмент — главный способ сузить поток: рассылка делается по сегменту,
                и список обещает это прямо в подписи. */
             /* Рассылка режется теми же признаками, что и список: «штат есть только на
@@ -5460,6 +5479,9 @@ function inbRows(t){
   let R=inboxAt(t);
   if(S.box)R=R.filter(r=>r.box===S.box);
   if(S.ef&&S.ef.src)R=R.filter(r=>r.src===S.ef.src);
+  if(S.inPer)R=R.filter(r=>r.pid===S.inPer);
+  if(S.inD0!==''&&S.inD0!=null)R=R.filter(r=>r.days>=+S.inD0);
+  if(S.inD1!==''&&S.inD1!=null)R=R.filter(r=>r.days<=+S.inD1);
   if(S.unan)R=R.filter(r=>inbState(r)[0]==='ans');
   return R;}
 function renderInbox(){
@@ -5470,19 +5492,36 @@ function renderInbox(){
         out =R.filter(r=>inbState(r)[0]==='out');
   const chans=[...new Set(all.map(r=>r.src))].length;
   const boxes=[...new Set(all.map(r=>r.box))].length;
+  /* «Need answer — окей, но тогда должен быть предложен, какой это должен быть
+     ответ. Я не должна видеть все данные этой Анны: мне нужно коротко, какая
+     стадия и что нужно ей отправить» (Карина, 13.10). Поэтому у строки, которая
+     ждёт ответа, под ней стоит сама заготовка и кнопка, которой она уходит, —
+     а не ещё одно досье. Текст тот же, что откроется в переписке: его собирает
+     одна функция, и отправляется ровно то, что здесь написано. */
   const row=r=>{const [k,lbl]=inbState(r);
     /* Агент здесь не советчик сбоку, а тот, чья это работа: он держит этот шаг
        потока. Нажатие уводит в переписку — работа с объектом идёт выше, в области,
        а лента только приводит к ней. */
     const g=AGENTS.find(x=>(x.owns||[]).includes(r.stage));
-    return `<button class="fact mb" data-open="msg:${r.pid}" data-tip="${esc('landed in '+BOXBY[r.box][1]+' · '+r.n+' message'+(r.n===1?'':'s')+' in this conversation · last one '+r.age)}">
+    const D=k==='ans'?draftFor(r.pid):null;
+    const one=D&&D.txt?String(D.txt).split(/(?<=[.!?])\s/)[0].slice(0,130):'';
+    const blocked=k==='ans'&&(optedOut(r.pid)||pstateK(r.pid)!=='active');
+    const main=`<button class="fact mb" data-open="msg:${r.pid}" data-tip="${esc('landed in '+BOXBY[r.box][1]+' · '+r.n+' message'+(r.n===1?'':'s')+' in this conversation · last one '+r.age)}">
       <span class="inbw">${esc(r.age)}</span>
       <span class="chip">${esc(CHLBL[r.src]||r.src)}</span>
       <div class="grow">
-        <div>${esc(r.p.nm)} <span class="faint">· ${esc(r.a.name)}</span></div>
+        <div>${esc(r.p.nm)} <span class="faint">· ${esc(r.a.name)} · ${esc(STAGE[r.stage]||'')}</span></div>
         <div class="note">${r.me?'<span class="faint">we wrote: </span>':''}${esc(r.txt)}${r.act?` <span class="act">${esc(r.act)}</span>`:''}</div></div>
       ${g?`<span class="inbag" title="${esc(g.nm+' — the agent that owns this step')}">${agAv(g.id,'sq')}</span>`:''}
-      <span class="chip ${k==='ans'?'warn':k==='out'?'down':k==='fyi'?'flat':''}">${esc(lbl)}</span></button>`;};
+      <span class="chip ${k==='ans'?'warn':k==='out'?'down':k==='fyi'?'flat':''}">${esc(lbl)}</span></button>`;
+    if(!one)return main;
+    return `<div class="inbitem">${main}
+      <div class="inbdraft">
+        <span class="dq">${esc(one)}</span>
+        <span class="dact">${blocked
+          ? `<span class="faint">sending is closed on this person</span>`
+          : `<button class="btn pri" data-send="${r.pid}">Send under my name</button><button class="btn alt" data-open="msg:${r.pid}">Change it first</button>`}</span>
+      </div></div>`;};
   /* Четыреста ответов за неделю — это свалка, а не работа: то же правило, что и
      у ленты ответов. Сверху столько, сколько человек проходит за один присест,
      и первыми те, за кем деньги. Остальное названо числом, а не спрятано. */
@@ -5494,10 +5533,14 @@ function renderInbox(){
   /* Лента считает разговоры, карта — компании. Слова похожи, единицы разные, и
      без этой строки два числа на одном экране читались бы как разногласие. */
   const owed=new Set(need.map(r=>r.a.id)).size;
+  /* «Много информации. 402 conversations, 7 days — это никто не будет читать.
+     Должны быть только кнопки, которые ведут к результату» (Карина, 13.10).
+     Объём разговоров работой не является: он ничего не просит сделать. Осталось
+     одно число — сколько ждут ответа и за сколькими компаниями они стоят; канал
+     и ящик спрашиваются отборами слева. Строка про то, что нажатие открывает
+     переписку, убрана: это узнаётся первым же нажатием. */
   return `<div class="doc"><div class="doch"><div><h2>Messages</h2>
-      <div class="muted">${all.length} conversations in the last 7 days · ${chans} channels · ${boxes} of our accounts in one feed</div>
-      <div class="muted">${need.length} of them wait on an answer — ${owed} compan${owed===1?'y':'ies'}, the same ones the map shows amber</div></div></div>
-    <div class="note">Opening a line opens the conversation — the answer is written there, not here.</div>
+      <div class="muted">${need.length} wait on an answer — ${owed} compan${owed===1?'y':'ies'}, the same ones the map shows amber</div></div></div>
     ${band('Needs an answer',need,'Nobody is waiting on us.',25)}
     ${wait.length?band('Waiting on them',wait,'',15):''}
     ${fyi.length?band('Nothing to answer',fyi,'',10):''}
@@ -8698,7 +8741,10 @@ document.addEventListener('click',e=>{
   if(b.dataset.send){const pid=b.dataset.send,pp=personById(pid);
     /* Уходило с одного нажатия и молча — у SDR и у AE. Теперь видно, кому и чем. */
     const ch=chanOf(pid)||'email', cs=chanState(pid,ch);
-    const ta=$('draft'), txt=((ta&&ta.value)||'').trim();
+    /* Из переписки отправляется то, что в поле; из ленты поля нет — там отправляется
+       ровно та заготовка, что в строке и показана. Подтверждение в обоих случаях
+       называет первую строку письма, так что уходит видимое, а не угаданное. */
+    const ta=$('draft'); const txt=(ta?(ta.value||''):(draftFor(pid).txt||'')).trim();
     const oo=optedOut(pid);
     /* Письмо незнакомому и письмо знакомому — разные классы решений, и ступень у них
        разная: первое касание агент делает сам, ответ в переписке требует согласия.
