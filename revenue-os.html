@@ -247,18 +247,22 @@ tr.picked{background:var(--selbg)}
 .tdsec{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--fg3);margin:12px 0 6px;border-top:1px solid var(--border);padding-top:8px}
 .tdq{display:flex;flex-direction:column;gap:8px}
 .tdempty{font-size:11px;color:var(--fg3);padding:8px 0}
-.dbh{position:sticky;top:0;z-index:3;background:var(--editor);border-bottom:1px solid var(--border);padding:8px 14px 8px;display:flex;flex-direction:column;gap:8px}
+.dbh{position:sticky;top:0;z-index:3;background:var(--editor);border-bottom:1px solid var(--border);padding:16px 14px 12px;display:flex;flex-direction:column;gap:10px}
 .dbh .r1{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
-.dbh h3{margin:0;font-size:13px}
+.dbh h3{margin:0;font-size:17px;font-weight:600;letter-spacing:-.01em}
 .dbh .cnt{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:11px;color:var(--fg3)}
 .dbh input{flex:1;min-width:160px;max-width:320px;height:26px;background:var(--side);border:1px solid var(--border);border-radius:4px;color:var(--fg);padding:0 8px;font-size:11px;font-family:var(--ui)}
 .dbh .note{font-size:11px;color:var(--fg3)}
 table.db{width:100%;border-collapse:collapse;font-size:12px}
-table.db th{position:sticky;top:0;background:var(--side);text-align:left;font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--fg3);padding:9px 12px;border-bottom:1px solid var(--border);cursor:pointer;white-space:nowrap}
+table.db th{position:sticky;top:0;background:var(--editor);text-align:left;font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--fg3);padding:11px 14px;letter-spacing:.14em;border-bottom:1px solid var(--border);cursor:pointer;white-space:nowrap}
 table.db th:hover{color:var(--fg2)}
 table.db th .ar{color:var(--accent)}
-table.db td{padding:9px 12px;border-bottom:1px solid color-mix(in srgb,var(--border) 70%,transparent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:240px}
+table.db td{padding:13px 14px;border-bottom:1px solid color-mix(in srgb,var(--border) 70%,transparent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:280px;color:var(--fg2)}
+table.db td.nm{font-size:13.5px;font-weight:600;color:var(--fg)}
 table.db tr:hover td{background:var(--hover)}
+table.db tr.on>td{background:var(--selbg)}
+table.db tr.on>td:first-child{box-shadow:inset 2px 0 0 var(--accent)}
+table.db tr.grp td{color:var(--fg3);font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;padding-top:18px;border-bottom:0}
 table.db tr{cursor:pointer}
 table.db td.nm{display:flex;align-items:center;gap:8px;color:var(--fg)}
 table.db td.num{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:right}
@@ -1239,6 +1243,12 @@ table.db.tasks td:first-child{max-width:340px}
 .rsy i{display:block;height:100%}
 .rsp{font-size:10px;color:var(--fg3)}
 .rsp.ybad{color:var(--down)}
+/* Раскрытая строка таблицы — панель внутри таблицы, как у Карины: сначала то, что
+   написала машина, потом кнопки. Белого места в ней больше, чем в самой строке. */
+table.db tr.det>td{background:var(--card);padding:16px 18px 18px;border-bottom:1px solid var(--border);white-space:normal}
+table.db tr.det .s{display:block;font-family:var(--mono);font-size:11px;line-height:1.6;color:var(--fg2);
+  background:color-mix(in srgb,var(--border) 32%,transparent);border:1px solid var(--border);
+  border-radius:8px;padding:11px 13px;margin-bottom:12px;white-space:normal}
 /* Флаг течи — слово, а не только цвет: цвет говорит «плохо», слово говорит «здесь». */
 .rst .lkh{align-self:flex-start;font-size:9px;padding:0 5px;height:15px;letter-spacing:.04em;text-transform:uppercase}
 .rst.leaks{border-color:var(--down)}
@@ -1394,7 +1404,7 @@ table.db.tasks td:first-child{max-width:340px}
    Пара «список ↔ предмет» требует ширины, которой у колонки документа нет:
    760px хватает тексту, но не двум столбцам рядом. Шире становится только этот
    вид — таблица и календарь остаются на своей ширине. */
-.doc.wide{max-width:1120px}
+.doc.wide{max-width:1180px}
 .trg{display:grid;grid-template-columns:minmax(200px,30%) minmax(0,1fr);gap:16px;align-items:start}
 .trgl{display:flex;flex-direction:column;gap:4px;max-height:64vh;overflow:auto;padding-right:2px}
 /* Цветная полоска слева у строки очереди — тот же светофор, что у карточки
@@ -5169,7 +5179,7 @@ function renderTasks(){
   const need=R.filter(x=>x.due==='now'&&!x.done).length;
   const me1=String(PROFNM[S.profile]||WHOM[S.profile]||'').split(' ')[0];
   const wl=welcLine();
-  return `<div class="doc${view==='tri'?' wide':''}"><div class="doch"><div><h2>Tasks</h2></div>
+  return `<div class="doc wide"><div class="doch"><div><h2>Tasks</h2></div>
       <span class="pick view">${TVIEW.map(([k,t])=>`<button data-tview="${k}" aria-pressed="${view===k}">${t}</button>`).join('')}</span></div>
     <div class="tdesk">
       <span class="welcn"><b>${int(mach)}</b><span>letters the agents sent this week</span></span>
