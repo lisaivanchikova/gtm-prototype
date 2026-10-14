@@ -1,5 +1,5 @@
 <!doctype html><html data-theme="dark"><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
-<title>Revenue OS</title>
+<title>Revenue OS — v4</title>
 <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2032%2032%22%3E%3Crect%20width%3D%2232%22%20height%3D%2232%22%20rx%3D%227%22%20fill%3D%22%2314171F%22/%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2216%22%20r%3D%225%22%20fill%3D%22%230057FF%22/%3E%3Ccircle%20cx%3D%2221%22%20cy%3D%2216%22%20r%3D%226.5%22%20fill%3D%22none%22%20stroke%3D%22%23A9BDF0%22%20stroke-width%3D%222%22/%3E%3C/svg%3E">
@@ -1469,6 +1469,451 @@ table.db tr.det .s{display:block;font-family:var(--mono);font-size:11px;line-hei
 @media (max-width:860px){.welcbox{grid-template-columns:1fr}
   .welcr{border-left:0;padding-left:0;border-top:1px solid var(--border);padding-top:16px}}
 </style>
+<style id="ros-skin">
+/* ==========================================================================
+   REVENUE OS · v3 · по брендбуку Intwin
+   Dark-first, один сигнал. Graphite и Ink Navy — поверхности, Signal Blue —
+   единственное действие (≤10 % экрана), Echo и Mist — только «след».
+   Manrope — всё, JetBrains Mono — подписи, цифры, улики.
+   Не трогаем: порядок иконок слева, лог снизу, выдвижной агент справа —
+   только приводим их к тем же цветам. Переделан центр и экран входа.
+   ========================================================================== */
+
+/* ---------- 1. Токены бренда ---------- */
+:root{
+  --graphite:#14171F; --ink:#131A54; --signal:#0057FF; --echo:#A9BDF0; --mist:#DCEBF8; --paper:#F7F9FC;
+  --ui:"Manrope",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --dotwave:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22480%22%20height%3D%22160%22%20fill%3D%22%23A9BDF0%22%3E%3Ccircle%20cx%3D%226%22%20cy%3D%2210.0%22%20r%3D%221.30%22%20fill-opacity%3D%220.62%22/%3E%3Ccircle%20cx%3D%2218%22%20cy%3D%2210.4%22%20r%3D%221.45%22%20fill-opacity%3D%220.70%22/%3E%3Ccircle%20cx%3D%2230%22%20cy%3D%2210.7%22%20r%3D%221.59%22%20fill-opacity%3D%220.76%22/%3E%3Ccircle%20cx%3D%2242%22%20cy%3D%2211.1%22%20r%3D%221.73%22%20fill-opacity%3D%220.83%22/%3E%3Ccircle%20cx%3D%2254%22%20cy%3D%2211.4%22%20r%3D%221.85%22%20fill-opacity%3D%220.88%22/%3E%3Ccircle%20cx%3D%2266%22%20cy%3D%2211.6%22%20r%3D%221.95%22%20fill-opacity%3D%220.93%22/%3E%3Ccircle%20cx%3D%2278%22%20cy%3D%2211.9%22%20r%3D%222.02%22%20fill-opacity%3D%220.96%22/%3E%3Ccircle%20cx%3D%2290%22%20cy%3D%2212.0%22%20r%3D%222.07%22%20fill-opacity%3D%220.99%22/%3E%3Ccircle%20cx%3D%22102%22%20cy%3D%2212.1%22%20r%3D%222.10%22%20fill-opacity%3D%221.00%22/%3E%3Ccircle%20cx%3D%22114%22%20cy%3D%2212.2%22%20r%3D%222.09%22%20fill-opacity%3D%221.00%22/%3E%3Ccircle%20cx%3D%22126%22%20cy%3D%2212.2%22%20r%3D%222.06%22%20fill-opacity%3D%220.98%22/%3E%3Ccircle%20cx%3D%22138%22%20cy%3D%2212.1%22%20r%3D%222.00%22%20fill-opacity%3D%220.95%22/%3E%3Ccircle%20cx%3D%22150%22%20cy%3D%2212.0%22%20r%3D%221.92%22%20fill-opacity%3D%220.91%22/%3E%3Ccircle%20cx%3D%22162%22%20cy%3D%2211.8%22%20r%3D%221.81%22%20fill-opacity%3D%220.86%22/%3E%3Ccircle%20cx%3D%22174%22%20cy%3D%2211.6%22%20r%3D%221.69%22%20fill-opacity%3D%220.81%22/%3E%3Ccircle%20cx%3D%22186%22%20cy%3D%2211.3%22%20r%3D%221.55%22%20fill-opacity%3D%220.74%22/%3E%3Ccircle%20cx%3D%22198%22%20cy%3D%2211.0%22%20r%3D%221.40%22%20fill-opacity%3D%220.67%22/%3E%3Ccircle%20cx%3D%22210%22%20cy%3D%2210.7%22%20r%3D%221.25%22%20fill-opacity%3D%220.60%22/%3E%3Ccircle%20cx%3D%22222%22%20cy%3D%2210.3%22%20r%3D%221.10%22%20fill-opacity%3D%220.53%22/%3E%3Ccircle%20cx%3D%22234%22%20cy%3D%229.9%22%20r%3D%220.96%22%20fill-opacity%3D%220.47%22/%3E%3Ccircle%20cx%3D%22246%22%20cy%3D%229.6%22%20r%3D%220.83%22%20fill-opacity%3D%220.40%22/%3E%3Ccircle%20cx%3D%22258%22%20cy%3D%229.2%22%20r%3D%220.72%22%20fill-opacity%3D%220.35%22/%3E%3Ccircle%20cx%3D%22270%22%20cy%3D%228.9%22%20r%3D%220.62%22%20fill-opacity%3D%220.31%22/%3E%3Ccircle%20cx%3D%22282%22%20cy%3D%228.6%22%20r%3D%220.56%22%20fill-opacity%3D%220.28%22/%3E%3Ccircle%20cx%3D%22294%22%20cy%3D%228.3%22%20r%3D%220.51%22%20fill-opacity%3D%220.26%22/%3E%3Ccircle%20cx%3D%22306%22%20cy%3D%228.1%22%20r%3D%220.50%22%20fill-opacity%3D%220.25%22/%3E%3Ccircle%20cx%3D%22318%22%20cy%3D%228.0%22%20r%3D%220.51%22%20fill-opacity%3D%220.26%22/%3E%3Ccircle%20cx%3D%22330%22%20cy%3D%227.8%22%20r%3D%220.56%22%20fill-opacity%3D%220.28%22/%3E%3Ccircle%20cx%3D%22342%22%20cy%3D%227.8%22%20r%3D%220.62%22%20fill-opacity%3D%220.31%22/%3E%3Ccircle%20cx%3D%22354%22%20cy%3D%227.8%22%20r%3D%220.72%22%20fill-opacity%3D%220.35%22/%3E%3Ccircle%20cx%3D%22366%22%20cy%3D%227.9%22%20r%3D%220.83%22%20fill-opacity%3D%220.40%22/%3E%3Ccircle%20cx%3D%22378%22%20cy%3D%228.0%22%20r%3D%220.96%22%20fill-opacity%3D%220.47%22/%3E%3Ccircle%20cx%3D%22390%22%20cy%3D%228.2%22%20r%3D%221.10%22%20fill-opacity%3D%220.53%22/%3E%3Ccircle%20cx%3D%22402%22%20cy%3D%228.4%22%20r%3D%221.25%22%20fill-opacity%3D%220.60%22/%3E%3Ccircle%20cx%3D%22414%22%20cy%3D%228.7%22%20r%3D%221.40%22%20fill-opacity%3D%220.67%22/%3E%3Ccircle%20cx%3D%22426%22%20cy%3D%229.0%22%20r%3D%221.55%22%20fill-opacity%3D%220.74%22/%3E%3Ccircle%20cx%3D%22438%22%20cy%3D%229.4%22%20r%3D%221.69%22%20fill-opacity%3D%220.81%22/%3E%3Ccircle%20cx%3D%22450%22%20cy%3D%229.7%22%20r%3D%221.81%22%20fill-opacity%3D%220.86%22/%3E%3Ccircle%20cx%3D%22462%22%20cy%3D%2210.1%22%20r%3D%221.92%22%20fill-opacity%3D%220.91%22/%3E%3Ccircle%20cx%3D%22474%22%20cy%3D%2210.5%22%20r%3D%222.00%22%20fill-opacity%3D%220.95%22/%3E%3Ccircle%20cx%3D%226%22%20cy%3D%2229.4%22%20r%3D%221.72%22%20fill-opacity%3D%220.82%22/%3E%3Ccircle%20cx%3D%2218%22%20cy%3D%2229.5%22%20r%3D%221.84%22%20fill-opacity%3D%220.88%22/%3E%3Ccircle%20cx%3D%2230%22%20cy%3D%2229.6%22%20r%3D%221.94%22%20fill-opacity%3D%220.92%22/%3E%3Ccircle%20cx%3D%2242%22%20cy%3D%2229.7%22%20r%3D%222.02%22%20fill-opacity%3D%220.96%22/%3E%3Ccircle%20cx%3D%2254%22%20cy%3D%2229.7%22%20r%3D%222.07%22%20fill-opacity%3D%220.99%22/%3E%3Ccircle%20cx%3D%2266%22%20cy%3D%2229.6%22%20r%3D%222.10%22%20fill-opacity%3D%221.00%22/%3E%3Ccircle%20cx%3D%2278%22%20cy%3D%2229.5%22%20r%3D%222.10%22%20fill-opacity%3D%221.00%22/%3E%3Ccircle%20cx%3D%2290%22%20cy%3D%2229.3%22%20r%3D%222.06%22%20fill-opacity%3D%220.98%22/%3E%3Ccircle%20cx%3D%22102%22%20cy%3D%2229.1%22%20r%3D%222.01%22%20fill-opacity%3D%220.96%22/%3E%3Ccircle%20cx%3D%22114%22%20cy%3D%2228.8%22%20r%3D%221.92%22%20fill-opacity%3D%220.92%22/%3E%3Ccircle%20cx%3D%22126%22%20cy%3D%2228.5%22%20r%3D%221.82%22%20fill-opacity%3D%220.87%22/%3E%3Ccircle%20cx%3D%22138%22%20cy%3D%2228.2%22%20r%3D%221.70%22%20fill-opacity%3D%220.81%22/%3E%3Ccircle%20cx%3D%22150%22%20cy%3D%2227.8%22%20r%3D%221.56%22%20fill-opacity%3D%220.75%22/%3E%3Ccircle%20cx%3D%22162%22%20cy%3D%2227.4%22%20r%3D%221.41%22%20fill-opacity%3D%220.68%22/%3E%3Ccircle%20cx%3D%22174%22%20cy%3D%2227.1%22%20r%3D%221.26%22%20fill-opacity%3D%220.61%22/%3E%3Ccircle%20cx%3D%22186%22%20cy%3D%2226.7%22%20r%3D%221.11%22%20fill-opacity%3D%220.54%22/%3E%3Ccircle%20cx%3D%22198%22%20cy%3D%2226.4%22%20r%3D%220.97%22%20fill-opacity%3D%220.47%22/%3E%3Ccircle%20cx%3D%22210%22%20cy%3D%2226.1%22%20r%3D%220.84%22%20fill-opacity%3D%220.41%22/%3E%3Ccircle%20cx%3D%22222%22%20cy%3D%2225.8%22%20r%3D%220.73%22%20fill-opacity%3D%220.36%22/%3E%3Ccircle%20cx%3D%22234%22%20cy%3D%2225.6%22%20r%3D%220.63%22%20fill-opacity%3D%220.31%22/%3E%3Ccircle%20cx%3D%22246%22%20cy%3D%2225.5%22%20r%3D%220.56%22%20fill-opacity%3D%220.28%22/%3E%3Ccircle%20cx%3D%22258%22%20cy%3D%2225.3%22%20r%3D%220.52%22%20fill-opacity%3D%220.26%22/%3E%3Ccircle%20cx%3D%22270%22%20cy%3D%2225.3%22%20r%3D%220.50%22%20fill-opacity%3D%220.25%22/%3E%3Ccircle%20cx%3D%22282%22%20cy%3D%2225.3%22%20r%3D%220.51%22%20fill-opacity%3D%220.26%22/%3E%3Ccircle%20cx%3D%22294%22%20cy%3D%2225.4%22%20r%3D%220.55%22%20fill-opacity%3D%220.27%22/%3E%3Ccircle%20cx%3D%22306%22%20cy%3D%2225.5%22%20r%3D%220.62%22%20fill-opacity%3D%220.31%22/%3E%3Ccircle%20cx%3D%22318%22%20cy%3D%2225.7%22%20r%3D%220.71%22%20fill-opacity%3D%220.35%22/%3E%3Ccircle%20cx%3D%22330%22%20cy%3D%2225.9%22%20r%3D%220.82%22%20fill-opacity%3D%220.40%22/%3E%3Ccircle%20cx%3D%22342%22%20cy%3D%2226.2%22%20r%3D%220.95%22%20fill-opacity%3D%220.46%22/%3E%3Ccircle%20cx%3D%22354%22%20cy%3D%2226.5%22%20r%3D%221.09%22%20fill-opacity%3D%220.53%22/%3E%3Ccircle%20cx%3D%22366%22%20cy%3D%2226.9%22%20r%3D%221.24%22%20fill-opacity%3D%220.60%22/%3E%3Ccircle%20cx%3D%22378%22%20cy%3D%2227.2%22%20r%3D%221.39%22%20fill-opacity%3D%220.67%22/%3E%3Ccircle%20cx%3D%22390%22%20cy%3D%2227.6%22%20r%3D%221.54%22%20fill-opacity%3D%220.74%22/%3E%3Ccircle%20cx%3D%22402%22%20cy%3D%2228.0%22%20r%3D%221.67%22%20fill-opacity%3D%220.80%22/%3E%3Ccircle%20cx%3D%22414%22%20cy%3D%2228.3%22%20r%3D%221.80%22%20fill-opacity%3D%220.86%22/%3E%3Ccircle%20cx%3D%22426%22%20cy%3D%2228.7%22%20r%3D%221.91%22%20fill-opacity%3D%220.91%22/%3E%3Ccircle%20cx%3D%22438%22%20cy%3D%2228.9%22%20r%3D%221.99%22%20fill-opacity%3D%220.95%22/%3E%3Ccircle%20cx%3D%22450%22%20cy%3D%2229.2%22%20r%3D%222.06%22%20fill-opacity%3D%220.98%22/%3E%3Ccircle%20cx%3D%22462%22%20cy%3D%2229.4%22%20r%3D%222.09%22%20fill-opacity%3D%221.00%22/%3E%3Ccircle%20cx%3D%22474%22%20cy%3D%2229.6%22%20r%3D%222.10%22%20fill-opacity%3D%221.00%22/%3E%3Ccircle%20cx%3D%226%22%20cy%3D%2247.0%22%20r%3D%222.01%22%20fill-opacity%3D%220.96%22/%3E%3Ccircle%20cx%3D%2218%22%20cy%3D%2246.8%22%20r%3D%222.07%22%20fill-opacity%3D%220.99%22/%3E%3Ccircle%20cx%3D%2230%22%20cy%3D%2246.6%22%20r%3D%222.10%22%20fill-opacity%3D%221.00%22/%3E%3Ccircle%20cx%3D%2242%22%20cy%3D%2246.3%22%20r%3D%222.10%22%20fill-opacity%3D%221.00%22/%3E%3Ccircle%20cx%3D%2254%22%20cy%3D%2246.0%22%20r%3D%222.07%22%20fill-opacity%3D%220.99%22/%3E%3Ccircle%20cx%3D%2266%22%20cy%3D%2245.7%22%20r%3D%222.01%22%20fill-opacity%3D%220.96%22/%3E%3Ccircle%20cx%3D%2278%22%20cy%3D%2245.3%22%20r%3D%221.93%22%20fill-opacity%3D%220.92%22/%3E%3Ccircle%20cx%3D%2290%22%20cy%3D%2244.9%22%20r%3D%221.83%22%20fill-opacity%3D%220.87%22/%3E%3Ccircle%20cx%3D%22102%22%20cy%3D%2244.6%22%20r%3D%221.71%22%20fill-opacity%3D%220.82%22/%3E%3Ccircle%20cx%3D%22114%22%20cy%3D%2244.2%22%20r%3D%221.57%22%20fill-opacity%3D%220.75%22/%3E%3Ccircle%20cx%3D%22126%22%20cy%3D%2243.9%22%20r%3D%221.42%22%20fill-opacity%3D%220.68%22/%3E%3Ccircle%20cx%3D%22138%22%20cy%3D%2243.6%22%20r%3D%221.27%22%20fill-opacity%3D%220.61%22/%3E%3Ccircle%20cx%3D%22150%22%20cy%3D%2243.3%22%20r%3D%221.13%22%20fill-opacity%3D%220.54%22/%3E%3Ccircle%20cx%3D%22162%22%20cy%3D%2243.1%22%20r%3D%220.98%22%20fill-opacity%3D%220.48%22/%3E%3Ccircle%20cx%3D%22174%22%20cy%3D%2243.0%22%20r%3D%220.85%22%20fill-opacity%3D%220.41%22/%3E%3Ccircle%20cx%3D%22186%22%20cy%3D%2242.8%22%20r%3D%220.73%22%20fill-opacity%3D%220.36%22/%3E%3Ccircle%20cx%3D%22198%22%20cy%3D%2242.8%22%20r%3D%220.64%22%20fill-opacity%3D%220.31%22/%3E%3Ccircle%20cx%3D%22210%22%20cy%3D%2242.8%22%20r%3D%220.57%22%20fill-opacity%3D%220.28%22/%3E%3Ccircle%20cx%3D%22222%22%20cy%3D%2242.9%22%20r%3D%220.52%22%20fill-opacity%3D%220.26%22/%3E%3Ccircle%20cx%3D%22234%22%20cy%3D%2243.0%22%20r%3D%220.50%22%20fill-opacity%3D%220.25%22/%3E%3Ccircle%20cx%3D%22246%22%20cy%3D%2243.2%22%20r%3D%220.51%22%20fill-opacity%3D%220.25%22/%3E%3Ccircle%20cx%3D%22258%22%20cy%3D%2243.4%22%20r%3D%220.55%22%20fill-opacity%3D%220.27%22/%3E%3Ccircle%20cx%3D%22270%22%20cy%3D%2243.7%22%20r%3D%220.61%22%20fill-opacity%3D%220.30%22/%3E%3Ccircle%20cx%3D%22282%22%20cy%3D%2244.0%22%20r%3D%220.70%22%20fill-opacity%3D%220.34%22/%3E%3Ccircle%20cx%3D%22294%22%20cy%3D%2244.4%22%20r%3D%220.81%22%20fill-opacity%3D%220.40%22/%3E%3Ccircle%20cx%3D%22306%22%20cy%3D%2244.7%22%20r%3D%220.94%22%20fill-opacity%3D%220.45%22/%3E%3Ccircle%20cx%3D%22318%22%20cy%3D%2245.1%22%20r%3D%221.08%22%20fill-opacity%3D%220.52%22/%3E%3Ccircle%20cx%3D%22330%22%20cy%3D%2245.5%22%20r%3D%221.23%22%20fill-opacity%3D%220.59%22/%3E%3Ccircle%20cx%3D%22342%22%20cy%3D%2245.8%22%20r%3D%221.38%22%20fill-opacity%3D%220.66%22/%3E%3Ccircle%20cx%3D%22354%22%20cy%3D%2246.2%22%20r%3D%221.52%22%20fill-opacity%3D%220.73%22/%3E%3Ccircle%20cx%3D%22366%22%20cy%3D%2246.4%22%20r%3D%221.66%22%20fill-opacity%3D%220.80%22/%3E%3Ccircle%20cx%3D%22378%22%20cy%3D%2246.7%22%20r%3D%221.79%22%20fill-opacity%3D%220.85%22/%3E%3Ccircle%20cx%3D%22390%22%20cy%3D%2246.9%22%20r%3D%221.90%22%20fill-opacity%3D%220.91%22/%3E%3Ccircle%20cx%3D%22402%22%20cy%3D%2247.1%22%20r%3D%221.99%22%20fill-opacity%3D%220.95%22/%3E%3Ccircle%20cx%3D%22414%22%20cy%3D%2247.2%22%20r%3D%222.05%22%20fill-opacity%3D%220.98%22/%3E%3Ccircle%20cx%3D%22426%22%20cy%3D%2247.2%22%20r%3D%222.09%22%20fill-opacity%3D%221.00%22/%3E%3Ccircle%20cx%3D%22438%22%20cy%3D%2247.2%22%20r%3D%222.10%22%20fill-opacity%3D%221.00%22/%3E%3Ccircle%20cx%3D%22450%22%20cy%3D%2247.1%22%20r%3D%222.08%22%20fill-opacity%3D%220.99%22/%3E%3Ccircle%20cx%3D%22462%22%20cy%3D%2247.0%22%20r%3D%222.03%22%20fill-opacity%3D%220.97%22/%3E%3Ccircle%20cx%3D%22474%22%20cy%3D%2246.8%22%20r%3D%221.96%22%20fill-opacity%3D%220.94%22/%3E%3Ccircle%20cx%3D%226%22%20cy%3D%2262.8%22%20r%3D%222.10%22%20fill-opacity%3D%221.00%22/%3E%3Ccircle%20cx%3D%2218%22%20cy%3D%2262.4%22%20r%3D%222.07%22%20fill-opacity%3D%220.99%22/%3E%3Ccircle%20cx%3D%2230%22%20cy%3D%2262.1%22%20r%3D%222.02%22%20fill-opacity%3D%220.96%22/%3E%3Ccircle%20cx%3D%2242%22%20cy%3D%2261.7%22%20r%3D%221.94%22%20fill-opacity%3D%220.92%22/%3E%3Ccircle%20cx%3D%2254%22%20cy%3D%2261.4%22%20r%3D%221.84%22%20fill-opacity%3D%220.88%22/%3E%3Ccircle%20cx%3D%2266%22%20cy%3D%2261.1%22%20r%3D%221.72%22%20fill-opacity%3D%220.82%22/%3E%3Ccircle%20cx%3D%2278%22%20cy%3D%2260.8%22%20r%3D%221.58%22%20fill-opacity%3D%220.76%22/%3E%3Ccircle%20cx%3D%2290%22%20cy%3D%2260.6%22%20r%3D%221.44%22%20fill-opacity%3D%220.69%22/%3E%3Ccircle%20cx%3D%22102%22%20cy%3D%2260.5%22%20r%3D%221.29%22%20fill-opacity%3D%220.62%22/%3E%3Ccircle%20cx%3D%22114%22%20cy%3D%2260.3%22%20r%3D%221.14%22%20fill-opacity%3D%220.55%22/%3E%3Ccircle%20cx%3D%22126%22%20cy%3D%2260.3%22%20r%3D%220.99%22%20fill-opacity%3D%220.48%22/%3E%3Ccircle%20cx%3D%22138%22%20cy%3D%2260.3%22%20r%3D%220.86%22%20fill-opacity%3D%220.42%22/%3E%3Ccircle%20cx%3D%22150%22%20cy%3D%2260.4%22%20r%3D%220.74%22%20fill-opacity%3D%220.36%22/%3E%3Ccircle%20cx%3D%22162%22%20cy%3D%2260.5%22%20r%3D%220.65%22%20fill-opacity%3D%220.32%22/%3E%3Ccircle%20cx%3D%22174%22%20cy%3D%2260.7%22%20r%3D%220.57%22%20fill-opacity%3D%220.28%22/%3E%3Ccircle%20cx%3D%22186%22%20cy%3D%2260.9%22%20r%3D%220.52%22%20fill-opacity%3D%220.26%22/%3E%3Ccircle%20cx%3D%22198%22%20cy%3D%2261.2%22%20r%3D%220.50%22%20fill-opacity%3D%220.25%22/%3E%3Ccircle%20cx%3D%22210%22%20cy%3D%2261.5%22%20r%3D%220.51%22%20fill-opacity%3D%220.25%22/%3E%3Ccircle%20cx%3D%22222%22%20cy%3D%2261.9%22%20r%3D%220.54%22%20fill-opacity%3D%220.27%22/%3E%3Ccircle%20cx%3D%22234%22%20cy%3D%2262.2%22%20r%3D%220.61%22%20fill-opacity%3D%220.30%22/%3E%3Ccircle%20cx%3D%22246%22%20cy%3D%2262.6%22%20r%3D%220.69%22%20fill-opacity%3D%220.34%22/%3E%3Ccircle%20cx%3D%22258%22%20cy%3D%2263.0%22%20r%3D%220.80%22%20fill-opacity%3D%220.39%22/%3E%3Ccircle%20cx%3D%22270%22%20cy%3D%2263.3%22%20r%3D%220.93%22%20fill-opacity%3D%220.45%22/%3E%3Ccircle%20cx%3D%22282%22%20cy%3D%2263.7%22%20r%3D%221.07%22%20fill-opacity%3D%220.51%22/%3E%3Ccircle%20cx%3D%22294%22%20cy%3D%2263.9%22%20r%3D%221.21%22%20fill-opacity%3D%220.58%22/%3E%3Ccircle%20cx%3D%22306%22%20cy%3D%2264.2%22%20r%3D%221.36%22%20fill-opacity%3D%220.65%22/%3E%3Ccircle%20cx%3D%22318%22%20cy%3D%2264.4%22%20r%3D%221.51%22%20fill-opacity%3D%220.72%22/%3E%3Ccircle%20cx%3D%22330%22%20cy%3D%2264.6%22%20r%3D%221.65%22%20fill-opacity%3D%220.79%22/%3E%3Ccircle%20cx%3D%22342%22%20cy%3D%2264.7%22%20r%3D%221.78%22%20fill-opacity%3D%220.85%22/%3E%3Ccircle%20cx%3D%22354%22%20cy%3D%2264.7%22%20r%3D%221.89%22%20fill-opacity%3D%220.90%22/%3E%3Ccircle%20cx%3D%22366%22%20cy%3D%2264.7%22%20r%3D%221.98%22%20fill-opacity%3D%220.94%22/%3E%3Ccircle%20cx%3D%22378%22%20cy%3D%2264.6%22%20r%3D%222.05%22%20fill-opacity%3D%220.98%22/%3E%3Ccircle%20cx%3D%22390%22%20cy%3D%2264.5%22%20r%3D%222.09%22%20fill-opacity%3D%220.99%22/%3E%3Ccircle%20cx%3D%22402%22%20cy%3D%2264.3%22%20r%3D%222.10%22%20fill-opacity%3D%221.00%22/%3E%3Ccircle%20cx%3D%22414%22%20cy%3D%2264.0%22%20r%3D%222.08%22%20fill-opacity%3D%220.99%22/%3E%3Ccircle%20cx%3D%22426%22%20cy%3D%2263.7%22%20r%3D%222.04%22%20fill-opacity%3D%220.97%22/%3E%3Ccircle%20cx%3D%22438%22%20cy%3D%2263.4%22%20r%3D%221.97%22%20fill-opacity%3D%220.94%22/%3E%3Ccircle%20cx%3D%22450%22%20cy%3D%2263.1%22%20r%3D%221.87%22%20fill-opacity%3D%220.89%22/%3E%3Ccircle%20cx%3D%22462%22%20cy%3D%2262.7%22%20r%3D%221.76%22%20fill-opacity%3D%220.84%22/%3E%3Ccircle%20cx%3D%22474%22%20cy%3D%2262.3%22%20r%3D%221.63%22%20fill-opacity%3D%220.78%22/%3E%3Ccircle%20cx%3D%226%22%20cy%3D%2278.3%22%20r%3D%221.95%22%20fill-opacity%3D%220.93%22/%3E%3Ccircle%20cx%3D%2218%22%20cy%3D%2278.1%22%20r%3D%221.85%22%20fill-opacity%3D%220.88%22/%3E%3Ccircle%20cx%3D%2230%22%20cy%3D%2278.0%22%20r%3D%221.73%22%20fill-opacity%3D%220.83%22/%3E%3Ccircle%20cx%3D%2242%22%20cy%3D%2277.8%22%20r%3D%221.59%22%20fill-opacity%3D%220.76%22/%3E%3Ccircle%20cx%3D%2254%22%20cy%3D%2277.8%22%20r%3D%221.45%22%20fill-opacity%3D%220.69%22/%3E%3Ccircle%20cx%3D%2266%22%20cy%3D%2277.8%22%20r%3D%221.30%22%20fill-opacity%3D%220.62%22/%3E%3Ccircle%20cx%3D%2278%22%20cy%3D%2277.9%22%20r%3D%221.15%22%20fill-opacity%3D%220.55%22/%3E%3Ccircle%20cx%3D%2290%22%20cy%3D%2278.0%22%20r%3D%221.00%22%20fill-opacity%3D%220.49%22/%3E%3Ccircle%20cx%3D%22102%22%20cy%3D%2278.2%22%20r%3D%220.87%22%20fill-opacity%3D%220.42%22/%3E%3Ccircle%20cx%3D%22114%22%20cy%3D%2278.4%22%20r%3D%220.75%22%20fill-opacity%3D%220.37%22/%3E%3Ccircle%20cx%3D%22126%22%20cy%3D%2278.7%22%20r%3D%220.65%22%20fill-opacity%3D%220.32%22/%3E%3Ccircle%20cx%3D%22138%22%20cy%3D%2279.0%22%20r%3D%220.58%22%20fill-opacity%3D%220.29%22/%3E%3Ccircle%20cx%3D%22150%22%20cy%3D%2279.4%22%20r%3D%220.52%22%20fill-opacity%3D%220.26%22/%3E%3Ccircle%20cx%3D%22162%22%20cy%3D%2279.7%22%20r%3D%220.50%22%20fill-opacity%3D%220.25%22/%3E%3Ccircle%20cx%3D%22174%22%20cy%3D%2280.1%22%20r%3D%220.51%22%20fill-opacity%3D%220.25%22/%3E%3Ccircle%20cx%3D%22186%22%20cy%3D%2280.5%22%20r%3D%220.54%22%20fill-opacity%3D%220.27%22/%3E%3Ccircle%20cx%3D%22198%22%20cy%3D%2280.8%22%20r%3D%220.60%22%20fill-opacity%3D%220.30%22/%3E%3Ccircle%20cx%3D%22210%22%20cy%3D%2281.2%22%20r%3D%220.68%22%20fill-opacity%3D%220.34%22/%3E%3Ccircle%20cx%3D%22222%22%20cy%3D%2281.4%22%20r%3D%220.79%22%20fill-opacity%3D%220.39%22/%3E%3Ccircle%20cx%3D%22234%22%20cy%3D%2281.7%22%20r%3D%220.92%22%20fill-opacity%3D%220.44%22/%3E%3Ccircle%20cx%3D%22246%22%20cy%3D%2281.9%22%20r%3D%221.05%22%20fill-opacity%3D%220.51%22/%3E%3Ccircle%20cx%3D%22258%22%20cy%3D%2282.1%22%20r%3D%221.20%22%20fill-opacity%3D%220.58%22/%3E%3Ccircle%20cx%3D%22270%22%20cy%3D%2282.2%22%20r%3D%221.35%22%20fill-opacity%3D%220.65%22/%3E%3Ccircle%20cx%3D%22282%22%20cy%3D%2282.2%22%20r%3D%221.50%22%20fill-opacity%3D%220.72%22/%3E%3Ccircle%20cx%3D%22294%22%20cy%3D%2282.2%22%20r%3D%221.64%22%20fill-opacity%3D%220.78%22/%3E%3Ccircle%20cx%3D%22306%22%20cy%3D%2282.1%22%20r%3D%221.77%22%20fill-opacity%3D%220.85%22/%3E%3Ccircle%20cx%3D%22318%22%20cy%3D%2282.0%22%20r%3D%221.88%22%20fill-opacity%3D%220.90%22/%3E%3Ccircle%20cx%3D%22330%22%20cy%3D%2281.8%22%20r%3D%221.98%22%20fill-opacity%3D%220.94%22/%3E%3Ccircle%20cx%3D%22342%22%20cy%3D%2281.5%22%20r%3D%222.04%22%20fill-opacity%3D%220.97%22/%3E%3Ccircle%20cx%3D%22354%22%20cy%3D%2281.2%22%20r%3D%222.09%22%20fill-opacity%3D%220.99%22/%3E%3Ccircle%20cx%3D%22366%22%20cy%3D%2280.9%22%20r%3D%222.10%22%20fill-opacity%3D%221.00%22/%3E%3Ccircle%20cx%3D%22378%22%20cy%3D%2280.6%22%20r%3D%222.09%22%20fill-opacity%3D%220.99%22/%3E%3Ccircle%20cx%3D%22390%22%20cy%3D%2280.2%22%20r%3D%222.04%22%20fill-opacity%3D%220.97%22/%3E%3Ccircle%20cx%3D%22402%22%20cy%3D%2279.8%22%20r%3D%221.98%22%20fill-opacity%3D%220.94%22/%3E%3Ccircle%20cx%3D%22414%22%20cy%3D%2279.5%22%20r%3D%221.88%22%20fill-opacity%3D%220.90%22/%3E%3Ccircle%20cx%3D%22426%22%20cy%3D%2279.1%22%20r%3D%221.77%22%20fill-opacity%3D%220.85%22/%3E%3Ccircle%20cx%3D%22438%22%20cy%3D%2278.8%22%20r%3D%221.64%22%20fill-opacity%3D%220.78%22/%3E%3Ccircle%20cx%3D%22450%22%20cy%3D%2278.5%22%20r%3D%221.50%22%20fill-opacity%3D%220.72%22/%3E%3Ccircle%20cx%3D%22462%22%20cy%3D%2278.3%22%20r%3D%221.35%22%20fill-opacity%3D%220.65%22/%3E%3Ccircle%20cx%3D%22474%22%20cy%3D%2278.1%22%20r%3D%221.20%22%20fill-opacity%3D%220.58%22/%3E%3Ccircle%20cx%3D%226%22%20cy%3D%2295.4%22%20r%3D%221.61%22%20fill-opacity%3D%220.77%22/%3E%3Ccircle%20cx%3D%2218%22%20cy%3D%2295.5%22%20r%3D%221.46%22%20fill-opacity%3D%220.70%22/%3E%3Ccircle%20cx%3D%2230%22%20cy%3D%2295.7%22%20r%3D%221.31%22%20fill-opacity%3D%220.63%22/%3E%3Ccircle%20cx%3D%2242%22%20cy%3D%2295.9%22%20r%3D%221.16%22%20fill-opacity%3D%220.56%22/%3E%3Ccircle%20cx%3D%2254%22%20cy%3D%2296.2%22%20r%3D%221.02%22%20fill-opacity%3D%220.49%22/%3E%3Ccircle%20cx%3D%2266%22%20cy%3D%2296.5%22%20r%3D%220.88%22%20fill-opacity%3D%220.43%22/%3E%3Ccircle%20cx%3D%2278%22%20cy%3D%2296.9%22%20r%3D%220.76%22%20fill-opacity%3D%220.37%22/%3E%3Ccircle%20cx%3D%2290%22%20cy%3D%2297.2%22%20r%3D%220.66%22%20fill-opacity%3D%220.32%22/%3E%3Ccircle%20cx%3D%22102%22%20cy%3D%2297.6%22%20r%3D%220.58%22%20fill-opacity%3D%220.29%22/%3E%3Ccircle%20cx%3D%22114%22%20cy%3D%2298.0%22%20r%3D%220.53%22%20fill-opacity%3D%220.26%22/%3E%3Ccircle%20cx%3D%22126%22%20cy%3D%2298.3%22%20r%3D%220.50%22%20fill-opacity%3D%220.25%22/%3E%3Ccircle%20cx%3D%22138%22%20cy%3D%2298.7%22%20r%3D%220.50%22%20fill-opacity%3D%220.25%22/%3E%3Ccircle%20cx%3D%22150%22%20cy%3D%2298.9%22%20r%3D%220.54%22%20fill-opacity%3D%220.27%22/%3E%3Ccircle%20cx%3D%22162%22%20cy%3D%2299.2%22%20r%3D%220.59%22%20fill-opacity%3D%220.29%22/%3E%3Ccircle%20cx%3D%22174%22%20cy%3D%2299.4%22%20r%3D%220.68%22%20fill-opacity%3D%220.33%22/%3E%3Ccircle%20cx%3D%22186%22%20cy%3D%2299.6%22%20r%3D%220.78%22%20fill-opacity%3D%220.38%22/%3E%3Ccircle%20cx%3D%22198%22%20cy%3D%2299.7%22%20r%3D%220.90%22%20fill-opacity%3D%220.44%22/%3E%3Ccircle%20cx%3D%22210%22%20cy%3D%2299.7%22%20r%3D%221.04%22%20fill-opacity%3D%220.50%22/%3E%3Ccircle%20cx%3D%22222%22%20cy%3D%2299.7%22%20r%3D%221.19%22%20fill-opacity%3D%220.57%22/%3E%3Ccircle%20cx%3D%22234%22%20cy%3D%2299.6%22%20r%3D%221.34%22%20fill-opacity%3D%220.64%22/%3E%3Ccircle%20cx%3D%22246%22%20cy%3D%2299.5%22%20r%3D%221.49%22%20fill-opacity%3D%220.71%22/%3E%3Ccircle%20cx%3D%22258%22%20cy%3D%2299.3%22%20r%3D%221.63%22%20fill-opacity%3D%220.78%22/%3E%3Ccircle%20cx%3D%22270%22%20cy%3D%2299.0%22%20r%3D%221.76%22%20fill-opacity%3D%220.84%22/%3E%3Ccircle%20cx%3D%22282%22%20cy%3D%2298.7%22%20r%3D%221.88%22%20fill-opacity%3D%220.89%22/%3E%3Ccircle%20cx%3D%22294%22%20cy%3D%2298.4%22%20r%3D%221.97%22%20fill-opacity%3D%220.94%22/%3E%3Ccircle%20cx%3D%22306%22%20cy%3D%2298.1%22%20r%3D%222.04%22%20fill-opacity%3D%220.97%22/%3E%3Ccircle%20cx%3D%22318%22%20cy%3D%2297.7%22%20r%3D%222.08%22%20fill-opacity%3D%220.99%22/%3E%3Ccircle%20cx%3D%22330%22%20cy%3D%2297.3%22%20r%3D%222.10%22%20fill-opacity%3D%221.00%22/%3E%3Ccircle%20cx%3D%22342%22%20cy%3D%2297.0%22%20r%3D%222.09%22%20fill-opacity%3D%220.99%22/%3E%3Ccircle%20cx%3D%22354%22%20cy%3D%2296.6%22%20r%3D%222.05%22%20fill-opacity%3D%220.98%22/%3E%3Ccircle%20cx%3D%22366%22%20cy%3D%2296.3%22%20r%3D%221.98%22%20fill-opacity%3D%220.94%22/%3E%3Ccircle%20cx%3D%22378%22%20cy%3D%2296.0%22%20r%3D%221.89%22%20fill-opacity%3D%220.90%22/%3E%3Ccircle%20cx%3D%22390%22%20cy%3D%2295.8%22%20r%3D%221.78%22%20fill-opacity%3D%220.85%22/%3E%3Ccircle%20cx%3D%22402%22%20cy%3D%2295.6%22%20r%3D%221.65%22%20fill-opacity%3D%220.79%22/%3E%3Ccircle%20cx%3D%22414%22%20cy%3D%2295.4%22%20r%3D%221.51%22%20fill-opacity%3D%220.72%22/%3E%3Ccircle%20cx%3D%22426%22%20cy%3D%2295.3%22%20r%3D%221.36%22%20fill-opacity%3D%220.65%22/%3E%3Ccircle%20cx%3D%22438%22%20cy%3D%2295.3%22%20r%3D%221.21%22%20fill-opacity%3D%220.58%22/%3E%3Ccircle%20cx%3D%22450%22%20cy%3D%2295.3%22%20r%3D%221.06%22%20fill-opacity%3D%220.51%22/%3E%3Ccircle%20cx%3D%22462%22%20cy%3D%2295.4%22%20r%3D%220.92%22%20fill-opacity%3D%220.45%22/%3E%3Ccircle%20cx%3D%22474%22%20cy%3D%2295.6%22%20r%3D%220.80%22%20fill-opacity%3D%220.39%22/%3E%3Ccircle%20cx%3D%226%22%20cy%3D%22114.4%22%20r%3D%221.17%22%20fill-opacity%3D%220.57%22/%3E%3Ccircle%20cx%3D%2218%22%20cy%3D%22114.7%22%20r%3D%221.03%22%20fill-opacity%3D%220.50%22/%3E%3Ccircle%20cx%3D%2230%22%20cy%3D%22115.1%22%20r%3D%220.89%22%20fill-opacity%3D%220.43%22/%3E%3Ccircle%20cx%3D%2242%22%20cy%3D%22115.5%22%20r%3D%220.77%22%20fill-opacity%3D%220.38%22/%3E%3Ccircle%20cx%3D%2254%22%20cy%3D%22115.8%22%20r%3D%220.67%22%20fill-opacity%3D%220.33%22/%3E%3Ccircle%20cx%3D%2266%22%20cy%3D%22116.2%22%20r%3D%220.59%22%20fill-opacity%3D%220.29%22/%3E%3Ccircle%20cx%3D%2278%22%20cy%3D%22116.4%22%20r%3D%220.53%22%20fill-opacity%3D%220.26%22/%3E%3Ccircle%20cx%3D%2290%22%20cy%3D%22116.7%22%20r%3D%220.50%22%20fill-opacity%3D%220.25%22/%3E%3Ccircle%20cx%3D%22102%22%20cy%3D%22116.9%22%20r%3D%220.50%22%20fill-opacity%3D%220.25%22/%3E%3Ccircle%20cx%3D%22114%22%20cy%3D%22117.1%22%20r%3D%220.53%22%20fill-opacity%3D%220.27%22/%3E%3Ccircle%20cx%3D%22126%22%20cy%3D%22117.2%22%20r%3D%220.59%22%20fill-opacity%3D%220.29%22/%3E%3Ccircle%20cx%3D%22138%22%20cy%3D%22117.2%22%20r%3D%220.67%22%20fill-opacity%3D%220.33%22/%3E%3Ccircle%20cx%3D%22150%22%20cy%3D%22117.2%22%20r%3D%220.77%22%20fill-opacity%3D%220.38%22/%3E%3Ccircle%20cx%3D%22162%22%20cy%3D%22117.1%22%20r%3D%220.89%22%20fill-opacity%3D%220.43%22/%3E%3Ccircle%20cx%3D%22174%22%20cy%3D%22117.0%22%20r%3D%221.03%22%20fill-opacity%3D%220.50%22/%3E%3Ccircle%20cx%3D%22186%22%20cy%3D%22116.8%22%20r%3D%221.18%22%20fill-opacity%3D%220.57%22/%3E%3Ccircle%20cx%3D%22198%22%20cy%3D%22116.5%22%20r%3D%221.33%22%20fill-opacity%3D%220.64%22/%3E%3Ccircle%20cx%3D%22210%22%20cy%3D%22116.2%22%20r%3D%221.48%22%20fill-opacity%3D%220.71%22/%3E%3Ccircle%20cx%3D%22222%22%20cy%3D%22115.9%22%20r%3D%221.62%22%20fill-opacity%3D%220.77%22/%3E%3Ccircle%20cx%3D%22234%22%20cy%3D%22115.6%22%20r%3D%221.75%22%20fill-opacity%3D%220.84%22/%3E%3Ccircle%20cx%3D%22246%22%20cy%3D%22115.2%22%20r%3D%221.87%22%20fill-opacity%3D%220.89%22/%3E%3Ccircle%20cx%3D%22258%22%20cy%3D%22114.8%22%20r%3D%221.96%22%20fill-opacity%3D%220.94%22/%3E%3Ccircle%20cx%3D%22270%22%20cy%3D%22114.5%22%20r%3D%222.03%22%20fill-opacity%3D%220.97%22/%3E%3Ccircle%20cx%3D%22282%22%20cy%3D%22114.1%22%20r%3D%222.08%22%20fill-opacity%3D%220.99%22/%3E%3Ccircle%20cx%3D%22294%22%20cy%3D%22113.8%22%20r%3D%222.10%22%20fill-opacity%3D%221.00%22/%3E%3Ccircle%20cx%3D%22306%22%20cy%3D%22113.5%22%20r%3D%222.09%22%20fill-opacity%3D%221.00%22/%3E%3Ccircle%20cx%3D%22318%22%20cy%3D%22113.3%22%20r%3D%222.05%22%20fill-opacity%3D%220.98%22/%3E%3Ccircle%20cx%3D%22330%22%20cy%3D%22113.1%22%20r%3D%221.99%22%20fill-opacity%3D%220.95%22/%3E%3Ccircle%20cx%3D%22342%22%20cy%3D%22112.9%22%20r%3D%221.90%22%20fill-opacity%3D%220.91%22/%3E%3Ccircle%20cx%3D%22354%22%20cy%3D%22112.8%22%20r%3D%221.79%22%20fill-opacity%3D%220.85%22/%3E%3Ccircle%20cx%3D%22366%22%20cy%3D%22112.8%22%20r%3D%221.66%22%20fill-opacity%3D%220.79%22/%3E%3Ccircle%20cx%3D%22378%22%20cy%3D%22112.8%22%20r%3D%221.52%22%20fill-opacity%3D%220.73%22/%3E%3Ccircle%20cx%3D%22390%22%20cy%3D%22112.9%22%20r%3D%221.37%22%20fill-opacity%3D%220.66%22/%3E%3Ccircle%20cx%3D%22402%22%20cy%3D%22113.1%22%20r%3D%221.22%22%20fill-opacity%3D%220.59%22/%3E%3Ccircle%20cx%3D%22414%22%20cy%3D%22113.3%22%20r%3D%221.08%22%20fill-opacity%3D%220.52%22/%3E%3Ccircle%20cx%3D%22426%22%20cy%3D%22113.5%22%20r%3D%220.94%22%20fill-opacity%3D%220.45%22/%3E%3Ccircle%20cx%3D%22438%22%20cy%3D%22113.8%22%20r%3D%220.81%22%20fill-opacity%3D%220.39%22/%3E%3Ccircle%20cx%3D%22450%22%20cy%3D%22114.1%22%20r%3D%220.70%22%20fill-opacity%3D%220.34%22/%3E%3Ccircle%20cx%3D%22462%22%20cy%3D%22114.5%22%20r%3D%220.61%22%20fill-opacity%3D%220.30%22/%3E%3Ccircle%20cx%3D%22474%22%20cy%3D%22114.9%22%20r%3D%220.55%22%20fill-opacity%3D%220.27%22/%3E%3Ccircle%20cx%3D%226%22%20cy%3D%22133.9%22%20r%3D%220.78%22%20fill-opacity%3D%220.38%22/%3E%3Ccircle%20cx%3D%2218%22%20cy%3D%22134.2%22%20r%3D%220.67%22%20fill-opacity%3D%220.33%22/%3E%3Ccircle%20cx%3D%2230%22%20cy%3D%22134.4%22%20r%3D%220.59%22%20fill-opacity%3D%220.29%22/%3E%3Ccircle%20cx%3D%2242%22%20cy%3D%22134.6%22%20r%3D%220.54%22%20fill-opacity%3D%220.27%22/%3E%3Ccircle%20cx%3D%2254%22%20cy%3D%22134.7%22%20r%3D%220.50%22%20fill-opacity%3D%220.25%22/%3E%3Ccircle%20cx%3D%2266%22%20cy%3D%22134.7%22%20r%3D%220.50%22%20fill-opacity%3D%220.25%22/%3E%3Ccircle%20cx%3D%2278%22%20cy%3D%22134.7%22%20r%3D%220.53%22%20fill-opacity%3D%220.26%22/%3E%3Ccircle%20cx%3D%2290%22%20cy%3D%22134.6%22%20r%3D%220.58%22%20fill-opacity%3D%220.29%22/%3E%3Ccircle%20cx%3D%22102%22%20cy%3D%22134.5%22%20r%3D%220.66%22%20fill-opacity%3D%220.33%22/%3E%3Ccircle%20cx%3D%22114%22%20cy%3D%22134.3%22%20r%3D%220.76%22%20fill-opacity%3D%220.37%22/%3E%3Ccircle%20cx%3D%22126%22%20cy%3D%22134.0%22%20r%3D%220.88%22%20fill-opacity%3D%220.43%22/%3E%3Ccircle%20cx%3D%22138%22%20cy%3D%22133.7%22%20r%3D%221.02%22%20fill-opacity%3D%220.49%22/%3E%3Ccircle%20cx%3D%22150%22%20cy%3D%22133.4%22%20r%3D%221.16%22%20fill-opacity%3D%220.56%22/%3E%3Ccircle%20cx%3D%22162%22%20cy%3D%22133.1%22%20r%3D%221.31%22%20fill-opacity%3D%220.63%22/%3E%3Ccircle%20cx%3D%22174%22%20cy%3D%22132.7%22%20r%3D%221.46%22%20fill-opacity%3D%220.70%22/%3E%3Ccircle%20cx%3D%22186%22%20cy%3D%22132.3%22%20r%3D%221.61%22%20fill-opacity%3D%220.77%22/%3E%3Ccircle%20cx%3D%22198%22%20cy%3D%22132.0%22%20r%3D%221.74%22%20fill-opacity%3D%220.83%22/%3E%3Ccircle%20cx%3D%22210%22%20cy%3D%22131.6%22%20r%3D%221.86%22%20fill-opacity%3D%220.89%22/%3E%3Ccircle%20cx%3D%22222%22%20cy%3D%22131.3%22%20r%3D%221.96%22%20fill-opacity%3D%220.93%22/%3E%3Ccircle%20cx%3D%22234%22%20cy%3D%22131.0%22%20r%3D%222.03%22%20fill-opacity%3D%220.97%22/%3E%3Ccircle%20cx%3D%22246%22%20cy%3D%22130.8%22%20r%3D%222.08%22%20fill-opacity%3D%220.99%22/%3E%3Ccircle%20cx%3D%22258%22%20cy%3D%22130.6%22%20r%3D%222.10%22%20fill-opacity%3D%221.00%22/%3E%3Ccircle%20cx%3D%22270%22%20cy%3D%22130.4%22%20r%3D%222.09%22%20fill-opacity%3D%221.00%22/%3E%3Ccircle%20cx%3D%22282%22%20cy%3D%22130.3%22%20r%3D%222.06%22%20fill-opacity%3D%220.98%22/%3E%3Ccircle%20cx%3D%22294%22%20cy%3D%22130.3%22%20r%3D%221.99%22%20fill-opacity%3D%220.95%22/%3E%3Ccircle%20cx%3D%22306%22%20cy%3D%22130.3%22%20r%3D%221.91%22%20fill-opacity%3D%220.91%22/%3E%3Ccircle%20cx%3D%22318%22%20cy%3D%22130.4%22%20r%3D%221.80%22%20fill-opacity%3D%220.86%22/%3E%3Ccircle%20cx%3D%22330%22%20cy%3D%22130.6%22%20r%3D%221.67%22%20fill-opacity%3D%220.80%22/%3E%3Ccircle%20cx%3D%22342%22%20cy%3D%22130.8%22%20r%3D%221.53%22%20fill-opacity%3D%220.73%22/%3E%3Ccircle%20cx%3D%22354%22%20cy%3D%22131.0%22%20r%3D%221.39%22%20fill-opacity%3D%220.67%22/%3E%3Ccircle%20cx%3D%22366%22%20cy%3D%22131.3%22%20r%3D%221.24%22%20fill-opacity%3D%220.59%22/%3E%3Ccircle%20cx%3D%22378%22%20cy%3D%22131.6%22%20r%3D%221.09%22%20fill-opacity%3D%220.53%22/%3E%3Ccircle%20cx%3D%22390%22%20cy%3D%22132.0%22%20r%3D%220.95%22%20fill-opacity%3D%220.46%22/%3E%3Ccircle%20cx%3D%22402%22%20cy%3D%22132.4%22%20r%3D%220.82%22%20fill-opacity%3D%220.40%22/%3E%3Ccircle%20cx%3D%22414%22%20cy%3D%22132.7%22%20r%3D%220.71%22%20fill-opacity%3D%220.35%22/%3E%3Ccircle%20cx%3D%22426%22%20cy%3D%22133.1%22%20r%3D%220.62%22%20fill-opacity%3D%220.30%22/%3E%3Ccircle%20cx%3D%22438%22%20cy%3D%22133.4%22%20r%3D%220.55%22%20fill-opacity%3D%220.27%22/%3E%3Ccircle%20cx%3D%22450%22%20cy%3D%22133.7%22%20r%3D%220.51%22%20fill-opacity%3D%220.26%22/%3E%3Ccircle%20cx%3D%22462%22%20cy%3D%22134.0%22%20r%3D%220.50%22%20fill-opacity%3D%220.25%22/%3E%3Ccircle%20cx%3D%22474%22%20cy%3D%22134.3%22%20r%3D%220.52%22%20fill-opacity%3D%220.26%22/%3E%3Ccircle%20cx%3D%226%22%20cy%3D%22152.2%22%20r%3D%220.54%22%20fill-opacity%3D%220.27%22/%3E%3Ccircle%20cx%3D%2218%22%20cy%3D%22152.1%22%20r%3D%220.51%22%20fill-opacity%3D%220.25%22/%3E%3Ccircle%20cx%3D%2230%22%20cy%3D%22152.0%22%20r%3D%220.50%22%20fill-opacity%3D%220.25%22/%3E%3Ccircle%20cx%3D%2242%22%20cy%3D%22151.8%22%20r%3D%220.53%22%20fill-opacity%3D%220.26%22/%3E%3Ccircle%20cx%3D%2254%22%20cy%3D%22151.5%22%20r%3D%220.58%22%20fill-opacity%3D%220.29%22/%3E%3Ccircle%20cx%3D%2266%22%20cy%3D%22151.2%22%20r%3D%220.65%22%20fill-opacity%3D%220.32%22/%3E%3Ccircle%20cx%3D%2278%22%20cy%3D%22150.9%22%20r%3D%220.75%22%20fill-opacity%3D%220.37%22/%3E%3Ccircle%20cx%3D%2290%22%20cy%3D%22150.6%22%20r%3D%220.87%22%20fill-opacity%3D%220.42%22/%3E%3Ccircle%20cx%3D%22102%22%20cy%3D%22150.2%22%20r%3D%221.01%22%20fill-opacity%3D%220.49%22/%3E%3Ccircle%20cx%3D%22114%22%20cy%3D%22149.8%22%20r%3D%221.15%22%20fill-opacity%3D%220.56%22/%3E%3Ccircle%20cx%3D%22126%22%20cy%3D%22149.5%22%20r%3D%221.30%22%20fill-opacity%3D%220.63%22/%3E%3Ccircle%20cx%3D%22138%22%20cy%3D%22149.1%22%20r%3D%221.45%22%20fill-opacity%3D%220.70%22/%3E%3Ccircle%20cx%3D%22150%22%20cy%3D%22148.8%22%20r%3D%221.60%22%20fill-opacity%3D%220.76%22/%3E%3Ccircle%20cx%3D%22162%22%20cy%3D%22148.5%22%20r%3D%221.73%22%20fill-opacity%3D%220.83%22/%3E%3Ccircle%20cx%3D%22174%22%20cy%3D%22148.3%22%20r%3D%221.85%22%20fill-opacity%3D%220.88%22/%3E%3Ccircle%20cx%3D%22186%22%20cy%3D%22148.1%22%20r%3D%221.95%22%20fill-opacity%3D%220.93%22/%3E%3Ccircle%20cx%3D%22198%22%20cy%3D%22147.9%22%20r%3D%222.02%22%20fill-opacity%3D%220.96%22/%3E%3Ccircle%20cx%3D%22210%22%20cy%3D%22147.8%22%20r%3D%222.08%22%20fill-opacity%3D%220.99%22/%3E%3Ccircle%20cx%3D%22222%22%20cy%3D%22147.8%22%20r%3D%222.10%22%20fill-opacity%3D%221.00%22/%3E%3Ccircle%20cx%3D%22234%22%20cy%3D%22147.8%22%20r%3D%222.09%22%20fill-opacity%3D%221.00%22/%3E%3Ccircle%20cx%3D%22246%22%20cy%3D%22147.9%22%20r%3D%222.06%22%20fill-opacity%3D%220.98%22/%3E%3Ccircle%20cx%3D%22258%22%20cy%3D%22148.1%22%20r%3D%222.00%22%20fill-opacity%3D%220.95%22/%3E%3Ccircle%20cx%3D%22270%22%20cy%3D%22148.3%22%20r%3D%221.92%22%20fill-opacity%3D%220.91%22/%3E%3Ccircle%20cx%3D%22282%22%20cy%3D%22148.5%22%20r%3D%221.81%22%20fill-opacity%3D%220.86%22/%3E%3Ccircle%20cx%3D%22294%22%20cy%3D%22148.8%22%20r%3D%221.68%22%20fill-opacity%3D%220.81%22/%3E%3Ccircle%20cx%3D%22306%22%20cy%3D%22149.1%22%20r%3D%221.55%22%20fill-opacity%3D%220.74%22/%3E%3Ccircle%20cx%3D%22318%22%20cy%3D%22149.5%22%20r%3D%221.40%22%20fill-opacity%3D%220.67%22/%3E%3Ccircle%20cx%3D%22330%22%20cy%3D%22149.9%22%20r%3D%221.25%22%20fill-opacity%3D%220.60%22/%3E%3Ccircle%20cx%3D%22342%22%20cy%3D%22150.2%22%20r%3D%221.10%22%20fill-opacity%3D%220.53%22/%3E%3Ccircle%20cx%3D%22354%22%20cy%3D%22150.6%22%20r%3D%220.96%22%20fill-opacity%3D%220.46%22/%3E%3Ccircle%20cx%3D%22366%22%20cy%3D%22150.9%22%20r%3D%220.83%22%20fill-opacity%3D%220.40%22/%3E%3Ccircle%20cx%3D%22378%22%20cy%3D%22151.2%22%20r%3D%220.72%22%20fill-opacity%3D%220.35%22/%3E%3Ccircle%20cx%3D%22390%22%20cy%3D%22151.5%22%20r%3D%220.62%22%20fill-opacity%3D%220.31%22/%3E%3Ccircle%20cx%3D%22402%22%20cy%3D%22151.8%22%20r%3D%220.56%22%20fill-opacity%3D%220.28%22/%3E%3Ccircle%20cx%3D%22414%22%20cy%3D%22152.0%22%20r%3D%220.51%22%20fill-opacity%3D%220.26%22/%3E%3Ccircle%20cx%3D%22426%22%20cy%3D%22152.1%22%20r%3D%220.50%22%20fill-opacity%3D%220.25%22/%3E%3Ccircle%20cx%3D%22438%22%20cy%3D%22152.2%22%20r%3D%220.51%22%20fill-opacity%3D%220.26%22/%3E%3Ccircle%20cx%3D%22450%22%20cy%3D%22152.2%22%20r%3D%220.56%22%20fill-opacity%3D%220.28%22/%3E%3Ccircle%20cx%3D%22462%22%20cy%3D%22152.2%22%20r%3D%220.63%22%20fill-opacity%3D%220.31%22/%3E%3Ccircle%20cx%3D%22474%22%20cy%3D%22152.1%22%20r%3D%220.72%22%20fill-opacity%3D%220.35%22/%3E%3C/svg%3E");
+  --ease:cubic-bezier(.2,.8,.2,1);
+  --r-xl:20px; --r-lg:14px; --r-md:10px;
+  --sig-glow:0 0 0 1px rgba(0,87,255,.55),0 10px 30px -8px rgba(0,87,255,.75);
+  /* светлая (Paper ведёт, Graphite — шрифт) */
+  --bg:#EEF2F8; --title:#EEF2F8; --act:#EEF2F8; --side:#FFFFFF; --editor:#F7F9FC; --panel:#FFFFFF; --tab:transparent; --tab-on:#FFFFFF;
+  --card:#FFFFFF; --card2:#F1F5FB; --border:#DCE4F0; --line:#C9D5E8;
+  --fg:#14171F; --fg2:#4A5468; --fg3:#7C879C; --accent:#0057FF; --accent-soft:#DCEBF8; --on-accent:#FFFFFF;
+  --link:#131A54; --echo1:#7F95CF; --echo2:#DCEBF8; --hover:#EEF3FB; --selbg:#DCEBF8; --focus:#0057FF; --input:#FFFFFF;
+  --land:#E3E9F3; --land-stroke:#F7F9FC; --water:#F2F5FA;
+  --up:#0A8A5F; --down:#C62B3C; --flat:#7C879C; --warn:#9A6B00; --agent:#0057FF; --human:#131A54;
+  --st1:#DCEBF8; --st2:#A9BDF0; --st3:#4C86FF; --st4:#0057FF; --st5:#131A54;
+  --hero:linear-gradient(180deg,#E4ECF9 0%,rgba(247,249,252,0) 100%);
+  --glass:rgba(255,255,255,.88); --shadow:0 1px 2px rgba(20,23,31,.05),0 18px 40px -24px rgba(19,26,84,.35);
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0C0E14; --title:#0C0E14; --act:#0C0E14; --side:#12151D; --editor:#14171F; --panel:#12151D; --tab:transparent; --tab-on:#1B2030;
+  --card:#191D28; --card2:#1E2331; --border:#232A3A; --line:#2E3750;
+  --fg:#EEF2F9; --fg2:#A2ACC2; --fg3:#68738B; --accent:#0057FF; --accent-soft:#131A54; --on-accent:#F7F9FC;
+  --link:#A9BDF0; --echo1:#667292; --echo2:#2A3350; --hover:#1C2232; --selbg:#16204A; --focus:#3D7BFF; --input:#10131A;
+  --land:#232A3B; --land-stroke:#0C0E14; --water:#0E1118;
+  --up:#3DD8A4; --down:#FF6B7A; --flat:#69748C; --warn:#E8B14C; --agent:#0057FF; --human:#EAF2FB;
+  --st1:#232A3B; --st2:#40507A; --st3:#A9BDF0; --st4:#0057FF; --st5:#3DD8A4;
+  --hero:linear-gradient(180deg,rgba(19,26,84,.55) 0%,rgba(20,23,31,0) 100%);
+  --glass:rgba(18,21,31,.84); --shadow:0 1px 0 rgba(255,255,255,.03) inset,0 24px 50px -24px rgba(0,0,0,.8);
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0C0E14; --title:#0C0E14; --act:#0C0E14; --side:#12151D; --editor:#14171F; --panel:#12151D; --tab:transparent; --tab-on:#1B2030;
+  --card:#191D28; --card2:#1E2331; --border:#232A3A; --line:#2E3750;
+  --fg:#EEF2F9; --fg2:#A2ACC2; --fg3:#68738B; --accent:#0057FF; --accent-soft:#131A54; --on-accent:#F7F9FC;
+  --link:#A9BDF0; --echo1:#667292; --echo2:#2A3350; --hover:#1C2232; --selbg:#16204A; --focus:#3D7BFF; --input:#10131A;
+  --land:#232A3B; --land-stroke:#0C0E14; --water:#0E1118;
+  --up:#3DD8A4; --down:#FF6B7A; --flat:#69748C; --warn:#E8B14C; --agent:#0057FF; --human:#EAF2FB;
+  --st1:#232A3B; --st2:#40507A; --st3:#A9BDF0; --st4:#0057FF; --st5:#3DD8A4;
+  --hero:linear-gradient(180deg,rgba(19,26,84,.55) 0%,rgba(20,23,31,0) 100%);
+  --glass:rgba(18,21,31,.84); --shadow:0 1px 0 rgba(255,255,255,.03) inset,0 24px 50px -24px rgba(0,0,0,.8);
+  color-scheme:dark;
+}
+html,body{background:var(--bg)!important}
+body{font-family:var(--ui)!important;-webkit-font-smoothing:antialiased}
+::selection{background:rgba(0,87,255,.35)}
+*{scrollbar-width:thin;scrollbar-color:var(--line) transparent}
+:focus-visible{outline:2px solid var(--focus)!important;outline-offset:2px}
+
+/* ---------- 2. Рамка приложения: те же зоны, те же места — только бренд ---------- */
+.app{grid-template-rows:44px minmax(0,1fr) auto}
+.titlebar{background:var(--title)!important;border-bottom:1px solid var(--border)!important;gap:14px!important;padding-inline:12px!important}
+.brand .mark{height:18px}
+.cmd{height:30px!important;border-radius:10px!important;font-size:12px!important;background:var(--input)!important}
+.titlebar .cmdw{max-width:560px;margin-inline:auto}
+.zonebtn{height:28px!important;border-radius:8px!important;font-family:var(--mono)!important;font-size:10px!important}
+.zonebtn[aria-pressed="true"]{color:var(--fg)!important;border-color:var(--line)!important;background:var(--card)!important}
+.activity button[aria-pressed="true"]{border-left-color:var(--signal)!important;background:linear-gradient(90deg,rgba(0,87,255,.14),transparent)}
+.activity .badge{background:var(--signal)!important;box-shadow:0 0 0 2px var(--act)}
+.btn.pri{background:var(--signal)!important;border-color:var(--signal)!important;color:#fff!important;box-shadow:var(--sig-glow);border-radius:9px!important;transition:transform .2s var(--ease),box-shadow .2s var(--ease)}
+.btn.pri:hover:not(:disabled){background:#1A68FF!important;transform:translateY(-1px);box-shadow:0 0 0 1px rgba(61,123,255,.7),0 16px 36px -10px rgba(0,87,255,.9)}
+.btn{border-radius:9px!important;transition:border-color .15s,background .15s,transform .15s}
+.btn:hover:not(:disabled){transform:translateY(-1px)}
+.askbox{border-radius:12px!important}
+.askbox:focus-within{border-color:var(--signal)!important;box-shadow:0 0 0 4px rgba(0,87,255,.15)}
+.send{background:var(--signal)!important;color:#fff!important;border-radius:9px!important}
+.agbody .focus{border-radius:var(--r-lg)!important;background:linear-gradient(160deg,var(--accent-soft),transparent 70%)!important;border:1px solid var(--line)!important}
+.agbody .focus .k{color:var(--link)!important}
+.agbody .focus .t{font-size:15px!important;font-weight:700!important;letter-spacing:-.01em}
+
+/* ---------- 3. ЦЕНТР: рабочая область ---------- */
+.editor{background:var(--editor)!important;position:relative}
+.editor::before{content:"";position:absolute;inset:0 0 auto 0;height:260px;pointer-events:none;z-index:0;background:var(--hero)}
+.editor>*{position:relative;z-index:1}
+/* вкладки видов */
+.tabs{background:transparent!important;border-bottom:1px solid var(--border)!important;height:46px!important;padding:7px 10px!important;gap:4px;align-items:center}
+.tabb{height:32px;border:0!important;border-radius:9px;padding:0 10px 0 12px!important;font-size:12px!important;letter-spacing:0!important;text-transform:none!important;font-weight:600!important;color:var(--fg3)!important;transition:background .15s,color .15s}
+.tabb:hover{background:var(--hover);color:var(--fg2)!important}
+.tabb[aria-selected="true"]{background:var(--tab-on)!important;color:var(--fg)!important;box-shadow:inset 0 0 0 1px var(--line),inset 0 -2px 0 var(--signal)}
+.tabb[aria-selected="true"] .ic{color:var(--signal)!important}
+.tabb .sub{font-size:11.5px!important;color:var(--fg3)!important;text-transform:none!important;letter-spacing:0!important}
+.crumbs{height:34px!important;padding-inline:18px!important;font-size:12px!important;border-bottom:1px solid var(--border)!important;background:transparent}
+.crumbs b{font-weight:700}
+
+/* общая «шапка вида»: крупно, с точечной волной бренда */
+.dbh,.doch,.bph{position:relative}
+.dbh{background:transparent!important;border-bottom:0!important;padding:26px 22px 14px!important;gap:12px!important;position:sticky}
+.dbh::after,.doc>.doch::after{content:"";position:absolute;right:0;top:0;width:min(52%,480px);height:150px;pointer-events:none;
+  background:var(--dotwave) right top/480px 150px no-repeat;opacity:.22;
+  mask-image:linear-gradient(90deg,transparent,#000 40%);-webkit-mask-image:linear-gradient(90deg,transparent,#000 40%)}
+:root[data-theme="light"] .dbh::after,:root[data-theme="light"] .doc>.doch::after{opacity:.5}
+.dbh h3,.doch h2,.bph h2{font-size:clamp(22px,2.2vw,30px)!important;font-weight:800!important;letter-spacing:-.035em!important;line-height:1.1!important;color:var(--fg)}
+.dbh .cnt{font-family:var(--mono)!important;font-size:11px!important;color:var(--link)!important;padding:3px 9px;border-radius:999px;background:var(--accent-soft);border:1px solid var(--line)}
+.dbh input{height:34px!important;border-radius:10px!important;background:var(--input)!important;border:1px solid var(--line)!important;padding:0 12px!important;font-size:12.5px!important}
+.dbh .pick button,.dbh .ib.wd{border-radius:999px!important;height:26px!important;padding:0 12px!important}
+.dbquick{padding:4px 22px 10px!important;border-bottom:0!important;gap:8px!important}
+.dbquick button{height:28px!important;padding:0 12px!important;border-radius:999px!important;font-size:12px!important;background:var(--card)!important;border:1px solid var(--border)!important;color:var(--fg2)!important;transition:all .15s}
+.dbquick button:hover{border-color:var(--line)!important;color:var(--fg)!important}
+.dbquick button[aria-pressed="true"]{background:var(--signal)!important;border-color:var(--signal)!important;color:#fff!important;box-shadow:var(--sig-glow)}
+
+/* таблицы → ряды-карточки */
+.db{border-collapse:separate!important;border-spacing:0 6px!important;padding:0 16px 16px!important;width:100%}
+.db thead th{background:var(--editor)!important;font-family:var(--mono)!important;font-size:10px!important;font-weight:600!important;letter-spacing:.12em!important;text-transform:uppercase!important;color:var(--fg3)!important;border:0!important;padding:8px 12px!important}
+.db tbody td{background:var(--card)!important;border-top:1px solid var(--border)!important;border-bottom:1px solid var(--border)!important;border-left:0!important;border-right:0!important;padding:12px 12px!important;font-size:12.5px;transition:background .15s}
+.db tbody td:first-child{border-left:1px solid var(--border)!important;border-radius:12px 0 0 12px}
+.db tbody td:last-child{border-right:1px solid var(--border)!important;border-radius:0 12px 12px 0}
+.db tbody tr:hover td{background:var(--card2)!important;border-color:var(--line)!important}
+.db tbody tr:hover td:first-child{box-shadow:inset 3px 0 0 var(--signal)}
+.db td.nm{font-weight:700;font-size:13.5px;color:var(--fg)}
+.db td.nm .gl{width:30px!important;height:30px!important;border-radius:9px;background:var(--accent-soft);padding:6px;margin-right:6px;color:var(--link)}
+.db td.nm .gl.up{color:var(--up)}.db td.nm .gl.down{color:var(--down)}.db td.nm .gl.warn{color:var(--warn)}
+.db td.nm .pav{width:30px!important;height:30px!important;margin-right:6px}
+.db td.num{font-family:var(--mono);font-variant-numeric:tabular-nums;color:var(--fg)}
+.db td.st{font-weight:600}
+.db td.st i.lt{width:9px!important;height:9px!important;box-shadow:0 0 0 3px color-mix(in srgb,currentColor 18%,transparent)}
+.db td.st.up{color:var(--up)!important}.db td.st.warn{color:var(--warn)!important}.db td.st.down{color:var(--down)!important}.db td.st.flat{color:var(--fg3)!important}
+.db td.st.down i.lt{animation:v3ring 2s infinite}
+@keyframes v3ring{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--down) 60%,transparent)}70%{box-shadow:0 0 0 8px transparent}100%{box-shadow:0 0 0 0 transparent}}
+.db tr.dbf td{background:transparent!important;border:0!important;padding:4px 12px!important}
+.db tr.dbf select,.db tr.dbf input{height:28px;border-radius:8px;border:1px solid var(--border);background:var(--input)}
+.db tr.grp td{background:transparent!important;border:0!important;font-family:var(--mono);font-size:10px!important;font-weight:600;letter-spacing:.14em!important;color:var(--link)!important;padding:14px 12px 4px!important;box-shadow:none!important}
+.db tr.on td{background:var(--selbg)!important;border-color:var(--signal)!important}
+.db tr.det td{background:var(--card2)!important;border-radius:12px!important;border:1px solid var(--line)!important;padding:14px 16px!important}
+.db td.bsel,.db th.bsel{width:34px}
+.dbmore{margin:4px 16px 18px;width:calc(100% - 32px)!important;border-radius:12px;border:1px dashed var(--line)!important;padding:12px!important;font-weight:700}
+.chip{border-radius:999px!important;height:22px!important;padding:0 10px!important;font-size:10.5px!important;border:1px solid currentColor!important;background:color-mix(in srgb,currentColor 9%,transparent)!important}
+.chip.flat{color:var(--fg3)!important}
+
+/* Сообщения */
+.fact{border-radius:var(--r-lg)!important;background:var(--card);padding:14px 16px!important;gap:14px!important;transition:transform .18s var(--ease),border-color .18s,box-shadow .18s}
+.fact.mb:hover{transform:translateY(-2px);border-color:var(--line)!important;box-shadow:var(--shadow);background:var(--card2)!important}
+.fact .grow{gap:6px!important}
+.fact .grow>.note:first-child,.fact .grow>b{font-size:13.5px;font-weight:700;color:var(--fg)}
+.inbw{font-family:var(--mono);font-size:11px!important;color:var(--link)!important;min-width:46px!important}
+.inbag{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:10px;background:var(--accent-soft);color:var(--link);font-family:var(--mono);font-size:10px;font-weight:600;text-transform:uppercase}
+.doc>.hdr,.doc .hdr{font-family:var(--mono)!important;font-size:10.5px!important;letter-spacing:.14em!important;color:var(--link)!important;padding-top:10px}
+.doc{max-width:980px!important;padding:26px 24px 56px!important;gap:18px!important}
+.doc.wide{max-width:1180px!important}
+.doc>.note{font-size:13.5px;line-height:1.6;color:var(--fg2);max-width:72ch}
+
+/* Workflow: воронка из крупных плиток */
+.rail{gap:8px;margin-top:10px!important}
+.rst{margin:0!important;border-radius:16px!important;padding:13px 12px 18px!important;min-height:150px!important;background:var(--card)!important;border:1px solid var(--border)!important;gap:8px!important;transition:transform .2s var(--ease),border-color .2s,box-shadow .2s}
+.rst:hover{transform:translateY(-2px);border-color:var(--line)!important;box-shadow:var(--shadow)}
+.rst .rsn{font-size:9.5px!important;letter-spacing:.06em!important;color:var(--fg3)!important;white-space:normal!important;overflow:visible!important;text-overflow:clip!important;word-break:break-word}
+.rsbig{font-size:clamp(30px,3vw,44px)!important;font-weight:800!important;letter-spacing:-.05em!important}
+.rst.done{opacity:1!important}.rst.done .rsbig{color:var(--fg2)!important}
+.rst.next{opacity:.5!important}
+.rst.now{border-color:var(--warn)!important;background:linear-gradient(180deg,color-mix(in srgb,var(--warn) 10%,var(--card)),var(--card))!important}
+.rst.stuck{border-color:var(--down)!important;background:linear-gradient(180deg,color-mix(in srgb,var(--down) 14%,var(--card)),var(--card))!important;
+  box-shadow:0 0 0 4px color-mix(in srgb,var(--down) 12%,transparent),0 0 0 9px color-mix(in srgb,var(--down) 6%,transparent),0 20px 44px -18px color-mix(in srgb,var(--down) 70%,transparent)!important}
+.rst.sel{box-shadow:0 0 0 2px var(--signal),var(--sig-glow)!important;border-color:var(--signal)!important}
+.rst::after{content:"";position:absolute;left:16px;right:16px;bottom:12px;height:3px;border-radius:3px;background:var(--echo2)}
+.rst.done::after{background:var(--up)}.rst.stuck::after{background:var(--down)}.rst.now::after{background:var(--warn)}
+.prow{border-top:1px dashed var(--border)!important;padding:4px 0}
+.pwho .pnm{font-weight:700}
+.dt{font-size:15px!important;padding:6px 8px!important;border-radius:8px!important}
+.sopbar{padding:10px 0}
+.modesw button,.sopbar .pick button{border-radius:999px!important}
+
+/* Документ: настоящий лист бумаги на тёмном столе */
+.paper{background:var(--paper)!important;color:var(--graphite)!important;border-radius:6px!important;padding:56px 64px 64px!important;font-size:13.5px;line-height:1.7;
+  box-shadow:0 1px 2px rgba(0,0,0,.3),0 30px 70px -20px rgba(0,0,0,.65),0 0 0 1px rgba(20,23,31,.06)!important;position:relative}
+.paper::before{content:"";position:absolute;top:0;left:64px;right:64px;height:4px;border-radius:0 0 4px 4px;background:var(--signal)}
+.paper b{font-size:20px!important;font-weight:800!important;letter-spacing:-.02em;color:var(--graphite)!important}
+.paper h3{font-size:12.5px!important;color:var(--ink)!important;letter-spacing:.02em!important}
+.signers{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px!important}
+.signer{border-radius:var(--r-lg)!important;background:var(--card);padding:12px 14px!important}
+.kv{gap:10px!important}
+.kv div{border-radius:12px!important;background:var(--card);padding:12px 14px!important}
+.kv b{font-size:15px!important}
+
+/* Задачи */
+.tdesk{gap:14px!important;border-bottom:0!important;padding-bottom:10px!important}
+.tdesk .welcn{display:flex;flex-direction:column;gap:4px;padding:14px 18px;border-radius:var(--r-lg);background:var(--card);border:1px solid var(--border);min-width:160px}
+.tdesk .welcn b{font-size:34px!important;font-weight:800!important;letter-spacing:-.05em;line-height:1}
+.tdesk .welcn:first-child b{color:var(--signal)}
+.tdesk .tdline{font-size:13px;line-height:1.55;color:var(--fg2);max-width:52ch;align-self:center}
+.pick.view button{border-radius:999px!important}
+
+/* Агенты: оргструктура */
+.org{padding-top:6px}
+.orgcard{border-radius:16px!important;padding:14px 16px!important;background:var(--card)!important;transition:transform .18s var(--ease),box-shadow .18s,border-color .18s}
+.orgcard:hover{transform:translateY(-2px);border-color:var(--line)!important;box-shadow:var(--shadow)}
+.orgcard .pav.mid{width:38px!important;height:38px!important;background:var(--accent-soft);box-shadow:0 0 0 2px var(--editor),0 0 0 4px var(--line)}
+.orgcard b{font-size:13.5px;font-weight:700}
+.orgcard.bot{border-radius:12px!important;padding:9px 12px!important;background:var(--card2)!important}
+.orgline,.orgstem{background:var(--line)!important;border-color:var(--line)!important}
+
+/* ---------- 4. Карта и панель поверх неё ---------- */
+.mapbox{background:radial-gradient(ellipse at 50% 35%,color-mix(in srgb,var(--ink) 55%,var(--water)),var(--water) 72%)!important}
+.segclu .sb,.mk{box-shadow:0 0 0 3px color-mix(in srgb,var(--editor) 70%,transparent),0 0 0 7px rgba(169,189,240,.10),0 8px 20px rgba(0,0,0,.45)!important;transition:transform .2s var(--ease)}
+.segclu .sb:hover,.mk:hover{transform:scale(1.12)}
+.mk.hq{box-shadow:0 0 0 4px rgba(0,87,255,.25),0 0 22px rgba(0,87,255,.9)!important}
+.zbtn{right:16px!important;bottom:30px!important;border-radius:12px!important;background:var(--glass)!important;backdrop-filter:blur(12px)}
+.zbtn button{width:34px!important;height:32px!important}
+.mslice.hud{left:16px!important;top:16px!important;z-index:5;max-width:min(460px,calc(100% - 90px))!important;padding:16px 18px!important;display:flex;flex-direction:column;gap:14px;
+  background:var(--glass)!important;border:1px solid var(--line)!important;border-radius:18px!important;backdrop-filter:blur(18px) saturate(1.3);box-shadow:var(--shadow);animation:v3rise .5s var(--ease) both}
+.mslice.hud.one{gap:4px}
+.hud .hk{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--link)}
+.hud .hrow{display:grid;grid-template-columns:auto minmax(0,1fr);gap:22px;align-items:end}
+.hud .hmain{display:flex;flex-direction:column;gap:4px}
+.hud .hn{font-size:46px;font-weight:800;letter-spacing:-.055em;line-height:.95;font-variant-numeric:tabular-nums;color:var(--fg)!important}
+.hud.one .hn{font-size:22px;letter-spacing:-.02em}
+.hud .hsub{font-size:12px;color:var(--fg2)}
+.hud .hstats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.hud .hs{display:flex;flex-direction:column;gap:3px;min-width:0}
+.hud .hs b{font-size:20px;font-weight:800;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.hud .hs span{font-size:11px;line-height:1.3;color:var(--fg3)}
+.hud .hs i{display:block;height:4px;border-radius:4px;background:var(--echo2);overflow:hidden;position:relative;margin-top:3px}
+.hud .hs i::after{content:"";position:absolute;inset:0 auto 0 0;width:var(--w);border-radius:4px;background:currentColor}
+.hud .hs.down{color:var(--down)}.hud .hs.wn{color:var(--warn)}.hud .hs.up{color:var(--up)}
+.hud .hhot{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding-top:12px;border-top:1px solid var(--border)}
+.hud .hchip{display:inline-flex;align-items:center;gap:7px;height:26px;padding:0 11px;border-radius:999px;font-size:12px;font-weight:600;color:var(--fg);border:1px solid color-mix(in srgb,var(--down) 45%,transparent);background:color-mix(in srgb,var(--down) 10%,transparent)}
+.hud .hchip b{color:var(--down)}
+.hud .hchip i{width:7px;height:7px;border-radius:50%;background:var(--down);animation:v3ring 1.8s infinite}
+.hud .hunit{font-size:11px}
+@keyframes v3rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ---------- 5. Лог снизу: только цвета бренда, устройство как было ---------- */
+.ptab[aria-selected="true"]{border-bottom-color:var(--signal)!important}
+.feed .fi:hover{background:var(--hover)!important}
+
+/* ---------- 6. Экран входа: вращающаяся карта-глобус ---------- */
+.welc{display:block!important;padding:0!important;background:#0A0C12!important;overflow:hidden!important}
+:root[data-theme="light"] .welc{background:var(--paper)!important}
+.w3{position:absolute;inset:0}
+.w3globe{position:absolute!important;top:0;bottom:0;left:30%;right:-6%;z-index:0}
+.w3globe.nogl{background:var(--dotwave) center/480px 160px repeat;opacity:.25}
+.w3globe .maplibregl-ctrl-attrib{opacity:.35}
+.w3shade{position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:linear-gradient(90deg,#0A0C12 0%,rgba(10,12,18,.92) 30%,rgba(10,12,18,.25) 58%,rgba(10,12,18,0) 75%),
+             radial-gradient(900px 500px at 10% 0%,rgba(19,26,84,.7),transparent 70%)}
+:root[data-theme="light"] .w3shade{background:linear-gradient(90deg,#F7F9FC 0%,rgba(247,249,252,.94) 30%,rgba(247,249,252,.2) 60%,rgba(247,249,252,0) 76%)}
+.w3panel{position:absolute;z-index:2;left:0;top:0;bottom:0;width:min(600px,100%);overflow:auto;display:flex;flex-direction:column;justify-content:center;gap:24px;
+  padding-block:32px 48px;padding-left:max(56px,env(safe-area-inset-left,0px));padding-right:max(24px,env(safe-area-inset-right,0px));animation:v3rise .7s var(--ease) both}
+.w3panel .welcbrand{display:flex;align-items:center;gap:12px;font-size:15px;font-weight:800;letter-spacing:-.01em;color:var(--fg)}
+.w3panel .welcbrand svg{height:22px;width:auto}
+.w3panel .welcbrand em{font-style:normal;font-weight:500;color:var(--fg3)}
+.w3panel h1{margin:0;font-size:clamp(32px,3.4vw,50px);line-height:1.04;font-weight:800;letter-spacing:-.045em;text-wrap:balance;color:var(--fg)}
+.w3panel h1 span{display:block;margin-top:.14em;color:var(--echo)}
+:root[data-theme="light"] .w3panel h1 span{color:var(--ink)}
+.w3sub{margin:0;font-size:14.5px;line-height:1.6;color:var(--fg2);max-width:52ch}
+.w3nums{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.w3nums>div{display:flex;flex-direction:column;gap:6px;padding:14px 16px;border-radius:14px;background:rgba(25,29,40,.72);border:1px solid var(--line);backdrop-filter:blur(10px)}
+:root[data-theme="light"] .w3nums>div{background:rgba(255,255,255,.85)}
+.w3nums b{font-size:clamp(26px,2.4vw,36px);font-weight:800;letter-spacing:-.05em;line-height:1;font-variant-numeric:tabular-nums;color:var(--fg)}
+.w3nums>div:first-child b{color:var(--signal);text-shadow:0 0 24px rgba(0,87,255,.55)}
+.w3nums span{font-size:11.5px;line-height:1.35;color:var(--fg2)}
+.w3signin{display:flex;flex-direction:column;gap:10px}
+.w3lbl{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--link)}
+.w3panel .welcwho{display:flex;flex-wrap:wrap;gap:8px}
+.w3panel .welcwho button{display:flex;flex-direction:column;gap:2px;align-items:flex-start;text-align:left;padding:10px 14px;border-radius:12px;font-size:12.5px;
+  background:rgba(25,29,40,.72);border:1px solid var(--line);color:var(--fg2);backdrop-filter:blur(10px);transition:transform .15s var(--ease),border-color .15s}
+:root[data-theme="light"] .w3panel .welcwho button{background:rgba(255,255,255,.88)}
+.w3panel .welcwho button b{color:var(--fg)}
+.w3panel .welcwho button span{font-size:10.5px;color:var(--fg3)}
+.w3panel .welcwho button:hover{transform:translateY(-2px);border-color:var(--echo1)}
+.w3panel .welcwho button[aria-pressed="true"]{border-color:var(--signal);background:rgba(0,87,255,.16);box-shadow:var(--sig-glow)}
+.w3panel .welcgo{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.w3panel .welcgo .btn{min-height:50px!important;padding:0 28px!important;font-size:15px!important;border-radius:12px!important;gap:10px}
+.w3panel .welcgo .note{font-size:12.5px;color:var(--fg3)}
+.w3legend{position:absolute;z-index:2;right:max(28px,env(safe-area-inset-right,0px));bottom:52px;width:min(340px,40vw);display:flex;flex-direction:column;gap:12px;padding:16px 18px;
+  border-radius:18px;background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(16px);box-shadow:var(--shadow);animation:v3rise .9s var(--ease) .2s both}
+.w3lg{display:flex;flex-direction:column;gap:6px}
+.w3lg span{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--fg2)}
+.w3lg b{font-family:var(--mono);color:var(--fg);min-width:34px}
+.w3lg i{width:8px;height:8px;border-radius:50%}
+.w3lg i.up{background:var(--up);box-shadow:0 0 10px var(--up)}.w3lg i.warn{background:var(--warn);box-shadow:0 0 10px var(--warn)}.w3lg i.down{background:var(--down);box-shadow:0 0 10px var(--down)}
+.w3steps{display:flex;flex-direction:column;gap:8px;padding-top:12px;border-top:1px solid var(--border)}
+.w3step{display:flex;gap:10px;align-items:flex-start}
+.w3step .n{flex:none;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:10px;font-weight:600;color:var(--link);border:1px solid var(--line)}
+.w3step b{display:block;font-size:12.5px;color:var(--fg)}
+.w3step span{font-size:11px;line-height:1.4;color:var(--fg3)}
+.w3foot{position:absolute;z-index:2;left:max(56px,env(safe-area-inset-left,0px));bottom:16px;margin:0;font-size:11px;color:var(--fg3)}
+.wtag{display:flex;align-items:center;gap:8px;padding:5px 10px 5px 8px;border-radius:999px;background:var(--glass);border:1px solid color-mix(in srgb,var(--down) 45%,transparent);backdrop-filter:blur(10px);white-space:nowrap;pointer-events:none}
+.wtag i{width:7px;height:7px;border-radius:50%;background:var(--down)}
+.wtag b{font-size:11.5px;color:var(--fg)}
+.wtag span{font-family:var(--mono);font-size:10.5px;color:var(--down)}
+@media (max-width:900px){
+  .w3shade{background:linear-gradient(180deg,rgba(10,12,18,.2),rgba(10,12,18,.92) 45%)}
+  :root[data-theme="light"] .w3shade{background:linear-gradient(180deg,rgba(247,249,252,.2),rgba(247,249,252,.95) 45%)}
+  .w3panel{position:relative;width:100%;min-height:100%;justify-content:flex-end;padding-left:max(20px,env(safe-area-inset-left,0px));padding-top:38vh}
+  .w3legend,.w3foot{display:none}
+  .welc{overflow:auto!important}
+}
+@media (max-width:520px){.w3nums{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){.db td.st.down i.lt,.hud .hchip i{animation:none}}
+
+/* ==========================================================================
+   v4 · центр по образцу Attio / HubSpot / Pipedrive / Clay
+   ========================================================================== */
+/* монограмма компании — вместо одинаковой иконки у всех */
+.mono{display:inline-flex;align-items:center;justify-content:center;flex:none;width:30px;height:30px;border-radius:9px;
+  font-family:var(--ui);font-size:11px;font-weight:800;letter-spacing:.02em;color:var(--mist);background:var(--ink);box-shadow:inset 0 0 0 1px rgba(169,189,240,.18)}
+.mono.h1{background:#0B2A7A}.mono.h2{background:#1C2440;color:var(--echo)}.mono.h3{background:#0F3D8C}.mono.h4{background:#232A3B;color:var(--echo)}
+:root[data-theme="light"] .mono{color:var(--ink);background:var(--mist);box-shadow:inset 0 0 0 1px rgba(19,26,84,.12)}
+:root[data-theme="light"] .mono.h1{background:#C9DBF6}:root[data-theme="light"] .mono.h2{background:#E6ECF7}:root[data-theme="light"] .mono.h3{background:#D5E3F8}:root[data-theme="light"] .mono.h4{background:#EDF1F7}
+.mono.sm{width:22px;height:22px;border-radius:6px;font-size:9px}
+.mono.xl{width:64px;height:64px;border-radius:18px;font-size:22px;box-shadow:inset 0 0 0 1px rgba(169,189,240,.25),0 18px 40px -16px rgba(0,87,255,.6)}
+.empty{padding:18px;border:1px dashed var(--line);border-radius:12px;font-size:12.5px;color:var(--fg3);text-align:center}
+.mn{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+/* ---------- база данных (Attio / Clay) ---------- */
+.db{border-spacing:0!important;padding:0 16px 16px!important}
+.db tbody td{border-radius:0!important;border-left:0!important;border-right:0!important;border-top:0!important;border-bottom:1px solid var(--border)!important;padding:10px 12px!important;background:transparent!important}
+.db tbody td:first-child,.db tbody td:last-child{border-radius:0!important;border-left:0!important;border-right:0!important}
+.db tbody tr{transition:background .12s}
+.db tbody tr:hover td{background:var(--hover)!important}
+.db tbody tr:hover td:first-child{box-shadow:inset 2px 0 0 var(--signal)}
+.db td.nm{background:var(--editor)!important}
+.db tbody tr:hover td.nm{background:var(--hover)!important}
+.dbn{display:inline-flex;align-items:center;gap:10px;min-width:0;vertical-align:middle}
+.dbn>span:last-child{display:flex;flex-direction:column;gap:1px;min-width:0}
+.dbn b{font-size:13px;font-weight:700;color:var(--fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dbn small{font-family:var(--mono);font-size:10.5px;color:var(--fg3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dbn .gl{width:28px!important;height:28px!important;padding:6px;border-radius:8px;background:var(--accent-soft);color:var(--link)}
+.dbacc{display:inline-flex;align-items:center;gap:8px;font-weight:600}
+.stp{display:inline-flex;align-items:center;gap:7px;height:24px;padding:0 10px;border-radius:999px;font-size:11.5px;font-weight:600;
+  border:1px solid color-mix(in srgb,currentColor 35%,transparent);background:color-mix(in srgb,currentColor 9%,transparent);white-space:nowrap}
+.db td.st i.lt{margin-right:0!important;width:7px!important;height:7px!important;background:currentColor!important}
+.sdots{display:inline-flex;align-items:center;gap:3px;white-space:nowrap}
+.sdots i{width:14px;height:5px;border-radius:3px;background:var(--echo2)}
+.sdots i.done{background:var(--echo)}
+.sdots i.now{background:var(--signal);box-shadow:0 0 8px rgba(0,87,255,.7)}
+.sdots i.now.down{background:var(--down);box-shadow:0 0 8px color-mix(in srgb,var(--down) 70%,transparent)}
+.sdots i.now.warn{background:var(--warn)}
+.sdots em{font-style:normal;margin-left:7px;font-size:11.5px;color:var(--fg2)}
+.sdots.lost i{background:var(--echo2)}.sdots.lost em{color:var(--down)}
+.dbquick button{display:inline-flex;align-items:center;gap:8px}
+.qn{font-family:var(--mono);font-size:10.5px;padding:1px 7px;border-radius:999px;background:var(--echo2);color:var(--fg2)}
+.dbquick button[aria-pressed="true"] .qn{background:rgba(255,255,255,.22);color:#fff}
+
+/* ---------- запись компании / профиль человека (Attio / HubSpot) ---------- */
+.rec{max-width:1200px;margin:0 auto;padding:24px 24px 56px;display:flex;flex-direction:column;gap:18px}
+.rech{position:relative;display:flex;align-items:flex-start;gap:18px;padding:22px;border-radius:var(--r-xl);background:linear-gradient(135deg,color-mix(in srgb,var(--ink) 55%,var(--card)),var(--card) 70%);
+  border:1px solid var(--line);box-shadow:var(--shadow);overflow:hidden}
+:root[data-theme="light"] .rech{background:linear-gradient(135deg,#E4ECF9,#fff 70%)}
+.rech::after{content:"";position:absolute;right:0;top:0;width:420px;height:100%;pointer-events:none;background:var(--dotwave) right center/480px 160px no-repeat;opacity:.25;
+  mask-image:linear-gradient(90deg,transparent,#000 50%);-webkit-mask-image:linear-gradient(90deg,transparent,#000 50%)}
+.rech>*{position:relative;z-index:1}
+.rect{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
+.reck{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--link)}
+.reck b{color:var(--fg)}
+.rech h2{margin:0;font-size:clamp(24px,2.4vw,32px);font-weight:800;letter-spacing:-.04em;line-height:1.05;color:var(--fg)}
+.recm{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:12.5px;color:var(--fg2)}
+.recm span+span::before,.recm .lnk+span::before,.recm span+.lnk::before{content:"·";margin-right:16px;color:var(--fg3)}
+.recm .lnk{color:var(--link);font-weight:700}
+.recact{display:flex;flex-direction:column;align-items:flex-end;gap:10px}
+.pfbig .pav,.pfbig .av{width:64px!important;height:64px!important;font-size:20px}
+.pfbig svg{width:34px!important;height:34px!important}
+.rech .ctyr{margin-top:6px;display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.rech .ctyr .lnk{height:26px;padding:0 11px;border-radius:999px;border:1px solid var(--border);background:var(--input);font-size:11.5px;color:var(--fg2)}
+.rech .ctyr .lnk[aria-pressed="true"]{background:var(--signal);border-color:var(--signal);color:#fff}
+.rech .scl{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--fg3);margin-right:4px}
+/* стадии как в Pipedrive / HubSpot: шаги сделки поперёк записи */
+.recstage{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:4px}
+.rs{display:flex;flex-direction:column;gap:6px;font-size:11.5px;font-weight:600;color:var(--fg3)}
+.rs i{height:6px;border-radius:4px;background:var(--echo2)}
+.rs.done{color:var(--fg2)}.rs.done i{background:var(--echo)}
+.rs.now{color:var(--fg)}.rs.now i{background:var(--signal);box-shadow:0 0 12px rgba(0,87,255,.7)}
+.rs.now.down i{background:var(--down);box-shadow:0 0 12px color-mix(in srgb,var(--down) 70%,transparent)}.rs.now.down{color:var(--down)}
+.rs.now.warn i{background:var(--warn)}.rs.now.warn{color:var(--warn)}
+.recgrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,340px);gap:18px;align-items:start}
+.recmain{display:flex;flex-direction:column;gap:18px;min-width:0}
+.recmain section{display:flex;flex-direction:column;gap:10px}
+.recside{display:flex;flex-direction:column;gap:2px;padding:16px;border-radius:var(--r-lg);background:var(--card);border:1px solid var(--border);position:sticky;top:12px}
+.rec .hdr{display:flex;align-items:baseline;gap:10px;font-family:var(--mono)!important;font-size:10.5px!important;font-weight:600;letter-spacing:.12em!important;text-transform:uppercase;color:var(--link)!important;padding:0!important}
+.rec .hdr .faint{font-family:var(--ui);letter-spacing:0;text-transform:none;font-size:11px;color:var(--fg3)}
+.fld{display:grid;grid-template-columns:96px minmax(0,1fr);gap:2px 12px;padding:9px 0;border-bottom:1px solid var(--border)}
+.fld:last-child{border-bottom:0}
+.fld .fk{font-size:11.5px;color:var(--fg3)}
+.fld b{font-size:12.5px;font-weight:600;color:var(--fg);word-break:break-word}
+.fld b.none{color:var(--fg3);font-weight:500;font-style:italic}
+.fld .fsrc{grid-column:2;font-family:var(--mono);font-size:10px;color:var(--echo1)}
+.fld .fsrc::before{content:"↳ "}
+.accnow{display:flex!important;align-items:flex-start;gap:12px;padding:14px 16px!important;border-radius:var(--r-lg)!important;border:1px solid var(--border);background:var(--card)}
+.accnow>div{display:flex;flex-direction:column;gap:4px}
+.accnow b{font-size:14px}
+.accnow.down{border-color:color-mix(in srgb,var(--down) 45%,transparent);background:color-mix(in srgb,var(--down) 7%,var(--card))}
+.accnow.warn{border-color:color-mix(in srgb,var(--warn) 45%,transparent);background:color-mix(in srgb,var(--warn) 7%,var(--card))}
+.accnow.up{border-color:color-mix(in srgb,var(--up) 40%,transparent)}
+.accnow i.lt{margin-top:5px;flex:none;width:9px;height:9px;border-radius:50%}
+.accnow.down i.lt{background:var(--down);animation:v3ring 2s infinite}.accnow.warn i.lt{background:var(--warn)}.accnow.up i.lt{background:var(--up)}
+.pcards,.dcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+.pcard,.dcard,.ccard{display:flex;align-items:center;gap:12px;text-align:left;padding:12px 14px;border-radius:var(--r-lg);border:1px solid var(--border);background:var(--card);color:inherit;font:inherit;cursor:pointer;
+  transition:transform .15s var(--ease),border-color .15s,box-shadow .15s}
+.pcard:hover,.dcard:hover,.ccard:hover{transform:translateY(-2px);border-color:var(--line);box-shadow:var(--shadow)}
+.pcb{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
+.pcb b{font-size:13px;font-weight:700;color:var(--fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pcb span{font-size:11.5px;color:var(--fg3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dci{display:inline-flex;width:34px;height:34px;border-radius:10px;align-items:center;justify-content:center;background:var(--accent-soft);color:var(--link);flex:none}
+.dci .gl{width:18px;height:18px;color:var(--link)}
+.need{font-size:12.5px;color:var(--warn);padding:10px 14px;border-radius:12px;border:1px dashed color-mix(in srgb,var(--warn) 50%,transparent)}
+/* профиль: лента переписки как таймлайн */
+.pers .thread{display:flex;flex-direction:column;gap:12px;position:relative;padding-left:4px}
+.pers .msg .bub2{border-radius:14px!important;padding:12px 14px!important;background:var(--card);border:1px solid var(--border)!important;max-width:640px;font-size:13px;line-height:1.55}
+.pers .msg.me .bub2{background:color-mix(in srgb,var(--signal) 12%,var(--card))!important;border-color:color-mix(in srgb,var(--signal) 35%,transparent)!important}
+.pers .recside>*{margin-bottom:12px}
+.pers .recside .hdr{margin-top:6px}
+
+/* ---------- воронка (Pipedrive) ---------- */
+.kcamps{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;padding:0 22px 14px}
+.kboard{display:grid;grid-template-columns:repeat(4,minmax(220px,1fr));gap:12px;padding:0 22px 24px;overflow-x:auto;align-items:start}
+.kcol{display:flex;flex-direction:column;gap:10px;padding:12px;border-radius:var(--r-lg);background:color-mix(in srgb,var(--card) 55%,transparent);border:1px solid var(--border);min-width:0}
+.kcol header{display:flex;align-items:baseline;gap:8px}
+.kcol header b{font-size:13px;font-weight:800;text-transform:capitalize;color:var(--fg)}
+.kcol header .mn{font-size:11px;padding:1px 7px;border-radius:999px;background:var(--echo2);color:var(--fg2)}
+.kcol header .faint{margin-left:auto;font-family:var(--mono);font-size:11px}
+.kbar{height:4px;border-radius:4px;background:var(--echo2);overflow:hidden}
+.kbar i{display:block;height:100%;width:var(--w);background:var(--signal);border-radius:4px}
+.kcards{display:flex;flex-direction:column;gap:8px}
+.kcard{display:flex;flex-direction:column;gap:8px;text-align:left;padding:12px;border-radius:12px;border:1px solid var(--border);background:var(--card);color:inherit;font:inherit;cursor:pointer;
+  border-left:3px solid var(--echo2);transition:transform .15s var(--ease),box-shadow .15s,border-color .15s}
+.kcard:hover{transform:translateY(-2px);box-shadow:var(--shadow);border-color:var(--line)}
+.kcard.down{border-left-color:var(--down)}.kcard.warn{border-left-color:var(--warn)}.kcard.up{border-left-color:var(--up)}
+.kct{display:flex;align-items:center;gap:9px;min-width:0}
+.kct b{font-size:12.5px;font-weight:700;color:var(--fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kct .mono{width:24px;height:24px;border-radius:7px;font-size:9px}
+.kcw{font-size:11.5px;line-height:1.35;color:var(--fg2)}
+.kcard.down .kcw{color:var(--down)}
+.kcf{display:flex;align-items:center;gap:10px;font-size:11px}
+.kcf .mn{font-weight:600;color:var(--fg)}
+.kcf .num{margin-left:auto}
+@media (max-width:1100px){.recgrid{grid-template-columns:1fr}.recside{position:static}}
+.fld{display:grid!important;align-items:baseline}
+.fld b{text-align:left!important;justify-self:start}
+.pers .recgrid{grid-template-columns:minmax(0,1fr) minmax(340px,420px)}
+.recside button,.recside .chip{white-space:nowrap}
+.dbh h3{font-size:clamp(20px,1.8vw,26px)!important}
+
+</style>
+
 
 <div class="app" id="app">
   <header class="titlebar">
@@ -3485,24 +3930,33 @@ function renderMap(){
 function renderSlice(t,seg,clustered){
   const el=$('mslice');if(!el)return;
   if(S.mapAcc&&ACCBY[S.mapAcc]){const a=ACCBY[S.mapAcc];
-    el.innerHTML=`<b>${esc(a.name)}</b> <span class="faint">· its people, papers and flow · colour = state</span>`;
+    el.className='mslice hud one';
+    el.innerHTML=`<span class="hk">Account</span><b class="hn">${esc(a.name)}</b><span class="faint">its people, papers and flow · colour = state</span>`;
     el.hidden=false;return;}
-  /* Считаем ровно то, что на карте: сделки, которые ещё живы. Потерянные больше
-     трёх недель назад с карты сняты, и в счёте их быть не должно. */
+  /* Счёт тот же, что был в строке над картой; v2 показывает его панелью поверх карты. */
   const all=ACC.filter(a=>{const e=stateAt(a,t);return e&&inF(a)&&!(e.s>=7&&t-e.w>=3);});
   const c={up:0,warn:0,down:0,flat:0};all.forEach(a=>c[light(a,t)]++);
   const who=filtersOn().join(' · ');
-  const part=[c.down?`<b class="down">${LTSIGN.down} ${c.down}</b> stuck or leaving`:null,
-              c.warn?`<b class="wn">${LTSIGN.warn} ${c.warn}</b> waiting on us`:null,
-              c.up?`<b class="up">${LTSIGN.up} ${c.up}</b> moving`:null].filter(Boolean).join(' · ');
   const unit=seg?'bubble = one segment in one state, size = the $ of its market'
                :clustered?'circle = one metro':'dot = one company';
   el.title=unit+'. A group turns red once a quarter of its deals are stuck.'
     +(seg?' Grey bubbles are market nobody here has touched.':'');
-  el.innerHTML=`<b>${all.length}</b> live deal${all.length===1?'':'s'}${who?' <span class="faint">· '+esc(who)+'</span>':''}`
-    +(part?' <span class="faint">·</span> '+part:'')
-    +` <span class="faint">· ${esc(unit.split(',')[0])}</span>`
-    +(t>NOW?' <span class="faint">· forecast</span>':'');
+  const pipe=all.reduce((s,a)=>s+(a.acv||0),0);
+  const n=Math.max(1,all.length), pc=k=>Math.round(c[k]/n*100);
+  const hot={};all.forEach(a=>{if(light(a,t)==='down')hot[a.st]=(hot[a.st]||0)+1;});
+  const top=Object.entries(hot).sort((x,y)=>y[1]-x[1]).slice(0,3);
+  el.className='mslice hud';
+  el.innerHTML=`<div class="hrow">
+      <div class="hmain"><span class="hk">${t>NOW?'Forecast · ':''}Live deals${who?' · '+esc(who):''}</span>
+        <b class="hn">${int(all.length)}</b>
+        <span class="hsub">$${pipe>=1e6?(pipe/1e6).toFixed(1)+'M':int(Math.round(pipe/1000))+'K'} a year on the table</span></div>
+      <div class="hstats">
+        <div class="hs down"><b>${int(c.down)}</b><span>${LTSIGN.down} stuck or leaving</span><i style="--w:${pc('down')}%"></i></div>
+        <div class="hs wn"><b>${int(c.warn)}</b><span>${LTSIGN.warn} waiting on us</span><i style="--w:${pc('warn')}%"></i></div>
+        <div class="hs up"><b>${int(c.up)}</b><span>${LTSIGN.up} moving</span><i style="--w:${pc('up')}%"></i></div>
+      </div></div>
+    ${top.length?`<div class="hhot"><span class="hk">Where it breaks</span>${top.map(([st,k])=>`<span class="hchip"><i></i>${esc(st)} <b>${k}</b></span>`).join('')}</div>`:''}
+    <div class="hunit faint">${esc(unit.split(',')[0])}</div>`;
   el.hidden=false;
 }
 /* «Если мы куда-то перекликнули, то все экраны должны соответствовать рабочей
@@ -4527,25 +4981,7 @@ function draftFor(pid){
   const o=owedReplies(pid)[0];
   if(!o){const nm=lastPromise(pid); if(nm)return {txt:draftNudge(pid,nm),on:null,nudge:nm};}
   return {txt:'',on:o||null};}
-function renderMsg(pid){const p=personById(pid),a=ACCBY[p.acc];
-  const M=threadOf(pid);
-  const oo=optedOut(pid);
-  /* «Hold» и «out of play» ставятся в ленте ответов, а карточка про них не знала:
-     выведенному из игры она спокойно предлагала кнопку «Send under my name».
-     Лента обещает «no send reaches them — not this campaign, not the next one»;
-     обещание принадлежит человеку, а не экрану, на котором его дали. */
-  const pk=pstateK(pid), held=!oo&&pk!=='active';
-  const D=draftFor(pid), compose=composeBlock(pid,oo,held,pk,D);
-  return `<div class="doc"><div class="doch">${face(p.nm,'big '+((personWorth(pid)||{eff:{}}).eff.c||''))}<div><h2>${esc(p.nm)}</h2><div class="muted">${esc(p.title)} · ${esc(a.name)} · role in the deal: <b>${p.role}</b></div><div class="note">came in from ${esc(p.src)}</div>
-      <div class="btns ctyr"><span class="scl">Contact</span>${CTYPE.map(([v,l,h])=>`<button class="lnk" data-ctype="${esc(pid)}:${v}" aria-pressed="${ctypeOf(p)===v}" data-tip="${esc(h)}">${esc(l)}</button>`).join('')}${ctypeSet(pid)?'':`<span class="note">nobody has said — read as <b>${esc(CTYPENM[ctypeOf(p)])}</b> from the title</span>`}</div>${oo?`<div class="note"><span class="chip down">opted out in ${oo}</span> nobody may write to them again — not the agent, not you</div>`:''}${held?`<div class="note"><span class="chip ${pk==='out'?'down':'warn'}">${PSTATE[pk][0]}</span> ${pk==='out'?'you took them out of play, so nothing goes out to them':'they are on hold, so nothing goes out for now'} · <button class="lnk" data-pst="${pid}:active">Put back in play</button></div>`:''}</div></div>
-    ${D.on?compose:''}
-    ${renderChannels(pid)}
-    ${renderSlots(pid)}
-    ${renderNext(pid)}
-    ${D.on?'':compose}
-    <div class="hdr">The conversation so far</div>
-    <div class="thread">${M.map(m=>`<div class="msg ${m.me?'me':''}">${m.me?agAv(m.agent,'mid'):face(p.nm,'mid')}<div class="bub2"><div class="meta">${srcIc(m.src).replace('class="src"','class="av sq"')} ${m.me?'the '+agBy(m.agent).nm+' agent':esc(p.nm)} · W${m.w}${m.act?` · <span class="act">${m.act}</span>`:''}</div><div>${esc(m.txt)}</div></div></div>`).join('')||'<div class="note">No correspondence yet.</div>'}</div>
-</div>`;}
+
 /* Блок ответа собирается отдельно, потому что стоит в двух разных местах: когда
    ответ должны мы — первым, до каналов и слотов; когда не должны — там, где он
    стоял, под ними. «Need answer должен сразу предлагать ответ» значит, что заготовка
@@ -5532,52 +5968,109 @@ function renderDraft(id){
       : 'It goes out under your name and lands in the agent’s log.'}</div></div>`;}
 /* «Здесь оргсхема — кто кому подчиняется. А снизу перечень workflows: Workflow 1,
    Workflow 2, документы, которые им принадлежат» (Николай, 06.10, 16:36). */
+/* v4 · центр по образцу лучших CRM: запись компании как в Attio, профиль человека
+   как в HubSpot, воронка как доска Pipedrive. Данные, data-open и все действия — те же. */
+function monoOf(nm,cls=''){const w=String(nm||'').replace(/[^A-Za-z0-9 ]/g,' ').trim().split(/\s+/);
+  const ini=((w[0]||'')[0]||'')+((w[1]||'')[0]||'');
+  let h=0;for(const c of String(nm))h=(h*31+c.charCodeAt(0))>>>0;
+  return `<span class="mono h${h%5} ${cls}" aria-hidden="true">${esc(ini.toUpperCase())}</span>`;}
+function stageDots(s,lt){const n=[1,2,3,4,5,6];
+  if(s>=7)return `<span class="sdots lost" title="${esc(STAGE[s])}">${n.map(()=>'<i></i>').join('')}<em>${esc(STAGE[s])}</em></span>`;
+  return `<span class="sdots" title="${esc(STAGE[s]||'')}">${n.map(k=>`<i class="${k<s?'done':k===s?'now '+(lt||''):''}"></i>`).join('')}<em>${esc(STAGE[s]||'in segment')}</em></span>`;}
+function dbLtCount(k){const all=ACC.filter(a=>stateAt(a,S.t)&&inF(a));return k?all.filter(a=>light(a,S.t)===k).length:all.length;}
+
 function renderAccView(a){
   if(!a)return '<div class="note">No account selected.</div>';
   const e=stateAt(a,S.t)||{s:1,w:S.t}, P=peopleOf(a);
   const boss=P.filter(p=>p.role==='decides'), rest=P.filter(p=>p.role!=='decides');
-  const card=p=>`<button class="orgcard" data-open="person:${p.id}">${face(p.nm,'mid')}<span class="grow"><b>${esc(p.nm)}</b><span class="r">${esc(p.title)}</span><span class="r">role in the deal: <b>${esc(p.role)}</b></span></span></button>`;
   const docs=Object.entries(DOCS).filter(([id,d])=>d.acc===a.id);
-  /* Весь поток здесь перечислялся шагами — и это была копия области Workflow:
-     «зачем workflow вообще тут дублировать, если есть отдельная вкладка»
-     (Лиза, 10.10). Карточка компании отвечает на другие вопросы: что с ней
-     сейчас, где затык и каких бумаг не хватает. Поток — одной строкой со
-     входом в него. */
   const lt=light(a,S.t), why=lightWhy(a,S.t);
   const step=S.steps.find(x=>x.stage===e.s)||S.steps[0];
-  /* Чего не хватает: бумага, которую требует текущий шаг, а у компании её нет. */
   const needs=Object.keys(DOCSTAGE).filter(k=>DOCSTAGE[k]===e.s&&!docs.some(([,d])=>d.kind===k));
+  const person=p=>`<button class="pcard" data-open="person:${p.id}">${face(p.nm,'mid')}
+      <span class="pcb"><b>${esc(p.nm)}</b><span>${esc(p.title)}</span></span>
+      <span class="chip ${p.role==='decides'?'acc':p.role==='blocks'||p.role==='blocking'?'down':'flat'}">${esc(p.role)}</span></button>`;
   const paper=docs.length
-    ? docs.map(([id,d])=>{const st=(S.docs[id]&&S.docs[id].us)?['up','signed by us']:(d.status||['flat','']);
-        return `<button class="row" data-open="doc:${id}"><i class="lt ${st[0]}"></i><span class="nm">${esc(d.kind)}</span><span class="rt ${st[0]}">${esc(st[1])}</span></button>`;}).join('')
-    : `<div class="note">No papers yet.</div>`;
-  const missing=needs.length
-    ? `<div class="note">This stage needs <b>${needs.map(esc).join('</b>, <b>')}</b> — not here yet.</div>` : '';
-  /* Запись о юрлице: то, что в любой CRM лежит в карточке компании, и чего у нас
-     не было вообще — сайт, телефон, адрес, год регистрации. У каждого поля в
-     подсказке стоит, откуда оно: реестр штата, их собственный сайт, вакансии,
-     переписка. Пустое поле и выдуманное в обычной CRM выглядят одинаково. */
+    ? `<div class="dcards">${docs.map(([id,d])=>{const st=(S.docs[id]&&S.docs[id].us)?['up','signed by us']:(d.status||['flat','']);
+        return `<button class="dcard" data-open="doc:${id}"><span class="dci">${gl('document','')}</span><span class="pcb"><b>${esc(d.kind)}</b><span>${esc(d.ttl||'')}</span></span><span class="chip ${st[0]}">${esc(st[1])}</span></button>`;}).join('')}</div>`
+    : `<div class="empty">No papers yet. The first one appears when the deal reaches an offer.</div>`;
   const rec=[
-    ['Site',domainOf(a),'from their own site'],
-    ['Phone',phoneOf(a,0),'from the contact page on '+domainOf(a)],
-    ['Address',addrOf(a),'the registered address in the '+a.st+' Secretary of State registry'],
-    ['City',a.city+', '+a.st,'the registered address in the '+a.st+' Secretary of State registry'],
-    ['Registered',foundedOf(a)+' · '+a.st+' SOS','from the state business registry'],
-    ['Seats',a.emp+' people','from their job ads and LinkedIn headcount'],
+    ['Site',domainOf(a),'their own site'],
+    ['Phone',phoneOf(a,0),'contact page on '+domainOf(a)],
+    ['Address',addrOf(a),a.st+' Secretary of State'],
+    ['City',a.city+', '+a.st,a.st+' Secretary of State'],
+    ['Registered',foundedOf(a)+' · '+a.st+' SOS','state business registry'],
+    ['Seats',a.emp+' people','job ads · LinkedIn headcount'],
     ['Industry',a.ind||'—','what they do'],
-    ['NAICS',segBy(a.seg).naics[0].split(' ')[0],'the NAICS code of the segment this account sits in'],
-    ['In-house IT',{no:'none',yes:'has a person',unknown:'not known'}[a.itown]||'not known','what people said in the correspondence — there is no source feeding this yet']];
-  return `<div class="doc"><div class="doch">${logo(a,'big')}<div><h2>${esc(a.name)}</h2>
-      <div class="muted">${esc(segBy(a.seg).name)} · ACV ${usdAcv(a)}</div></div></div>
-    <div class="hdr">Details</div>
-    <div class="recrows">${rec.map(([k,v,why])=>`<div class="fld" data-tip="${esc(why)}"><span class="fk">${esc(k)}</span><b class="${v==='not known'||v==='—'?'none':''}">${esc(v)}</b></div>`).join('')}</div>
-    <div class="accnow ${lt}"><i class="lt ${lt}"></i><b>${esc(why)}</b>
-      <span class="faint">· stage “${esc(STAGE[e.s])}” · the flow is at step ${S.steps.indexOf(step)+1} of ${S.steps.length}, “${esc(step.a)}”</span>
-      <button class="btn alt" data-open="sop:${a.id}">Open the workflow</button></div>
-    <div class="grp2">Who decides</div>
-    <div class="org"><div class="orgrow">${boss.map(card).join('')}</div><div class="orgline"></div>
-      <div class="orgrow">${rest.map(card).join('')}</div></div>
-    <div class="grp2">Papers</div>${paper}${missing}</div>`;}
+    ['NAICS',segBy(a.seg).naics[0].split(' ')[0],'the segment’s NAICS code'],
+    ['In-house IT',{no:'none',yes:'has a person',unknown:'not known'}[a.itown]||'not known','correspondence · no feed yet']];
+  return `<div class="rec">
+    <header class="rech">
+      ${monoOf(a.name,'xl')}
+      <div class="rect"><div class="reck">Company · ${esc(segBy(a.seg).name)}</div>
+        <h2>${esc(a.name)}</h2>
+        <div class="recm"><span>${esc(domainOf(a))}</span><span>${esc(a.city)}, ${esc(a.st)}</span><span>${esc(String(a.emp))} people</span><span class="mn">ACV ${usdAcv(a)}</span></div></div>
+      <div class="recact"><span class="chip ${lt}">${esc(why)}</span><button class="btn pri" data-open="sop:${a.id}">Open the workflow</button></div>
+    </header>
+    <div class="recstage">${[1,2,3,4,5,6].map(s=>`<div class="rs ${e.s>=7?'':s<e.s?'done':s===e.s?'now '+lt:''}"><i></i><span>${esc(STAGE[s])}</span></div>`).join('')}</div>
+    <div class="recgrid">
+      <main class="recmain">
+        <div class="accnow ${lt}"><i class="lt ${lt}"></i><div><b>${esc(why)}</b>
+          <span class="faint">Stage “${esc(STAGE[e.s])}” · the flow is at step ${S.steps.indexOf(step)+1} of ${S.steps.length}, “${esc(step.a)}”</span></div></div>
+        <section><div class="hdr">Who decides <span class="faint">${P.length} people</span></div>
+          <div class="pcards">${boss.map(person).join('')}${rest.map(person).join('')}</div></section>
+        <section><div class="hdr">Papers <span class="faint">${docs.length}</span></div>${paper}
+          ${needs.length?`<div class="need">This stage needs <b>${needs.map(esc).join('</b>, <b>')}</b> — not here yet.</div>`:''}</section>
+      </main>
+      <aside class="recside"><div class="hdr">Record <span class="faint">every field says where it came from</span></div>
+        ${rec.map(([k,v,src])=>`<div class="fld"><span class="fk">${esc(k)}</span><b class="${v==='not known'||v==='—'?'none':''}">${esc(v)}</b><span class="fsrc">${esc(src)}</span></div>`).join('')}
+      </aside>
+    </div></div>`;}
+
+function renderMsg(pid){const p=personById(pid),a=ACCBY[p.acc];
+  const M=threadOf(pid);
+  const oo=optedOut(pid);
+  const pk=pstateK(pid), held=!oo&&pk!=='active';
+  const D=draftFor(pid), compose=composeBlock(pid,oo,held,pk,D);
+  const lt=(personWorth(pid)||{eff:{}}).eff.c||'';
+  return `<div class="rec pers">
+    <header class="rech">
+      <span class="pfbig">${face(p.nm,'big '+lt)}</span>
+      <div class="rect"><div class="reck">Person · role in the deal: <b>${esc(p.role)}</b></div>
+        <h2>${esc(p.nm)}</h2>
+        <div class="recm"><span>${esc(p.title)}</span><button class="lnk" data-open="acc:${a.id}">${esc(a.name)}</button><span>came in from ${esc(p.src)}</span></div>
+        <div class="btns ctyr"><span class="scl">Contact</span>${CTYPE.map(([v,l,h])=>`<button class="lnk" data-ctype="${esc(pid)}:${v}" aria-pressed="${ctypeOf(p)===v}" data-tip="${esc(h)}">${esc(l)}</button>`).join('')}${ctypeSet(pid)?'':`<span class="note">nobody has said — read as <b>${esc(CTYPENM[ctypeOf(p)])}</b> from the title</span>`}</div>
+        ${oo?`<div class="note"><span class="chip down">opted out in ${oo}</span> nobody may write to them again — not the agent, not you</div>`:''}${held?`<div class="note"><span class="chip ${pk==='out'?'down':'warn'}">${PSTATE[pk][0]}</span> ${pk==='out'?'you took them out of play, so nothing goes out to them':'they are on hold, so nothing goes out for now'} · <button class="lnk" data-pst="${pid}:active">Put back in play</button></div>`:''}
+      </div>
+    </header>
+    <div class="recgrid">
+      <main class="recmain">
+        ${D.on?compose:''}
+        <div class="hdr">The conversation so far <span class="faint">${M.length} message${M.length===1?'':'s'}</span></div>
+        <div class="thread">${M.map(m=>`<div class="msg ${m.me?'me':''}">${m.me?agAv(m.agent,'mid'):face(p.nm,'mid')}<div class="bub2"><div class="meta">${srcIc(m.src).replace('class="src"','class="av sq"')} ${m.me?'the '+agBy(m.agent).nm+' agent':esc(p.nm)} · W${m.w}${m.act?` · <span class="act">${m.act}</span>`:''}</div><div>${esc(m.txt)}</div></div></div>`).join('')||'<div class="empty">No correspondence yet.</div>'}</div>
+        ${D.on?'':compose}
+      </main>
+      <aside class="recside">${renderChannels(pid)}${renderSlots(pid)}${renderNext(pid)}</aside>
+    </div></div>`;}
+
+function renderFlowList(){
+  const {camps,deals}=flowRows();
+  const cols=[1,2,3,4].map(s=>{const it=deals.filter(d=>(stateAt(d.a,S.t)||{}).s===s);
+    return {s,it,sum:it.reduce((n,d)=>n+(d.acv||0),0)};});
+  const total=deals.reduce((n,d)=>n+(d.acv||0),0);
+  const card=d=>{const lt=light(d.a,S.t);
+    return `<button class="kcard ${lt}" data-open="${d.id}">
+      <span class="kct">${monoOf(d.nm)}<b>${esc(d.nm)}</b></span>
+      <span class="kcw">${esc(lightWhy(d.a,S.t))}</span>
+      <span class="kcf"><span class="mn">${d.acv?usd(d.acv):'—'}</span><span class="faint">${esc(d.reach)}</span><span class="num ${mcls(d.mv)}">${arrow(d.mv)}</span></span></button>`;};
+  return `<div class="dbh"><div class="r1"><h3>Pipeline</h3>
+      <span class="cnt">${int(deals.length)} deals · ${usd(total)} a year in play${S.seg?' · '+esc(segBy(S.seg).name):''}</span>
+      <button class="btn pri" data-camp="all">New campaign</button></div>
+      <div class="note">A deal is one account’s path to a signature; a campaign reaches a whole segment at once. Pick a segment on the left and the board narrows to it.</div></div>
+    ${camps.length?`<div class="kcamps">${camps.map(c=>`<button class="ccard" data-open="${c.id}"><span class="mono h0">${esc(c.abc)}</span><span class="pcb"><b>${esc(c.nm)}</b><span>${esc(c.reach)}</span></span><span class="chip up">${esc(c.stg)}</span></button>`).join('')}</div>`:''}
+    <div class="kboard">${cols.map(c=>`<section class="kcol"><header><b>${esc(STAGE[c.s])}</b><span class="mn">${c.it.length}</span><span class="faint">${usd(c.sum)}</span></header>
+      <div class="kbar"><i style="--w:${total?Math.round(c.sum/total*100):0}%"></i></div>
+      <div class="kcards">${c.it.map(card).join('')||'<div class="empty">Nothing at this stage.</div>'}</div></section>`).join('')}</div>`;}
 function renderOrg(){
   /* «Чтобы было видно, где сотрудники… и у них в подчинении свои какие-то агенты»
      (Лиза, 06.10). Было три плоских ряда: начальник, все люди, все агенты скопом —
@@ -6131,12 +6624,14 @@ function renderDB(){
      совпадать с тем, что написано в строке, иначе человек выбирает одно,
      а отбирается другое. */
   const cell=(r,k)=>{
-    if(k==='nm')return `<td class="nm">${kind==='acc'?logo(r.a,'sq'):kind==='doc'?logo(r.a,'sq'):face(r.nm)}${esc(r.nm)}</td>`;
+    if(k==='nm')return kind==='acc'?`<td class="nm"><span class="dbn">${monoOf(r.nm)}<span><b>${esc(r.nm)}</b><small>${esc(domainOf(r.a))}</small></span></span></td>`:kind==='person'?`<td class="nm"><span class="dbn">${face(r.nm,'mid')}<span><b>${esc(r.nm)}</b><small>${esc(r.title||'')}</small></span></span></td>`:`<td class="nm"><span class="dbn">${gl('document','')}<span><b>${esc(r.nm)}</b><small>${esc(r.acc||'')}</small></span></span></td>`;
+    if(k==='stg'&&kind==='acc'){const e=stateAt(r.a,S.t);return `<td>${stageDots(e?e.s:0,r.lt)}</td>`;}
+    if(k==='acc'&&kind==='person')return `<td><span class="dbacc">${monoOf(r.acc,'sm')}${esc(r.acc)}</span></td>`;
     if(k==='stt')return `<td><span class="chip ${r.d&&r.d.status?r.d.status[0]:''}">${esc(r.stt)}</span></td>`;
     /* Движение стояло одним знаком «▲» — глазу понятно, диктору нечего прочесть. */
     if(k==='mv'){const w=r.mv>0?'moving up':r.mv<0?'moving down':'flat';
       return `<td class="num ${mcls(r.mv)}" title="${w}" aria-label="${w}">${arrow(r.mv)}</td>`;}
-    if(k==='state')return `<td class="st ${r.lt}"><i class="lt"></i>${esc(r.state)}</td>`;
+    if(k==='state')return `<td class="st ${r.lt}"><span class="stp"><i class="lt"></i>${esc(r.state)}</span></td>`;
     if(k==='proj')return `<td>${r.proj==='no project'?'<span class="faint">—</span>':esc(r.proj)}</td>`;
     if(k==='acv')return `<td class="num">${usdAcv(r.a)}</td>`;
     if(k==='emp')return `<td class="num">${esc(String(r.emp))}</td>`;
@@ -6154,7 +6649,7 @@ function renderDB(){
     ${/* Быстрые фильтры над самой таблицей — приём HubSpot: у индексной страницы
           есть быстрые фильтры поверх списка, отдельно от продвинутых. Наши три
           кнопки — это язык светофора, тот же, что на карте и в колонке State. */''}
-    ${kind==='acc'?`<div class="dbquick">${[['','all'],['down','\u25bc stuck or leaving'],['warn','\u25cf waiting on us'],['up','\u25b2 moving']].map(([k,l])=>`<button data-dbstate="${k}" aria-pressed="${(S.ltF||'')===k}">${l}</button>`).join('')}<span class="faint">the filters on the left narrow this table too</span></div>`:''}
+    ${kind==='acc'?`<div class="dbquick">${[['','all'],['down','\u25bc stuck or leaving'],['warn','\u25cf waiting on us'],['up','\u25b2 moving']].map(([k,l])=>`<button data-dbstate="${k}" aria-pressed="${(S.ltF||'')===k}">${l}<span class="qn">${int(dbLtCount(k))}</span></button>`).join('')}<span class="faint">the filters on the left narrow this table too</span></div>`:''}
     ${kind==='person'?batchBar(page):''}
     <table class="db"><thead><tr>${kind==='person'?`<th class="bsel"><input type="checkbox" data-bselall="1" aria-label="Select everyone on this page" ${page.length&&page.every(r=>(S.bsel||{})[r.id])?'checked':''}></th>`:''}${cols.map(([k,t])=>`<th data-dbsort="${k}">${t}${sort.k===k?` <span class="ar">${sort.d>0?'\u25b2':'\u25bc'}</span>`:''}</th>`).join('')}</tr>
       ${/* Вторая строка шапки — отбор. Значения берутся из самого столбца: что в нём
@@ -8147,21 +8642,7 @@ function flowRows(){
       return {id:'sop:'+a.id,nm:a.name,a,kind:'deal',
         reach:`${peopleOf(a).length} people`,stg:STAGE[e.s],mv:momentum(a,t),acv:a.acv};});
   return {camps,deals};}
-function renderFlowList(){
-  const {camps,deals}=flowRows(), rows=camps.concat(deals);
-  const row=r=>`<tr data-open="${r.id}">
-    <td class="nm">${r.kind==='campaign'?`<span class="av sq">${esc(r.abc)}</span>`:logo(r.a,'sq')}${esc(r.nm)}</td>
-    <td><span class="chip ${r.kind==='campaign'?'up':'flat'}">${r.kind}</span></td>
-    <td>${esc(r.reach)}</td>
-    <td>${esc(r.stg)}</td>
-    <td class="num ${r.mv==null?'':mcls(r.mv)}">${r.mv==null?'':arrow(r.mv)}</td>
-    <td class="num">${r.acv?usd(r.acv):'\u2014'}</td></tr>`;
-  return `<div class="dbh"><div class="r1"><h3>Workflows</h3>
-      <span class="cnt">${int(camps.length)} campaign${camps.length===1?'':'s'} \u00b7 ${int(deals.length)} deals in play${S.seg?' \u00b7 '+esc(segBy(S.seg).name):''}</span>
-      <button class="btn pri" data-camp="all">New campaign</button></div>
-      <div class="note">A campaign reaches a whole segment at once; a deal is one account\u2019s path to a signature. Both are workflows, so both live here. Pick a segment on the left and the list narrows to it.</div></div>
-    <table class="db"><thead><tr><th>Workflow</th><th>Kind</th><th>Reaches</th><th>Stage</th><th>Movement</th><th>ACV</th></tr></thead>
-    <tbody>${rows.map(row).join('')}</tbody></table>`;}
+
 function renderEditorLight(){if(S.primary==='map')renderMap();else if(S.primary==='db')renderDB();else paintCentre();const src=S.source&&S.tabs.find(x=>x.id===S.source);if(src&&src.kind!=='msg')$('view2').innerHTML=renderSource(src);renderTabs();renderCrumbs();}
 
 applyLayout();
@@ -8280,30 +8761,93 @@ function welcLine(){
   if(sign)bits.push(`${sign} paper${sign===1?' waits':'s wait'} for a signature`);
   return bits.length?`Week ${NOW} so far: ${bits.join(', ')}.`:'';}
 const WELCMARK='<svg viewBox="60 362 905 300" role="img" aria-label="Intwin"><circle cx="815.5" cy="511.5" r="125" fill="var(--title)" stroke="var(--selbg)" stroke-width="50"/><circle cx="679.5" cy="511.5" r="125" fill="var(--title)" stroke="var(--fg3)" stroke-width="50"/><circle cx="543.5" cy="511.5" r="125" fill="var(--title)" stroke="#0057FF" stroke-width="50"/><circle cx="209.5" cy="511.5" r="150" fill="var(--fg)"/></svg>';
+/* v3 · Вход поверх вращающейся карты-глобуса. Роли (data-welcwho), кнопка #welcGo,
+   цифры и итог недели — те же функции и те же данные; поменялась только сцена. */
+let WGLOBE=null, WGLOBE_RAF=0;
+function welcTargets(){
+  const t=NOW, pts=[], hot={};
+  ACC.forEach(a=>{const e=stateAt(a,t);if(!e||a.side==='buy')return;const ll=llOf(a), l=light(a,t);
+    pts.push({type:'Feature',geometry:{type:'Point',coordinates:ll},properties:{l}});
+    if(l==='down'){const m=METROS[a.mi];if(m){const k=m[0];hot[k]=hot[k]||{n:0,ll:[m[2],m[3]],nm:m[0],st:m[1]};hot[k].n++;}}});
+  const seen={};const top=Object.values(hot).sort((x,y)=>y.n-x.n).filter(h=>{if(seen[h.st])return false;seen[h.st]=1;return true;}).slice(0,4);
+  return {pts,top};}
+function welcGlobeStart(){
+  const box=document.getElementById('wglobe');if(!box||typeof maplibregl==='undefined')return;
+  try{WGLOBE&&WGLOBE.remove();}catch(e){}
+  const light=isLightTheme(), T=welcTargets();
+  const col={up:cssv('--up'),warn:cssv('--warn'),down:cssv('--down'),flat:cssv('--echo1')};
+  try{
+    WGLOBE=new maplibregl.Map({container:box,style:'https://tiles.openfreemap.org/styles/'+(light?'positron':'dark'),
+      center:[-96,34],zoom:1.85,interactive:true,attributionControl:{compact:true},dragRotate:false,pitchWithRotate:false});
+  }catch(e){box.classList.add('nogl');return;}
+  WGLOBE.on('style.load',()=>{
+    try{WGLOBE.setProjection({type:'globe'});}catch(e){}
+    try{WGLOBE.getStyle().layers.forEach(l=>{if(l.type==='symbol')WGLOBE.setLayoutProperty(l.id,'visibility','none');});}catch(e){}
+    try{WGLOBE.setSky&&WGLOBE.setSky({'atmosphere-blend':['interpolate',['linear'],['zoom'],0,1,5,0]});}catch(e){}
+    WGLOBE.addSource('wt',{type:'geojson',data:{type:'FeatureCollection',features:T.pts}});
+    WGLOBE.addLayer({id:'wt-glow',type:'circle',source:'wt',paint:{'circle-radius':6,'circle-blur':1,
+      'circle-color':['match',['get','l'],'up',col.up,'warn',col.warn,'down',col.down,col.flat],'circle-opacity':.35}});
+    WGLOBE.addLayer({id:'wt-dot',type:'circle',source:'wt',paint:{'circle-radius':1.9,
+      'circle-color':['match',['get','l'],'up',col.up,'warn',col.warn,'down',col.down,col.flat]}});
+    WGLOBE.addSource('wh',{type:'geojson',data:{type:'FeatureCollection',features:T.top.map(h=>({type:'Feature',geometry:{type:'Point',coordinates:h.ll},properties:{}}))}});
+    WGLOBE.addLayer({id:'wh-ring',type:'circle',source:'wh',paint:{'circle-radius':8,'circle-color':'rgba(0,0,0,0)','circle-stroke-width':1.5,'circle-stroke-color':col.down,'circle-stroke-opacity':.8}});
+    WGLOBE.addLayer({id:'wh-core',type:'circle',source:'wh',paint:{'circle-radius':4,'circle-color':col.down,'circle-stroke-width':2,'circle-stroke-color':'rgba(255,255,255,.85)'}});
+    T.top.slice(0,3).forEach((h,i)=>{const el=document.createElement('div');el.className='wtag';
+      el.innerHTML=`<i></i><b>${esc(h.nm)}, ${esc(h.st)}</b><span>${h.n} stuck</span>`;
+      new maplibregl.Marker({element:el,anchor:i%2?'right':'left',offset:[i%2?-14:14,0]}).setLngLat(h.ll).addTo(WGLOBE);});
+    const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let held=false, t0=performance.now();
+    ['mousedown','touchstart','wheel'].forEach(ev=>WGLOBE.on(ev,()=>{held=true;}));
+    WGLOBE.on('moveend',()=>{if(held)setTimeout(()=>{held=false;},2500);});
+    const tick=now=>{if(!WGLOBE)return;
+      const k=((now-t0)%2200)/2200;
+      try{WGLOBE.setPaintProperty('wh-ring','circle-radius',8+k*26);WGLOBE.setPaintProperty('wh-ring','circle-stroke-opacity',.85*(1-k));}catch(e){}
+      if(!held&&!reduce){const s=(now-t0)/1000;WGLOBE.setCenter([-96+38*Math.sin(s/9),34+6*Math.sin(s/13)]);}
+      WGLOBE_RAF=requestAnimationFrame(tick);};
+    WGLOBE_RAF=requestAnimationFrame(tick);
+  });
+}
+function welcGlobeStop(){cancelAnimationFrame(WGLOBE_RAF);try{WGLOBE&&WGLOBE.remove();}catch(e){}WGLOBE=null;}
 function renderWelcome(){
-  const N=welcNums(), L=welcLine();
-  $('welc').innerHTML=`<div class="welcbox">
-    <div class="welcl">
-      <div class="welcbrand">${WELCMARK}<span>Revenue OS</span></div>
-      <h1>The agents work the revenue line all week. You decide only what a person must decide.</h1>
-      <div class="welcsteps">${welcSteps().map(([t,f,w],i)=>`<div class="welcstep"><span class="n">${i+1}</span>
-        <div><b>${esc(t)}</b><div class="note">${esc(f)}</div></div><span class="welcw">${esc(w)}</span></div>`).join('')}</div>
-      <div><div class="hdr">Sign in as</div>
-        <div class="welcwho" style="margin-top:6px">${Object.keys(WHOM).map(k=>`<button data-welcwho="${k}" aria-pressed="${S.profile===k}">
+  const N=welcNums(), L=welcLine(), steps=welcSteps();
+  const T=welcTargets();
+  const cnt={up:0,warn:0,down:0};T.pts.forEach(p=>{if(cnt[p.properties.l]!=null)cnt[p.properties.l]++;});
+  const keepGlobe=WGLOBE&&document.getElementById('wglobe');
+  const panel=`
+      <div class="welcbrand">${WELCMARK}<span>intwin <em>revenue os</em></span></div>
+      <h1>The agents work the revenue line all week. <span>You decide only what a person must decide.</span></h1>
+      ${L?`<p class="w3sub">${esc(L)}</p>`:''}
+      <div class="w3nums">
+        <div><b data-count="${N.sent}">${int(N.sent)}</b><span>letters sent by the agents this week</span></div>
+        <div><b data-count="${N.need}">${int(N.need)}</b><span>things wait on you now</span></div>
+        <div><b data-count="${N.fun}">${int(N.fun)}</b><span>companies on their way to a signature</span></div>
+      </div>
+      <div class="w3signin"><div class="w3lbl">Sign in as</div>
+        <div class="welcwho">${Object.keys(WHOM).map(k=>`<button data-welcwho="${k}" aria-pressed="${S.profile===k}">
           <b>${esc(WHOM[k])}</b><span>${PROFNM[k]?esc(PROFNM[k])+' · ':''}${esc(ROLESPAN[k]||'')}</span></button>`).join('')}</div></div>
-      <div class="welcgo"><button class="btn pri" id="welcGo">Open my morning</button>
-        <span class="note">Nothing is ever sent until you say so.</span></div>
-    </div>
-    <div class="welcr">
-      <div class="hdr">What you will see this morning</div>
-      <div class="welcn"><b>${int(N.sent)}</b><span>letters the agents have sent this week</span></div>
-      <div class="welcn"><b>${int(N.need)}</b><span>things wait on you right now</span></div>
-      <div class="welcn"><b>${int(N.fun)}</b><span>companies on their way to a signature</span></div>
-      ${L?`<div class="note">${esc(L)}</div>`:''}
-      <div class="note">Every number here is read out of the same data the screens behind this one run on.</div>
-    </div></div>`;}
+      <div class="welcgo"><button class="btn pri" id="welcGo">Open my morning <span aria-hidden="true">→</span></button>
+        <span class="note">Nothing is ever sent until you say so.</span></div>`;
+  if(keepGlobe){$('w3panel').innerHTML=panel;}
+  else $('welc').innerHTML=`<div class="w3">
+    <div class="w3globe" id="wglobe" aria-hidden="true"></div>
+    <div class="w3shade" aria-hidden="true"></div>
+    <div class="w3panel" id="w3panel">${panel}</div>
+    <aside class="w3legend" aria-label="What the map shows">
+      <div class="w3lbl">Week ${NOW} · the whole book, live</div>
+      <div class="w3lg"><span><i class="up"></i><b>${int(cnt.up)}</b> moving</span><span><i class="warn"></i><b>${int(cnt.warn)}</b> waiting on us</span><span><i class="down"></i><b>${int(cnt.down)}</b> stuck or leaving</span></div>
+      <div class="w3steps">${steps.map(([t,f],i)=>`<div class="w3step"><span class="n">${i+1}</span><div><b>${esc(t)}</b><span>${esc(f)}</span></div></div>`).join('')}</div>
+    </aside>
+    <p class="w3foot">Every number here is read out of the same data the screens behind this one run on.</p>
+  </div>`;
+  if(!keepGlobe)setTimeout(welcGlobeStart,30);
+  if(!renderWelcome._counted&&!matchMedia('(prefers-reduced-motion: reduce)').matches){
+    renderWelcome._counted=true;
+    document.querySelectorAll('#welc [data-count]').forEach(el=>{const to=+el.dataset.count,t0=performance.now(),d=1200;
+      const f=now=>{const k=Math.min(1,(now-t0)/d),e=1-Math.pow(1-k,3);el.textContent=int(Math.round(to*e));if(k<1)requestAnimationFrame(f);};
+      requestAnimationFrame(f);});}
+}
 function welcEnter(){
-  $('welc').hidden=true;
+  welcGlobeStop();$('welc').hidden=true;
   renderProfiles();renderAll();}
 $('welc').addEventListener('click',e=>{
   const w=e.target.closest('[data-welcwho]');
