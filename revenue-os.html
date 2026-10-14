@@ -681,7 +681,9 @@ table.runs td{padding:4px 8px 4px 0;border-top:1px solid color-mix(in srgb,var(-
 .orgcard.bot b{font-size:11px;font-weight:500}
 .orgcard.bot .chip{font-size:9px;padding:1px 5px;margin-left:auto}
 .orgcard.bot .grow{display:flex;flex-direction:column;align-items:stretch;gap:2px;min-width:0}
-.orgcard.bot .l1{display:flex;align-items:center;gap:6px;min-width:0}
+.orgcard.bot .l1{display:flex;align-items:center;gap:6px;min-width:0;flex-wrap:wrap}
+.orgcard.bot .l1>b{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.orgcard.bot .chip{margin-left:auto;white-space:nowrap}
 /* Свобода и последнее действие переехали сюда из расформированной таблицы.
    Кеглем они ниже имени: это признаки агента, а не его имя. */
 .orgcard.bot .free{font-size:9px;color:var(--fg3);text-transform:lowercase}
@@ -1271,37 +1273,15 @@ table.db tr.det .s{display:block;font-family:var(--mono);font-size:11px;line-hei
   background:color-mix(in srgb,var(--border) 32%,transparent);border:1px solid var(--border);
   border-radius:8px;padding:11px 13px;margin-bottom:12px;white-space:normal}
 /* Флаг течи — слово, а не только цвет: цвет говорит «плохо», слово говорит «здесь». */
-.rst .lkh{align-self:flex-start;font-size:9px;padding:0 5px;height:15px;letter-spacing:.04em;text-transform:uppercase}
+/* Флаг стоял в потоке и опускал число ниже, чем у соседей (Лиза, 14.10):
+   восьмёрка висела на строку ниже девятки. Теперь он стоит в своём углу. */
+.rst .lkh{position:absolute;right:10px;top:11px;font-size:9px;padding:0 5px;height:15px;letter-spacing:.04em;text-transform:uppercase}
 .rst.leaks{border-color:var(--down)}
 /* Два числа и фраза в шапке очереди. Крупное число с мелкой подписью — тот же приём,
    что на входе, и тот же класс: второй раз рисовать его нечем. */
 .tdesk{display:flex;align-items:flex-start;gap:22px;flex-wrap:wrap;padding-bottom:4px;border-bottom:1px solid var(--border)}
 .tdesk .welcn b{font-size:22px}
 .tdline{flex:1 1 260px;min-width:0;font-size:11px;color:var(--fg2);align-self:center}
-/* «Ждут тебя» — карточками 2-в-ряд (экран Карины 02). То, что ждёт решения сегодня,
-   стоит коробками над таблицей: заголовок, чип рода справа вверху, причина словами
-   и ряд кнопок внизу — кнопка видна сразу, без раскрытия строки. Слова те же, что
-   стояли в строке таблицы, переложены по ярусам. */
-.tkgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:10px 0 20px}
-@media(max-width:1000px){.tkgrid{grid-template-columns:minmax(0,1fr)}}
-.tkc{border:1px solid var(--border);border-radius:10px;background:var(--card);padding:15px 17px;display:flex;flex-direction:column;gap:6px;min-width:0;cursor:pointer}
-.tkc:hover{border-color:var(--fg3)}
-.tkc.on{border-color:var(--accent)}
-.tkch{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
-.tkch b{font-size:15px;font-weight:600;line-height:1.3;min-width:0}
-.tkw{font-size:11px;color:var(--fg3);display:flex;align-items:center;gap:6px;min-width:0}
-.tkw.up i.lt{background:var(--up)} .tkw.warn i.lt{background:var(--warn)}
-.tkw.down i.lt{background:var(--down)} .tkw.flat i.lt{background:var(--flat)}
-.tkc .s{font-size:13.5px;line-height:1.5;color:var(--fg2)}
-.tkc .note{font-size:11px;margin:0}
-.tkc .btns{margin-top:6px}
-/* Два числа в шапке всего экрана (у Карины они стоят в правом верхнем углу на каждом
-   экране, не только на столе). Полное предложение осталось при них подсказкой. */
-.tnums{display:flex;align-items:center;gap:14px;margin-right:10px;padding-right:12px;border-right:1px solid var(--border)}
-.tn{display:flex;align-items:baseline;gap:5px;white-space:nowrap}
-.tn b{font-size:15px;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.01em;color:var(--fg)}
-.tn span{font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--fg3)}
-@media(max-width:820px){.tnums{display:none}}
 .swords{display:flex;flex-direction:column;gap:6px;margin-top:8px;padding-top:8px;border-top:1px solid var(--border)}
 .swords textarea{width:100%;font-size:11px;min-height:46px;max-height:22vh;resize:vertical}
 .swords .btns{align-items:center}
@@ -1629,10 +1609,9 @@ body{font-family:var(--ui)!important;-webkit-font-smoothing:antialiased}
 /* общая «шапка вида»: крупно, с точечной волной бренда */
 .dbh,.doch,.bph{position:relative}
 .dbh{background:transparent!important;border-bottom:0!important;padding:26px 22px 14px!important;gap:12px!important;position:sticky}
-.dbh::after,.doc>.doch::after{content:"";position:absolute;right:0;top:0;width:min(52%,480px);height:150px;pointer-events:none;
-  background:var(--dotwave) right top/480px 150px no-repeat;opacity:.22;
-  mask-image:linear-gradient(90deg,transparent,#000 40%);-webkit-mask-image:linear-gradient(90deg,transparent,#000 40%)}
-:root[data-theme="light"] .dbh::after,:root[data-theme="light"] .doc>.doch::after{opacity:.5}
+/* Точечная волна убрана с шапок списков: при прокрутке таблицы вправо она
+   обрывалась посреди узора (Лиза, 14.10). Осталась там, где лежит внутри
+   карточки и обрезаться ей нечем — в шапке записи компании. */
 .dbh h3,.doch h2,.bph h2{font-size:clamp(22px,2.2vw,30px)!important;font-weight:800!important;letter-spacing:-.035em!important;line-height:1.1!important;color:var(--fg)}
 .dbh .cnt{font-family:var(--mono)!important;font-size:11px!important;color:var(--link)!important;padding:3px 9px;border-radius:999px;background:var(--accent-soft);border:1px solid var(--line)}
 .dbh input{height:34px!important;border-radius:10px!important;background:var(--input)!important;border:1px solid var(--line)!important;padding:0 12px!important;font-size:12.5px!important}
@@ -1668,6 +1647,12 @@ body{font-family:var(--ui)!important;-webkit-font-smoothing:antialiased}
 .db td.bsel,.db th.bsel{width:34px}
 .dbmore{margin:4px 16px 18px;width:calc(100% - 32px)!important;border-radius:12px;border:1px dashed var(--line)!important;padding:12px!important;font-weight:700}
 .chip{border-radius:999px!important;height:22px!important;padding:0 10px!important;font-size:10.5px!important;border:1px solid currentColor!important;background:color-mix(in srgb,currentColor 9%,transparent)!important}
+/* Пилюля — приём рабочей области. В журнале, в шторке фильтров и у агента чип
+   остаётся прямоугольным, каким был: скин сам оговаривает, что эти три зоны
+   только перекрашиваются. Журнал от круглых пилюль «стал странно выглядеть»
+   (Лиза, 14.10) — и это как раз та зона, которую трогать не договаривались. */
+.panel .chip,.sidebar .chip,.agentbar .chip{border-radius:3px!important;height:19px!important;padding:0 6px!important;font-size:10px!important;
+  border:1px solid color-mix(in srgb,currentColor 38%,transparent)!important;background:color-mix(in srgb,currentColor 11%,transparent)!important}
 .chip.flat{color:var(--fg3)!important}
 
 /* Сообщения */
@@ -1748,14 +1733,24 @@ body{font-family:var(--ui)!important;-webkit-font-smoothing:antialiased}
 .hud.one .hn{font-size:22px;letter-spacing:-.02em}
 .hud .hsub{font-size:12px;color:var(--fg2)}
 .hud .hstats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
-.hud .hs{display:flex;flex-direction:column;gap:3px;min-width:0}
+.hud .hs{display:flex;flex-direction:column;gap:3px;min-width:0;justify-content:space-between}
+.hud .hs i{margin-top:auto}
+.hudx{position:absolute;right:10px;top:10px;width:24px;height:24px;border-radius:8px;border:1px solid var(--border);color:var(--fg3);display:flex;align-items:center;justify-content:center;font-size:14px;line-height:1}
+.hudx:hover{color:var(--fg);border-color:var(--line)}
+.mslice.hud.min{flex-direction:row;align-items:center;gap:14px;padding:9px 40px 9px 14px!important}
+.mslice.hud.min .hk{white-space:nowrap}
+.mslice.hud.min{max-width:none!important;width:max-content}
+.hleg{display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--fg2);white-space:nowrap}
+.hleg i{width:8px;height:8px;border-radius:50%}
+.hleg i.up{background:var(--up)}.hleg i.warn{background:var(--warn)}.hleg i.down{background:var(--down)}
+.mslice.hud.min .hudx{top:50%;transform:translateY(-50%)}
 .hud .hs b{font-size:20px;font-weight:800;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
 .hud .hs span{font-size:11px;line-height:1.3;color:var(--fg3)}
 .hud .hs i{display:block;height:4px;border-radius:4px;background:var(--echo2);overflow:hidden;position:relative;margin-top:3px}
 .hud .hs i::after{content:"";position:absolute;inset:0 auto 0 0;width:var(--w);border-radius:4px;background:currentColor}
 .hud .hs.down{color:var(--down)}.hud .hs.wn{color:var(--warn)}.hud .hs.up{color:var(--up)}
 .hud .hhot{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding-top:12px;border-top:1px solid var(--border)}
-.hud .hchip{display:inline-flex;align-items:center;gap:7px;height:26px;padding:0 11px;border-radius:999px;font-size:12px;font-weight:600;color:var(--fg);border:1px solid color-mix(in srgb,var(--down) 45%,transparent);background:color-mix(in srgb,var(--down) 10%,transparent)}
+.hud .hchip{cursor:pointer;display:inline-flex;align-items:center;gap:7px;height:26px;padding:0 11px;border-radius:999px;font-size:12px;font-weight:600;color:var(--fg);border:1px solid color-mix(in srgb,var(--down) 45%,transparent);background:color-mix(in srgb,var(--down) 10%,transparent)}
 .hud .hchip b{color:var(--down)}
 .hud .hchip i{width:7px;height:7px;border-radius:50%;background:var(--down);animation:v3ring 1.8s infinite}
 .hud .hunit{font-size:11px}
@@ -1991,7 +1986,6 @@ body{font-family:var(--ui)!important;-webkit-font-smoothing:antialiased}
     <div class="brand"><svg class="mark" viewBox="60 362 905 300" role="img" aria-label="Intwin"><circle cx="815.5" cy="511.5" r="125" fill="var(--title)" stroke="var(--selbg)" stroke-width="50"/><circle cx="679.5" cy="511.5" r="125" fill="var(--title)" stroke="var(--fg3)" stroke-width="50"/><circle cx="543.5" cy="511.5" r="125" fill="var(--title)" stroke="#0057FF" stroke-width="50"/><circle cx="209.5" cy="511.5" r="150" fill="var(--fg)"/></svg><span>Revenue OS</span><select class="profile" id="profile" aria-label="Signed in as"></select><button class="lbtn" id="theme" aria-label="Switch between the light and the dark theme"></button></div>
     <div class="cmdw"><button class="cmd" id="openPal"><span>⌕</span><span>Find an account, person, document, agent…</span><kbd>⌘K</kbd></button></div>
     <div class="tright">
-      <span class="tnums" id="tnums"></span>
       <button class="zonebtn" id="tSide" aria-pressed="true" aria-label="Show or hide the filters">Filters</button>
       <button class="zonebtn" id="tPanel" aria-pressed="true" aria-label="Show or hide the log">Log</button>
       <button class="zonebtn" id="tAgent" aria-pressed="true" aria-label="Show or hide the agent">Agent</button>
@@ -2520,7 +2514,7 @@ const S={t:NOW,seg:null,downOnly:false,sel:null,level:'segment',K:1,
          disc:'approve',sign:'hands',inv:'approve',cut:'approve',
          step:'hands',stop:'approve',fact:'approve'},
   side:'tree',ent:'seg',agView:null,mapAcc:null,box:'',bn:0,sent:{},skin:'rev',thour:{},ctype:{},ef:{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false},ptab:'market',job:'',stF:'',stage:'',primary:'map',source:null,orgOpen:false,sopAcc:'a0',lastRef:{},tview:'table',tabs:[{id:'map',kind:'map',ref:null,title:'Map'},{id:'acc',kind:'org',ref:'a0',title:'Account'},{id:'person',kind:'msg',ref:'p-hale',title:'Person'},{id:'flow',kind:'sop',ref:'a0',title:'Workflow'},{id:'doc',kind:'doc',ref:'d-msa',title:'Document'}],tab:'map',
-  facts:{},docs:{},tri:{},proj:{},plan:null,chat:[],layout:{side:true,panel:true,agent:true,panelRight:false,swap:false},sopEdit:false,sopFix:null,steps:JSON.parse(JSON.stringify(STEPS0)),fieldPol:{},hidden:{},dnc:{},knobW:{scout:1,qual:1,seller:1,pricer:1,service:1},rules:JSON.parse(JSON.stringify(RULES0))};
+  facts:{},docs:{},tri:{},proj:{},plan:null,chat:[],layout:{side:false,panel:true,agent:true,panelRight:false,swap:false},sopEdit:false,sopFix:null,steps:JSON.parse(JSON.stringify(STEPS0)),fieldPol:{},hidden:{},dnc:{},knobW:{scout:1,qual:1,seller:1,pricer:1,service:1},rules:JSON.parse(JSON.stringify(RULES0))};
 try{const L=JSON.parse(localStorage.getItem('revos-layout-v4')||'null');if(L)Object.assign(S.layout,L);}catch(e){}
 if(window.innerWidth<1280&&!(()=>{try{return localStorage.getItem('revos-layout-v4')}catch(e){return null}})())S.layout.side=false;
 S.layout.agent=true;
@@ -3491,7 +3485,7 @@ function renderSide(){
        ведёт крошка. Ссылка «Everything as a table» в этих двух зонах стала третьим
        входом в то же место: «зачем тогда сохранилась кнопка» (Лиза, 10.10).
        В Segments и Documents она ведёт не туда, куда ведёт сама зона, — там живёт. */
-    const dbk={seg:'acc',doc:'doc'}[S.ent];
+    const dbk={seg:'acc',doc:'doc',acc:'acc',ppl:'person'}[S.ent];
     if(S.ent==='flow')h+=`<button class="dblink" data-open="flowlist">All campaigns and deals ↗</button>`;
     else if(dbk)h+=`<button class="dblink" data-open="db:${dbk}">Everything as a table ↗</button>`;
     /* Три входа в одну зону, и по именам было не понять, чем они отличаются:
@@ -4017,8 +4011,20 @@ function renderSlice(t,seg,clustered){
   const n=Math.max(1,all.length), pc=k=>Math.round(c[k]/n*100);
   const hot={};all.forEach(a=>{if(light(a,t)==='down')hot[a.st]=(hot[a.st]||0)+1;});
   const top=Object.entries(hot).sort((x,y)=>y[1]-x[1]).slice(0,3);
+  /* Панель закрывала карту целиком (Лиза, 14.10). Крестик сворачивает её до
+     условных обозначений — тех самых, что стояли строкой под картой раньше.
+     Чипы штатов ведут туда, где эти сделки лежат: ставят фильтр по штату
+     и доводят карту до него. Иначе красное число ничего не открывает. */
+  if(S.hudMin){el.className='mslice hud min';
+    el.innerHTML=`<span class="hk">${t>NOW?'Forecast':'Live'} · ${int(all.length)}</span>`
+      +`<span class="hleg"><i class="up"></i>${int(c.up)} moving</span>`
+      +`<span class="hleg"><i class="warn"></i>${int(c.warn)} waiting on us</span>`
+      +`<span class="hleg"><i class="down"></i>${int(c.down)} stuck or leaving</span>`
+      +`<button class="hudx" data-hudmin="0" aria-label="Open the panel" data-tip="Open the panel back">+</button>`;
+    el.hidden=false;return;}
   el.className='mslice hud';
-  el.innerHTML=`<div class="hrow">
+  el.innerHTML=`<button class="hudx" data-hudmin="1" aria-label="Fold the panel" data-tip="Fold it down to the colour key">×</button>
+    <div class="hrow">
       <div class="hmain"><span class="hk">${t>NOW?'Forecast · ':''}Live deals${who?' · '+esc(who):''}</span>
         <b class="hn">${int(all.length)}</b>
         <span class="hsub">$${pipe>=1e6?(pipe/1e6).toFixed(1)+'M':int(Math.round(pipe/1000))+'K'} a year on the table</span></div>
@@ -4027,7 +4033,7 @@ function renderSlice(t,seg,clustered){
         <div class="hs wn"><b>${int(c.warn)}</b><span>${LTSIGN.warn} waiting on us</span><i style="--w:${pc('warn')}%"></i></div>
         <div class="hs up"><b>${int(c.up)}</b><span>${LTSIGN.up} moving</span><i style="--w:${pc('up')}%"></i></div>
       </div></div>
-    ${top.length?`<div class="hhot"><span class="hk">Where it breaks</span>${top.map(([st,k])=>`<span class="hchip"><i></i>${esc(st)} <b>${k}</b></span>`).join('')}</div>`:''}
+    ${top.length?`<div class="hhot"><span class="hk">Where it breaks</span>${top.map(([st,k])=>`<button class="hchip" data-f="st:${esc(st)}" data-tip="${esc('Show only '+st+' — the map and every list narrow to it')}"><i></i>${esc(st)} <b>${k}</b></button>`).join('')}</div>`:''}
     <div class="hunit faint">${esc(unit.split(',')[0])}</div>`;
   el.hidden=false;
 }
@@ -5342,7 +5348,7 @@ function renderInbox(){
   return `<div class="doc"><div class="doch"><div><h2>Messages</h2>
       <div class="muted">${all.length} conversations in the last 7 days · ${chans} channels · ${boxes} of our accounts in one feed</div>
       <div class="muted">${need.length} of them wait on an answer — ${owed} compan${owed===1?'y':'ies'}, the same ones the map shows amber</div></div></div>
-    <div class="note">Every mailbox, number and profile we own lands here. Nothing stays in another window: if it is not in this list, it did not arrive. Opening a line opens the conversation — the answer is written there, not here.</div>
+    <div class="note">Opening a line opens the conversation — the answer is written there, not here.</div>
     ${band('Needs an answer',need,'Nobody is waiting on us.',25)}
     ${wait.length?band('Waiting on them',wait,'',15):''}
     ${fyi.length?band('Nothing to answer',fyi,'',10):''}
@@ -5538,16 +5544,6 @@ function taskDetail(x){
   return `<div class="tdet"><div class="tdt"><span class="chip">${esc(TKND[x.kind])}</span> ${esc(x.ttl)}
       <span class="tdw">${esc(taskWhen(x))}${a?' · '+esc(a.name):''}</span></div>${taskBody(x)}</div>`;}
 
-/* Карточка срочного — приём Карины (её экран 02). Та же задача, что строкой
-   в таблице: заголовок, род чипом, когда и у кого, причина, кнопки. Кнопки зовутся
-   тем же taskActs — у задачи они обязаны быть одни и те же, где бы она ни стояла. */
-function taskCard(x,on){
-  const a=taskAccOf(x);
-  return `<div class="tkc${on?' on':''}" data-tkopen="${x.id}">
-    <div class="tkch"><b>${esc(x.ttl)}</b><span class="chip">${esc(TKND[x.kind])}</span></div>
-    <div class="tkw ${taskLight(x)}"><i class="lt"></i>${esc(taskWhen(x))}${a?' · '+esc(a.name):''}</div>
-    ${taskBody(x)}</div>`;}
-
 function tasksTable(G,openId){
   const trow=x=>{const on=x.id===openId&&!x.done,a=taskAccOf(x);
     return `<tr class="${x.done?'done':''}${on?' on':''}" data-tkopen="${x.id}">
@@ -5563,15 +5559,9 @@ function tasksTable(G,openId){
      строк, как в любой CRM-таблице с группировкой. */
   const grp=(ttl,arr)=>arr.length?`<tr class="grp"><td colspan="6">${esc(ttl)} · ${arr.length}</td></tr>`+arr.map(trow).join(''):'';
   const all=G.now.length+G.cal.length+G.week.length+G.done.length;
-  /* Срочное ушло из таблицы в карточки: в строке кнопка пряталась за раскрытием,
-     а это ровно то, ради чего на этот экран приходят. Остальное остаётся таблицей —
-     там на задачу смотрят списком, а не решают её. */
-  const cards=G.now.length?`<div class="hdr">Now · ${G.now.length}</div>
-    <div class="tkgrid">${byHour(G.now).map(x=>taskCard(x,x.id===openId)).join('')}</div>`:'';
-  const rest=grp('Meetings',byHour(G.cal))+grp('This week',byHour(G.week))+grp('Settled',G.done);
-  const tbl=rest?`<table class="db tasks"><thead><tr><th>Task</th><th>When</th><th>Account</th><th>Kind</th><th>Put here by</th><th>On</th></tr></thead>
-    <tbody>${rest}</tbody></table>`:'';
-  return cards+tbl+(all?'':`<div class="note" style="padding:16px;color:var(--fg3)">${tnarrow()?`Nothing here once you narrow by <b>${tnarrow()}</b>.`:'Nothing is waiting on you.'}</div>`);}
+  return `<table class="db tasks"><thead><tr><th>Task</th><th>When</th><th>Account</th><th>Kind</th><th>Put here by</th><th>On</th></tr></thead>
+    <tbody>${all?grp('Now',byHour(G.now))+grp('Meetings',byHour(G.cal))+grp('This week',byHour(G.week))+grp('Settled',G.done)
+      :`<tr><td colspan="6" style="padding:16px;color:var(--fg3)">${tnarrow()?`Nothing here once you narrow by <b>${tnarrow()}</b>.`:'Nothing is waiting on you.'}</td></tr>`}</tbody></table>`;}
 
 function tasksCal(R,openId){
   const open=R.filter(x=>!x.done),sel=R.find(x=>x.id===openId&&!x.done)||null;
@@ -5730,7 +5720,10 @@ function renderTasks(){
   const wl=welcLine();
   return `<div class="doc wide"><div class="doch"><div><h2>Tasks</h2></div>
       <span class="pick view">${TVIEW.map(([k,t])=>`<button data-tview="${k}" aria-pressed="${view===k}">${t}</button>`).join('')}</span></div>
-    ${wl?`<div class="tdesk"><span class="tdline">${me1?esc(me1)+' — ':''}${esc(wl.charAt(0).toLowerCase()+wl.slice(1))}</span></div>`:''}
+    <div class="tdesk">
+      <span class="welcn"><b>${int(welcNums().sent)}</b><span>letters the agents have sent this week</span></span>
+      <span class="welcn"><b>${int(R.filter(x=>x.due==='now'&&!x.done).length)}</b><span>things wait on you right now</span></span>
+      ${wl?`<span class="tdline">${me1?esc(me1)+' — ':''}${esc(wl.charAt(0).toLowerCase()+wl.slice(1))}</span>`:''}</div>
     ${body}</div>`;}
 
 /* ============ Окно в окне ============
@@ -7775,15 +7768,7 @@ function renderStatus(){const alarms=AGENTS.filter(a=>a.state==='paused').length
   const z=Math.round((window.outerWidth/Math.max(1,window.innerWidth))*100);
   /* Сборка и размеры окна ушли из строки состояния: сегодняшнее число ничего
      не решает в работе, а номер сборки — отладка, а не работа. */
-  $('status').innerHTML='';
-  renderTopNums();}
-/* Два числа стоят в шапке всего экрана, а не только над очередью: у Карины они
-   видны на каждом экране — сколько машина сделала и сколько ждёт тебя. Числа те же
-   и считаются теми же функциями, что на входе и в очереди. */
-function renderTopNums(){const el=$('tnums'); if(!el)return;
-  const need=taskRows(S.t).filter(x=>x.due==='now'&&!x.done).length;
-  el.innerHTML=`<span class="tn" data-tip="letters the agents have sent this week"><b>${int(welcNums().sent)}</b><span>sent this week</span></span>`
-    +`<span class="tn" data-tip="things that need you today"><b>${int(need)}</b><span>need you</span></span>`;}
+  $('status').innerHTML='';}
 let palSel=0;
 function openPal(){$('pal').hidden=false;$('palIn').value='';palSel=0;renderPal();$('palIn').focus();}
 function renderPal(){const q=$('palIn').value.toLowerCase();const r=allEntities().filter(e=>!q||(e.t+' '+e.ty).toLowerCase().includes(q)).slice(0,30);S.palR=r;
@@ -7844,7 +7829,7 @@ function logAdd(ag,ttl,st,m){const o={ag,w:NOW,d:NOWDAY,ttl,st};
 const LKIND={decision:'decision',edit:'edit',metric:'metric',revert:'revert'};
 const meNow=()=>WHOM[S.profile]||'—';
 document.addEventListener('click',e=>{
-  const b=e.target.closest('[data-xpanel],[data-lkind],[data-lnoev],[data-dcl],[data-bkeep],[data-bdrop],[data-bsel],[data-bselall],[data-bgo],[data-bhand],[data-bclr],[data-fmul],[data-open],[data-side],[data-tab],[data-web],[data-tabclose],[data-tkopen],[data-tkact],[data-thrclr],[data-tpluse],[data-scenrun],[data-scenask],[data-scenstop],[data-scenwhere],[data-scencopy],[data-close],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-feeddown],[data-plus],[data-newchat],[data-agundo],[data-weekpick],[data-week],[data-day],[data-calm],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-f],[data-freset],[data-fclr],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepsel],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-projset],[data-dbstate],[data-fmode],[data-dbsort],[data-dbmore],[data-dbkind],[data-camp],[data-camprun],[data-chan],[data-find],[data-slot],[data-next],[data-nextclr],[data-addp],[data-intent],[data-pst],[data-ctype],[data-campsel],[data-strict],[data-campoff],[data-campblk],[data-campset],[data-campseq],[data-campbox],[data-camprunact],[data-inwin],[data-stuck],[data-mailclear],[data-mailopen],[data-mailstop],[data-mark],[data-note],[data-notecancel],[data-ent],[data-mail],[data-common],[data-importfacts],[data-nextbn],[data-influencer],[data-sim],[data-role],[data-tview],[data-triopen],[data-triskip],[data-stepword],#fDown,#addFact,#addNote');
+  const b=e.target.closest('[data-xpanel],[data-lkind],[data-lnoev],[data-dcl],[data-bkeep],[data-bdrop],[data-bsel],[data-bselall],[data-bgo],[data-bhand],[data-bclr],[data-fmul],[data-open],[data-side],[data-tab],[data-web],[data-tabclose],[data-hudmin],[data-tkopen],[data-tkact],[data-thrclr],[data-tpluse],[data-scenrun],[data-scenask],[data-scenstop],[data-scenwhere],[data-scencopy],[data-close],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-feeddown],[data-plus],[data-newchat],[data-agundo],[data-weekpick],[data-week],[data-day],[data-calm],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-f],[data-freset],[data-fclr],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepsel],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-projset],[data-dbstate],[data-fmode],[data-dbsort],[data-dbmore],[data-dbkind],[data-camp],[data-camprun],[data-chan],[data-find],[data-slot],[data-next],[data-nextclr],[data-addp],[data-intent],[data-pst],[data-ctype],[data-campsel],[data-strict],[data-campoff],[data-campblk],[data-campset],[data-campseq],[data-campbox],[data-camprunact],[data-inwin],[data-stuck],[data-mailclear],[data-mailopen],[data-mailstop],[data-mark],[data-note],[data-notecancel],[data-ent],[data-mail],[data-common],[data-importfacts],[data-nextbn],[data-influencer],[data-sim],[data-role],[data-tview],[data-triopen],[data-triskip],[data-stepword],#fDown,#addFact,#addNote');
   if(!b){if(S.wkOpen&&!e.target.closest('.wkpop')){
     /* Начало отмечено, а конец не назван — значит человек выбрал одну неделю. */
     if(S.wkA!=null){S.t=S.wkA;S.win=1;S.wkA=null;S.wkOpen=false;renderAll();return;}
@@ -8362,6 +8347,7 @@ document.addEventListener('click',e=>{
   /* Пропуск — не решение: задача остаётся в очереди такой же, меняется только то,
      на что человек смотрит. Последнюю строку пропускать некуда — она и остаётся. */
   if(b.dataset.triskip){triMove(1);return;}
+  if(b.dataset.hudmin!==undefined){S.hudMin=b.dataset.hudmin==='1';renderSlice(S.t,S.seg,S.clustered);return;}
   if(b.dataset.tkopen){const id=b.dataset.tkopen;
     S.tkOpen=S.tkOpen===id?null:id;
     /* Строка в колонке слева ведёт в ту же область, иначе нажатие там молчит. */
