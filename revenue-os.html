@@ -615,6 +615,21 @@ table.dcltab th{font-family:var(--mono);font-size:10px;font-weight:600;letter-sp
 table.dcltab td{padding:13px 14px 13px 0;border-top:1px solid var(--border);font-size:12px}
 .dcltab .dcn b{font-size:13.5px;font-weight:600;display:block}
 .dcltab .note{font-size:11px;margin-top:3px}
+/* Поручитель: роль подписью над самим органом, которым его меняют. */
+.guapick{display:flex;flex-direction:column;gap:3px;margin-top:6px}
+.guapick .faint{font-size:10px;letter-spacing:.06em;text-transform:uppercase}
+.dcltab .dcn .chip{margin-top:6px}
+/* «Decision classes визуально очень плохо выглядит. Визуал 90-х» (Лиза, 14.10).
+   Системный выпадающий список и был тем, что выбивалось: всё вокруг — карточки
+   и пилюли дома, а здесь серая коробка браузера. Теперь список той же формы,
+   что остальные органы. */
+.dcltab select{max-width:100%;appearance:none;-webkit-appearance:none;
+  background:var(--card) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%238A93A6' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 10px center;
+  border:1px solid var(--border);border-radius:var(--r-lg,10px);color:var(--fg);
+  font:inherit;font-size:12px;padding:8px 30px 8px 11px;cursor:pointer;transition:border-color .15s}
+.dcltab select:hover:not(:disabled){border-color:var(--line)}
+.dcltab select:disabled{opacity:.45;cursor:not-allowed}
+.dcltab td{padding-top:16px;padding-bottom:16px}
 .dcw{white-space:nowrap}
 .dcw .chip{margin:0 4px 4px 0}
 .sw3 .btn{font-family:var(--mono);font-size:10px;letter-spacing:.06em;height:26px;padding-inline:10px;white-space:nowrap}
@@ -3612,7 +3627,10 @@ function renderSide(){
        (Николай, 30.09, 18:49). Различает их только знак: человек или робот. */
     else {
       h+=filterBar('ag');
-      h+=`<button class="row us" data-open="us"><span class="av sq bot">${ICONS.mark}</span><span class="nm">Bobroff MSP</span><span class="rt">${OURS.length} people · ${AGENTS.length} agents</span></button>`;
+      /* «Зачем-то Бобров MSP кнопка и Our side отвечают за абсолютно одинаковые
+         вещи» (Лиза, 14.10, повторно). Обе вели в `us`, и обе — туда, где человек
+         уже стоит: зона Agents и открывается нашей стороной. Строка убрана, ссылка
+         внизу осталась возвратом — и только когда ушёл с этого экрана. */
       h+=`<div class="grp2">Team \u00b7 ${OURS.length} people, ${AGENTS.length} agents</div>`;
       for(const o of OURS){
         const mine=AGENTS.filter(a=>a.owner===o.id&&(!S.ef.astate||a.state===S.ef.astate));
@@ -3644,8 +3662,10 @@ function renderSide(){
     /* Три входа в одну зону, и по именам было не понять, чем они отличаются:
        «разве они не дублируют друг друга» (Лиза, 12.10). Один предмет — агент —
        правда виден в двух из них, но вопросы разные, и теперь вопрос стоит в имени. */
-    else if(S.ent==='ag'||S.ent==='us'){h+=`<button class="dblink" data-open="us">Our side — people, agents, mailboxes ↗</button>`
-      +`<button class="dblink" data-open="dclist">Decision classes — the rules they obey ↗</button>`;}}
+    else if(S.ent==='ag'||S.ent==='us'){
+      const tb=S.tabs.find(x=>x.id==='agent')||{};
+      if(!(S.tab==='agent'&&tb.kind==='aglist'))h+=`<button class="dblink" data-open="us">Our side — people, agents, mailboxes ↗</button>`;
+      if(!(S.tab==='agent'&&tb.kind==='dclist'))h+=`<button class="dblink" data-open="dclist">Decision classes — the rules they obey ↗</button>`;}}
   $('side').innerHTML=h;
 }
 function allEntities(){
@@ -6189,30 +6209,34 @@ function renderClasses(){
     return `<tr class="${ov?'over':''}">
       <td class="dcn"><b>${esc(d.nm)}</b><div class="note">${esc(d.out)}</div>
         ${d.hard?`<div class="note down">never: ${esc(d.hard)}</div>`:''}
-        ${inBatch(k)?`<div class="note">in a batch — ${esc(batchGuaTxt())} approves, whatever the single-case right is</div>`:''}</td>
+        ${inBatch(k)?`<span class="chip" data-tip="${esc(batchGuaTxt()+' approves the batch, whatever the single-case right is')}">in a batch</span>`:''}</td>
       <td class="dcw">${ags.length?ags.map(n=>`<span class="chip">${esc(n)}</span>`).join(''):'<span class="chip flat">a hand</span>'}</td>
       <td class="dstep"><span class="seg3 sw3">${DSTEPS.slice().reverse().map(x=>`<button class="btn s-${x}${dstep(k)===x?' on':''}" data-dcl="${k}:${x}" ${mayStep.ok?'':'disabled'} data-tip="${mayStep.ok?esc(DSTEPNM[x]):esc(mayStep.why)}">${x==='auto'?'Auto':x==='approve'?'Approve':'By hand'}</button>`).join('')}</span>
         <div class="note">${r.ok?`<b class="up">yours to take</b>`:esc(r.why)}</div></td>
-      <td>${ov?`<div class="note"><span class="bad">above the ceiling</span> — the guarantor allows only “${esc(DSTEPSH[d.cap])}”</div>`:`<div class="note">ceiling: ${esc(DSTEPSH[d.cap])}</div>`}
-        ${g.person?`<b>${esc(g.person)}</b><div class="note">${esc(WHOM[d.gua])}</div>`
-            :`<span class="bad">nobody named</span><div class="note">${esc(WHOM[d.gua])} — the role exists, the person does not</div>`}
-        <select data-setgua="${esc(d.gua)}" ${mayGua.ok?'':'disabled'} data-tip="${mayGua.ok?'Naming a guarantor is itself a decision — class “guarantor”, by hand, logged against you':esc(mayGua.why)}">
+      ${/* «Очень много текста… просто куча лишнего, дублирующего» (Лиза, 14.10).
+            Имя поручителя стояло дважды: строкой и в списке, которым его меняют.
+            Остаётся один раз — в самом органе; роль подписью при нём, пояснение
+            про роль и потолок ушло в подсказки. */''}
+      <td>${ov?`<div class="note"><span class="bad">above the ceiling</span> — only “${esc(DSTEPSH[d.cap])}”</div>`:`<div class="note">ceiling: ${esc(DSTEPSH[d.cap])}</div>`}
+        ${g.person?'':`<div class="note"><span class="bad">nobody named</span></div>`}
+        <label class="guapick"><span class="faint">${esc(WHOM[d.gua])}</span>
+        <select data-setgua="${esc(d.gua)}" ${mayGua.ok?'':'disabled'} data-tip="${esc((mayGua.ok?'Naming a guarantor is itself a decision — class “guarantor”, by hand, logged against you':mayGua.why)+((keys.filter(x=>DCL[x].gua===d.gua).length>1)?' · one person stands for all '+keys.filter(x=>DCL[x].gua===d.gua).length+' classes of '+WHOM[d.gua]+', not for this row alone':''))}">
           <option value="">— name a person —</option>
           ${OURS.map(o=>`<option value="${o.id}" ${GUAWHO[d.gua]===o.id?'selected':''}>${esc(o.nm)}</option>`).join('')}
-        </select>${(()=>{const sib=keys.filter(x=>DCL[x].gua===d.gua);
-          /* Пояснение печатается один раз на роль, а не на каждой строке: поручитель
-             стоит на роли, и трижды повторённая фраза читается как три разных поля. */
-          return sib.length>1&&sib[0]===k?`<div class="note">one person for all ${sib.length} classes of ${esc(WHOM[d.gua])} — the role is guaranteed, not the single row</div>`:'';})()}</td>
+        </select></label></td>
       <td>${st.n?`${st.n} this quarter${st.nev?` · <span class="bad">${st.nev} without evidence</span>`:''}${st.worst!==null?`<div class="note">worst p_wrong ${Math.round(st.worst*100)} %</div>`:''}`:'<span class="note">nothing yet</span>'}</td></tr>`;}).join('');
   return `<div class="bpmn">
     <div class="bph"><h2>Decision classes</h2><span class="chip acc">${keys.length}</span>
       <span class="muted">${mine} of ${keys.length} are yours as ${esc(WHOM[me]||me)}${over?` · ${over} above the ceiling`:''}${noman?` · ${noman} with nobody named`:''}</span></div>
+    ${/* Три абзаца над таблицей объясняли устройство реестра тому, кто уже в нём
+          стоит. Осталась одна строка — та, что меняет поведение: что именно здесь
+          меняется и что это записывается на тебя. Остальное живёт в подсказках
+          самих органов. */''}
     <div class="bnote"><span class="faint" style="font-size:11px">${mayStep.ok&&mayGua.ok
-      ? 'You may move a step and name a guarantor here. Both are decisions of their own class and both are logged against you.'
-      : `Reading this is everyone’s; changing it is not. <b>The step</b> belongs to the class “agent step” — ${esc(mayStep.ok?'yours to move':mayStep.why)}. <b>The guarantor</b> belongs to the class “guarantor” — ${esc(mayGua.ok?'yours to name':mayGua.why)}.`}</span></div>
-    <div class="bnote"><span class="faint" style="font-size:11px">Every writing button on every screen belongs to one of these. The class carries the step, the ceiling, the ban and a named guarantor — a screen carries none of that. Change a line here and every screen obeys it, including the ones you are not looking at.</span></div>
+      ? 'Every writing button on every screen obeys one of these lines. A change here is logged against you.'
+      : `<b>The step</b> — ${esc(mayStep.ok?'yours to move':mayStep.why)}. <b>The guarantor</b> — ${esc(mayGua.ok?'yours to name':mayGua.why)}.`}</span></div>
     <div class="dclwrap"><table class="runs dcltab"><thead><tr><th>class · what it changes outside</th><th>runs it</th><th>setting</th><th>ceiling · guarantor</th><th>what the log says</th></tr></thead><tbody>${rows}</tbody></table></div>
-    <div class="bnote"><span class="faint" style="font-size:11px">A ceiling is the guarantor’s promise, not a lock: a calculation never lifts it, a hand can — and then the row burns and the log says who did it. A class with nobody named cannot have its ceiling lifted at all.</span></div></div>`;}
+    <div class="bnote"><span class="faint" style="font-size:11px">A ceiling is the guarantor’s promise, not a lock: only a hand lifts it, and then the row burns and the log says whose.</span></div></div>`;}
 /* Свобода агента больше не одна ручка на всё: она складывается из классов, в которых
    он пишет. Поэтому показываем не абстрактную «Autonomy», а строку на класс —
    со ступенью, потолком и поручителем. Где ступень выше потолка, строка горит. */
@@ -7404,8 +7428,10 @@ const SCEN=[
  {id:'g2',who:'GTM Eng',nm:'Stop the mailbox that risks the domain',
   why:'“Проверь ёмкость отправки и останови то, что рискует” (стенд, G2) · JOB-004',
   check:'the capacity of the rest is recomputed, and the entry says who stopped it',
-  steps:[{t:'Open Agents in the rail',sel:'[data-ent="ag"]'},
-   {t:'Open our side — the mailboxes are there',sel:'[data-open="us"]'},
+  /* Шаг «Open our side» убран вместе с кнопкой: зона Agents и открывается нашей
+     стороной, ящики стоят на ней — кнопка вела туда, где человек уже стоял
+     (Лиза, 14.10, повторно). */
+  steps:[{t:'Open Agents in the rail — our side opens with the mailboxes on it',sel:'[data-ent="ag"]'},
    {t:'Open a mailbox',sel:'[data-mailopen]'},
    {t:'Stop it',sel:'[data-mailstop]'}]},
  {id:'g3',who:'GTM Eng',nm:'Take an agent’s right to send, leave its right to prepare',
