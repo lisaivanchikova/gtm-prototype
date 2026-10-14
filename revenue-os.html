@@ -647,8 +647,11 @@ table.runs td{padding:4px 8px 4px 0;border-top:1px solid color-mix(in srgb,var(-
 .orgcols{display:flex;gap:16px;align-items:flex-start;justify-content:center;flex-wrap:wrap}
 .orgcol{display:flex;flex-direction:column;align-items:center;gap:0;min-width:0}
 .orgstem{width:1px;height:14px;background:var(--border)}
-.orgbots{display:flex;flex-direction:column;gap:6px;align-items:stretch}
-.orgbots.own{margin:8px auto 0;max-width:200px}
+/* Ширину группе задаёт колонка, а не самая длинная строка в карточке: без этого
+   группа — флекс-элемент без ширины, её распирает текст «последнего хода», а
+   `max-width` колонки только обрезает коробку, и карточки наезжают на соседнюю. */
+.orgbots{display:flex;flex-direction:column;gap:6px;align-items:stretch;width:100%;min-width:0}
+.orgbots.own{margin:8px auto 0;width:210px;max-width:210px}
 /* Агент — не равный человеку узел, а его инструмент: карточка в одну строку,
    иначе три агента под одним человеком заслоняют схему. */
 .orgcard.bot{padding:5px 8px;gap:7px;min-width:0;width:100%}
@@ -661,7 +664,7 @@ table.runs td{padding:4px 8px 4px 0;border-top:1px solid color-mix(in srgb,var(-
    Кеглем они ниже имени: это признаки агента, а не его имя. */
 .orgcard.bot .free{font-size:9px;color:var(--fg3);text-transform:lowercase}
 .orgcard.bot .last{font-size:9.5px;color:var(--fg3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.orgcol{max-width:200px}
+.orgcol{width:210px;max-width:210px}
 .orgrow{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
 .orgcard{border:1px solid var(--border);border-radius:8px;padding:8px 11px;display:flex;gap:8px;align-items:center;min-width:210px;background:var(--editor);text-align:left}
 .orgcard:hover{border-color:var(--fg3)}
@@ -1234,6 +1237,14 @@ table.db.tasks td:first-child{max-width:340px}
 .rsy i{display:block;height:100%}
 .rsp{font-size:10px;color:var(--fg3)}
 .rsp.ybad{color:var(--down)}
+/* Флаг течи — слово, а не только цвет: цвет говорит «плохо», слово говорит «здесь». */
+.rst .lkh{align-self:flex-start;font-size:9px;padding:0 5px;height:15px;letter-spacing:.04em;text-transform:uppercase}
+.rst.leaks{border-color:var(--down)}
+.swords{display:flex;flex-direction:column;gap:6px;margin-top:8px;padding-top:8px;border-top:1px solid var(--border)}
+.swords textarea{width:100%;font-size:11px;min-height:46px;max-height:22vh;resize:vertical}
+.swords .btns{align-items:center}
+.swords .note{flex:1 1 220px;min-width:0}
+.rule .lk.mine{color:var(--accent);border-color:currentColor}
 .rgap{position:absolute;left:-11px;top:14px;width:19px;height:19px;border-radius:50%;border:1px solid var(--border);background:var(--bg);color:var(--fg2);font-size:11px;line-height:1;cursor:pointer;z-index:3;display:flex;align-items:center;justify-content:center;padding:0}
 .rgap:hover{border-color:var(--accent);color:var(--accent)}
 .rgap.last{left:auto;right:-11px}
@@ -3731,8 +3742,22 @@ function stepRuleCell(i,cls){
     <div class="cw">cold — ${kb('cold')} · warm — ${kb('warm')}</div>
     <div class="rules">`+rs.map(r=>{
       const clickable=S.sopEdit&&!r.lock;
-      return `<button class="rule ${r.on?'on':'off'} ${r.lock?'lockd':''}" ${clickable?`data-rule="${id}:${r.id}"`:''} data-tip="${r.lock?esc('cannot be switched off: '+r.lock):(S.sopEdit?'Switch this check on or off':'Turn on Edit to change this')}"><span class="bx">${r.on?'✓':''}</span><span>${esc(r.t)}</span>${r.lock?'<span class="lk">locked</span>':''}</button>`;}).join('')+`</div>`;
+      return `<button class="rule ${r.on?'on':'off'} ${r.lock?'lockd':''}" ${clickable?`data-rule="${id}:${r.id}"`:''} data-tip="${r.lock?esc('cannot be switched off: '+r.lock):(S.sopEdit?'Switch this check on or off':'Turn on Edit to change this')}"><span class="bx">${r.on?'✓':''}</span><span>${esc(r.t)}</span>${r.lock?'<span class="lk">locked</span>':''}${r.mine?`<span class="lk mine">yours · W${r.w}</span>`:''}</button>`;}).join('')+`</div>`;
   if(def)h+=`<button class="defect" data-fix="${id}"><b>▲ failed ${def.cnt}× this week</b><span>${esc(def.ttl)}</span><span style="color:var(--accent);font-weight:600">look into it →</span></button>`;
+  /* ===== Правка этапа словами (Карина, экран 09; стенд G5) =====
+     «Опиши процесс так, чтобы его можно было менять без разработчика: клиника
+     больше 100 человек — письмо пишет человек, меньше — агент». До сих пор этап
+     менялся только готовыми галочками: что не предусмотрено списком, изменить было
+     нечем. Написанное становится правилом этапа в тех самых словах, которыми его
+     написали, — ровно в том же положении, что и встроенные правила выше: агент
+     обязан его пройти, человек может его снять. Ничего не меняется молча: сначала
+     карточка, где написано, что именно изменится и чего правило НЕ делает. */
+  if(S.sopEdit)h+=`<div class="swords">
+    <div class="hdr">Change this step in words</div>
+    <textarea id="stepWords" rows="2" aria-label="Change this step in words"
+      placeholder="What has to be true at this step — in your own words. “A practice over 100 people: a human writes the first letter, not the agent.”"></textarea>
+    <div class="btns"><button class="btn pri" data-stepword="${i}">Make it a rule on this step</button>
+      <span class="note">It joins the checks above, in your words and under your name. You see what it changes before it applies.</span></div></div>`;
   return h;
 }
 function fixPanel(){
@@ -3809,12 +3834,21 @@ function renderSOP(a){
      «визуально здесь надо что-то придумать, чтобы было понятно, где мы косячим» (14:31) */
   const RS=ST.map((st,i)=>st.stage?stepYield(i,a):null).filter(y=>y&&y.inn).map(y=>y.r);
   const minR=RS.length>1?Math.min.apply(null,RS):null;
+  /* КПД по этапам считался и раньше, но худший шаг не назывался словом: красная
+     полоска и ▼ стояли сразу у нескольких этапов — и у того, что просел за месяц,
+     и у самого низкого. Карина, экран 03: на дырявом этапе стоит флаг. Флаг один,
+     и только когда есть с чем сравнивать: если хуже некуда одинаково у всех,
+     «здесь» не значит ничего. */
+  const leakR=(minR!=null&&RS.some(r=>r>minR))?minR:null;
+  const isLeak=y=>!!(leakR!=null&&y&&y.inn&&y.r<=leakR);
   const ins=(i,last)=>S.sopEdit?`<button class="rgap${last?' last':''}" data-stepadd="${i}" aria-label="${last?'Add a step at the end':'Insert a step here'}" data-tip="${last?'Add a stage at the end':'Insert a stage here'}">＋</button>`:'';
   const rail=`<div class="rail"><div></div>`+ST.map((st,i)=>{
       const s=stState(i),y=st.stage?stepYield(i,a):null,bad=y&&y.inn&&(y.d<-.15||minR!=null&&y.r<=minR);
-      return `<div class="rst ${s[0]}${i===selI?' sel':''}" data-stepsel="${i}">${ins(i-1)}${i===N-1?ins(N-1,1):''}`
+      const leak=isLeak(y);
+      return `<div class="rst ${s[0]}${i===selI?' sel':''}${leak?' leaks':''}" data-stepsel="${i}">${ins(i-1)}${i===N-1?ins(N-1,1):''}`
         +`<span class="rsn">${S.sopEdit?`<span class="shname" contenteditable="true" data-rename="${i}:a" spellcheck="false">${esc(st.a)}</span>`:esc(st.a)}</span>`
         +`<span class="rss">${esc(s[1])}</span>`
+        +(leak?`<span class="chip down lkh" data-tip="${esc('Of the stages where anything passed in the last four weeks, this one keeps the least: '+int(y.inn)+' came in, '+int(y.out)+' went on. The leak is named by the number, not by a guess.')}">leaks here</span>`:'')
         +(y&&!y.inn?`<span class="rsp">no deals passed here in 4 weeks</span>`
            :y?`<span class="rsy"><i style="width:${Math.min(100,y.r*100)}%;background:${bad?'var(--down)':'var(--up)'}"></i></span><span class="rsp${bad?' ybad':''}">${int(y.inn)} → ${int(y.out)} · ${pct(y.r,0)}${bad?' ▼':''}</span>`
            :st.stage?`<span class="rsp">base · Retention ${pct(formulaAt(S.t).ret)}</span>`
@@ -3824,11 +3858,15 @@ function renderSOP(a){
   /* выбранный этап — вся его начинка здесь, а не шестью строками в сетке:
      «keep the node itself clean and move detailed settings into a sidebar» */
   const SS=selI<0?null:(ART[(ST[selI]||{}).stage]||null), SST=selI<0?['','']:stState(selI);
+  const selY=selI<0?null:((ST[selI]||{}).stage?stepYield(selI,a):null), selLeak=isLeak(selY);
   const strip=selI<0?'':`<div class="rsel"><div class="rselh"><b>${esc((ST[selI]||{}).a||'—')}</b>`
     +`<span class="faint">we: ${esc((ST[selI]||{}).b||'—')}</span>`
     +`<span class="chip ${SST[0]==='stuck'?'down':SST[0]==='now'?'warn':'flat'}">${esc(SST[1])}</span>`
+    +(selLeak?`<span class="chip down">leaks here</span>`:'')
     +(SS?`<button class="mf" ${SS[1]?`data-open="${SS[1]==='p'?'person:'+P[0].id:SS[1]}"`:''} data-tip="The artifact that moves at this stage — open it">${SS[0]}</button>`:'')
-    +`</div>${stepRuleCell(selI)}</div>`;
+    +`</div>`
+    +(selLeak?`<div class="note"><b class="down">This is where the funnel loses the most.</b> ${int(selY.inn)} entered this stage in the last four weeks and ${int(selY.out)} went on — ${pct(selY.r,0)}, the lowest of the stages where anything passed at all. Nothing else here is named as the leak.</div>`:'')
+    +`${stepRuleCell(selI)}</div>`;
   /* ===== шарики: кто за какой этап в ответе и где не сделал ===== */
   const GL={down:'⚠',warn:'○',none:'·'};
   const DOT=(k,open,tip)=>`<button class="dt ${k}" ${open?`data-open="${open}"`:''} data-tip="${esc(tip)}">${GL[k]||'●'}</button>`;
@@ -6396,10 +6434,10 @@ const SCEN=[
    {t:'Open a line from “Needs an answer” — the draft is already written',sel:'[data-open^="msg:"]'},
    {t:'Press “Send under my name”',sel:'[data-send]'}]},
  {id:'s6',who:'SDR',nm:'Find the step where my meetings are lost',
-  why:'“Мало встреч, и я не понимаю почему” (стенд, S5) · JOB-032 · JOB-016',
-  check:'the step that loses the most is named, with the number behind it',
+  why:'“Мало встреч, и я не понимаю почему” (стенд, S5) · JOB-032 · JOB-016 · Карина 13.10, экран 03: на дырявом этапе стоит флаг',
+  check:'the leaking stage is flagged on the funnel itself, and opening it says how many came in and how many went on',
   steps:[{t:'Open the Workflow tab — the funnel left to right',sel:'[data-tab="flow"]'},
-   {t:'Open the step that loses the most',sel:'[data-stepsel]'}]},
+   {t:'Open the stage flagged “leaks here”',sel:'.rst.leaks'}]},
  /* ===== HEAD ===== */
  {id:'h1',who:'Head',nm:'See what we lose if the biggest contract does not renew',
   why:'“В январе кончается контракт — покажи, сколько потеряем” (стенд, H1) · JOB-018',
@@ -6527,12 +6565,23 @@ const SCEN=[
   steps:[{t:'Open Agents in the rail',sel:'[data-ent="ag"]'},
    {t:'Open “Decision classes”',sel:'[data-open="dclist"]'},
    {t:'Move the step of the class',sel:'[data-dcl]'}]},
- {id:'g4',who:'GTM Eng',nm:'Change the process in words, without a developer',
-  why:'“Опиши процесс так, чтобы его можно было менять без разработчика” (стенд, G5) · JOB-022',
-  check:'the funnel on the screen is the one the deals walk',
+ {id:'g4',who:'GTM Eng',nm:'Change a step of the process by writing it in words',
+  why:'“Опиши процесс так, чтобы его можно было менять без разработчика: клиника больше 100 человек — письмо пишет человек, меньше — агент” (стенд, G5) · JOB-022 · Карина 13.10, экран 09',
+  check:'what you wrote stands on the step as a rule, in your words and under your name, and the log says how many moves of the last seven days it would have refused',
   steps:[{t:'Open the Workflow tab',sel:'[data-tab="flow"]'},
    {t:'Switch to editing',sel:'[data-sopmode="1"]'},
-   {t:'Add a step',sel:'[data-stepadd]'}]},
+   {t:'Open the step you want to change',sel:'.rst'},
+   {t:'Write the change in your own words',sel:'#stepWords',fill:1,val:'A practice over 100 people: a human writes the first letter, not the agent.'},
+   {t:'Press “Make it a rule on this step”',sel:'[data-stepword]'},
+   {t:'Read what it changes — and what it does not — and confirm',sel:'#cfmGo'}]},
+ {id:'g4c',who:'GTM Eng',nm:'Add a stage to the funnel and give it an owner',
+  why:'та же работа «менять процесс без разработчика», другая её половина: состав этапов, а не правила внутри этапа',
+  check:'the new stage stands in the funnel and says who runs it',
+  steps:[{t:'Open the Workflow tab',sel:'[data-tab="flow"]'},
+   {t:'Switch to editing',sel:'[data-sopmode="1"]'},
+   {t:'Add a step',sel:'[data-stepadd]'},
+   {t:'Open the step you have just added',sel:'.rst.own'},
+   {t:'Say who runs it',sel:'[data-setag]'}]},
  {id:'g4a',who:'GTM Eng',nm:'Switch a rule on and check the last seven days against it',
   why:'“Внеси правило и примени задним числом за последние семь дней” (стенд, G3). Правило про отписавшихся закрыто законом и выключить его нельзя — поэтому ход показан на том правиле, которое и правда выключено с W36',
   check:'the log says how many entries the rule would have refused, and that nothing is re-sent',
@@ -7151,7 +7200,7 @@ function logAdd(ag,ttl,st,m){const o={ag,w:NOW,d:NOWDAY,ttl,st};
 const LKIND={decision:'decision',edit:'edit',metric:'metric',revert:'revert'};
 const meNow=()=>WHOM[S.profile]||'—';
 document.addEventListener('click',e=>{
-  const b=e.target.closest('[data-xpanel],[data-lkind],[data-lnoev],[data-dcl],[data-bkeep],[data-bdrop],[data-bsel],[data-bselall],[data-bgo],[data-bhand],[data-bclr],[data-fmul],[data-open],[data-side],[data-tab],[data-web],[data-tabclose],[data-tkopen],[data-tkact],[data-thrclr],[data-tpluse],[data-scenrun],[data-scenask],[data-scenstop],[data-scenwhere],[data-scencopy],[data-close],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-feeddown],[data-plus],[data-newchat],[data-agundo],[data-weekpick],[data-week],[data-day],[data-calm],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-f],[data-freset],[data-fclr],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepsel],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-projset],[data-dbstate],[data-fmode],[data-dbsort],[data-dbmore],[data-dbkind],[data-camp],[data-camprun],[data-chan],[data-find],[data-slot],[data-next],[data-nextclr],[data-addp],[data-intent],[data-pst],[data-ctype],[data-campsel],[data-strict],[data-campoff],[data-campblk],[data-campset],[data-campseq],[data-campbox],[data-camprunact],[data-inwin],[data-stuck],[data-mailclear],[data-mailopen],[data-mailstop],[data-mark],[data-note],[data-notecancel],[data-ent],[data-mail],[data-common],[data-importfacts],[data-nextbn],[data-influencer],[data-sim],[data-role],[data-tview],[data-triopen],[data-triskip],#fDown,#addFact,#addNote');
+  const b=e.target.closest('[data-xpanel],[data-lkind],[data-lnoev],[data-dcl],[data-bkeep],[data-bdrop],[data-bsel],[data-bselall],[data-bgo],[data-bhand],[data-bclr],[data-fmul],[data-open],[data-side],[data-tab],[data-web],[data-tabclose],[data-tkopen],[data-tkact],[data-thrclr],[data-tpluse],[data-scenrun],[data-scenask],[data-scenstop],[data-scenwhere],[data-scencopy],[data-close],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-feeddown],[data-plus],[data-newchat],[data-agundo],[data-weekpick],[data-week],[data-day],[data-calm],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-f],[data-freset],[data-fclr],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepsel],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-projset],[data-dbstate],[data-fmode],[data-dbsort],[data-dbmore],[data-dbkind],[data-camp],[data-camprun],[data-chan],[data-find],[data-slot],[data-next],[data-nextclr],[data-addp],[data-intent],[data-pst],[data-ctype],[data-campsel],[data-strict],[data-campoff],[data-campblk],[data-campset],[data-campseq],[data-campbox],[data-camprunact],[data-inwin],[data-stuck],[data-mailclear],[data-mailopen],[data-mailstop],[data-mark],[data-note],[data-notecancel],[data-ent],[data-mail],[data-common],[data-importfacts],[data-nextbn],[data-influencer],[data-sim],[data-role],[data-tview],[data-triopen],[data-triskip],[data-stepword],#fDown,#addFact,#addNote');
   if(!b){if(S.wkOpen&&!e.target.closest('.wkpop')){
     /* Начало отмечено, а конец не назван — значит человек выбрал одну неделю. */
     if(S.wkA!=null){S.t=S.wkA;S.win=1;S.wkA=null;S.wkOpen=false;renderAll();return;}
@@ -7290,6 +7339,37 @@ document.addEventListener('click',e=>{
       toast(`Rule switched on. Past 7 days: ${past} ${past===1?'entry':'entries'} it would have refused — nothing is re-sent.`);
       renderAll();return;}
     toast(`Rule ${r.on?'switched on':'switched off'}. The formula has been recalculated.`);renderAll();return;}
+  /* Слова становятся правилом этапа. Правило живёт в тех же словах, которыми его
+     написали: агента держат слова, а не формула — иначе пришлось бы делать вид,
+     что написанное разобрано машиной, а оно не разобрано. Положение у него ровно
+     то же, что у встроенных проверок выше: оно стоит в списке, его видно и его
+     можно снять — со своим вопросом, как любое ослабление. */
+  if(b.dataset.stepword!==undefined){
+    const i=+b.dataset.stepword, st=S.steps[i], ag=st&&st.ag;
+    const ta=$('stepWords'), txt=((ta&&ta.value)||'').trim();
+    if(!txt){toast('Write the change first — the rule is made of the words you type.');if(ta)ta.focus();return;}
+    if(!ag||ag==='sign'||!agBy(ag)){toast('Nobody runs this step yet. Assign who runs it, and the rule goes to them.');return;}
+    const g=agBy(ag);
+    const past=LOGS.concat(S.extraLogs||[])
+      .filter(l=>l.ag===ag&&l.w>=S.t-1&&l.w<=S.t&&l.st&&l.st[0]==='down').length;
+    confirmAct({title:'Make this a rule on the step?', cta:'Make it a rule', cls:'step',
+      lines:[['The step',(st.a||'—')+' → '+(st.b||'—')],['Who obeys it',g.nm+' · '+(AGROLE[ag]||'')],
+        ['In your words',txt],
+        'It joins the checks on this step and is kept in your words: the agent is held to what you wrote, not to a formula behind it.',
+        'It applies to what happens next. Nothing already sent is re-sent — the past 7 days hold '+past+' entr'+(past===1?'y':'ies')+' it would have refused.',
+        'Switching it off later asks the same question as any other check here.'],
+      onOk:()=>{
+        const rid='u'+Date.now().toString(36);
+        (S.rules[ag]=S.rules[ag]||[]).push({id:rid,t:txt,on:true,mine:1,w:S.t,by:S.profile});
+        logAdd(ag,`New rule on the step “${st.a} → ${st.b}”, written in words by ${meNow()}: “${txt}”`,
+          ['up','edited'],{cls:'step',kind:'decision',by:S.profile,
+            ev:{src:'model',tier:'claim',txt:'written by hand on the step — not derived from the data',open:'agent:'+ag}});
+        logAdd(ag,`Checked the past 7 days against it: ${past} entr${past===1?'y':'ies'} it would have refused. Nothing is re-sent.`,
+          [past?'warn':'flat','checked backwards'],{kind:'metric'});
+        if(ta)ta.value='';
+        renderAll();
+        toast(`The rule is on the step and on ${g.nm}, in your words. Past 7 days: ${past} ${past===1?'entry':'entries'} it would have refused — nothing is re-sent.`);}});
+    return;}
   if(b.dataset.fix){S.sopFix=b.dataset.fix;renderEditorLight();
     setTimeout(()=>{const f=document.querySelector('.fixp');f&&f.scrollIntoView({block:'center',behavior:'smooth'});},30);return;}
   if(b.dataset.fixclose){S.sopFix=null;renderEditorLight();return;}
