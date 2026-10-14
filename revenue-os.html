@@ -825,7 +825,14 @@ table.runs td{padding:4px 8px 4px 0;border-top:1px solid color-mix(in srgb,var(-
    по другому полю. Цветом здесь говорит только состояние: род задачи сказан словом,
    иначе цвет означал бы на одном экране две разные вещи. */
 .doch .pick{margin-left:auto;flex:none}
+/* Очередь: имя задачи стоит целиком, поэтому перенос разрешён — но колонке нужна
+   ширина, иначе «Sign the Brightline Dental MSA» рассыпается на четыре строки
+   в узкой рабочей области (Лиза, 14.10). Таблица не ужимается ниже 720px, дальше
+   прокручивается вбок. */
+table.db.tasks{min-width:700px}
 table.db.tasks td{white-space:normal}
+table.db.tasks th:first-child{min-width:250px}
+table.db.tasks td.nm{min-width:250px}
 table.db.tasks td:first-child{max-width:340px}
 .db tr.grp td{background:var(--side);color:var(--fg3);font-size:10px;letter-spacing:.12em;text-transform:uppercase;padding:6px 10px;cursor:default}
 .db tr.grp:hover td{background:var(--side)}
@@ -986,7 +993,7 @@ table.db.tasks td:first-child{max-width:340px}
 .mknob button{font-size:11px;padding:0 7px;height:18px;color:var(--fg3)}
 .mknob button[aria-pressed="true"]{background:var(--fg);color:var(--editor)}
 /* SOP as BPMN collaboration: two pools and message flows */
-.bpmn{padding:12px 16px 28px;min-width:0;max-width:100%;display:flex;flex-direction:column;gap:8px;container-type:inline-size}
+.bpmn{padding:12px 16px 28px;min-width:0;max-width:100%;display:flex;flex-direction:column;gap:8px;container-type:inline-size;overflow-x:auto}
 .loop{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--fg2);flex-wrap:wrap}
 .loop span.s{border:1px solid var(--border);border-radius:8px;padding:4px 9px}
 .loop span.on{border-color:var(--focus);color:var(--fg);font-weight:600}
@@ -1204,6 +1211,9 @@ table.db.tasks td:first-child{max-width:340px}
 .fpol{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:10px;letter-spacing:.08em;padding:4px 5px;border:1px solid var(--border);border-radius:4px;color:var(--fg3);background:var(--editor)}
 .fpol:hover{border-color:var(--accent);color:var(--fg)}
 .fpol.sys{border-style:dashed;cursor:default}
+/* Плашка поля не переносится по словам: «system only» в узкой шторке вставало
+   в две строки и читалось как сломанная рамка (Лиза, 14.10). */
+.fpol{white-space:nowrap}
 .fpol.on{background:var(--down);border-color:var(--down);color:#fff}
 .fhide{font-size:11px;width:16px;height:16px;border:1px solid transparent;border-radius:4px;color:var(--fg3)}
 .fhide:hover{border-color:var(--border);color:var(--down)}
@@ -1253,7 +1263,10 @@ table.db.tasks td:first-child{max-width:340px}
    «+» живёт в промежутке между этапами, как у Zapier и Pipedrive. */
 .railnote{display:flex;flex-direction:column;gap:3px;margin:10px 0 2px;font-size:11px;line-height:1.45;color:var(--fg3)}
 .railnote b{color:var(--fg2)}
-.rail,.prow{display:grid;grid-template-columns:150px repeat(var(--sn,6),minmax(0,1fr));max-width:100%}
+/* Коробки этапов не сжимаются ниже читаемого: в узкой рабочей области воронка
+   прокручивается вбок, а не крошит имена стадий по слогам — «INTER/EST»,
+   «SIGNA/TURE» (Лиза, 14.10). */
+.rail,.prow{display:grid;grid-template-columns:150px repeat(var(--sn,6),minmax(104px,1fr))}
 .rail .rst,.prow>*{min-width:0}
 .rail{align-items:stretch;margin-top:4px}
 .rlab{display:flex;align-items:flex-end;padding:0 8px 9px;font-size:11px;color:var(--fg3)}
@@ -1695,7 +1708,7 @@ body{font-family:var(--ui)!important;-webkit-font-smoothing:antialiased}
 .rail{gap:8px;margin-top:10px!important}
 .rst{margin:0!important;border-radius:16px!important;padding:13px 12px 18px!important;min-height:150px!important;background:var(--card)!important;border:1px solid var(--border)!important;gap:8px!important;transition:transform .2s var(--ease),border-color .2s,box-shadow .2s}
 .rst:hover{transform:translateY(-2px);border-color:var(--line)!important;box-shadow:var(--shadow)}
-.rst .rsn{font-size:9.5px!important;letter-spacing:.06em!important;color:var(--fg3)!important;white-space:normal!important;overflow:visible!important;text-overflow:clip!important;word-break:break-word}
+.rst .rsn{font-size:9.5px!important;letter-spacing:.06em!important;color:var(--fg3)!important;white-space:normal!important;overflow:visible!important;text-overflow:clip!important;word-break:normal;overflow-wrap:normal;hyphens:none}
 .rsbig{font-size:clamp(30px,3vw,44px)!important;font-weight:800!important;letter-spacing:-.05em!important}
 .rst.done{opacity:1!important}.rst.done .rsbig{color:var(--fg2)!important}
 .rst.next{opacity:.5!important}
@@ -1988,6 +2001,16 @@ body{font-family:var(--ui)!important;-webkit-font-smoothing:antialiased}
 .kcol header .faint{margin-left:auto;font-family:var(--mono);font-size:11px}
 .kbar{height:4px;border-radius:4px;background:var(--echo2);overflow:hidden}
 .kbar i{display:block;height:100%;width:var(--w);background:var(--signal);border-radius:4px}
+/* КПД перехода под именем стадии: сколько вошло, сколько ушло дальше, куда движется.
+   Дырявый переход назван словом — красная полоса у четырёх колонок сразу ничего
+   не говорит о том, где именно теряются встречи. */
+.kyield{display:flex;align-items:center;flex-wrap:wrap;gap:6px;font-size:11px;color:var(--fg3);
+  font-variant-numeric:tabular-nums}
+.kyield b{color:var(--fg);font-weight:700}
+.kyield .up{color:var(--up)} .kyield .down{color:var(--down)}
+.kyield .lk{cursor:pointer;border:0;font:inherit}
+.kcol.leak{border-color:color-mix(in srgb,var(--down) 55%,var(--border))}
+.kcol.leak .kbar i{background:var(--down)}
 .kcards{display:flex;flex-direction:column;gap:8px}
 .kcard{display:flex;flex-direction:column;gap:8px;text-align:left;padding:12px;border-radius:12px;border:1px solid var(--border);background:var(--card);color:inherit;font:inherit;cursor:pointer;
   border-left:3px solid var(--echo2);transition:transform .15s var(--ease),box-shadow .15s,border-color .15s}
@@ -4379,22 +4402,25 @@ function weekPopover(){
 /* КПД шага — свойство когорты той сделки, что открыта, а не текущего глобального фильтра.
    Иначе при одном сегменте над дорожками сделки из другого встают чужие
    проценты, и человек читает их как характеристику этой сделки. */
-function stepYield(i,scopeAcc){
-  const st=S.steps[i];if(!st||!st.stage)return null;   /* свой шаг: данных о нём ещё нет */
-  i=st.stage-1;
-  if(i>=4)return null;            /* стадии 5-6 — это база, там мера Retention, а не КПД */
-  const seg=scopeAcc?scopeAcc.seg:(S.seg||null);
-  /* когорта, а не два независимых счёта: из тех, кто вошёл в этап внутри окна,
-     сколько ушло дальше — и уже после входа. Иначе выход бывает больше входа. */
+/* КПД перехода — когорта, а не два независимых счёта: из тех, кто вошёл в стадию
+   внутри окна, сколько ушло дальше — и уже после входа. Иначе выход бывает больше
+   входа. Мера нужна в двух местах — на доске всех сделок и в колонке этапа схемы, —
+   поэтому считается по стадии, а не по номеру шага в чьей-то схеме. */
+function cohortYield(stage,seg){
+  if(!stage||stage>=5)return null;  /* стадии 5-6 — это база, там мера Retention, а не КПД */
   const at=t=>{let inn=0,out=0;const lo=t-win();
     for(const a of ACC){if(seg?a.seg!==seg:!inF(a))continue;if(filtered(a))continue;
-      const ein=a.ev.find(e=>e.s===i+1&&e.w>lo&&e.w<=t);
+      const ein=a.ev.find(e=>e.s===stage&&e.w>lo&&e.w<=t);
       if(!ein)continue;
       inn++;
-      if(a.ev.some(e=>e.s===i+2&&e.s<=6&&e.w>=ein.w&&e.w<=t))out++;}
+      if(a.ev.some(e=>e.s===stage+1&&e.s<=6&&e.w>=ein.w&&e.w<=t))out++;}
     return {inn,out,r:inn?out/inn:0};};
   const n=at(S.t),p=at(Math.max(TMIN+win(),S.t-win()));
   return {inn:n.inn,out:n.out,r:n.r,d:n.r-p.r};
+}
+function stepYield(i,scopeAcc){
+  const st=S.steps[i];if(!st||!st.stage)return null;   /* свой шаг: данных о нём ещё нет */
+  return cohortYield(st.stage,scopeAcc?scopeAcc.seg:(S.seg||null));
 }
 function defectAt(i){
   const st=S.steps[i];if(!st||st.stage!==2||st.ag!=='qual')return null;
@@ -6276,8 +6302,17 @@ function renderMsg(pid){const p=personById(pid),a=ACCBY[p.acc];
 
 function renderFlowList(){
   const {camps,deals}=flowRows();
+  /* «Эти числа можно видеть, когда я нажимаю слева и вижу общий workflows всех
+     компаний» (Лиза, 14.10). Когорта и флаг течи — здесь, на доске всех сделок:
+     на экране одной компании они говорили бы о чужих сделках. Флаг один и только
+     когда есть с чем сравнивать: если все переходы одинаковы, «здесь» не значит
+     ничего. */
   const cols=[1,2,3,4].map(s=>{const it=deals.filter(d=>(stateAt(d.a,S.t)||{}).s===s);
-    return {s,it,sum:it.reduce((n,d)=>n+(d.acv||0),0)};});
+    return {s,it,sum:it.reduce((n,d)=>n+(d.acv||0),0),y:cohortYield(s,S.seg||null)};});
+  const RS=cols.filter(c=>c.y&&c.y.inn).map(c=>c.y.r);
+  const minR=RS.length>1?Math.min.apply(null,RS):null;
+  const leakR=(minR!=null&&RS.some(r=>r>minR))?minR:null;
+  cols.forEach(c=>{c.leak=!!(leakR!=null&&c.y&&c.y.inn&&c.y.r<=leakR);});
   const total=deals.reduce((n,d)=>n+(d.acv||0),0);
   const card=d=>{const lt=light(d.a,S.t);
     return `<button class="kcard ${lt}" data-open="${d.id}">
@@ -6289,7 +6324,11 @@ function renderFlowList(){
       <button class="btn pri" data-camp="all">New campaign</button></div>
       <div class="note">A campaign reaches a whole segment at once; a deal is one account’s path to a signature. Both are workflows, so both live here. Pick a segment on the left and the board narrows to it.</div></div>
     ${camps.length?`<div class="kcamps">${camps.map(c=>`<button class="ccard" data-open="${c.id}"><span class="mono h0">${esc(c.abc)}</span><span class="pcb"><b>${esc(c.nm)}</b><span>${esc(c.reach)}</span></span><span class="chip up">${esc(c.stg)}</span></button>`).join('')}</div>`:''}
-    <div class="kboard">${cols.map(c=>`<section class="kcol"><header><b>${esc(STAGE[c.s])}</b><span class="mn">${c.it.length}</span><span class="faint">${usd(c.sum)}</span></header>
+    <div class="kboard">${cols.map(c=>`<section class="kcol${c.leak?' leak':''}"><header><b>${esc(STAGE[c.s])}</b><span class="mn">${c.it.length}</span><span class="faint">${usd(c.sum)}</span></header>
+      ${c.y&&c.y.inn?`<div class="kyield">${int(c.y.inn)} in → ${int(c.y.out)} on · <b>${pct(c.y.r)}</b>`
+        +`<span class="${c.y.d<0?'down':'up'}">${c.y.d<0?'\u25bc':'\u25b2'} ${Math.abs(c.y.d*100).toFixed(1)} pp</span>`
+        +(c.leak?`<button class="chip down lk" data-f="stage:${c.s}" data-tip="${esc('The thinnest step of the four: fewer deals go on from here than from anywhere else. Click to leave only the deals standing on it')}">leaks here</button>`:'')
+        +`</div>`:''}
       <div class="kbar"><i style="--w:${total?Math.round(c.sum/total*100):0}%"></i></div>
       <div class="kcards">${c.it.map(card).join('')||'<div class="empty">Nothing at this stage.</div>'}</div></section>`).join('')}</div>`;}
 function renderOrg(){
@@ -7201,8 +7240,10 @@ const SCEN=[
    {t:'Press “Send under my name”',sel:'[data-send]'}]},
  {id:'s6',who:'SDR',nm:'Find the step where my meetings are lost',
   why:'“Мало встреч, и я не понимаю почему” (стенд, S5) · JOB-032 · JOB-016 · Карина 13.10, экран 03: на дырявом этапе стоит флаг',
-  check:'the leaking stage is flagged on the funnel itself, and opening it says how many came in and how many went on',
-  gap:'Флаг «leaks here» стоял на воронке одной сделки, а он про когорту: «если я зашла на конкретную компанию, я хочу видеть данные только по ней» (Лиза, 14.10). Числа когорты и флаг течи переезжают на общий экран всех сделок — пока этого экрана с воронкой нет, вопрос «где теряются встречи» задать нечем.'},
+  check:'the thinnest step of all deals is flagged, says how many came in and how many went on, and the flag leaves only the deals standing on it',
+  steps:[{t:'Open Workflows in the rail',sel:'[data-ent="flow"]'},
+   {t:'Go to all campaigns and deals',sel:'[data-open="flowlist"]'},
+   {t:'Press the flag on the leaking step',sel:'.kyield .lk'}]},
  /* ===== HEAD ===== */
  {id:'h1',who:'Head',nm:'See what we lose if the biggest contract does not renew',
   why:'“В январе кончается контракт — покажи, сколько потеряем” (стенд, H1) · JOB-018',
