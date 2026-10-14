@@ -1540,7 +1540,7 @@ table.db tr.det .s{display:block;font-family:var(--mono);font-size:11px;line-hei
   --fg:#14171F; --fg2:#4A5468; --fg3:#7C879C; --accent:#0057FF; --accent-soft:#DCEBF8; --on-accent:#FFFFFF;
   --link:#131A54; --echo1:#7F95CF; --echo2:#DCEBF8; --hover:#EEF3FB; --selbg:#DCEBF8; --focus:#0057FF; --input:#FFFFFF;
   --land:#E3E9F3; --land-stroke:#F7F9FC; --water:#F2F5FA;
-  --up:#0A8A5F; --down:#C62B3C; --flat:#7C879C; --warn:#9A6B00; --agent:#0057FF; --human:#131A54;
+  --up:#0A8A5F; --down:#C62B3C; --flat:#7C879C; --warn:#C07A00; --agent:#0057FF; --human:#131A54;
   --st1:#DCEBF8; --st2:#A9BDF0; --st3:#4C86FF; --st4:#0057FF; --st5:#131A54;
   --hero:linear-gradient(180deg,#E4ECF9 0%,rgba(247,249,252,0) 100%);
   --glass:rgba(255,255,255,.88); --shadow:0 1px 2px rgba(20,23,31,.05),0 18px 40px -24px rgba(19,26,84,.35);
@@ -1699,10 +1699,15 @@ body{font-family:var(--ui)!important;-webkit-font-smoothing:antialiased}
 .paper b{font-size:20px!important;font-weight:800!important;letter-spacing:-.02em;color:var(--graphite)!important}
 .paper h3{font-size:12.5px!important;color:var(--ink)!important;letter-spacing:.02em!important}
 .signers{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px!important}
-.signer{border-radius:var(--r-lg)!important;background:var(--card);padding:12px 14px!important;
-  display:flex!important;align-items:center;gap:10px;flex-wrap:wrap}
-.signer>b,.signer>span{min-width:0}
-.signer .chip{flex:none;margin-left:auto}
+/* У трёх карточек подписантов раскладка расползалась по-разному: чип переносился
+   то под имя, то в середину, имя ломалось по слогам (Лиза, 14.10). Теперь это одна
+   сетка на всех: знак · имя с ролью · состояние справа. */
+.signer{border-radius:var(--r-lg)!important;background:var(--card);padding:13px 15px!important;
+  display:grid!important;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:4px 11px}
+.signer>.pav,.signer>.gl,.signer>span:first-child{grid-row:1/3}
+.signer b{grid-column:2;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.signer .who,.signer>span:not(:first-child){grid-column:2;font-size:11.5px;color:var(--fg3);min-width:0}
+.signer .chip{grid-column:3;grid-row:1/3;justify-self:end;white-space:nowrap}
 .kv{gap:10px!important}
 .kv div{border-radius:12px!important;background:var(--card);padding:12px 14px!important}
 .kv b{font-size:15px!important}
@@ -1868,7 +1873,9 @@ body{font-family:var(--ui)!important;-webkit-font-smoothing:antialiased}
 .dbacc{display:inline-flex;align-items:center;gap:8px;font-weight:600}
 .stp{display:inline-flex;align-items:center;gap:7px;height:24px;padding:0 10px;border-radius:999px;font-size:11.5px;font-weight:600;
   border:1px solid color-mix(in srgb,currentColor 35%,transparent);background:color-mix(in srgb,currentColor 9%,transparent);white-space:nowrap}
-.db td.st i.lt{margin-right:0!important;width:7px!important;height:7px!important;background:currentColor!important}
+.db td.st i.lt{margin-right:7px!important;width:8px!important;height:8px!important;background:currentColor!important;
+  box-shadow:0 0 0 2px var(--editor)}
+.db td.st .stp i.lt{margin-right:0!important;box-shadow:none}
 .sdots{display:inline-flex;align-items:center;gap:3px;white-space:nowrap}
 .sdots i{width:14px;height:5px;border-radius:3px;background:var(--echo2)}
 .sdots i.done{background:var(--echo)}
@@ -3341,14 +3348,22 @@ function dbRngSet(kind,key,v){S.dbF=S.dbF||{};S.dbF[kind]=S.dbF[kind]||{};
    у строки под шапкой. Числовые столбцы уже стоят диапазонами выше. */
 const DBVALS={};
 const DBENT={acc:'acc',ppl:'person',doc:'doc'};
-const DBSKIP={acc:['nm','state','acv','last','touch','emp','stg','proj','ind','seg'],
-              person:['nm','role','pst','ctype','proj'],doc:['nm','kind','proj','seg']};
+const DBSKIP={acc:['nm','state','acv','last','touch','emp','stg','proj','ind','seg','loc0'],
+              person:['nm','role','pst','ctype','proj','state'],doc:['nm','kind','proj','seg']};
 function dbExtraRows(ent){
   const kind=DBENT[ent]; if(!kind)return '';
-  const vals=DBVALS[kind]; if(!vals)return '';
-  const cols=(DBCOLS[kind]||[]).filter(([k])=>!(DBSKIP[kind]||[]).includes(k)&&vals[k]&&Object.keys(vals[k]).length>1);
+  const vals=DBVALS[kind]||{};
+  const NUM=['acv','emp','last','touch','next'];
+  const cols=(DBCOLS[kind]||[]).filter(([k])=>!(DBSKIP[kind]||[]).includes(k)
+    &&(NUM.includes(k)||(vals[k]&&Object.keys(vals[k]).length>1)));
   if(!cols.length)return '';
-  return cols.map(([k,lbl])=>{const m=vals[k],cur=String(((S.dbF||{})[kind]||{})[k]||'');
+  return cols.map(([k,lbl])=>{
+    if(NUM.includes(k)){const v=dbRngGet(kind,k);
+      return `<div class="frow"><span class="fk">${esc(lbl)}</span>`
+        +`<span class="frng"><input type="text" inputmode="numeric" autocomplete="off" data-dbfrng="${kind}|${k}|0" value="${esc(v[0])}" placeholder="from" aria-label="${esc(lbl)} from">`
+        +`<i>–</i><input type="text" inputmode="numeric" autocomplete="off" data-dbfrng="${kind}|${k}|1" value="${esc(v[1])}" placeholder="to" aria-label="${esc(lbl)} to"></span>`
+        +`${v[0]||v[1]?`<button class="fx" data-dbfclr="${kind}|${k}" aria-label="Clear ${esc(lbl)}">×</button>`:'<span class="fx"></span>'}</div>`;}
+    const m=vals[k],cur=String(((S.dbF||{})[kind]||{})[k]||'');
     const keys=Object.keys(m).sort((a,b)=>m[b]-m[a]||String(a).localeCompare(String(b)));
     return `<div class="frow"><span class="fk">${esc(lbl)}</span><select class="fv" data-dbfsel="${kind}|${k}">`
       +`<option value="">all</option>`
@@ -6765,6 +6780,9 @@ function renderDB(){
      выбрав «NDA», человек должен видеть состояния этих 476 бумаг, а не всех 2655,
      и при этом иметь возможность сменить сам вид документа. */
   const fvals={}; DBVALS[kind]=fvals;
+  /* Шторка собирает отборы из значений таблицы, а рисуется раньше неё: один раз
+     на зону перерисуем её, когда значения появились. */
+  if(S.layout.side&&DBVALS._seen!==kind){DBVALS._seen=kind;setTimeout(renderSide,0);}
   cols.forEach(([k])=>{if(DBNUM.includes(k))return;const m={};
     rows.forEach(r=>{if(!keep(r,k))return;const v=colVal(r,k);if(v!=='')m[v]=(m[v]||0)+1;});fvals[k]=m;});
   rows=rows.filter(r=>keep(r,null));
@@ -8740,6 +8758,8 @@ document.addEventListener('change',e=>{const d=e.target.dataset||{};
     toast(val?`${ourBy(val).nm} answers for ${hit.length} class${hit.length===1?'':'es'} \u00b7 W${S.t}. Logged against you.`
              :`${WHOM[role]} has nobody named. Those classes cannot have their ceiling lifted.`);
     return;}
+  if(d.dbfrng){const [k,c,i]=d.dbfrng.split('|'); const v=dbRngGet(k,c); v[+i]=e.target.value.trim();
+    dbRngSet(k,c,v); S.dbPage=0; renderEditorLight(); return;}
   if(d.dbfsel){const [k,c]=d.dbfsel.split('|'); const v=e.target.value;
     S.dbF=S.dbF||{}; S.dbF[k]=S.dbF[k]||{};
     if(v==='')delete S.dbF[k][c]; else S.dbF[k][c]=v;
