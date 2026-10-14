@@ -1372,6 +1372,68 @@ table.db.tasks td:first-child{max-width:340px}
 .dblink{display:block;width:100%;text-align:left;padding:8px 12px;margin-top:8px;background:none;border:0;
   border-top:1px solid var(--border);color:var(--accent);font:inherit;font-size:11px;cursor:pointer}
 .dblink:hover{background:var(--hover)}
+/* ============ Разбор по одному · четвёртый вид очереди ============
+   Пара «список ↔ предмет» требует ширины, которой у колонки документа нет:
+   760px хватает тексту, но не двум столбцам рядом. Шире становится только этот
+   вид — таблица и календарь остаются на своей ширине. */
+.doc.wide{max-width:1120px}
+.trg{display:grid;grid-template-columns:minmax(200px,30%) minmax(0,1fr);gap:16px;align-items:start}
+.trgl{display:flex;flex-direction:column;gap:4px;max-height:64vh;overflow:auto;padding-right:2px}
+/* Цветная полоска слева у строки очереди — тот же светофор, что у карточки
+   календаря: жёлтый ждёт тебя, зелёный стоит в календаре, серое просто лежит. */
+.trgr{display:flex;flex-direction:column;gap:2px;align-items:flex-start;text-align:left;width:100%;
+  padding:6px 8px;font-size:12px;color:var(--fg2);background:var(--editor);
+  border:1px solid var(--border);border-left:3px solid var(--flat);border-radius:4px}
+.trgr:hover{color:var(--fg);background:var(--hover)}
+.trgr.warn{border-left-color:var(--warn)} .trgr.up{border-left-color:var(--up)} .trgr.down{border-left-color:var(--down)}
+.trgr.on{border-color:var(--accent);background:var(--selbg);color:var(--fg)}
+.trgr .t{font-weight:600;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.trgr .m{font-size:10px;color:var(--fg3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.trgd{display:flex;flex-direction:column;gap:10px;min-width:0}
+.trgd .trgt{font-size:14px;font-weight:600;line-height:1.4}
+.trgd .trgw{font-weight:400;font-size:11px;color:var(--fg3);margin-left:6px}
+.trgf{display:flex;flex-direction:column;gap:5px;font-size:11px;color:var(--fg2);
+  border:1px solid var(--border);border-radius:6px;padding:9px 11px}
+.trgf>div{display:flex;gap:10px}
+.trgf i{font-style:normal;color:var(--fg3);min-width:116px;flex:none}
+.trgb{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding-top:9px;border-top:1px solid var(--border)}
+.trgb .keys{margin-left:auto;display:flex;align-items:center;gap:7px;color:var(--fg3);font-size:10px}
+.trgb kbd{border:1px solid var(--border);border-radius:3px;padding:0 4px;font-size:10px;
+  font-variant-numeric:tabular-nums;color:var(--fg2)}
+
+/* ============ Вход ============
+   Экран стоит ДО рабочего экрана и исчезает, как только вошли: это не шестая
+   область, а дверь. Поэтому он перекрывает всё, включая карточку подтверждения. */
+.welc{position:fixed;inset:0;z-index:60;background:var(--editor);display:flex;align-items:center;justify-content:center;padding:24px;overflow:auto}
+.welc[hidden]{display:none}
+.welcbox{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,.85fr);gap:28px;width:min(980px,100%);
+  background:var(--side);border:1px solid var(--border);border-radius:10px;padding:26px 28px;box-shadow:0 18px 60px rgba(0,0,0,.28)}
+.welcl{display:flex;flex-direction:column;gap:15px;min-width:0}
+.welcbrand{display:flex;align-items:center;gap:9px;font-weight:600;font-size:13px}
+.welcbrand svg{height:16px;width:auto}
+.welcl h1{margin:0;font-size:21px;line-height:1.3;font-weight:600;letter-spacing:-.01em}
+.welcsteps{display:flex;flex-direction:column;gap:7px}
+.welcstep{display:flex;gap:10px;align-items:baseline;padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:var(--editor)}
+.welcstep .n{width:17px;height:17px;flex:none;border-radius:50%;background:var(--selbg);color:var(--accent);
+  display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;font-variant-numeric:tabular-nums}
+.welcstep>div{flex:1 1 auto;min-width:0}
+.welcstep b{font-size:12px}
+.welcw{font-size:10px;color:var(--fg3);white-space:nowrap;flex:none}
+.welcwho{display:flex;flex-wrap:wrap;gap:7px}
+.welcwho button{display:flex;flex-direction:column;gap:1px;align-items:flex-start;text-align:left;
+  padding:6px 9px;border:1px solid var(--border);border-radius:6px;background:var(--editor);color:var(--fg2);font-size:11px}
+.welcwho button span{font-size:10px;color:var(--fg3)}
+.welcwho button:hover{background:var(--hover);color:var(--fg)}
+.welcwho button[aria-pressed="true"]{border-color:var(--accent);background:var(--selbg);color:var(--fg)}
+.welcwho button[aria-pressed="true"] span{color:var(--fg2)}
+.welcgo{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.welcgo .btn{min-height:30px;padding:0 16px;font-size:12px}
+.welcr{display:flex;flex-direction:column;gap:13px;min-width:0;border-left:1px solid var(--border);padding-left:24px}
+/* Крупное число с мелкой подписью: на входе числа читают, а не сравнивают. */
+.welcn b{display:block;font-size:28px;font-weight:600;line-height:1.05;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.welcn span{font-size:11px;color:var(--fg2)}
+@media (max-width:860px){.welcbox{grid-template-columns:1fr}
+  .welcr{border-left:0;padding-left:0;border-top:1px solid var(--border);padding-top:16px}}
 </style>
 
 <div class="app" id="app">
@@ -1425,6 +1487,7 @@ table.db.tasks td:first-child{max-width:340px}
 <div class="pal" id="pal" hidden><div class="palbox"><input id="palIn" placeholder="Account, person, document, agent, segment…" autocomplete="off"><div class="pall" id="pall"></div></div></div>
 <div id="tip" hidden></div>
 <div class="toast" id="toast" hidden></div>
+<div class="welc" id="welc" hidden></div>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/5.6.1/maplibre-gl.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/5.6.1/maplibre-gl.min.js"></script>
@@ -4378,9 +4441,30 @@ function draftOne(pid,m){
   if(m.act==='request'&&/demo|call|meeting|walk/i.test(txt))
     return `${first}, glad to. The times below are mine this week — take whichever suits you and it is booked.`;
   return '';}
+/* Обещание ответа не ждёт — но оно ждёт напоминания, и очередь обещает его прямо
+   строкой: «silent 9d — a reminder draft is ready». Вид Triage поставил эту строку
+   рядом с пустым полем, и стало видно, что заготовки под обещание нет вовсе.
+   Напоминание — не ответ: мы ничего не отвечаем, мы спрашиваем, в силе ли сказанное.
+   Поэтому оно и не утверждает, что обещанное не пришло: проверить это по данным
+   нечем, а утверждение без факта — ровно то, что ловит судья. */
+/* Из обещания берётся первое предложение и снимается модальность: остальное —
+   их слова как есть, включая срок. Срок и есть то, о чём напоминают. */
+function promiseWords(txt){
+  return String(txt||'').trim().split(/[,;]/)[0].replace(/[.!?]+$/,'')
+    .replace(/^(we|i)\s+(will|shall|can|are going to|'ll)\s+/i,'')
+    .replace(/^(will|i'll|we'll)\s+/i,'').trim();}
+function lastPromise(pid){const T=threadOf(pid);
+  for(let i=T.length-1;i>=0;i--){const m=T[i];
+    if(m.me||m.w>S.t)continue;
+    return m.act==='promise'&&promiseWords(m.txt)?m:null;}
+  return null;}
+function draftNudge(pid,m){
+  const p=personById(pid), first=String(p.nm).replace(/^Dr\.\s*/,'').split(' ')[0];
+  return `${first}, last word from your side was that you would ${promiseWords(m.txt)}. Is that still where it stands? If something is in the way, say so \u2014 it is easier to move it together than to guess from here.`;}
 function draftFor(pid){
   for(const m of owedReplies(pid)){const d=draftOne(pid,m); if(d)return {txt:d,on:m};}
   const o=owedReplies(pid)[0];
+  if(!o){const nm=lastPromise(pid); if(nm)return {txt:draftNudge(pid,nm),on:null,nudge:nm};}
   return {txt:'',on:o||null};}
 function renderMsg(pid){const p=personById(pid),a=ACCBY[p.acc];
   const M=threadOf(pid);
@@ -4405,17 +4489,21 @@ function renderMsg(pid){const p=personById(pid),a=ACCBY[p.acc];
    ответ должны мы — первым, до каналов и слотов; когда не должны — там, где он
    стоял, под ними. «Need answer должен сразу предлагать ответ» значит, что заготовка
    встречает человека раньше истории, а не после неё. */
-function composeBlock(pid,oo,held,pk,D){
+/* Шестой довод — задача, которую эта отправка закрывает. В переписке его нет:
+   там человек пишет потому, что пришёл к человеку. В очереди письмо открыто из-за
+   строки, и строка обязана уйти вместе с письмом — иначе очередь не двигается. */
+function composeBlock(pid,oo,held,pk,D,mark){
   const draft=D.txt;
-  return `<div class="compose"><div class="hdr">${D.on?'Answer them':'Agent draft'}</div>
-    ${D.on?`<div class="note">Answering: ${esc(D.on.txt)} <span class="act">${esc(D.on.act)}</span> · W${D.on.w}</div>`:''}
+  return `<div class="compose"><div class="hdr">${D.on?'Answer them':D.nudge?'A reminder, drafted':'Agent draft'}</div>
+    ${D.on?`<div class="note">Answering: ${esc(D.on.txt)} <span class="act">${esc(D.on.act)}</span> · W${D.on.w}</div>`
+      :D.nudge?`<div class="note">Nobody owes an answer here. This reminds them of what they said: ${esc(D.nudge.txt)} <span class="act">${esc(D.nudge.act)}</span> · W${D.nudge.w}</div>`:''}
     <textarea id="draft" aria-label="Draft" placeholder="${esc(D.on?'What they said is not a question this can be answered from — write it yourself, it goes out under your name.':'Nobody is waiting on an answer here. Anything written goes out under your name.')}">${esc(draft)}</textarea>
     ${stageScripts(pid)}
     <div class="btns cact">${oo
       ? `<button class="btn" disabled data-tip="They opted out in ${oo} — writing again breaks CAN-SPAM and the never-do rule">Sending is closed on this person</button><span class="note">They opted out in ${oo}. The draft stays for the record; nothing goes out from here.</span>`
       : held
       ? `<button class="btn" disabled data-tip="${pk==='out'?'They are out of play':'They are on hold'} — put them back in play first">Sending is closed on this person</button><span class="note">${pk==='out'?'They are out of play':'They are on hold'}. The draft stays for the record; it goes out only once somebody puts them back in play.</span>`
-      : `<button class="btn pri" data-send="${pid}">${chanOf(pid)?'Send by '+esc(CHAN[chanOf(pid)][0])+' under my name':'Send under my name'}</button><span class="note">Mail under a person’s name goes out only on that person’s click.</span>`}</div></div>`;}
+      : `<button class="btn pri" data-send="${pid}"${mark?` data-trimark="${esc(String(mark))}"`:''}>${chanOf(pid)?'Send by '+esc(CHAN[chanOf(pid)][0])+' under my name':'Send under my name'}</button><span class="note">Mail under a person’s name goes out only on that person’s click.</span>`}</div></div>`;}
 /* Канал выбирался молча: письмо уходило почтой, даже если почта отбивалась. Работа
    «выбрать канал, которым дойдёт» кончается тем, что канал назначен, — значит на
    экране должен стоять выбор, а рядом с каждым каналом то, что о нём известно
@@ -4792,7 +4880,7 @@ function tnarrow(){const w=[];
    Вид не меняет ни набор задач, ни фильтры слева, ни кнопки внутри строки: это одно
    множество, показанное с трёх сторон. Открытая задача остаётся открытой при
    переключении. */
-const TVIEW=[['table','Table'],['cal','Calendar'],['pipe','Pipeline']];
+const TVIEW=[['table','Table'],['cal','Calendar'],['pipe','Pipeline'],['tri','Triage']];
 function taskWhen(x){
   if(x.done)return String(x.done);
   if(x.meet)return x.meet.when==='not scheduled'?'no date yet':(x.brief?'before '+x.meet.when:x.meet.when);
@@ -4839,12 +4927,16 @@ function taskHourCtl(x){
     set?`<button class="lnk" data-thrclr="${esc(String(x.id))}" data-tip="Back to no hour">×</button>`:''}</label>`;}
 /* lean — в таблице: там «кто поставил» и «на кого» стоят столбцами, и строка под
    строкой повторяла их словами. Кнопки всюду одни и те же — это не меняется. */
+/* Кнопки задачи — одним куском на все виды. С четвёртым видом их зовут из двух
+   мест, и повторить разметку значило бы разрешить им рассогласоваться. */
+function taskActs(x){
+  return `<div class="btns">${x.acts.map(([lbl,k],j)=>`<button class="${j===0?'btn':'lnk'}" data-tkact="${x.id}|${k}|${esc(lbl)}">${esc(lbl)}</button>`).join('')}
+      ${x.by==='agent'&&!x.acts.some(a=>/decline|refute|keep it stopped/i.test(a[0]))?`<button class="lnk" data-tkact="${x.id}|decline|Decline">Decline</button>`:''}
+      ${x.done?'':taskHourCtl(x)}</div>`;}
 function taskBody(x,lean){
   return `<span class="s">${esc(x.why)}</span>
     ${lean?'':`<div class="note">put here by ${esc(TBYNM[x.by]||x.by)}${x.agent?' · '+esc(agBy(x.agent).nm):''} · on ${esc(TOWNNM[x.owner]||x.owner)}</div>`}
-    <div class="btns">${x.acts.map(([lbl,k],j)=>`<button class="${j===0?'btn':'lnk'}" data-tkact="${x.id}|${k}|${esc(lbl)}">${esc(lbl)}</button>`).join('')}
-      ${x.by==='agent'&&!x.acts.some(a=>/decline|refute|keep it stopped/i.test(a[0]))?`<button class="lnk" data-tkact="${x.id}|decline|Decline">Decline</button>`:''}
-      ${x.done?'':taskHourCtl(x)}</div>`;}
+    ${taskActs(x)}`;}
 /* В таблице подробности раскрываются прямо под строкой, в календаре и на доске —
    полосой под сеткой: у клетки и у карточки на это нет ширины, а у кнопок она есть
    (так же стоит панель задачи у Spotler и дневная колонка у Saleswah). */
@@ -4922,6 +5014,83 @@ function tasksPipe(R,openId){
       ||'<div class="note">Nothing open under these filters.</div>'}</div>
     ${taskDetail(sel)}`;}
 
+
+/* ============ Четвёртый вид: разбор по одному ============
+   Карина 13.10, экран 04 из десяти: слева список, справа само письмо,
+   снизу «Approve · Edit · Skip», и клавиши J/K E ↵. Из всех её направлений это
+   единственное, меняющее скорость работы, а не вид экрана: очередь из тридцати
+   строк проходится, не открывая тридцать раз вкладку человека.
+   Три правила, на которых он стоит:
+   · Множество то же. Фильтры слева, срезы и порядок — те же, что в таблице:
+     вид не выбирает задачи, он показывает их по одной.
+   · Кнопка та же. Снизу стоят собственные кнопки задачи (taskActs), а «Approve»
+     у Карины — это у нас отправка под своим именем, и она идёт через ту же
+     карточку подтверждения, что в переписке. Подпись человека не дешевеет от того,
+     что письмо показали в очереди.
+   · «Skip» ничего не решает. Он переводит взгляд на следующую строку и не ставит
+     задаче никакого состояния: отказ — это Decline с причиной, и он остался
+     отдельной кнопкой. */
+function triRef(x,kind){const m=new RegExp('open:'+kind+':([\\w-]+)').exec((x.acts||[]).map(a=>a[1]).join(' '));return m?m[1]:null;}
+function triQueue(){return taskRows(S.t).filter(x=>!x.done);}
+function triSel(openId){const Q=triQueue();return Q.find(x=>x.id===openId)||Q[0]||null;}
+/* Что за предметом стоит задача. Данные все уже есть в самой записи и в том,
+   на что она ссылается — здесь они только ставятся рядом, без новых выдумок. */
+function triFacts(x){
+  const a=taskAccOf(x),rows=[];
+  const did=triRef(x,'doc'),agi=triRef(x,'agent');
+  if(a)rows.push(['Account',a.name+' · '+a.city+', '+a.st]);
+  rows.push(['Why it is here',x.why]);
+  if(x.wait)rows.push(['Standing',x.wait]);
+  if(x.meet&&x.meet.last)rows.push(['Their last word',x.meet.last]);
+  if(did&&DOCS[did])rows.push(['The paper',DOCS[did].kind+' · '+DOCS[did].ttl]);
+  if(agi&&agBy(agi))rows.push(['The agent',agBy(agi).nm+' · '+agBy(agi).title+' · '+agBy(agi).state]);
+  rows.push(['Put here by',(TBYNM[x.by]||x.by)+(x.agent?' · '+agBy(x.agent).nm:'')+' · on '+(TOWNNM[x.owner]||x.owner)]);
+  if(x.metric)rows.push(['Moves',x.metric]);
+  return `<div class="trgf">${rows.map(([k,v])=>`<div><i>${esc(k)}</i><span>${esc(v)}</span></div>`).join('')}</div>`;}
+/* Строгий старт стоит в очереди одной строкой, а за ней несколько писем. Решаются
+   они в самой кампании, где рядом стоят шаблон и тема; здесь видно, кому именно
+   они адресованы и почему каждое ждёт. */
+function triHeld(){
+  const w=(S.strict?S.strict.held:[]).filter(h=>!h.done);
+  if(!w.length)return '';
+  return `<div class="trgf">${w.map(h=>`<div><i>${esc(h.nm)}</i><span>${esc(h.acc)} · ${esc(h.why==='judge'?(h.why2||'held by the judge'):'first letters of the campaign')}${h.ev?' — '+esc(h.ev):''}</span></div>`).join('')}</div>`;}
+function triDetail(x){
+  if(!x)return `<div class="note">${tnarrow()?`Nothing is open once you narrow by <b>${tnarrow()}</b>. Clear a filter on the left and the queue comes back.`:'Nothing is waiting on you.'}</div>`;
+  const a=taskAccOf(x),pid=triRef(x,'msg');
+  let body='';
+  if(pid){
+    /* Заготовка берётся тем же куском, что в переписке, и вместе с ней приезжают
+       все запреты: отписавшемуся и выведенному из игры здесь тоже нечем отправить. */
+    const p=personById(pid);
+    if(p){const oo=optedOut(pid),pk=pstateK(pid),held=!oo&&pk!=='active',D=draftFor(pid);
+      body=`<div class="note">${esc(p.nm)} · ${esc(p.title)} · ${esc(ACCBY[p.acc].name)} · role in the deal: <b>${esc(p.role)}</b></div>`
+        +composeBlock(pid,oo,held,pk,D,x.id);}}
+  if(!body)body=(x.id==='t-strict'?triHeld():'')+triFacts(x);
+  return `<div class="trgt"><span class="chip">${esc(TKND[x.kind])}</span> ${esc(x.ttl)}
+      <span class="trgw">${esc(taskWhen(x))}${a?' · '+esc(a.name):''}</span></div>
+    ${body}
+    <div class="trgb">${taskActs(x)}
+      <button class="lnk" data-triskip="${esc(String(x.id))}" data-tip="Leave it as it is and look at the next one — nothing is decided">Skip</button>
+      <span class="keys"><kbd>J</kbd><kbd>K</kbd> move · <kbd>E</kbd> edit · <kbd>↵</kbd> the first button · <kbd>S</kbd> skip</span></div>`;}
+/* Решённая строка уходит из очереди, и взгляд обязан встать на ту, что заняла её
+   место, а не вернуться к началу списка: разбор идёт сверху вниз, и возврат в начало
+   после каждого решения — это и есть то, из-за чего очередь перестают разбирать. */
+let triIdx=0;
+function tasksTriage(R,openId){
+  const Q=R.filter(x=>!x.done);
+  let i=Q.findIndex(x=>x.id===openId);
+  if(i<0)i=Math.min(triIdx,Q.length-1);
+  if(i<0)i=0;
+  triIdx=i;
+  const sel=Q[i]||null;
+  const row=x=>{const a=taskAccOf(x);
+    return `<button class="trgr ${taskLight(x)}${sel&&x.id===sel.id?' on':''}" data-tkopen="${x.id}">
+      <span class="t">${esc(x.ttl)}</span>
+      <span class="m">${esc(taskWhen(x))}${a?' · '+esc(a.name):''}</span></button>`;};
+  return `<div class="trg">
+    <div class="trgl">${Q.length?`<div class="hdr">${Q.length} in the queue</div>`+Q.map(row).join(''):'<div class="note">—</div>'}</div>
+    <div class="trgd">${triDetail(sel)}</div></div>`;}
+
 function renderTasks(){
   const R=taskRows(S.t);
   /* Бриф — не отдельный род работы, а состояние встречи: «этот flow вокруг звонка
@@ -4935,6 +5104,7 @@ function renderTasks(){
   const view=TVIEW.some(v=>v[0]===S.tview)?S.tview:'table';
   const body=view==='cal'?tasksCal(R,openId)
             :view==='pipe'?tasksPipe(R,openId)
+            :view==='tri'?tasksTriage(R,openId)
             :tasksTable({now,cal,week,done},openId);
   /* Две надписи отсюда убраны дословно по Карине (видео 13.10): фраза дня
      «3 meetings · 1 of them…» и абзац «One queue for people and agents…» —
@@ -4944,7 +5114,7 @@ function renderTasks(){
      осталась тем, чем она и должна быть: что · к кому · кнопка.
      Переключатель вида стал переключателем, а не пометкой в углу: Карина не нашла
      Pipeline, потому что три слова по 10px читаются как служебная надпись. */
-  return `<div class="doc"><div class="doch"><div><h2>Tasks</h2></div>
+  return `<div class="doc${view==='tri'?' wide':''}"><div class="doch"><div><h2>Tasks</h2></div>
       <span class="pick view">${TVIEW.map(([k,t])=>`<button data-tview="${k}" aria-pressed="${view===k}">${t}</button>`).join('')}</span></div>
     ${body}</div>`;}
 
@@ -6021,6 +6191,10 @@ function batchRun(cls,fromHand){
    не две, скорее всего. Давайте прямо сейчас их утвердим». Head и GTM Eng стоят
    поперёк процесса и видят всю линию, SDR · AE · CSM — свой отрезок (24:18). */
 const WHOM={head:'Head',sdr:'SDR',ae:'AE',csm:'CSM',gtm:'GTM Eng'};
+/* Профилей пять, людей в OURS пять, но это разные пятёрки: у AE и GTM Eng своего
+   человека нет, и выдумывать ему имя нельзя — такая роль подписывается ролью.
+   Список стоит здесь, потому что им подписываются в двух местах: ответ агента и вход. */
+const PROFNM={head:'Nikolai Bobrov',sdr:'Dana Whitfield',csm:'Ops director'};
 const ROLESPAN={head:'the whole line',gtm:'the rules the agents run by',
   sdr:'finding, qualifying, booking the meeting',ae:'discovery, offer, signature',
   csm:'handover, first invoice, renewal'};
@@ -6179,6 +6353,15 @@ const SCEN=[
    {t:'Open the first one',sel:'tr[data-tkopen]'},
    {t:'Open the conversation it belongs to',sel:'[data-tkact*="open:msg"]'},
    {t:'Send it — the draft is already there',sel:'[data-send]'}]},
+ {id:'s1d',who:'SDR',nm:'Work the queue one by one, without opening every card',
+  why:'Карина 13.10, экран Triage: «stop showing the conversation and start showing the machine» — список слева, письмо справа, решение снизу',
+  check:'the letter is read where the queue stands, the row leaves the queue, and the next one is already open',
+  steps:[{t:'Open Tasks in the rail',sel:'[data-ent="task"]'},
+   {t:'Switch to Triage — one task at a time',sel:'[data-tview="tri"]'},
+   {t:'Narrow the queue to what waits to be sent',sel:'[data-fsel="tslice"]',fill:1,val:'wd'},
+   {t:'Pick the first one — the letter opens beside the list',sel:'.trgr'},
+   {t:'Send it under your name (↵ does the same)',sel:'[data-send]'},
+   {t:'Read what it says and confirm',sel:'#cfmGo'}]},
  {id:'s2',who:'SDR',nm:'Add a contact by hand after a conference',
   why:'“Вчера познакомилась с Dr. Mara Ellison — занеси её” (стенд, S2)',
   check:'their card opens under their own name, and the log carries one entry under yours',
@@ -6368,7 +6551,7 @@ const SCEN=[
   why:'JOB-017 — отмотать назад и увидеть, когда сломалось',
   check:'the edit stays and a compensating entry stands beside it — nothing disappears',
   steps:[{t:'Open Accounts in the rail',sel:'[data-ent="acc"]'},
-   {t:'Find the company by name',sel:'[data-dbf="acc|nm"]',fill:1,val:'Brightline'},
+   {t:'Find the company by name',sel:'[data-dbf="acc|nm"]',fill:1,val:'Brightline Dental LLC'},
    {t:'Open it — the agent answers inside what is open',sel:'tr[data-open^="acc:"]'},
    {t:'Tell the agent what to change',sel:'#askIn',fill:1,val:'Karen Diaz has the last word'},
    {t:'Send it',sel:'#askSend'},
@@ -6463,9 +6646,7 @@ function renderAgent(){
     ae:'job \u2014 get an offer signed',
     csm:'job \u2014 hand over without loss and get paid',
     gtm:'job \u2014 keep the agents inside their rules'}[p]||'job \u2014 grow revenue';
-  /* Профилей пять, людей в OURS пять, но это разные пятёрки: AE и GTM Eng — роли без
-     своего человека. Выдумывать им имя нельзя, поэтому подписываемся ролью. */
-  const me={head:'Nikolai Bobrov',sdr:'Dana Whitfield',csm:'Ops director'}[p]||WHOM[p]||'Me';
+  const me=PROFNM[p]||WHOM[p]||'Me';
   /* Подпись «My agent · job — grow revenue» стояла над каждой репликой подряд.
      Так не делает ни один агентный блок, на которые он показывал: в Claude и в
      редакторах у ответа есть знак, а имя — один раз сверху. Роль видна в наведении. */
@@ -6918,7 +7099,7 @@ $('openPal').onclick=openPal;
 $('palIn').addEventListener('input',()=>{palSel=0;renderPal();});
 $('palIn').addEventListener('keydown',e=>{if(e.key==='ArrowDown'){palSel=Math.min(palSel+1,(S.palR||[]).length-1);renderPal();e.preventDefault();}if(e.key==='ArrowUp'){palSel=Math.max(palSel-1,0);renderPal();e.preventDefault();}if(e.key==='Enter'&&S.palR&&S.palR[palSel]){$('pal').hidden=true;openRef(S.palR[palSel].k);}if(e.key==='Escape')$('pal').hidden=true;});
 $('pal').addEventListener('click',e=>{if(e.target.id==='pal')$('pal').hidden=true;});
-document.addEventListener('keydown',e=>{if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){e.preventDefault();openPal();}});
+document.addEventListener('keydown',e=>{if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){if(!$('welc').hidden)return;e.preventDefault();openPal();}});
 
 /* =================== routing =================== */
 function openRef(k){
@@ -6970,7 +7151,7 @@ function logAdd(ag,ttl,st,m){const o={ag,w:NOW,d:NOWDAY,ttl,st};
 const LKIND={decision:'decision',edit:'edit',metric:'metric',revert:'revert'};
 const meNow=()=>WHOM[S.profile]||'—';
 document.addEventListener('click',e=>{
-  const b=e.target.closest('[data-xpanel],[data-lkind],[data-lnoev],[data-dcl],[data-bkeep],[data-bdrop],[data-bsel],[data-bselall],[data-bgo],[data-bhand],[data-bclr],[data-fmul],[data-open],[data-side],[data-tab],[data-web],[data-tabclose],[data-tkopen],[data-tkact],[data-thrclr],[data-tpluse],[data-scenrun],[data-scenask],[data-scenstop],[data-scenwhere],[data-scencopy],[data-close],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-feeddown],[data-plus],[data-newchat],[data-agundo],[data-weekpick],[data-week],[data-day],[data-calm],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-f],[data-freset],[data-fclr],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepsel],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-projset],[data-dbstate],[data-fmode],[data-dbsort],[data-dbmore],[data-dbkind],[data-camp],[data-camprun],[data-chan],[data-find],[data-slot],[data-next],[data-nextclr],[data-addp],[data-intent],[data-pst],[data-ctype],[data-campsel],[data-strict],[data-campoff],[data-campblk],[data-campset],[data-campseq],[data-campbox],[data-camprunact],[data-inwin],[data-stuck],[data-mailclear],[data-mailopen],[data-mailstop],[data-mark],[data-note],[data-notecancel],[data-ent],[data-mail],[data-common],[data-importfacts],[data-nextbn],[data-influencer],[data-sim],[data-role],[data-tview],[data-triopen],#fDown,#addFact,#addNote');
+  const b=e.target.closest('[data-xpanel],[data-lkind],[data-lnoev],[data-dcl],[data-bkeep],[data-bdrop],[data-bsel],[data-bselall],[data-bgo],[data-bhand],[data-bclr],[data-fmul],[data-open],[data-side],[data-tab],[data-web],[data-tabclose],[data-tkopen],[data-tkact],[data-thrclr],[data-tpluse],[data-scenrun],[data-scenask],[data-scenstop],[data-scenwhere],[data-scencopy],[data-close],[data-level],[data-seg],[data-knob],[data-tri],[data-do],[data-fact],[data-factall],[data-sign],[data-approve],[data-reject],[data-send],[data-edit],[data-ask],[data-clearsel],[data-dense],[data-feeddown],[data-plus],[data-newchat],[data-agundo],[data-weekpick],[data-week],[data-day],[data-calm],[data-sopmode],[data-rule],[data-fix],[data-fixclose],[data-dofix],[data-f],[data-freset],[data-fclr],[data-knobcycle],[data-photo],[data-stepadd],[data-stepdel],[data-stepsel],[data-stepreset],[data-setag],[data-brief],[data-treemode],[data-fpol],[data-fhide],[data-fshow],[data-dnc],[data-projset],[data-dbstate],[data-fmode],[data-dbsort],[data-dbmore],[data-dbkind],[data-camp],[data-camprun],[data-chan],[data-find],[data-slot],[data-next],[data-nextclr],[data-addp],[data-intent],[data-pst],[data-ctype],[data-campsel],[data-strict],[data-campoff],[data-campblk],[data-campset],[data-campseq],[data-campbox],[data-camprunact],[data-inwin],[data-stuck],[data-mailclear],[data-mailopen],[data-mailstop],[data-mark],[data-note],[data-notecancel],[data-ent],[data-mail],[data-common],[data-importfacts],[data-nextbn],[data-influencer],[data-sim],[data-role],[data-tview],[data-triopen],[data-triskip],#fDown,#addFact,#addNote');
   if(!b){if(S.wkOpen&&!e.target.closest('.wkpop')){
     /* Начало отмечено, а конец не назван — значит человек выбрал одну неделю. */
     if(S.wkA!=null){S.t=S.wkA;S.win=1;S.wkA=null;S.wkOpen=false;renderAll();return;}
@@ -7454,6 +7635,9 @@ document.addEventListener('click',e=>{
     logAdd(id,`Dial: ${KNOB[S.knob[id]]} → ${KNOB[+k]} (${meNow()}) — set on the classes ${(AGCLS[id]||[]).map(c=>'“'+DCL[c].nm+'”').join(', ')}`,['flat','edited'],{cls:'step',kind:'decision',by:S.profile});setAgStep(id,+k);
     S.ptab='agents';S.layout.panel=true;applyLayout();renderAll();return;}
   if(b.dataset.tview){S.tview=b.dataset.tview;renderEditor();return;}
+  /* Пропуск — не решение: задача остаётся в очереди такой же, меняется только то,
+     на что человек смотрит. Последнюю строку пропускать некуда — она и остаётся. */
+  if(b.dataset.triskip){triMove(1);return;}
   if(b.dataset.tkopen){const id=b.dataset.tkopen;
     S.tkOpen=S.tkOpen===id?null:id;
     /* Строка в колонке слева ведёт в ту же область, иначе нажатие там молчит. */
@@ -7661,6 +7845,7 @@ document.addEventListener('click',e=>{
         logAdd('seller',`${pp.nm}: sent by ${CHAN[ch][0]} under ${$('profile').selectedOptions[0].text}`,['up','sent by a human'],{cls:sk,kind:'decision',by:S.profile,
           ev:(MSGS[pp.id]||[]).some(m=>!m.me)?{src:'first',tier:'conf',txt:'their last letter — the one this answers',open:'person:'+pp.id}
              :{src:'model',tier:'claim',txt:'no inbound letter — the reason to write is ours',open:'person:'+pp.id}});
+        if(b.dataset.trimark)S.tri[b.dataset.trimark]='done: sent';
         renderAll();
         toast(`Sent to ${pp.nm} by ${CHAN[ch][0]} \u00b7 W${S.t}. Logged against you, not the agent.`);}});
     return;}
@@ -7896,7 +8081,124 @@ $('theme').onclick=()=>setTheme(document.documentElement.dataset.theme==='dark'?
   S.strict.ok=S.strict.need;
   S.strict.held.forEach(h=>{if(h.why==='strict start')h.done='approved';});
 })();
+/* Перевод взгляда по очереди. Отдельной функцией, потому что его зовут и кнопка
+   Skip, и клавиши: у них обязан быть один шаг, иначе рука и мышь разойдутся. */
+function triMove(d){
+  const Q=triQueue(); if(!Q.length)return;
+  const cur=S.tkOpen!==undefined?S.tkOpen:(Q[0]||{}).id;
+  const i=Q.findIndex(x=>x.id===cur);
+  S.tkOpen=Q[Math.max(0,Math.min(Q.length-1,(i<0?triIdx:i)+d))].id;
+  renderEditor();
+  const el=document.querySelector('.trgr.on');
+  if(el&&el.scrollIntoView)el.scrollIntoView({block:'nearest'});}
+/* Клавиши живут только там, где им есть что делать: вид Triage в области Tasks.
+   В поле ввода они молчат — иначе «e» внутри письма переключала бы задачу,
+   а «s» печаталась бы и уводила взгляд. */
+document.addEventListener('keydown',e=>{
+  if(!$('welc').hidden||!$('cfm').hidden||!$('pal').hidden)return;
+  if(e.metaKey||e.ctrlKey||e.altKey)return;
+  const t=S.tabs.find(x=>x.id===S.tab);
+  if(!t||t.kind!=='tasks'||S.tview!=='tri')return;
+  const g=e.target;
+  if(g&&(/^(INPUT|SELECT|TEXTAREA)$/.test(g.tagName)||g.isContentEditable))return;
+  const k=String(e.key||'').toLowerCase();
+  if(k==='j'||e.key==='ArrowDown'){e.preventDefault();triMove(1);return;}
+  if(k==='k'||e.key==='ArrowUp'){e.preventDefault();triMove(-1);return;}
+  if(k==='s'){e.preventDefault();triMove(1);return;}
+  if(k==='e'){e.preventDefault();
+    const d=$('draft');
+    if(d){d.focus();try{d.setSelectionRange(d.value.length,d.value.length);}catch(err){}}
+    else{const b=document.querySelector('.trgb .btns button');if(b)b.click();}
+    return;}
+  /* ↵ — первая кнопка задачи, та же, что нажала бы рука: если письмо открыто,
+     это отправка под своим именем, и она спрашивает подтверждения, как везде. */
+  if(e.key==='Enter'){e.preventDefault();
+    const b=document.querySelector('.trgd .btn.pri')||document.querySelector('.trgb .btns button');
+    if(b)b.click();}});
+
+/* ============ Вход ============
+   Экрана входа не было вовсе: демо открывалось картой, и человек, который видит
+   систему впервые, читал её как ещё одну CRM с панелями по краям. Карина, экран 01
+   из десяти: промис одной строкой, три шага подключения и справа превью «что ты
+   увидишь утром». Николай и фонд спрашивают то же другими словами — что это такое
+   и почему этому можно доверять. Поэтому под кнопкой стоит обещание, на котором
+   держится вся система: ничего не уходит, пока человек не сказал.
+   Три решения, принятые здесь:
+   · Это не шестая область. Экран стоит ДО рабочего экрана и исчезает, как только
+     вошли; доктрина пяти закреплённых областей его не касается.
+   · Вход кончается выбором роли, а не кнопкой «войти в демо». Роль и так меняет
+     очередь, фильтры и право подписи — значит она и есть то, чем входят.
+   · Числа справа считаются из тех же данных, что и весь экран. Три цифры с
+     картинки (14 · 3 · 612) не перенесены: на первом же экране стояли бы числа,
+     которых в системе нет. */
+function welcNums(){
+  const t=NOW;
+  return {sent:DELIV.filter(d=>d.k==='ok').length,
+          need:tasksAt(t).filter(x=>x.due==='now'&&!x.done).length,
+          fun:ACC.filter(a=>{const e=stateAt(a,t);return a.side!=='buy'&&e&&e.s>=1&&e.s<=4;}).length};}
+function welcSteps(){
+  const cap=sendCapacity(), warm=MAIL.filter(m=>m.lim===0).length;
+  const act=AGENTS.filter(a=>a.state==='active').length,
+        ask=AGENTS.filter(a=>a.state==='awaiting').length,
+        off=AGENTS.filter(a=>a.state==='paused').length;
+  const accN=ACC.filter(a=>a.side!=='buy').length, runs=(S.campRuns||[]).length;
+  return [
+    ['Mailboxes',
+     `${MAIL.length} connected · ${cap.cold} cold${warm?` and ${warm} under your own name`:''} · ${int(cap.leftToday)} letters left today`,
+     'Agents · Our side'],
+    ['Who we sell to',
+     `${SEGS.length} segments · ${int(accN)} companies on file${runs?` · ${runs} campaign${runs===1?'':'s'} already sending`:''}`,
+     'Map'],
+    ['Agents',
+     `${AGENTS.length} agents · ${act} at work · ${ask} asks you first · ${off} stopped by its own rule`,
+     'Agents']];}
+/* Итог недели — не фраза из головы, а три счёта по данным: кто из агентов стоит,
+   сколько писем ждёт первого прочтения, сколько бумаг ждёт подписи. */
+function welcLine(){
+  const off=AGENTS.filter(a=>a.state==='paused').map(a=>a.nm);
+  const held=(S.strict?S.strict.held:[]).filter(h=>!h.done).length;
+  const sign=Object.keys(DOCS).filter(k=>/awaiting signature/i.test(DOCS[k].status[1])).length;
+  const bits=[];
+  if(off.length)bits.push(`${off.join(' and ')} stopped ${off.length===1?'itself':'themselves'} on a rule`);
+  if(held)bits.push(`${held} letter${held===1?'':'s'} of a running campaign ${held===1?'waits':'wait'} for a first read`);
+  if(sign)bits.push(`${sign} paper${sign===1?' waits':'s wait'} for a signature`);
+  return bits.length?`Week ${NOW} so far: ${bits.join(', ')}.`:'';}
+const WELCMARK='<svg viewBox="60 362 905 300" role="img" aria-label="Intwin"><circle cx="815.5" cy="511.5" r="125" fill="var(--title)" stroke="var(--selbg)" stroke-width="50"/><circle cx="679.5" cy="511.5" r="125" fill="var(--title)" stroke="var(--fg3)" stroke-width="50"/><circle cx="543.5" cy="511.5" r="125" fill="var(--title)" stroke="#0057FF" stroke-width="50"/><circle cx="209.5" cy="511.5" r="150" fill="var(--fg)"/></svg>';
+function renderWelcome(){
+  const N=welcNums(), L=welcLine();
+  $('welc').innerHTML=`<div class="welcbox">
+    <div class="welcl">
+      <div class="welcbrand">${WELCMARK}<span>Revenue OS</span></div>
+      <h1>The agents work the revenue line all week. You decide only what a person must decide.</h1>
+      <div class="welcsteps">${welcSteps().map(([t,f,w],i)=>`<div class="welcstep"><span class="n">${i+1}</span>
+        <div><b>${esc(t)}</b><div class="note">${esc(f)}</div></div><span class="welcw">${esc(w)}</span></div>`).join('')}</div>
+      <div><div class="hdr">Sign in as</div>
+        <div class="welcwho" style="margin-top:6px">${Object.keys(WHOM).map(k=>`<button data-welcwho="${k}" aria-pressed="${S.profile===k}">
+          <b>${esc(WHOM[k])}</b><span>${PROFNM[k]?esc(PROFNM[k])+' · ':''}${esc(ROLESPAN[k]||'')}</span></button>`).join('')}</div></div>
+      <div class="welcgo"><button class="btn pri" id="welcGo">Open my morning</button>
+        <span class="note">Nothing is ever sent until you say so.</span></div>
+    </div>
+    <div class="welcr">
+      <div class="hdr">What you will see this morning</div>
+      <div class="welcn"><b>${int(N.sent)}</b><span>letters the agents have sent this week</span></div>
+      <div class="welcn"><b>${int(N.need)}</b><span>things wait on you right now</span></div>
+      <div class="welcn"><b>${int(N.fun)}</b><span>companies on their way to a signature</span></div>
+      ${L?`<div class="note">${esc(L)}</div>`:''}
+      <div class="note">Every number here is read out of the same data the screens behind this one run on.</div>
+    </div></div>`;}
+function welcEnter(){
+  $('welc').hidden=true;
+  renderProfiles();renderAll();}
+$('welc').addEventListener('click',e=>{
+  const w=e.target.closest('[data-welcwho]');
+  if(w){S.profile=w.dataset.welcwho;S.chat=[];renderWelcome();return;}
+  if(e.target.closest('#welcGo'))welcEnter();});
+document.addEventListener('keydown',e=>{
+  if($('welc').hidden)return;
+  if(e.key==='Enter'){e.preventDefault();welcEnter();}});
+
 renderProfiles();renderSkins();renderEditor();renderAll();
+renderWelcome();$('welc').hidden=false;
 </script>
 
 </body></html>
