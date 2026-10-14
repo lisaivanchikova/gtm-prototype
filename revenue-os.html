@@ -1244,6 +1244,8 @@ table.db.tasks td:first-child{max-width:340px}
 /* ===== C2 · конструктор воронок: рейка этапов, шарики по людям =====
    Разведка в polish/C2-RESEARCH.md. Порядок задаётся положением, не стрелками;
    «+» живёт в промежутке между этапами, как у Zapier и Pipedrive. */
+.railnote{display:flex;flex-direction:column;gap:3px;margin:10px 0 2px;font-size:11px;line-height:1.45;color:var(--fg3)}
+.railnote b{color:var(--fg2)}
 .rail,.prow{display:grid;grid-template-columns:150px repeat(var(--sn,6),minmax(0,1fr));max-width:100%}
 .rail .rst,.prow>*{min-width:0}
 .rail{align-items:stretch;margin-top:4px}
@@ -1277,7 +1279,8 @@ table.db tr.det .s{display:block;font-family:var(--mono);font-size:11px;line-hei
 /* Флаг течи — слово, а не только цвет: цвет говорит «плохо», слово говорит «здесь». */
 /* Флаг стоял в потоке и опускал число ниже, чем у соседей (Лиза, 14.10):
    восьмёрка висела на строку ниже девятки. Теперь он стоит в своём углу. */
-.rst .lkh{position:absolute;right:10px;top:11px;font-size:9px;padding:0 5px;height:15px;letter-spacing:.04em;text-transform:uppercase}
+.rst .lkh{align-self:flex-start;font-size:9px;padding:0 5px;height:15px;letter-spacing:.04em;text-transform:uppercase}
+.rst .lkh.ph{border:0!important;background:none!important;padding:0}
 .rst.leaks{border-color:var(--down)}
 /* Два числа и фраза в шапке очереди. Крупное число с мелкой подписью — тот же приём,
    что на входе, и тот же класс: второй раз рисовать его нечем. */
@@ -3286,6 +3289,9 @@ const FFLD={
      «один из пяти разрядов». Поле новое по виду, поэтому у компонента появился
      третий тип наряду с выбором и переключателем. */
   size:  {lbl:'Employees',type:'rng',get:()=>[S.szFrom||'',S.szTo||''],set:v=>{S.szFrom=v[0];S.szTo=v[1];}},
+  acv:   {lbl:'ACV, $ a year',type:'rng',get:()=>dbRngGet('acc','acv'),set:v=>dbRngSet('acc','acv',v)},
+  last:  {lbl:'Last touch, days',type:'rng',get:()=>dbRngGet('acc','last'),set:v=>dbRngSet('acc','last',v)},
+  touch: {lbl:'Wrote, times',type:'rng',get:()=>dbRngGet('acc','touch'),set:v=>dbRngSet('acc','touch',v)},
   itown: {lbl:'In-house IT',hint:'this comes from what people say in the correspondence, and there is no source feeding it yet — for most accounts it is simply not known',
           get:()=>S.itown||'', set:v=>{S.itown=v;}},
   role:  {lbl:'Role in the deal',light:1,get:()=>S.ef.role||'',  set:v=>{S.ef.role=v;}},
@@ -3315,12 +3321,17 @@ const FFLD={
 /* Фильтр работы убран с верхнего уровня: пока сегмент не выбран, он дублирует его —
    две из четырёх работ дословно совпадают с именами сегментов (09.10). Внутри сегмента
    он остаётся и означает подсегмент: та же работа, более узкий контекст (канон §10). */
-const FSET={seg:['seg','proj','newonly'],inb:['box','src','proj','unan'],task:['proj','tslice','towner','tkind','tby'],acc:['seg','proj','job','ind','st','size','itown','stage','down'],ppl:['proj','ctype','role','pst'],
+const FSET={seg:['seg','proj','newonly'],inb:['box','src','proj','unan'],task:['proj','tslice','towner','tkind','tby'],acc:['seg','proj','job','ind','st','size','acv','last','touch','itown','stage','down'],ppl:['proj','ctype','role','pst'],
             /* Сегмент — главный способ сузить поток: рассылка делается по сегменту,
                и список обещает это прямо в подписи. */
             /* Рассылка режется теми же признаками, что и список: «штат есть только на
                экране Accounts, в кампанию не переносится» (ходок, 08.10). */
             flow:['seg','proj','proc','ind','st','size','itown','stage'],doc:['dkind','seg','proj'],ag:['arole','astate'],us:['arole','astate']};
+function dbRngGet(kind,key){const f=((S.dbF||{})[kind]||{})[key]||{};
+  return [f.from!=null?String(f.from):'',f.to!=null?String(f.to):''];}
+function dbRngSet(kind,key,v){S.dbF=S.dbF||{};S.dbF[kind]=S.dbF[kind]||{};
+  const o={}; if(v[0]!==''&&v[0]!=null)o.from=+v[0]; if(v[1]!==''&&v[1]!=null)o.to=+v[1];
+  if(o.from==null&&o.to==null)delete S.dbF[kind][key]; else S.dbF[kind][key]=o;}
 function filterBar(ent){
   S.ef=S.ef||{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false};
   const keys=FSET[ent]||FSET.acc, allf=keys.map(k=>[k,FFLD[k]]).filter(x=>x[1]);
@@ -3611,6 +3622,9 @@ function entPicked(k){
 function goEnt(k,toggle){
   const v=ENTVIEW[k];
   if(toggle&&S.ent===k&&S.layout.side&&S.tab===v){S.layout.side=false;applyLayout();renderActivity();return;}
+  /* Шторка закрыта при запуске (Лиза, 14.10: «по дефолту пускай фильтры всегда будут
+     скрыты»), но значок зоны по-прежнему открывает её фильтры: нажатие на Accounts
+     значит «покажи счета и чем их резать». Второе нажатие по той же зоне закрывает. */
   S.side='tree';S.layout.side=true;
   /* Segments — это первая ступень карты: нажав её, человек видит сегменты, а не
      точки внутри одного юрлица. Выбранный сегмент при этом остаётся фильтром. */
@@ -4423,7 +4437,7 @@ function renderSOP(a){
       return `<div class="rst ${s[0]}${i===selI?' sel':''}${leak?' leaks':''}" data-stepsel="${i}">${ins(i-1)}${i===N-1?ins(N-1,1):''}`
         +`<span class="rsn">${S.sopEdit?`<span class="shname" contenteditable="true" data-rename="${i}:a" spellcheck="false">${esc(st.a)}</span>`:esc(st.a)}</span>`
         +`<span class="rss">${esc(s[1])}</span>`
-        +(leak?`<span class="chip down lkh" data-tip="${esc('Of the stages where anything passed in the last four weeks, this one keeps the least: '+int(y.inn)+' came in, '+int(y.out)+' went on. The leak is named by the number, not by a guess.')}">leaks here</span>`:'')
+        +(leak?`<span class="chip down lkh" data-tip="${esc('Of the stages where anything passed in the last four weeks, this one keeps the least: '+int(y.inn)+' came in, '+int(y.out)+' went on. The leak is named by the number, not by a guess.')}">leaks here</span>`:'<span class="lkh ph" aria-hidden="true"></span>')
         +(y&&!y.inn?`<span class="rsp">no deals passed here in 4 weeks</span>`
            :y?`<b class="rsbig">${int(y.inn)}</b><span class="rsp${bad?' ybad':''}">→ ${int(y.out)} · ${pct(y.r,0)}${bad?' ▼':''}</span><span class="rsy"><i style="width:${Math.min(100,y.r*100)}%;background:${bad?'var(--down)':'var(--up)'}"></i></span>`
            :st.stage?`<span class="rsp">base · Retention ${pct(formulaAt(S.t).ret)}</span>`
@@ -4503,6 +4517,13 @@ function renderSOP(a){
       ${S.sopEdit?`<button class="lnk" data-stepreset="1" data-tip="Back to the six original stages">reset the funnel</button>`:''}
     </div>
     ${!inF(a)?`<div class="outscope">${esc(a.name)} is outside the current scope${S.seg?' “'+esc(segBy(S.seg).name)+'”':''} — the percentages are computed over its own segment “${esc(segBy(a.seg).name)}”, not over the scope.</div>`:''}
+    ${/* «Как с одной компанией может быть 19 сделок?» (Лиза, 14.10). Числа в коробках
+         никогда и не были её: это когорта сегмента за четыре недели, а её собственное
+         место на воронке говорят пометки «✓ passed» и «stuck 9d». Экран называл это
+         только подсказкой — теперь строкой над самой воронкой. */''}
+    <div class="railnote"><span class="hdr">Numbers: ${esc(segBy(a.seg).name)} · last four weeks</span>
+      <span class="faint">how many deals of this segment entered each stage and how many went on — not this one deal.
+      Where <b>${esc(a.name)}</b> itself stands is the mark on the box: passed, here now, or stuck.</span></div>
     <div class="sopcols">
       <div class="sopr">${rail}</div>
       ${strip}
@@ -6764,16 +6785,12 @@ function renderDB(){
           кнопки — это язык светофора, тот же, что на карте и в колонке State. */''}
     ${kind==='acc'?`<div class="dbquick">${[['','all'],['down','\u25bc stuck or leaving'],['warn','\u25cf waiting on us'],['up','\u25b2 moving']].map(([k,l])=>`<button data-dbstate="${k}" aria-pressed="${(S.ltF||'')===k}">${l}<span class="qn">${int(dbLtCount(k))}</span></button>`).join('')}<span class="faint">the filters on the left narrow this table too</span></div>`:''}
     ${kind==='person'?batchBar(page):''}
-    <table class="db"><thead><tr>${kind==='person'?`<th class="bsel"><input type="checkbox" data-bselall="1" aria-label="Select everyone on this page" ${page.length&&page.every(r=>(S.bsel||{})[r.id])?'checked':''}></th>`:''}${cols.map(([k,t])=>`<th data-dbsort="${k}">${t}${sort.k===k?` <span class="ar">${sort.d>0?'\u25b2':'\u25bc'}</span>`:''}</th>`).join('')}</tr>
-      ${/* Вторая строка шапки — отбор. Значения берутся из самого столбца: что в нём
-           есть, то и предлагается, и видно сколько строк за каждым значением. */''}
-      <tr class="dbf">${kind==='person'?'<th class="bsel"></th>':''}${cols.map(([k])=>{
-        const f=((S.dbF||{})[kind]||{})[k];
-        if(DBNUM.includes(k))return `<th><span class="rng"><input type="text" inputmode="numeric" data-dbfn="${kind}|${k}|from" value="${f&&f.from!=null?esc(String(f.from)):''}" placeholder="from" aria-label="${esc(k)} from"><input type="text" inputmode="numeric" data-dbfn="${kind}|${k}|to" value="${f&&f.to!=null?esc(String(f.to)):''}" placeholder="to" aria-label="${esc(k)} to"></span></th>`;
-        const vals=fvals[k]||{};
-        const keys=Object.keys(vals).sort((a,b)=>vals[b]-vals[a]||String(a).localeCompare(String(b),'ru'));
-        if(!keys.length)return '<th></th>';
-        return `<th><select data-dbf="${kind}|${k}"><option value="">any</option>${keys.map(v=>`<option value="${esc(v)}" ${String(f)===String(v)?'selected':''}>${esc(v.length>26?v.slice(0,26)+'\u2026':v)} · ${vals[v]}</option>`).join('')}</select></th>`;}).join('')}</tr></thead>
+    <table class="db"><thead><tr>${kind==='person'?`<th class="bsel"><input type="checkbox" data-bselall="1" aria-label="Select everyone on this page" ${page.length&&page.every(r=>(S.bsel||{})[r.id])?'checked':''}></th>`:''}${cols.map(([k,t])=>`<th data-dbsort="${k}">${t}${sort.k===k?` <span class="ar">${sort.d>0?'\u25b2':'\u25bc'}</span>`:''}</th>`).join('')}</tr></thead>
+    ${/* Строка отбора под шапкой убрана: «зачем вообще у нас фильтры в основной
+         рабочей части, если фильтры слева — перенести все в левую панель, в таблице
+         оставить только All, Stuck or leaving, Waiting on us, Moving» (Лиза, 14.10).
+         Числовые отборы — ACV, Last touch, Wrote — переехали в шторку целиком,
+         вместе со своим хранилищем S.dbF; отбор не переписан, он переехал. */''}
     <tbody>${page.map(r=>`<tr data-open="${r.id}"${(S.bsel||{})[r.id]?' class="picked"':''}>${kind==='person'?`<td class="bsel"><input type="checkbox" data-bsel="${esc(r.id)}" aria-label="Pick ${esc(r.nm)}" ${(S.bsel||{})[r.id]?'checked':''}></td>`:''}${cols.map(([k])=>cell(r,k)).join('')}</tr>`).join('')||`<tr><td colspan="${cols.length+(kind==='person'?1:0)}" style="padding:16px;color:var(--fg3)">${esc(kind==='acc'?zeroLine():'Nothing matches these filters.')}</td></tr>`}</tbody></table>
     ${rows.length>page.length?`<button class="dbmore" data-dbmore="1">show ${int(Math.min(50,rows.length-page.length))} more · ${int(rows.length-page.length)} left</button>`:''}`;}
 
@@ -7171,12 +7188,12 @@ const SCEN=[
   check:'the number in the invoice is the number in the contract',
   steps:[{t:'Open Documents in the rail',sel:'[data-ent="doc"]'},
    {t:'Open the whole table',sel:'[data-open="db:doc"]'},
-   {t:'Narrow to invoices',sel:'[data-dbf="doc|kind"]',fill:1}]},
+   {t:'Narrow to invoices',sel:'[data-fsel="dkind"]',fill:1}]},
  {id:'c3',who:'CSM',nm:'Find the clients who signed and never started',
   why:'“Найди тех, кто до сих пор не начал пользоваться” (стенд, C3) · JOB-026',
   check:'the list is the ones at risk, not everyone',
   steps:[{t:'Open Accounts in the rail — the zone opens as a table',sel:'[data-ent="acc"]'},
-   {t:'Narrow by the stage',sel:'[data-dbf="acc|stg"]',fill:1,val:'Invoice'},
+   {t:'Narrow by the stage',sel:'[data-fsel="stage"]',fill:1,val:'Invoice'},
    {t:'Sort by the last touch — the oldest never started',sel:'[data-dbsort="last"]'}]},
  {id:'c4',who:'CSM',nm:'See what we come to a renewal with',
   why:'“Что обещали, что сделали, сколько тикетов” (стенд, C4) · JOB-024',
@@ -7244,7 +7261,7 @@ const SCEN=[
   why:'JOB-017 — отмотать назад и увидеть, когда сломалось',
   check:'the edit stays and a compensating entry stands beside it — nothing disappears',
   steps:[{t:'Open Accounts in the rail',sel:'[data-ent="acc"]'},
-   {t:'Find the company by name',sel:'[data-dbf="acc|nm"]',fill:1,val:'Brightline Dental LLC'},
+   {t:'Find the company by name',sel:'#dbQ',fill:1,val:'Brightline Dental'},
    {t:'Open it — the agent answers inside what is open',sel:'tr[data-open^="acc:"]'},
    {t:'Tell the agent what to change',sel:'#askIn',fill:1,val:'Karen Diaz has the last word'},
    {t:'Send it',sel:'#askSend'},
@@ -8923,18 +8940,23 @@ function welcGlobeStart(){
 }
 function welcGlobeStop(){cancelAnimationFrame(WGLOBE_RAF);try{WGLOBE&&WGLOBE.remove();}catch(e){}WGLOBE=null;}
 function renderWelcome(){
-  const N=welcNums(), L=welcLine(), steps=welcSteps();
+  const N=welcNums(), steps=welcSteps();
+  const MARKET0={n:Math.round(SEGS.reduce((s,x)=>s+segMetrics(x).N,0)),mkt:SEGS.reduce((s,x)=>s+segMetrics(x).mkt,0)};
   const T=welcTargets();
   const cnt={up:0,warn:0,down:0};T.pts.forEach(p=>{if(cnt[p.properties.l]!=null)cnt[p.properties.l]++;});
   const keepGlobe=WGLOBE&&document.getElementById('wglobe');
   const panel=`
       <div class="welcbrand">${WELCMARK}<span>intwin <em>revenue os</em></span></div>
       <h1>The agents work the revenue line all week. <span>You decide only what a person must decide.</span></h1>
-      ${L?`<p class="w3sub">${esc(L)}</p>`:''}
+      ${/* Витрина, а не утро: «непонятно, залогинен ты или нет. Если нет, откуда эти
+           цифры, неделя 38? Здесь должна быть общая информация — потенциал рынка,
+           возможности сделок, — которая подойдёт каждому» (Лиза, 14.10). Личные числа
+           недели уехали в очередь, здесь стоит то, что видно всякому до входа. */''}
+      <p class="w3sub">${int(MARKET0.n)} companies in ${SEGS.length} segments are on file, each one tied to the job it hires an MSP for. The agents work that book all week; a person decides only what a person must decide.</p>
       <div class="w3nums">
-        <div><b data-count="${N.sent}">${int(N.sent)}</b><span>letters the agents have sent this week</span></div>
-        <div><b data-count="${N.need}">${int(N.need)}</b><span>things wait on you right now</span></div>
-        <div><b data-count="${N.fun}">${int(N.fun)}</b><span>companies on their way to a signature</span></div>
+        <div><b data-count="${MARKET0.n}">${int(MARKET0.n)}</b><span>companies on file across the three segments</span></div>
+        <div><b>${usd(MARKET0.mkt)}</b><span>a year those companies spend on IT</span></div>
+        <div><b data-count="${SEGS.length}">${int(SEGS.length)}</b><span>segments, each by the job it hires for</span></div>
       </div>
       <div class="w3signin"><div class="w3lbl">Sign in as</div>
         <div class="welcwho">${Object.keys(WHOM).map(k=>`<button data-welcwho="${k}" aria-pressed="${S.profile===k}">
@@ -8947,7 +8969,7 @@ function renderWelcome(){
     <div class="w3shade" aria-hidden="true"></div>
     <div class="w3panel" id="w3panel">${panel}</div>
     <aside class="w3legend" aria-label="What the map shows">
-      <div class="w3lbl">Week ${NOW} · the whole book, live</div>
+      <div class="w3lbl">What the map shows</div>
       <div class="w3lg"><span><i class="up"></i><b>${int(cnt.up)}</b> moving</span><span><i class="warn"></i><b>${int(cnt.warn)}</b> waiting on us</span><span><i class="down"></i><b>${int(cnt.down)}</b> stuck or leaving</span></div>
       <div class="w3steps">${steps.map(([t,f,w],i)=>`<div class="w3step"><span class="n">${i+1}</span><div><b>${esc(t)}</b><span>${esc(f)} <i class="w3w">${esc(w)}</i></span></div></div>`).join('')}</div>
     </aside>
