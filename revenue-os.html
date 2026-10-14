@@ -1239,7 +1239,12 @@ table.db.tasks td:first-child{max-width:340px}
 .rss{font-size:10px;color:var(--fg3)}
 .rst.stuck .rss{color:var(--down);font-weight:600}
 .rst.now .rss{color:var(--warn);font-weight:600}
-.rsy{display:block;height:3px;background:var(--border);border-radius:4px;overflow:hidden;margin-top:4px}
+.rsy{display:block;height:4px;background:var(--border);border-radius:4px;overflow:hidden;margin-top:auto;width:100%}
+/* Клетка воронки — её «коробка этапа»: рубрика сверху, число крупно, полоса внизу. */
+.rsbig{font-size:26px;font-weight:600;line-height:1.05;letter-spacing:-.02em;font-variant-numeric:tabular-nums;color:var(--fg)}
+.rst .rsn{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--fg3)}
+.rst{min-height:118px}
+.rst.now .rsbig,.rst.stuck .rsbig{color:var(--fg)}
 .rsy i{display:block;height:100%}
 .rsp{font-size:10px;color:var(--fg3)}
 .rsp.ybad{color:var(--down)}
@@ -3868,7 +3873,7 @@ function renderSOP(a){
         +`<span class="rss">${esc(s[1])}</span>`
         +(leak?`<span class="chip down lkh" data-tip="${esc('Of the stages where anything passed in the last four weeks, this one keeps the least: '+int(y.inn)+' came in, '+int(y.out)+' went on. The leak is named by the number, not by a guess.')}">leaks here</span>`:'')
         +(y&&!y.inn?`<span class="rsp">no deals passed here in 4 weeks</span>`
-           :y?`<span class="rsy"><i style="width:${Math.min(100,y.r*100)}%;background:${bad?'var(--down)':'var(--up)'}"></i></span><span class="rsp${bad?' ybad':''}">${int(y.inn)} → ${int(y.out)} · ${pct(y.r,0)}${bad?' ▼':''}</span>`
+           :y?`<b class="rsbig">${int(y.inn)}</b><span class="rsp${bad?' ybad':''}">→ ${int(y.out)} · ${pct(y.r,0)}${bad?' ▼':''}</span><span class="rsy"><i style="width:${Math.min(100,y.r*100)}%;background:${bad?'var(--down)':'var(--up)'}"></i></span>`
            :st.stage?`<span class="rsp">base · Retention ${pct(formulaAt(S.t).ret)}</span>`
                     :`<span class="rsp">your own step — no data yet</span>`)
         +(S.sopEdit?`<span class="rsops"><span class="rgrip" data-tip="Drag to move the stage">⠿</span><button class="rdel" data-stepdel="${i}" data-tip="Remove the stage" ${N<=2?'disabled':''}>×</button></span>`:'')
