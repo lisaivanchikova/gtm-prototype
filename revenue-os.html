@@ -1581,7 +1581,7 @@ body{font-family:var(--ui)!important;-webkit-font-smoothing:antialiased}
 .titlebar{background:var(--title)!important;border-bottom:1px solid var(--border)!important;gap:14px!important;padding-inline:12px!important}
 .brand .mark{height:18px}
 .cmd{height:30px!important;border-radius:10px!important;font-size:12px!important;background:var(--input)!important}
-.titlebar .cmdw{max-width:560px;margin-inline:auto}
+/* Поиск снова во всю ширину шапки: «поисковую строку вверху нужно вернуть на весь размер, как было» (Лиза, 14.10). */
 .zonebtn{height:28px!important;border-radius:8px!important;font-family:var(--mono)!important;font-size:10px!important}
 .zonebtn[aria-pressed="true"]{color:var(--fg)!important;border-color:var(--line)!important;background:var(--card)!important}
 .activity button[aria-pressed="true"]{border-left-color:var(--signal)!important;background:linear-gradient(90deg,rgba(0,87,255,.14),transparent)}
@@ -1699,7 +1699,10 @@ body{font-family:var(--ui)!important;-webkit-font-smoothing:antialiased}
 .paper b{font-size:20px!important;font-weight:800!important;letter-spacing:-.02em;color:var(--graphite)!important}
 .paper h3{font-size:12.5px!important;color:var(--ink)!important;letter-spacing:.02em!important}
 .signers{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px!important}
-.signer{border-radius:var(--r-lg)!important;background:var(--card);padding:12px 14px!important}
+.signer{border-radius:var(--r-lg)!important;background:var(--card);padding:12px 14px!important;
+  display:flex!important;align-items:center;gap:10px;flex-wrap:wrap}
+.signer>b,.signer>span{min-width:0}
+.signer .chip{flex:none;margin-left:auto}
 .kv{gap:10px!important}
 .kv div{border-radius:12px!important;background:var(--card);padding:12px 14px!important}
 .kv b{font-size:15px!important}
@@ -3332,6 +3335,25 @@ function dbRngGet(kind,key){const f=((S.dbF||{})[kind]||{})[key]||{};
 function dbRngSet(kind,key,v){S.dbF=S.dbF||{};S.dbF[kind]=S.dbF[kind]||{};
   const o={}; if(v[0]!==''&&v[0]!=null)o.from=+v[0]; if(v[1]!==''&&v[1]!=null)o.to=+v[1];
   if(o.from==null&&o.to==null)delete S.dbF[kind][key]; else S.dbF[kind][key]=o;}
+/* «В фильтрах слева всегда должна быть возможность отфильтровать по любому столбцу
+   из таблицы» (Лиза, 14.10). Шторка добирает те столбцы, которых в ней ещё нет:
+   значения берутся из самой таблицы, отбор — то же хранилище S.dbF, что было
+   у строки под шапкой. Числовые столбцы уже стоят диапазонами выше. */
+const DBVALS={};
+const DBENT={acc:'acc',ppl:'person',doc:'doc'};
+const DBSKIP={acc:['nm','state','acv','last','touch','emp','stg','proj','ind','seg'],
+              person:['nm','role','pst','ctype','proj'],doc:['nm','kind','proj','seg']};
+function dbExtraRows(ent){
+  const kind=DBENT[ent]; if(!kind)return '';
+  const vals=DBVALS[kind]; if(!vals)return '';
+  const cols=(DBCOLS[kind]||[]).filter(([k])=>!(DBSKIP[kind]||[]).includes(k)&&vals[k]&&Object.keys(vals[k]).length>1);
+  if(!cols.length)return '';
+  return cols.map(([k,lbl])=>{const m=vals[k],cur=String(((S.dbF||{})[kind]||{})[k]||'');
+    const keys=Object.keys(m).sort((a,b)=>m[b]-m[a]||String(a).localeCompare(String(b)));
+    return `<div class="frow"><span class="fk">${esc(lbl)}</span><select class="fv" data-dbfsel="${kind}|${k}">`
+      +`<option value="">all</option>`
+      +keys.map(v=>`<option value="${esc(v)}" ${cur===String(v)?'selected':''}>${esc(v.length>24?v.slice(0,24)+'\u2026':v)} · ${m[v]}</option>`).join('')
+      +`</select>${cur?`<button class="fx" data-dbfclr="${kind}|${k}" aria-label="Clear ${esc(lbl)}">×</button>`:'<span class="fx"></span>'}</div>`;}).join('');}
 function filterBar(ent){
   S.ef=S.ef||{role:'',src:'',proc:'sale',astate:'',owner:'',newonly:false};
   const keys=FSET[ent]||FSET.acc, allf=keys.map(k=>[k,FFLD[k]]).filter(x=>x[1]);
@@ -3376,7 +3398,7 @@ function filterBar(ent){
       +`</select>${on?`<button class="fx" data-fclr="${k}" aria-label="Clear ${esc(f.lbl)}">×</button>`:'<span class="fx"></span>'}</div>`;};
   return `<div class="sfilt">`
     +(set?`<div class="hdr"><button class="fclr" data-freset="${ent}">Clear all filters</button></div>`:'')
-    +flds.map(row).join('')+`</div>`;
+    +flds.map(row).join('')+dbExtraRows(ent)+`</div>`;
 }
 function renderSide(){
   /* «Вот здесь “Segment” — это вообще удалить, сегмент выше» (06.10, 00:43):
@@ -4430,18 +4452,25 @@ function renderSOP(a){
      «здесь» не значит ничего. */
   const leakR=(minR!=null&&RS.some(r=>r>minR))?minR:null;
   const isLeak=y=>!!(leakR!=null&&y&&y.inn&&y.r<=leakR);
+  /* «Если я зашла на конкретную компанию, я хочу видеть данные только по ней»
+     (Лиза, 14.10). В коробке теперь стоит её собственный срок: сколько дней этот
+     этап занял, сколько идёт сейчас, и с какой недели. Числа когорты — сколько
+     компаний сегмента прошло этап — живут там, где они и значат что-то: на доске
+     всех сделок и в воронке кампании. */
+  const dealNum=i=>{const st=ST[i];
+    if(!st.stage)return '<span class="rsp">your own step — nothing has run through it yet</span>';
+    const ein=a.ev.find(x=>x.s===st.stage), nxt=a.ev.find(x=>x.s===st.stage+1);
+    if(st.stage<cur&&ein){const d=nxt?Math.max(0,(nxt.w-ein.w)*7+(nxt.d-ein.d)):null;
+      return `<b class="rsbig">${d!=null?d+'d':'\u2713'}</b><span class="rsp">it took · entered W${ein.w}</span>`;}
+    if(st.stage===cur)return `<b class="rsbig">${daysIn(e,t)}d</b><span class="rsp${isStuck?' ybad':''}">here since W${e.w}${isStuck?' \u25bc':''}</span>`;
+    return '';};   /* «not reached» уже стоит строкой состояния — второй раз не печатаем */
   const ins=(i,last)=>S.sopEdit?`<button class="rgap${last?' last':''}" data-stepadd="${i}" aria-label="${last?'Add a step at the end':'Insert a step here'}" data-tip="${last?'Add a stage at the end':'Insert a stage here'}">＋</button>`:'';
   const rail=`<div class="rail"><div></div>`+ST.map((st,i)=>{
-      const s=stState(i),y=st.stage?stepYield(i,a):null,bad=y&&y.inn&&(y.d<-.15||minR!=null&&y.r<=minR);
-      const leak=isLeak(y);
-      return `<div class="rst ${s[0]}${i===selI?' sel':''}${leak?' leaks':''}" data-stepsel="${i}">${ins(i-1)}${i===N-1?ins(N-1,1):''}`
+      const s=stState(i);
+      return `<div class="rst ${s[0]}${i===selI?' sel':''}" data-stepsel="${i}">${ins(i-1)}${i===N-1?ins(N-1,1):''}`
         +`<span class="rsn">${S.sopEdit?`<span class="shname" contenteditable="true" data-rename="${i}:a" spellcheck="false">${esc(st.a)}</span>`:esc(st.a)}</span>`
         +`<span class="rss">${esc(s[1])}</span>`
-        +(leak?`<span class="chip down lkh" data-tip="${esc('Of the stages where anything passed in the last four weeks, this one keeps the least: '+int(y.inn)+' came in, '+int(y.out)+' went on. The leak is named by the number, not by a guess.')}">leaks here</span>`:'<span class="lkh ph" aria-hidden="true"></span>')
-        +(y&&!y.inn?`<span class="rsp">no deals passed here in 4 weeks</span>`
-           :y?`<b class="rsbig">${int(y.inn)}</b><span class="rsp${bad?' ybad':''}">→ ${int(y.out)} · ${pct(y.r,0)}${bad?' ▼':''}</span><span class="rsy"><i style="width:${Math.min(100,y.r*100)}%;background:${bad?'var(--down)':'var(--up)'}"></i></span>`
-           :st.stage?`<span class="rsp">base · Retention ${pct(formulaAt(S.t).ret)}</span>`
-                    :`<span class="rsp">your own step — no data yet</span>`)
+        +dealNum(i)
         +(S.sopEdit?`<span class="rsops"><span class="rgrip" data-tip="Drag to move the stage">⠿</span><button class="rdel" data-stepdel="${i}" data-tip="Remove the stage" ${N<=2?'disabled':''}>×</button></span>`:'')
         +`</div>`;}).join('')+`</div>`;
   /* выбранный этап — вся его начинка здесь, а не шестью строками в сетке:
@@ -4452,25 +4481,24 @@ function renderSOP(a){
      правила, кто ведёт. Там, где области хватает ширины, колонка встаёт справа
      от воронки; в узкой — остаётся полосой под ней, как была. Движение КПД
      словами есть только здесь: на коробке этапа стоит ▼, а на сколько — не стоит. */
-  const metD=d=>{const pp=Math.round(d*100);
-    return pp===0?'the same as the four weeks before':(pp>0?'up ':'down ')+Math.abs(pp)+' points against the four weeks before';};
-  const met=selI<0?'':(selY&&selY.inn
-    ?`<div class="hdr">Metric on this stage</div>
-      <div class="rmet"><b class="rmbig${selLeak?' down':''}">${pct(selY.r,0)}</b>
-        <span class="rmsub">${int(selY.inn)} came in · ${int(selY.out)} went on</span></div>
-      <span class="rsy"><i style="width:${Math.min(100,selY.r*100)}%;background:${selLeak||selY.d<-.15?'var(--down)':'var(--up)'}"></i></span>
-      <div class="note">${esc(metD(selY.d))}</div>`
-    :selY?`<div class="hdr">Metric on this stage</div><div class="note">no deals passed here in the last four weeks</div>`:'');
+  /* Мера этапа — тоже про эту сделку: когда она вошла, сколько здесь стоит,
+     и чем этап кончается. Проценты сегмента отсюда ушли вместе с коробками. */
+  const met=selI<0?'':(()=>{const st=ST[selI]; if(!st.stage)return '';
+    const ein=a.ev.find(x=>x.s===st.stage), nxt=a.ev.find(x=>x.s===st.stage+1);
+    if(st.stage<cur&&ein){const d=nxt?Math.max(0,(nxt.w-ein.w)*7+(nxt.d-ein.d)):null;
+      return `<div class="hdr">This deal on this stage</div>
+        <div class="rmet"><b class="rmbig">${d!=null?d+'d':'\u2713'}</b><span class="rmsub">entered W${ein.w}, went on W${nxt?nxt.w:'\u2014'}</span></div>`;}
+    if(st.stage===cur)return `<div class="hdr">This deal on this stage</div>
+      <div class="rmet"><b class="rmbig${isStuck?' down':''}">${daysIn(e,t)}d</b><span class="rmsub">here since W${e.w}${isStuck?' \u00b7 silent' : ''}</span></div>`;
+    return `<div class="hdr">This deal on this stage</div><div class="note">not reached yet</div>`;})();
   const strip=selI<0?'':`<aside class="rsel"><div class="hdr">Stage · selected</div>
     <div class="rselh"><b class="rseln">${esc((ST[selI]||{}).a||'—')}</b>`
     +`<span class="chip ${SST[0]==='stuck'?'down':SST[0]==='now'?'warn':'flat'}">${esc(SST[1])}</span>`
-    +(selLeak?`<span class="chip down">leaks here</span>`:'')
     +`</div>`
     +`<div class="cw"><span class="faint">we: ${esc((ST[selI]||{}).b||'—')}</span>`
     +(SS?`<button class="mf" ${SS[1]?`data-open="${SS[1]==='p'?'person:'+P[0].id:SS[1]}"`:''} data-tip="The artifact that moves at this stage — open it">${SS[0]}</button>`:'')
     +`</div>`
     +met
-    +(selLeak?`<div class="note"><b class="down">This is where the funnel loses the most.</b> ${int(selY.inn)} entered this stage in the last four weeks and ${int(selY.out)} went on — ${pct(selY.r,0)}, the lowest of the stages where anything passed at all. Nothing else here is named as the leak.</div>`:'')
     +`${stepRuleCell(selI)}</aside>`;
   /* ===== шарики: кто за какой этап в ответе и где не сделал ===== */
   const GL={down:'⚠',warn:'○',none:'·'};
@@ -4517,13 +4545,6 @@ function renderSOP(a){
       ${S.sopEdit?`<button class="lnk" data-stepreset="1" data-tip="Back to the six original stages">reset the funnel</button>`:''}
     </div>
     ${!inF(a)?`<div class="outscope">${esc(a.name)} is outside the current scope${S.seg?' “'+esc(segBy(S.seg).name)+'”':''} — the percentages are computed over its own segment “${esc(segBy(a.seg).name)}”, not over the scope.</div>`:''}
-    ${/* «Как с одной компанией может быть 19 сделок?» (Лиза, 14.10). Числа в коробках
-         никогда и не были её: это когорта сегмента за четыре недели, а её собственное
-         место на воронке говорят пометки «✓ passed» и «stuck 9d». Экран называл это
-         только подсказкой — теперь строкой над самой воронкой. */''}
-    <div class="railnote"><span class="hdr">Numbers: ${esc(segBy(a.seg).name)} · last four weeks</span>
-      <span class="faint">how many deals of this segment entered each stage and how many went on — not this one deal.
-      Where <b>${esc(a.name)}</b> itself stands is the mark on the box: passed, here now, or stuck.</span></div>
     <div class="sopcols">
       <div class="sopr">${rail}</div>
       ${strip}
@@ -6743,7 +6764,7 @@ function renderDB(){
   /* Счётчик у значения считается с учётом остальных столбцов, но без своего:
      выбрав «NDA», человек должен видеть состояния этих 476 бумаг, а не всех 2655,
      и при этом иметь возможность сменить сам вид документа. */
-  const fvals={};
+  const fvals={}; DBVALS[kind]=fvals;
   cols.forEach(([k])=>{if(DBNUM.includes(k))return;const m={};
     rows.forEach(r=>{if(!keep(r,k))return;const v=colVal(r,k);if(v!=='')m[v]=(m[v]||0)+1;});fvals[k]=m;});
   rows=rows.filter(r=>keep(r,null));
@@ -7097,8 +7118,7 @@ const SCEN=[
  {id:'s6',who:'SDR',nm:'Find the step where my meetings are lost',
   why:'“Мало встреч, и я не понимаю почему” (стенд, S5) · JOB-032 · JOB-016 · Карина 13.10, экран 03: на дырявом этапе стоит флаг',
   check:'the leaking stage is flagged on the funnel itself, and opening it says how many came in and how many went on',
-  steps:[{t:'Open the Workflow tab — the funnel left to right',sel:'[data-tab="flow"]'},
-   {t:'Open the stage flagged “leaks here”',sel:'.rst.leaks'}]},
+  gap:'Флаг «leaks here» стоял на воронке одной сделки, а он про когорту: «если я зашла на конкретную компанию, я хочу видеть данные только по ней» (Лиза, 14.10). Числа когорты и флаг течи переезжают на общий экран всех сделок — пока этого экрана с воронкой нет, вопрос «где теряются встречи» задать нечем.'},
  /* ===== HEAD ===== */
  {id:'h1',who:'Head',nm:'See what we lose if the biggest contract does not renew',
   why:'“В январе кончается контракт — покажи, сколько потеряем” (стенд, H1) · JOB-018',
@@ -8379,6 +8399,9 @@ document.addEventListener('click',e=>{
   /* Пропуск — не решение: задача остаётся в очереди такой же, меняется только то,
      на что человек смотрит. Последнюю строку пропускать некуда — она и остаётся. */
   if(b.dataset.triskip){triMove(1);return;}
+  if(b.dataset.dbfclr){const [k,c]=b.dataset.dbfclr.split('|');
+    if(S.dbF&&S.dbF[k])delete S.dbF[k][c];
+    renderEditorLight();renderSide();return;}
   if(b.dataset.hudmin!==undefined){S.hudMin=b.dataset.hudmin==='1';renderSlice(S.t,S.seg,S.clustered);return;}
   if(b.dataset.tkopen){const id=b.dataset.tkopen;
     S.tkOpen=S.tkOpen===id?null:id;
@@ -8717,6 +8740,10 @@ document.addEventListener('change',e=>{const d=e.target.dataset||{};
     toast(val?`${ourBy(val).nm} answers for ${hit.length} class${hit.length===1?'':'es'} \u00b7 W${S.t}. Logged against you.`
              :`${WHOM[role]} has nobody named. Those classes cannot have their ceiling lifted.`);
     return;}
+  if(d.dbfsel){const [k,c]=d.dbfsel.split('|'); const v=e.target.value;
+    S.dbF=S.dbF||{}; S.dbF[k]=S.dbF[k]||{};
+    if(v==='')delete S.dbF[k][c]; else S.dbF[k][c]=v;
+    S.dbPage=0; renderEditorLight(); renderSide(); return;}
   if(d.fsel){const f=FFLD[d.fsel];if(f){f.set(e.target.value);afterFilter(f);}return;}
   if(d.ftog){const f=FFLD[d.ftog];if(f){f.set(e.target.checked);afterFilter(f);}return;}
   /* Диапазон здесь больше не обрабатывается: у поля ввода «change» случается на потере
@@ -8891,6 +8918,10 @@ function welcLine(){
   if(held)bits.push(`${held} letter${held===1?'':'s'} of a running campaign ${held===1?'waits':'wait'} for a first read`);
   if(sign)bits.push(`${sign} paper${sign===1?' waits':'s wait'} for a signature`);
   return bits.length?`Week ${NOW} so far: ${bits.join(', ')}.`:'';}
+const WELCWHAT=[
+  ['Mailboxes','letters leave from your own mailboxes, under your own name, and never past the daily limit','Agents · Our side'],
+  ['Who we sell to','companies are grouped by the job they hire an MSP for, and every group carries the market behind it','Map'],
+  ['Agents','each agent runs one stage, asks before it acts where the rule says so, and a named person answers for it','Agents']];
 const WELCMARK='<svg viewBox="60 362 905 300" role="img" aria-label="Intwin"><circle cx="815.5" cy="511.5" r="125" fill="var(--title)" stroke="var(--selbg)" stroke-width="50"/><circle cx="679.5" cy="511.5" r="125" fill="var(--title)" stroke="var(--fg3)" stroke-width="50"/><circle cx="543.5" cy="511.5" r="125" fill="var(--title)" stroke="#0057FF" stroke-width="50"/><circle cx="209.5" cy="511.5" r="150" fill="var(--fg)"/></svg>';
 /* v3 · Вход поверх вращающейся карты-глобуса. Роли (data-welcwho), кнопка #welcGo,
    цифры и итог недели — те же функции и те же данные; поменялась только сцена. */
@@ -8947,7 +8978,7 @@ function renderWelcome(){
   const keepGlobe=WGLOBE&&document.getElementById('wglobe');
   const panel=`
       <div class="welcbrand">${WELCMARK}<span>intwin <em>revenue os</em></span></div>
-      <h1>The agents work the revenue line all week. <span>You decide only what a person must decide.</span></h1>
+      <h1>The whole book, worked every week. <span>A person decides only what a person must.</span></h1>
       ${/* Витрина, а не утро: «непонятно, залогинен ты или нет. Если нет, откуда эти
            цифры, неделя 38? Здесь должна быть общая информация — потенциал рынка,
            возможности сделок, — которая подойдёт каждому» (Лиза, 14.10). Личные числа
@@ -8969,9 +9000,12 @@ function renderWelcome(){
     <div class="w3shade" aria-hidden="true"></div>
     <div class="w3panel" id="w3panel">${panel}</div>
     <aside class="w3legend" aria-label="What the map shows">
-      <div class="w3lbl">What the map shows</div>
-      <div class="w3lg"><span><i class="up"></i><b>${int(cnt.up)}</b> moving</span><span><i class="warn"></i><b>${int(cnt.warn)}</b> waiting on us</span><span><i class="down"></i><b>${int(cnt.down)}</b> stuck or leaving</span></div>
-      <div class="w3steps">${steps.map(([t,f,w],i)=>`<div class="w3step"><span class="n">${i+1}</span><div><b>${esc(t)}</b><span>${esc(f)} <i class="w3w">${esc(w)}</i></span></div></div>`).join('')}</div>
+      <div class="w3lbl">What you are looking at</div>
+      ${/* До входа чужих чисел на экране нет: «это какие-то демонстрационные данные
+           или почему они такие конкретные?» (Лиза, 14.10). Осталось то, что одинаково
+           для всякого, кто сюда смотрит: что значит цвет и из чего собрана система. */''}
+      <div class="w3lg"><span><i class="up"></i>green — moving</span><span><i class="warn"></i>amber — waiting on us</span><span><i class="down"></i>red — stuck or leaving</span></div>
+      <div class="w3steps">${WELCWHAT.map(([t,f,w],i)=>`<div class="w3step"><span class="n">${i+1}</span><div><b>${esc(t)}</b><span>${esc(f)} <i class="w3w">${esc(w)}</i></span></div></div>`).join('')}</div>
     </aside>
     <p class="w3foot">Every number here is read out of the same data the screens behind this one run on.</p>
   </div>`;
