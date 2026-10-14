@@ -1,5 +1,5 @@
 <!doctype html><html data-theme="dark"><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
-<title>Revenue OS — v4</title>
+<title>Revenue OS</title>
 <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2032%2032%22%3E%3Crect%20width%3D%2232%22%20height%3D%2232%22%20rx%3D%227%22%20fill%3D%22%2314171F%22/%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2216%22%20r%3D%225%22%20fill%3D%22%230057FF%22/%3E%3Ccircle%20cx%3D%2221%22%20cy%3D%2216%22%20r%3D%226.5%22%20fill%3D%22none%22%20stroke%3D%22%23A9BDF0%22%20stroke-width%3D%222%22/%3E%3C/svg%3E">
@@ -1813,9 +1813,12 @@ body{font-family:var(--ui)!important;-webkit-font-smoothing:antialiased}
 .w3lg i.up{background:var(--up);box-shadow:0 0 10px var(--up)}.w3lg i.warn{background:var(--warn);box-shadow:0 0 10px var(--warn)}.w3lg i.down{background:var(--down);box-shadow:0 0 10px var(--down)}
 .w3steps{display:flex;flex-direction:column;gap:8px;padding-top:12px;border-top:1px solid var(--border)}
 .w3step{display:flex;gap:10px;align-items:flex-start}
+.w3step>div{flex:1;min-width:0}
 .w3step .n{flex:none;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:10px;font-weight:600;color:var(--link);border:1px solid var(--line)}
 .w3step b{display:block;font-size:12.5px;color:var(--fg)}
 .w3step span{font-size:11px;line-height:1.4;color:var(--fg3)}
+.w3step .w3w{display:block;margin-top:3px;font-style:normal;font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--echo1)}
+.w3step .w3w::before{content:"↳ "}
 .w3foot{position:absolute;z-index:2;left:max(56px,env(safe-area-inset-left,0px));bottom:16px;margin:0;font-size:11px;color:var(--fg3)}
 .wtag{display:flex;align-items:center;gap:8px;padding:5px 10px 5px 8px;border-radius:999px;background:var(--glass);border:1px solid color-mix(in srgb,var(--down) 45%,transparent);backdrop-filter:blur(10px);white-space:nowrap;pointer-events:none}
 .wtag i{width:7px;height:7px;border-radius:50%;background:var(--down)}
@@ -1972,6 +1975,13 @@ body{font-family:var(--ui)!important;-webkit-font-smoothing:antialiased}
 .pers .recgrid{grid-template-columns:minmax(0,1fr) minmax(340px,420px)}
 .recside button,.recside .chip{white-space:nowrap}
 .dbh h3{font-size:clamp(20px,1.8vw,26px)!important}
+
+/* Колонка «как дотянуться» в профиле человека узкая: адрес и телефон в ней вставали
+   многоточием — значение обрезалось ради чипа и кнопок в одной строке. Значение
+   стоит целиком, подпись слева, состояние и кнопки под ним. */
+.pers .recside .reach{grid-template-columns:62px minmax(0,1fr);align-items:start;row-gap:5px;padding:8px 0}
+.pers .recside .reach .rv{white-space:normal;text-overflow:clip;overflow:visible;overflow-wrap:anywhere}
+.pers .recside .reach .chip,.pers .recside .reach .ract{grid-column:2;justify-self:start}
 
 </style>
 
@@ -6088,17 +6098,17 @@ function renderAccView(a){
   const paper=docs.length
     ? `<div class="dcards">${docs.map(([id,d])=>{const st=(S.docs[id]&&S.docs[id].us)?['up','signed by us']:(d.status||['flat','']);
         return `<button class="dcard" data-open="doc:${id}"><span class="dci">${gl('document','')}</span><span class="pcb"><b>${esc(d.kind)}</b><span>${esc(d.ttl||'')}</span></span><span class="chip ${st[0]}">${esc(st[1])}</span></button>`;}).join('')}</div>`
-    : `<div class="empty">No papers yet. The first one appears when the deal reaches an offer.</div>`;
+    : `<div class="empty">No papers yet.</div>`;
   const rec=[
-    ['Site',domainOf(a),'their own site'],
-    ['Phone',phoneOf(a,0),'contact page on '+domainOf(a)],
-    ['Address',addrOf(a),a.st+' Secretary of State'],
-    ['City',a.city+', '+a.st,a.st+' Secretary of State'],
-    ['Registered',foundedOf(a)+' · '+a.st+' SOS','state business registry'],
-    ['Seats',a.emp+' people','job ads · LinkedIn headcount'],
+    ['Site',domainOf(a),'from their own site'],
+    ['Phone',phoneOf(a,0),'from the contact page on '+domainOf(a)],
+    ['Address',addrOf(a),'the registered address in the '+a.st+' Secretary of State registry'],
+    ['City',a.city+', '+a.st,'the registered address in the '+a.st+' Secretary of State registry'],
+    ['Registered',foundedOf(a)+' · '+a.st+' SOS','from the state business registry'],
+    ['Seats',a.emp+' people','from their job ads and LinkedIn headcount'],
     ['Industry',a.ind||'—','what they do'],
-    ['NAICS',segBy(a.seg).naics[0].split(' ')[0],'the segment’s NAICS code'],
-    ['In-house IT',{no:'none',yes:'has a person',unknown:'not known'}[a.itown]||'not known','correspondence · no feed yet']];
+    ['NAICS',segBy(a.seg).naics[0].split(' ')[0],'the NAICS code of the segment this account sits in'],
+    ['In-house IT',{no:'none',yes:'has a person',unknown:'not known'}[a.itown]||'not known','what people said in the correspondence — there is no source feeding this yet']];
   return `<div class="rec">
     <header class="rech">
       ${monoOf(a.name,'xl')}
@@ -6158,10 +6168,10 @@ function renderFlowList(){
       <span class="kct">${monoOf(d.nm)}<b>${esc(d.nm)}</b></span>
       <span class="kcw">${esc(lightWhy(d.a,S.t))}</span>
       <span class="kcf"><span class="mn">${d.acv?usd(d.acv):'—'}</span><span class="faint">${esc(d.reach)}</span><span class="num ${mcls(d.mv)}">${arrow(d.mv)}</span></span></button>`;};
-  return `<div class="dbh"><div class="r1"><h3>Pipeline</h3>
-      <span class="cnt">${int(deals.length)} deals · ${usd(total)} a year in play${S.seg?' · '+esc(segBy(S.seg).name):''}</span>
+  return `<div class="dbh"><div class="r1"><h3>Workflows</h3>
+      <span class="cnt">${int(camps.length)} campaign${camps.length===1?'':'s'} · ${int(deals.length)} deals in play · ${usd(total)} a year${S.seg?' · '+esc(segBy(S.seg).name):''}</span>
       <button class="btn pri" data-camp="all">New campaign</button></div>
-      <div class="note">A deal is one account’s path to a signature; a campaign reaches a whole segment at once. Pick a segment on the left and the board narrows to it.</div></div>
+      <div class="note">A campaign reaches a whole segment at once; a deal is one account’s path to a signature. Both are workflows, so both live here. Pick a segment on the left and the board narrows to it.</div></div>
     ${camps.length?`<div class="kcamps">${camps.map(c=>`<button class="ccard" data-open="${c.id}"><span class="mono h0">${esc(c.abc)}</span><span class="pcb"><b>${esc(c.nm)}</b><span>${esc(c.reach)}</span></span><span class="chip up">${esc(c.stg)}</span></button>`).join('')}</div>`:''}
     <div class="kboard">${cols.map(c=>`<section class="kcol"><header><b>${esc(STAGE[c.s])}</b><span class="mn">${c.it.length}</span><span class="faint">${usd(c.sum)}</span></header>
       <div class="kbar"><i style="--w:${total?Math.round(c.sum/total*100):0}%"></i></div>
@@ -7772,7 +7782,7 @@ function renderStatus(){const alarms=AGENTS.filter(a=>a.state==='paused').length
    и считаются теми же функциями, что на входе и в очереди. */
 function renderTopNums(){const el=$('tnums'); if(!el)return;
   const need=taskRows(S.t).filter(x=>x.due==='now'&&!x.done).length;
-  el.innerHTML=`<span class="tn" data-tip="letters the agents sent this week"><b>${int(welcNums().sent)}</b><span>sent this week</span></span>`
+  el.innerHTML=`<span class="tn" data-tip="letters the agents have sent this week"><b>${int(welcNums().sent)}</b><span>sent this week</span></span>`
     +`<span class="tn" data-tip="things that need you today"><b>${int(need)}</b><span>need you</span></span>`;}
 let palSel=0;
 function openPal(){$('pal').hidden=false;$('palIn').value='';palSel=0;renderPal();$('palIn').focus();}
@@ -8921,8 +8931,8 @@ function renderWelcome(){
       <h1>The agents work the revenue line all week. <span>You decide only what a person must decide.</span></h1>
       ${L?`<p class="w3sub">${esc(L)}</p>`:''}
       <div class="w3nums">
-        <div><b data-count="${N.sent}">${int(N.sent)}</b><span>letters sent by the agents this week</span></div>
-        <div><b data-count="${N.need}">${int(N.need)}</b><span>things wait on you now</span></div>
+        <div><b data-count="${N.sent}">${int(N.sent)}</b><span>letters the agents have sent this week</span></div>
+        <div><b data-count="${N.need}">${int(N.need)}</b><span>things wait on you right now</span></div>
         <div><b data-count="${N.fun}">${int(N.fun)}</b><span>companies on their way to a signature</span></div>
       </div>
       <div class="w3signin"><div class="w3lbl">Sign in as</div>
@@ -8938,7 +8948,7 @@ function renderWelcome(){
     <aside class="w3legend" aria-label="What the map shows">
       <div class="w3lbl">Week ${NOW} · the whole book, live</div>
       <div class="w3lg"><span><i class="up"></i><b>${int(cnt.up)}</b> moving</span><span><i class="warn"></i><b>${int(cnt.warn)}</b> waiting on us</span><span><i class="down"></i><b>${int(cnt.down)}</b> stuck or leaving</span></div>
-      <div class="w3steps">${steps.map(([t,f],i)=>`<div class="w3step"><span class="n">${i+1}</span><div><b>${esc(t)}</b><span>${esc(f)}</span></div></div>`).join('')}</div>
+      <div class="w3steps">${steps.map(([t,f,w],i)=>`<div class="w3step"><span class="n">${i+1}</span><div><b>${esc(t)}</b><span>${esc(f)} <i class="w3w">${esc(w)}</i></span></div></div>`).join('')}</div>
     </aside>
     <p class="w3foot">Every number here is read out of the same data the screens behind this one run on.</p>
   </div>`;
