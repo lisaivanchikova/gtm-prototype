@@ -3,143 +3,266 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Find Your Best Exit — your desk</title>
+<title>Your desk — Find Your Best Exit</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%2315603A'/%3E%3Cpath d='M8 16h13M16 10l6 6-6 6' stroke='%23fff' stroke-width='2.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="demo.css">
-<link rel="stylesheet" href="demo-notes.css">
-<style>
-.kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:1px;background:var(--ink);
-  border:1px solid var(--ink);margin-top:26px}
-.kpi{background:var(--paper);padding:17px 18px}
-.kpi b{display:block;font:800 clamp(26px,2.6vw,34px)/1 var(--sans);letter-spacing:-.03em}
-.kpi span{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.07em;
-  text-transform:uppercase;color:var(--grey);margin-top:8px;line-height:1.5}
-.kpi em{font-style:normal;color:var(--green);font-weight:700}
-.formula{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-top:18px;
-  font-size:13.5px;color:var(--grey)}
-.formula input{font:600 14px var(--mono);width:106px;border:0;border-bottom:2px solid var(--yellow);
-  background:transparent;color:var(--ink);padding:3px}
-.formula b{color:var(--ink)}
-.scroll{overflow-x:auto;border:1px solid var(--ink);background:#fff;margin-top:14px}
-table{border-collapse:collapse;width:100%;min-width:900px;font:400 13px var(--mono)}
-th,td{text-align:left;padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:top;white-space:nowrap}
-th{font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:var(--grey);
-  background:var(--paper);font-weight:500;border-bottom:1.5px solid var(--ink)}
-td.w{white-space:normal;min-width:190px}
-tr:last-child td{border-bottom:0}
-.tag{font-size:10px;letter-spacing:.06em;text-transform:uppercase;padding:3px 7px;display:inline-block}
-.t-w{background:var(--green);color:#fff}.t-n{background:var(--line);color:var(--ink)}
-.t-h{border:1px solid var(--line);color:var(--grey)}
-.rep{background:var(--ink);color:var(--paper);padding:30px 32px;margin-top:38px;
-  display:grid;grid-template-columns:1.2fr .8fr;gap:34px;align-items:center}
-.rep h3{font-size:clamp(20px,2.2vw,28px);margin-bottom:10px}
-.rep p{font-size:13.5px;color:#C6C2B8;margin:0}
-.rep .act{text-align:right}
-.rep .act .m-s{display:block;margin-top:12px;color:#8E8A81;text-transform:none;letter-spacing:0;font-size:12px}
-#repout{margin-top:16px;font:400 12px/1.7 var(--mono);color:#8FD3AC;white-space:pre-wrap}
-@media(max-width:980px){.kpis{grid-template-columns:1fr 1fr 1fr}.rep{grid-template-columns:1fr}.rep .act{text-align:left}}
-@media(max-width:620px){.kpis{grid-template-columns:1fr 1fr}}
-</style>
 </head>
 <body>
-<div id="demobar"></div>
 <header class="bar">
-  <div class="wrap"><span class="brand">Find Your Best Exit</span>
-  <span class="who" style="margin-left:auto">Joshua Liberman · your desk</span></div>
-</header>
-
-<section class="sec" style="border-top:0;padding-top:44px">
   <div class="wrap">
-    <p class="sec-no">This quarter</p>
-    <h2>Everyone who scanned the code.</h2>
-    <p class="lede" style="margin-top:14px">What they typed in, what is against them, and what it
-    is worth to you.</p>
+    <span class="brand">Find Your Best Exit</span>
+    <nav><a href="index.html">The page</a><a href="stage.html">The slide</a>
+      <a href="desk.html" class="on">Your desk</a></nav>
+    <span class="who"><img src="joshua.jpg" alt="">Joshua Liberman</span>
+  </div>
+</header>
+<div class="rule"></div>
 
-    <div class="kpis" data-note="1">
-      <div class="kpi"><b>3</b><span>Talks</span></div>
-      <div class="kpi"><b>284</b><span>Scans</span></div>
-      <div class="kpi"><b>96</b><span>Finished the range · <em>34%</em></span></div>
-      <div class="kpi"><b>41</b><span>Asked for the breakdown</span></div>
-      <div class="kpi"><b>14</b><span>Calls booked</span></div>
-      <div class="kpi"><b>63</b><span>On the benchmark list</span></div>
+<section class="sec" style="border-top:0;padding:40px 0 0">
+  <div class="wrap">
+    <p class="sec-no">Your desk · Q4 2026 · 96 complete runs</p>
+    <div class="desk-head">
+      <div>
+        <h2>What 96 owners told the calculator.</h2>
+        <p class="lede" style="margin-top:16px">Six parameters of business structure that nobody
+        collects publicly &mdash; revenue, what it produced, recurring share, concentration, trend,
+        the owner&rsquo;s role. Enough runs, and you can print what exists nowhere else.</p>
+      </div>
+      <div class="acts">
+        <button class="btn g" id="draft" type="button">Draft this quarter&rsquo;s benchmark &rarr;</button>
+        <button class="btn o" type="button">Export the list (.csv)</button>
+      </div>
     </div>
 
-    <p class="formula">Your number is talks × conversion × what you charge. Two of the three are on
-      this screen. <b>Average engagement</b>
-      <input type="text" id="fee" value="$18,000" inputmode="numeric">
-      <span id="feeout"></span></p>
+    <div class="kpis">
+      <div class="kpi"><b>3</b><span>Talks and appearances</span></div>
+      <div class="kpi"><b>284</b><span>Scans</span></div>
+      <div class="kpi"><b>96</b><span>Finished the range · <em>34%</em></span></div>
+      <div class="kpi"><b>41</b><span>Asked for the written breakdown</span></div>
+      <div class="kpi"><b>14</b><span>Calls booked</span></div>
+      <div class="kpi on"><b>4</b><span>Engagements live</span></div>
+      <div class="kpi"><b>63</b><span>On the benchmark list</span></div>
+    </div>
   </div>
 </section>
 
-<section class="sec" style="padding-top:0;border-top:0">
+<section class="sec">
   <div class="wrap">
-    <p class="sec-no" data-note="2">The list · by talk</p>
-    <div class="scroll" data-note="3">
-      <table>
-        <thead><tr><th>Who</th><th>From which talk</th><th>Revenue</th><th>Adj. earnings</th>
-        <th>Their range</th><th>×</th><th>What is against them</th><th>Recoverable</th>
-        <th>Stage</th><th>Next</th></tr></thead>
+    <p class="sec-no">01 &mdash; The benchmark · Southwest, Q4 2026</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:end">
+      <h2>Six numbers owners never tell anyone.</h2>
+      <p class="lede">Median, top quarter and bottom third across every complete run this quarter.
+      The line under each one is what it prints into the report &mdash; edit it before you send.</p>
+    </div>
+
+    <div class="six">
+      <article>
+        <div class="hd"><b>Recurring share of revenue</b><span>n = 96</span></div>
+        <div class="nums">
+          <div><span class="k">64%</span><span>Median</span></div>
+          <div><span class="s">81%</span><span>Top quarter</span></div>
+          <div><span class="s">&lt;60%</span><span>Bottom third</span></div>
+        </div>
+        <div class="bar3"><i style="flex:33;background:#D8D5CB"></i><i style="flex:42;background:#1C1C1A"></i><i style="flex:25;background:#15603A"></i></div>
+        <p class="line" contenteditable="true">Below 60% you are in the bottom third of your region, and it costs you half a turn of multiple.</p>
+      </article>
+      <article>
+        <div class="hd"><b>Adjusted margin</b><span>after replacement salary</span></div>
+        <div class="nums">
+          <div><span class="k">14%</span><span>Median</span></div>
+          <div><span class="s">21%</span><span>Top quarter</span></div>
+          <div><span class="s">&lt;10%</span><span>Bottom third</span></div>
+        </div>
+        <div class="bar3"><i style="flex:36;background:#D8D5CB"></i><i style="flex:34;background:#1C1C1A"></i><i style="flex:30;background:#15603A"></i></div>
+        <p class="line" contenteditable="true">One in three shops is under 10% once the owner is paid a market salary. That is the first thing a buyer recomputes.</p>
+      </article>
+      <article>
+        <div class="hd"><b>Largest client, share of revenue</b><span></span></div>
+        <div class="nums">
+          <div><span class="k">22%</span><span>Median</span></div>
+          <div><span class="s">&le;10%</span><span>Top quarter</span></div>
+          <div><span class="s">&gt;30%</span><span>Bottom third</span></div>
+        </div>
+        <div class="bar3"><i style="flex:30;background:#D8D5CB"></i><i style="flex:37;background:#1C1C1A"></i><i style="flex:33;background:#15603A"></i></div>
+        <p class="line" contenteditable="true">A third of the region has one client over 30% of the book — the one defect a buyer cannot fix after closing.</p>
+      </article>
+      <article>
+        <div class="hd"><b>Where revenue is going</b><span></span></div>
+        <div class="nums">
+          <div><span class="s">7%</span><span>Shrinking</span></div>
+          <div><span class="k">38%</span><span>Flat</span></div>
+          <div><span class="s">41%</span><span>&lt;10% / yr</span></div>
+          <div><span class="s">14%</span><span>&gt;10% / yr</span></div>
+        </div>
+        <div class="bar3"><i style="flex:7;background:#D8D5CB"></i><i style="flex:38;background:#15603A"></i><i style="flex:41;background:#1C1C1A"></i><i style="flex:14;background:#D8D5CB"></i></div>
+        <p class="line" contenteditable="true">Flat is the regional norm. It is not a penalty, but nothing in a flat book is paying for a premium.</p>
+      </article>
+      <article>
+        <div class="hd"><b>The owner&rsquo;s role</b><span></span></div>
+        <div class="nums">
+          <div><span class="k">46%</span><span>Still technical</span></div>
+          <div><span class="s">39%</span><span>Runs it daily</span></div>
+          <div><span class="s">15%</span><span>Runs without them</span></div>
+        </div>
+        <div class="bar3"><i style="flex:46;background:#D8D5CB"></i><i style="flex:39;background:#1C1C1A"></i><i style="flex:15;background:#15603A"></i></div>
+        <p class="line" contenteditable="true">Nearly half still do technical work. That is 0.9 turns of multiple, and a year to fix.</p>
+      </article>
+      <article>
+        <div class="hd"><b>Size and indicative multiple</b><span></span></div>
+        <div class="nums">
+          <div><span class="k">$2.1M</span><span>Median revenue</span></div>
+          <div><span class="s">4.6&times;</span><span>Median multiple</span></div>
+          <div><span class="s">5.6&times;</span><span>Top quarter</span></div>
+        </div>
+        <div class="bar3"><i style="flex:50;background:#D8D5CB"></i><i style="flex:25;background:#1C1C1A"></i><i style="flex:25;background:#15603A"></i></div>
+        <p class="line" contenteditable="true">A full turn separates the median shop from the top quarter at the same revenue. The six numbers above are the whole difference.</p>
+      </article>
+    </div>
+
+    <div class="headline">
+      <div>
+        <p class="sec-no" style="color:var(--yellow)">This quarter&rsquo;s headline · goes to 63 owners on the list</p>
+        <p class="q" contenteditable="true">The median Southwest MSP keeps 64% of its revenue
+        recurring. The top quarter: 81%. If you are under 60%, you are in the bottom third of your
+        region &mdash; and it is costing you half a turn of multiple.</p>
+        <p class="fine">Nothing is being sold in this email. It brings data. The talk feeds the
+        scans, the scans feed the data, the data feeds the report, the report is the reason to
+        write &mdash; and the material for the next talk.</p>
+      </div>
+      <div class="acts">
+        <button class="btn g" id="send-b" type="button">Send the Q4 benchmark &rarr;</button>
+        <button class="btn o" type="button" style="border-color:#fff;color:#fff">Preview the one-pager</button>
+        <span class="m-s">Last sent: Q3 · 29 Sep · 51 opened</span>
+      </div>
+    </div>
+    <p class="fine" id="draftout" hidden></p>
+  </div>
+</section>
+
+<section class="sec">
+  <div class="wrap">
+    <p class="sec-no">02 &mdash; Deals in the region</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:end">
+      <h2>Who bought whom this quarter.</h2>
+      <p class="lede">Names and facts from the channel press. No prices &mdash; they are not public,
+      and we do not guess. Add a row when you see one; it prints as the short second section of
+      the report.</p>
+    </div>
+    <div class="deals">
+      <div>
+        <div class="scroll">
+          <table>
+            <thead><tr><th>When</th><th>Buyer</th><th>Bought</th><th>Where</th><th>Source</th></tr></thead>
+            <tbody>
+              <tr><td>2026</td><td><b>Qual IT</b></td><td>Net Sciences, Inc.</td><td>Albuquerque, NM</td><td>Family-owned, Salt Lake City</td></tr>
+              <tr><td>[Month 2026]</td><td><b>[Buyer]</b></td><td>[MSP]</td><td>[City, AZ]</td><td>[ChannelE2E / CRN link]</td></tr>
+              <tr><td>[Month 2026]</td><td><b>[PE platform]</b></td><td>[MSP]</td><td>[City, CO]</td><td>[Press release]</td></tr>
+              <tr><td>[Month 2026]</td><td><b>[Buyer]</b></td><td>[MSP]</td><td>[City, TX]</td><td>[Source]</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:16px;
+          border:1px solid var(--ink);border-top:0;padding:14px 16px;background:#fff">
+          <span class="m-s">4 deals on record this quarter</span>
+          <button class="btn o" type="button" style="padding:10px 16px">+ Add a deal</button>
+        </div>
+      </div>
+      <div class="buyers">
+        <h6>Active buyers · Southwest</h6>
+        <p>[Buyer A] · 2 deals</p><p>[PE platform B] · 1 deal</p><p>[Buyer C] · 1 deal</p>
+        <p class="n">Who is buying is the sentence owners forward to each other. Keep it to names
+        and counts.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec">
+  <div class="wrap">
+    <p class="sec-no">03 &mdash; The list</p>
+    <div style="display:flex;justify-content:space-between;gap:26px;align-items:end;flex-wrap:wrap">
+      <h2>Who asked for more.</h2>
+      <div class="pills" id="pills">
+        <button class="pill" aria-pressed="true" data-f="all">All · 8</button>
+        <button class="pill" data-f="Call booked">Call booked · 2</button>
+        <button class="pill" data-f="Breakdown sent">Breakdown sent · 3</button>
+        <button class="pill" data-f="Range only">Range only · 2</button>
+      </div>
+    </div>
+
+    <div class="scroll" style="margin-top:18px">
+      <table id="leads">
+        <thead><tr><th>Who</th><th>Where from</th><th>Revenue</th><th>Their range</th>
+          <th>What is against them</th><th>Recoverable</th><th>Stage</th><th>Next</th></tr></thead>
         <tbody>
-          <tr><td>Ray M.<br><span class="m-s">Tucson, AZ</span></td><td>ascii-sa-2026</td><td>$2.4M</td><td>$420K</td><td>$2.04M–$2.54M</td><td>5.45</td><td class="w">—</td><td>—</td><td><span class="tag t-w">Breakdown sent</span></td><td>Call Thu</td></tr>
-          <tr><td>Stephen O.<br><span class="m-s">Mesa, AZ</span></td><td>ascii-sa-2026</td><td>$4.1M</td><td>$700K</td><td>$3.89M–$4.72M</td><td>6.15</td><td class="w">—</td><td>—</td><td><span class="tag t-w">Call booked</span></td><td>Scope valuation</td></tr>
-          <tr><td>Priya N.<br><span class="m-s">Santa Fe, NM</span></td><td>channelcon-26</td><td>$3.2M</td><td>$505K</td><td>$2.02M–$2.63M</td><td>4.60</td><td class="w">owner dependency −0.90×</td><td>$455K</td><td><span class="tag t-w">Breakdown sent</span></td><td>Chase</td></tr>
-          <tr><td>Karen D.<br><span class="m-s">Scottsdale, AZ</span></td><td>itnation-pod</td><td>$2.8M</td><td>$330K</td><td>$1.75M–$2.15M</td><td>5.90</td><td class="w">margin −0.15×</td><td>$50K</td><td><span class="tag t-n">Range only</span></td><td>Nudge once</td></tr>
-          <tr><td>Bill T.<br><span class="m-s">Amarillo, TX</span></td><td>ascii-sa-2026</td><td>$1.9M</td><td>$240K</td><td>$540K–$828K</td><td>2.85</td><td class="w">owner dependency −0.90×</td><td>$276K</td><td><span class="tag t-w">Call booked</span></td><td>Readiness proposal</td></tr>
-          <tr><td>Dana K.<br><span class="m-s">Pueblo, CO</span></td><td>channelcon-26</td><td>$1.3M</td><td>$115K</td><td>$219K–$357K</td><td>2.50</td><td class="w">owner dependency −0.90×</td><td>$334K</td><td><span class="tag t-w">Breakdown sent</span></td><td>Call next week</td></tr>
-          <tr><td>Luis A.<br><span class="m-s">El Paso, TX</span></td><td>channelcon-26</td><td>$1.1M</td><td>$130K</td><td>$247K–$403K</td><td>2.50</td><td class="w">recurring mix −0.40×</td><td>$104K</td><td><span class="tag t-n">Range only</span></td><td>Nudge once</td></tr>
-          <tr><td>Marco V.<br><span class="m-s">Las Cruces, NM</span></td><td>cpa-referral</td><td>$880K</td><td>$60K</td><td>$114K–$186K</td><td>2.50</td><td class="w">recurring mix −1.25×</td><td>$249K</td><td><span class="tag t-h">Too early</span></td><td>Nurture</td></tr>
+          <tr data-s="Breakdown sent"><td><b>Ray M.</b> · Tucson, AZ</td><td>ASCII Edge, Denver</td><td>$2.4M</td><td>$2.04M–$2.54M</td><td>—</td><td>—</td><td><span class="tag t-w">Breakdown sent</span></td><td>Call Thu</td></tr>
+          <tr data-s="Call booked"><td><b>Stephen O.</b> · Mesa, AZ</td><td>ASCII Edge, Denver</td><td>$4.1M</td><td>$3.89M–$4.72M</td><td>—</td><td>—</td><td><span class="tag t-w">Call booked</span></td><td>Scope valuation</td></tr>
+          <tr data-s="Breakdown sent"><td><b>Priya N.</b> · Santa Fe, NM</td><td>ChannelCon</td><td>$3.2M</td><td>$2.02M–$2.63M</td><td><span class="mark">Owner dependency −0.90×</span></td><td>$455K</td><td><span class="tag t-w">Breakdown sent</span></td><td>Chase</td></tr>
+          <tr data-s="Range only"><td><b>Karen D.</b> · Scottsdale, AZ</td><td>IT Nation podcast</td><td>$2.8M</td><td>$1.75M–$2.15M</td><td><span class="mark">Margin −0.15×</span></td><td>$50K</td><td><span class="tag t-n">Range only</span></td><td>Nudge once</td></tr>
+          <tr data-s="Call booked"><td><b>Bill T.</b> · Amarillo, TX</td><td>ASCII Edge, Denver</td><td>$1.9M</td><td>$540K–$828K</td><td><span class="mark">Owner dependency −0.90×</span></td><td>$276K</td><td><span class="tag t-w">Call booked</span></td><td>Readiness proposal</td></tr>
+          <tr data-s="Breakdown sent"><td><b>Dana K.</b> · Pueblo, CO</td><td>ChannelCon</td><td>$1.3M</td><td>$219K–$357K</td><td><span class="mark">Owner dependency −0.90×</span></td><td>$334K</td><td><span class="tag t-w">Breakdown sent</span></td><td>Call next week</td></tr>
+          <tr data-s="Range only"><td><b>Luis A.</b> · El Paso, TX</td><td>ChannelCon</td><td>$1.1M</td><td>$247K–$403K</td><td><span class="mark">Recurring mix −0.40×</span></td><td>$104K</td><td><span class="tag t-n">Range only</span></td><td>Nudge once</td></tr>
+          <tr data-s="Too early"><td><b>Marco V.</b> · Las Cruces, NM</td><td>Local CPA referral</td><td>$880K</td><td>$114K–$186K</td><td><span class="mark">Recurring mix −1.25×</span></td><td>$249K</td><td><span class="tag t-h">Too early</span></td><td>Nurture</td></tr>
         </tbody>
       </table>
     </div>
-    <p class="fine"><b>$1.47M</b> sits in the Recoverable column — the multiple these eight could get
-    back by fixing what is marked against them. That is the argument from the stage, and the reason
-    the slow engagements exist.</p>
 
-    <div class="rep" data-note="4">
-      <div>
-        <h3>The quarterly benchmark</h3>
-        <p>One button. Takes every run this quarter, computes the medians and quartiles for the
-        region, puts your name and photograph on the cover, leaves a page for your two paragraphs,
-        and returns a PDF ready to send to the <b>63</b> people on your list.</p>
-        <div id="repout"></div>
-      </div>
-      <div class="act">
-        <button class="btn y" id="genrep" type="button">Generate Q4 benchmark &rarr;</button>
-        <span class="m-s">Last issue: Q3 · sent to 51 · opened by 34</span>
+    <div class="foot2">
+      <div><span class="big">$1.47M</span>
+        <p>recoverable across these eight &mdash; the multiple they could get back by fixing what is
+        marked against them. That is the argument from the stage, and the reason the slow
+        engagements exist.</p></div>
+      <div style="display:block">
+        <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap">
+          <label for="fee" style="font-size:13px;font-weight:600">Average engagement</label>
+          <input type="text" id="fee" value="$18,000" inputmode="numeric">
+        </div>
+        <p id="feeout" style="margin-top:14px;font-size:13px;color:var(--grey)"></p>
       </div>
     </div>
   </div>
 </section>
 
-<footer><div class="wrap"><span>Find Your Best Exit · partner desk</span>
-<span data-note="5">Benchmark list · 63 subscribers</span></div></footer>
+<footer>
+  <div class="wrap">
+    <span>Find Your Best Exit · Joshua Liberman · your desk</span>
+    <span>Ranges and benchmarks computed from what owners entered, on the arithmetic shown on the
+      public page · valuation arithmetic by Intwin Tech</span>
+  </div>
+</footer>
 
 <script>
 (function(){
   var fee=document.getElementById('fee'), out=document.getElementById('feeout'), CALLS=14;
   function read(){var n=parseFloat(String(fee.value).replace(/[^0-9.]/g,''));return isFinite(n)&&n>0?n:0;}
-  function show(){var f=read();out.innerHTML=f?'&rarr; 14 calls booked at that rate is <b>$'+
-    (CALLS*f).toLocaleString('en-US')+'</b> if every one signed.':'';}
+  function show(){var f=read();out.innerHTML=f?'&rarr; 14 calls at that rate is <b>$'+
+    (CALLS*f).toLocaleString('en-US')+'</b> if every one signed. Talks × conversion × what you charge.':'';}
   fee.addEventListener('input',show);
   fee.addEventListener('blur',function(){var n=read();fee.value=n?'$'+n.toLocaleString('en-US'):'';});
   fee.addEventListener('focus',function(){var n=read();fee.value=n?String(n):'';});
   show();
 
-  var b=document.getElementById('genrep'), o=document.getElementById('repout');
+  var pills=document.getElementById('pills'), rows=document.querySelectorAll('#leads tbody tr');
+  pills.addEventListener('click',function(e){
+    var b=e.target.closest('.pill'); if(!b) return;
+    [].forEach.call(pills.children,function(p){p.setAttribute('aria-pressed', p===b?'true':'false');});
+    var f=b.getAttribute('data-f');
+    [].forEach.call(rows,function(r){ r.hidden = f!=='all' && r.getAttribute('data-s')!==f; });
+  });
+
+  var d=document.getElementById('draft'), o=document.getElementById('draftout');
   var steps=['Reading 96 runs from this quarter…','Filtering to the Southwest · 71 runs…',
-    'Medians: recurring 64% · margin 14.1% · largest client 22%…',
-    'Quartiles and the regional spread…','Deal activity from the channel press · 9 transactions…',
-    'Cover: Joshua Liberman · your photograph…','Page 4 left blank for your two paragraphs…',
-    'DONE · Q4-benchmark-southwest.pdf · 12 pages · ready to send to 63'];
-  b.addEventListener('click',function(){
-    b.disabled=true; o.textContent='';
+    'Medians and quartiles across the six parameters…','4 deals from the channel press…',
+    'Cover: your name, your photograph · page 4 left for your two paragraphs…',
+    'Ready · Q4-benchmark-southwest.pdf · 12 pages · 63 recipients'];
+  d.addEventListener('click',function(){
+    d.disabled=true; o.hidden=false; o.textContent='';
     steps.forEach(function(s,i){setTimeout(function(){
-      o.textContent += (i?'\n':'') + s;
-      if(i===steps.length-1){b.disabled=false;b.textContent='Download PDF';}
-    }, 420*(i+1));});
+      o.textContent=(i?o.textContent+'  ·  ':'')+s;
+      if(i===steps.length-1){d.disabled=false;d.textContent='Download the draft';}
+    },430*(i+1));});
   });
 })();
 </script>
-<script src="demo-notes.js"></script>
 </body>
 </html>

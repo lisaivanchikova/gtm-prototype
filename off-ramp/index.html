@@ -7,19 +7,18 @@
 <meta name="description" content="What your MSP is worth, and what is holding it there. Joshua Liberman built Net Sciences over thirty years and sold it in 2026.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%2315603A'/%3E%3Cpath d='M8 16h13M16 10l6 6-6 6' stroke='%23fff' stroke-width='2.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="demo.css">
-<link rel="stylesheet" href="demo-notes.css">
 </head>
 <body>
-<div id="demobar"></div>
 
 <header class="bar">
   <div class="wrap">
     <span class="brand">Find Your Best Exit</span>
     <nav>
-      <a href="#worth" class="on">01 Worth</a><a href="#help">02 Help</a><a href="#who">03 Who</a>
-      <a href="#benchmark">04 Benchmark</a><a href="#talk">05 Talk</a>
+      <a href="index.html" class="on">The page</a>
+      <a href="stage.html">The slide</a>
+      <a href="desk.html">Your desk</a>
     </nav>
-    <span class="who">Joshua Liberman · ex-MSP at Large · ABQ, NM</span>
+    <span class="who"><img src="joshua.jpg" alt="">Joshua Liberman</span>
   </div>
 </header>
 
@@ -35,7 +34,7 @@
         <a class="btn" href="#worth">See where you stand &rarr;</a>
         <a class="btn o" href="#help">How I help</a>
       </div>
-      <div class="jcard" data-note="1">
+      <div class="jcard">
         <img src="joshua.jpg" alt="Joshua Liberman">
         <div class="t">
           <b>Joshua Liberman</b>
@@ -46,51 +45,14 @@
       </div>
     </div>
 
-    <div class="road" data-note="2">
-      <svg viewBox="0 0 640 560" role="img" aria-label="An empty two-lane road running into the high desert">
-        <defs>
-          <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stop-color="#B9C2CC"/><stop offset=".62" stop-color="#D6D2C8"/>
-            <stop offset="1" stop-color="#C9BFAE"/>
-          </linearGradient>
-          <linearGradient id="tar" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stop-color="#5A5B57"/><stop offset="1" stop-color="#2E2E2B"/>
-          </linearGradient>
-          <linearGradient id="grd" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stop-color="#8A7C5E"/><stop offset="1" stop-color="#5E5338"/>
-          </linearGradient>
-        </defs>
-        <rect width="640" height="300" fill="url(#sky)"/>
-        <g fill="#fff" opacity=".55">
-          <ellipse cx="120" cy="74" rx="78" ry="26"/><ellipse cx="190" cy="60" rx="58" ry="22"/>
-          <ellipse cx="430" cy="52" rx="92" ry="28"/><ellipse cx="520" cy="80" rx="64" ry="20"/>
-          <ellipse cx="300" cy="96" rx="70" ry="18"/>
-        </g>
-        <path d="M0 292 L92 274 L168 286 L250 268 L340 282 L430 266 L520 280 L640 270 L640 300 L0 300 Z" fill="#9A8E7C" opacity=".85"/>
-        <rect y="296" width="640" height="264" fill="url(#grd)"/>
-        <path d="M296 296 L344 296 L640 560 L8 560 Z" fill="url(#tar)"/>
-        <path d="M300 296 L306 296 L104 560 L46 560 Z" fill="#E8E5DC" opacity=".8"/>
-        <path d="M336 296 L341 296 L600 560 L540 560 Z" fill="#E8E5DC" opacity=".8"/>
-        <g fill="#E9BC2A">
-          <path d="M318 300 L322 300 L326 318 L314 318 Z"/>
-          <path d="M313 330 L327 330 L333 356 L307 356 Z"/>
-          <path d="M305 372 L335 372 L343 408 L297 408 Z"/>
-          <path d="M294 428 L346 428 L358 482 L282 482 Z"/>
-          <path d="M278 504 L362 504 L378 560 L262 560 Z"/>
-        </g>
-        <g fill="#6E6450" opacity=".7">
-          <circle cx="60" cy="330" r="9"/><circle cx="110" cy="368" r="12"/><circle cx="596" cy="342" r="11"/>
-          <circle cx="548" cy="394" r="14"/><circle cx="36" cy="430" r="15"/><circle cx="614" cy="470" r="17"/>
-        </g>
-        <rect x="178" y="236" width="4" height="62" fill="#D8D5CB"/>
-        <rect x="166" y="228" width="28" height="12" rx="2" fill="#E8E5DC"/>
-      </svg>
-      <div class="sign">
+    <figure class="road">
+      <img src="road.jpg" alt="An empty two-lane road running out into the high plains">
+      <figcaption class="sign">
         <b>EXIT 2026</b>
         <i>Your Best Exit</i>
         <em>Next right &rarr;</em>
-      </div>
-    </div>
+      </figcaption>
+    </figure>
   </div>
 </section>
 
@@ -107,7 +69,7 @@
     figures over the top. The arithmetic prints on the right, line by line, so you can argue with it.</p>
 
     <div class="calc" id="val-calc">
-      <div data-note="3">
+      <div>
         <div class="field">
           <label for="v-rev">Annual revenue</label>
           <input type="text" id="v-rev" inputmode="numeric" value="$2,400,000" autocomplete="off">
@@ -148,7 +110,7 @@
         buyer has to: <input type="text" id="v-rep" value="$105,770" inputmode="numeric"> &mdash;
         the US median for general and operations managers. If you disagree, change it. A buyer will.</p>
 
-        <div class="gate" data-note="5">
+        <div class="gate">
           <input type="email" id="v-email" placeholder="Where should I send the written version?">
           <button class="btn g" id="v-send" type="button">Send it to me</button>
         </div>
@@ -157,7 +119,7 @@
         by the size of adjusted earnings, then five adjustments. Not an offer and not an appraisal.</p>
       </div>
 
-      <div class="rcpt-w" data-note="4">
+      <div class="rcpt-w">
         <p class="rcpt-cap">Printing your estimate</p>
         <div class="rcpt" id="rcpt"></div>
         <div class="perf"></div>
@@ -259,7 +221,7 @@
       businesses like yours around here actually look like &mdash; recurring mix, margins, what sold,
       who is buying. It is the only place these numbers exist, because owners do not tell anyone else.</p>
     </div>
-    <div data-note="6">
+    <div>
       <div class="gate">
         <input type="email" id="b-email" placeholder="Your email">
         <button class="btn y" id="b-send" type="button">Send it to me</button>
@@ -277,7 +239,7 @@
       <p class="lede" style="margin-top:16px">If you already have a letter of intent on your desk,
       it is late but not too late &mdash; send it and I will tell you honestly whether I can help.</p>
     </div>
-    <div data-note="7">
+    <div>
       <div class="tf"><label for="t-name">Your name</label><input type="text" id="t-name"></div>
       <div class="tf"><label for="t-email">Email</label><input type="email" id="t-email"></div>
       <div class="tf"><label for="t-note">Where you are with it</label>
@@ -298,6 +260,5 @@
 </footer>
 
 <script src="app.js"></script>
-<script src="demo-notes.js"></script>
 </body>
 </html>
