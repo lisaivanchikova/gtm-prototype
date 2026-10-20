@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Find Your Best Exit — your desk</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%2315603A'/%3E%3Cpath d='M8 16h13M16 10l6 6-6 6' stroke='%23fff' stroke-width='2.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="demo.css">
+<link rel="stylesheet" href="demo-notes.css">
+<style>
+.kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:1px;background:var(--ink);
+  border:1px solid var(--ink);margin-top:26px}
+.kpi{background:var(--paper);padding:17px 18px}
+.kpi b{display:block;font:800 clamp(26px,2.6vw,34px)/1 var(--sans);letter-spacing:-.03em}
+.kpi span{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.07em;
+  text-transform:uppercase;color:var(--grey);margin-top:8px;line-height:1.5}
+.kpi em{font-style:normal;color:var(--green);font-weight:700}
+.formula{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-top:18px;
+  font-size:13.5px;color:var(--grey)}
+.formula input{font:600 14px var(--mono);width:106px;border:0;border-bottom:2px solid var(--yellow);
+  background:transparent;color:var(--ink);padding:3px}
+.formula b{color:var(--ink)}
+.scroll{overflow-x:auto;border:1px solid var(--ink);background:#fff;margin-top:14px}
+table{border-collapse:collapse;width:100%;min-width:900px;font:400 13px var(--mono)}
+th,td{text-align:left;padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:top;white-space:nowrap}
+th{font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:var(--grey);
+  background:var(--paper);font-weight:500;border-bottom:1.5px solid var(--ink)}
+td.w{white-space:normal;min-width:190px}
+tr:last-child td{border-bottom:0}
+.tag{font-size:10px;letter-spacing:.06em;text-transform:uppercase;padding:3px 7px;display:inline-block}
+.t-w{background:var(--green);color:#fff}.t-n{background:var(--line);color:var(--ink)}
+.t-h{border:1px solid var(--line);color:var(--grey)}
+.rep{background:var(--ink);color:var(--paper);padding:30px 32px;margin-top:38px;
+  display:grid;grid-template-columns:1.2fr .8fr;gap:34px;align-items:center}
+.rep h3{font-size:clamp(20px,2.2vw,28px);margin-bottom:10px}
+.rep p{font-size:13.5px;color:#C6C2B8;margin:0}
+.rep .act{text-align:right}
+.rep .act .m-s{display:block;margin-top:12px;color:#8E8A81;text-transform:none;letter-spacing:0;font-size:12px}
+#repout{margin-top:16px;font:400 12px/1.7 var(--mono);color:#8FD3AC;white-space:pre-wrap}
+@media(max-width:980px){.kpis{grid-template-columns:1fr 1fr 1fr}.rep{grid-template-columns:1fr}.rep .act{text-align:left}}
+@media(max-width:620px){.kpis{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div id="demobar"></div>
+<header class="bar">
+  <div class="wrap"><span class="brand">Find Your Best Exit</span>
+  <span class="who" style="margin-left:auto">Joshua Liberman · your desk</span></div>
+</header>
+
+<section class="sec" style="border-top:0;padding-top:44px">
+  <div class="wrap">
+    <p class="sec-no">This quarter</p>
+    <h2>Everyone who scanned the code.</h2>
+    <p class="lede" style="margin-top:14px">What they typed in, what is against them, and what it
+    is worth to you.</p>
+
+    <div class="kpis" data-note="1">
+      <div class="kpi"><b>3</b><span>Talks</span></div>
+      <div class="kpi"><b>284</b><span>Scans</span></div>
+      <div class="kpi"><b>96</b><span>Finished the range · <em>34%</em></span></div>
+      <div class="kpi"><b>41</b><span>Asked for the breakdown</span></div>
+      <div class="kpi"><b>14</b><span>Calls booked</span></div>
+      <div class="kpi"><b>63</b><span>On the benchmark list</span></div>
+    </div>
+
+    <p class="formula">Your number is talks × conversion × what you charge. Two of the three are on
+      this screen. <b>Average engagement</b>
+      <input type="text" id="fee" value="$18,000" inputmode="numeric">
+      <span id="feeout"></span></p>
+  </div>
+</section>
+
+<section class="sec" style="padding-top:0;border-top:0">
+  <div class="wrap">
+    <p class="sec-no" data-note="2">The list · by talk</p>
+    <div class="scroll" data-note="3">
+      <table>
+        <thead><tr><th>Who</th><th>From which talk</th><th>Revenue</th><th>Adj. earnings</th>
+        <th>Their range</th><th>×</th><th>What is against them</th><th>Recoverable</th>
+        <th>Stage</th><th>Next</th></tr></thead>
+        <tbody>
+          <tr><td>Ray M.<br><span class="m-s">Tucson, AZ</span></td><td>ascii-sa-2026</td><td>$2.4M</td><td>$420K</td><td>$2.04M–$2.54M</td><td>5.45</td><td class="w">—</td><td>—</td><td><span class="tag t-w">Breakdown sent</span></td><td>Call Thu</td></tr>
+          <tr><td>Stephen O.<br><span class="m-s">Mesa, AZ</span></td><td>ascii-sa-2026</td><td>$4.1M</td><td>$700K</td><td>$3.89M–$4.72M</td><td>6.15</td><td class="w">—</td><td>—</td><td><span class="tag t-w">Call booked</span></td><td>Scope valuation</td></tr>
+          <tr><td>Priya N.<br><span class="m-s">Santa Fe, NM</span></td><td>channelcon-26</td><td>$3.2M</td><td>$505K</td><td>$2.02M–$2.63M</td><td>4.60</td><td class="w">owner dependency −0.90×</td><td>$455K</td><td><span class="tag t-w">Breakdown sent</span></td><td>Chase</td></tr>
+          <tr><td>Karen D.<br><span class="m-s">Scottsdale, AZ</span></td><td>itnation-pod</td><td>$2.8M</td><td>$330K</td><td>$1.75M–$2.15M</td><td>5.90</td><td class="w">margin −0.15×</td><td>$50K</td><td><span class="tag t-n">Range only</span></td><td>Nudge once</td></tr>
+          <tr><td>Bill T.<br><span class="m-s">Amarillo, TX</span></td><td>ascii-sa-2026</td><td>$1.9M</td><td>$240K</td><td>$540K–$828K</td><td>2.85</td><td class="w">owner dependency −0.90×</td><td>$276K</td><td><span class="tag t-w">Call booked</span></td><td>Readiness proposal</td></tr>
+          <tr><td>Dana K.<br><span class="m-s">Pueblo, CO</span></td><td>channelcon-26</td><td>$1.3M</td><td>$115K</td><td>$219K–$357K</td><td>2.50</td><td class="w">owner dependency −0.90×</td><td>$334K</td><td><span class="tag t-w">Breakdown sent</span></td><td>Call next week</td></tr>
+          <tr><td>Luis A.<br><span class="m-s">El Paso, TX</span></td><td>channelcon-26</td><td>$1.1M</td><td>$130K</td><td>$247K–$403K</td><td>2.50</td><td class="w">recurring mix −0.40×</td><td>$104K</td><td><span class="tag t-n">Range only</span></td><td>Nudge once</td></tr>
+          <tr><td>Marco V.<br><span class="m-s">Las Cruces, NM</span></td><td>cpa-referral</td><td>$880K</td><td>$60K</td><td>$114K–$186K</td><td>2.50</td><td class="w">recurring mix −1.25×</td><td>$249K</td><td><span class="tag t-h">Too early</span></td><td>Nurture</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="fine"><b>$1.47M</b> sits in the Recoverable column — the multiple these eight could get
+    back by fixing what is marked against them. That is the argument from the stage, and the reason
+    the slow engagements exist.</p>
+
+    <div class="rep" data-note="4">
+      <div>
+        <h3>The quarterly benchmark</h3>
+        <p>One button. Takes every run this quarter, computes the medians and quartiles for the
+        region, puts your name and photograph on the cover, leaves a page for your two paragraphs,
+        and returns a PDF ready to send to the <b>63</b> people on your list.</p>
+        <div id="repout"></div>
+      </div>
+      <div class="act">
+        <button class="btn y" id="genrep" type="button">Generate Q4 benchmark &rarr;</button>
+        <span class="m-s">Last issue: Q3 · sent to 51 · opened by 34</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer><div class="wrap"><span>Find Your Best Exit · partner desk</span>
+<span data-note="5">Benchmark list · 63 subscribers</span></div></footer>
+
+<script>
+(function(){
+  var fee=document.getElementById('fee'), out=document.getElementById('feeout'), CALLS=14;
+  function read(){var n=parseFloat(String(fee.value).replace(/[^0-9.]/g,''));return isFinite(n)&&n>0?n:0;}
+  function show(){var f=read();out.innerHTML=f?'&rarr; 14 calls booked at that rate is <b>$'+
+    (CALLS*f).toLocaleString('en-US')+'</b> if every one signed.':'';}
+  fee.addEventListener('input',show);
+  fee.addEventListener('blur',function(){var n=read();fee.value=n?'$'+n.toLocaleString('en-US'):'';});
+  fee.addEventListener('focus',function(){var n=read();fee.value=n?String(n):'';});
+  show();
+
+  var b=document.getElementById('genrep'), o=document.getElementById('repout');
+  var steps=['Reading 96 runs from this quarter…','Filtering to the Southwest · 71 runs…',
+    'Medians: recurring 64% · margin 14.1% · largest client 22%…',
+    'Quartiles and the regional spread…','Deal activity from the channel press · 9 transactions…',
+    'Cover: Joshua Liberman · your photograph…','Page 4 left blank for your two paragraphs…',
+    'DONE · Q4-benchmark-southwest.pdf · 12 pages · ready to send to 63'];
+  b.addEventListener('click',function(){
+    b.disabled=true; o.textContent='';
+    steps.forEach(function(s,i){setTimeout(function(){
+      o.textContent += (i?'\n':'') + s;
+      if(i===steps.length-1){b.disabled=false;b.textContent='Download PDF';}
+    }, 420*(i+1));});
+  });
+})();
+</script>
+<script src="demo-notes.js"></script>
+</body>
+</html>

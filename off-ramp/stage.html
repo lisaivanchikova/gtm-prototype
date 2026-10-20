@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Find Your Best Exit — closing slide</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%2315603A'/%3E%3Cpath d='M8 16h13M16 10l6 6-6 6' stroke='%23fff' stroke-width='2.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="demo.css">
+<link rel="stylesheet" href="demo-notes.css">
+<style>
+.slide{min-height:calc(100vh - 38px);display:flex;flex-direction:column;justify-content:center}
+.sgrid{display:grid;grid-template-columns:1.1fr .9fr;gap:60px;align-items:center;padding:40px 0}
+.sgrid h1{font-size:clamp(46px,7.6vw,104px);line-height:.93}
+.sub-g{font:800 clamp(22px,2.6vw,34px) var(--sans);color:var(--green);letter-spacing:-.02em;margin-top:18px}
+.stats{display:flex;gap:46px;flex-wrap:wrap;border-top:2px solid var(--ink);margin-top:34px;padding-top:22px}
+.stats div b{display:block;font:800 clamp(30px,3.4vw,44px)/1 var(--sans);letter-spacing:-.03em}
+.stats div span{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.07em;
+  text-transform:uppercase;color:var(--grey);margin-top:7px;max-width:19ch;line-height:1.5}
+.bigsign{background:var(--green);border:4px solid #fff;border-radius:12px;padding:22px;
+  box-shadow:0 0 0 3px var(--ink),0 18px 40px rgba(0,0,0,.2);color:#fff}
+.bigsign .hd{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px}
+.bigsign .hd b{font:800 clamp(22px,2.4vw,32px) var(--sans);letter-spacing:-.01em}
+.bigsign .hd span{font-family:var(--mono);font-size:13px;letter-spacing:.08em}
+.bigsign .yb{font:600 clamp(15px,1.4vw,19px) var(--sans);margin-bottom:16px}
+.bigsign .qr{background:#fff;border-radius:6px;padding:20px;display:grid;place-items:center}
+.bigsign .qr img{width:100%;max-width:300px;display:block}
+.bigsign .url{text-align:center;font:700 clamp(15px,1.5vw,21px) var(--mono);letter-spacing:.02em;margin-top:16px}
+@media(max-width:900px){.sgrid{grid-template-columns:1fr;gap:34px}}
+</style>
+</head>
+<body>
+<div id="demobar"></div>
+<div class="slide">
+  <div class="wrap sgrid">
+    <div>
+      <p class="sec-no">Before you leave the room</p>
+      <h1>What is<br>your MSP<br>worth?</h1>
+      <p class="sub-g">Even if you never sell it.</p>
+      <div class="stats">
+        <div><b>2</b><span>Numbers you know by heart</span></div>
+        <div><b>60s</b><span>And you have your range</span></div>
+        <div><b>1</b><span>Written breakdown, from me</span></div>
+      </div>
+    </div>
+    <div class="bigsign" data-note="1">
+      <div class="hd"><b>EXIT 2026</b><span>NEXT RIGHT &rarr;</span></div>
+      <div class="yb">Your Best Exit</div>
+      <div class="qr"><img src="qr.svg" alt=""></div>
+      <div class="url">join.intwin.tech</div>
+    </div>
+  </div>
+</div>
+<div class="ticker">
+  <div class="run" id="tick"></div><div class="dashes"></div>
+</div>
+<script>
+(function(){var el=document.getElementById('tick');
+var i=['Joshua Liberman','Founder, Net Sciences 1996–2026','Sold to Qual IT',
+'We can talk about paving your off-ramp.','ASCII Group since 1996'];
+var h=i.map(function(t){return '<span>'+t+'</span>';}).join('');el.innerHTML=h+h;})();
+</script>
+<script src="demo-notes.js"></script>
+</body>
+</html>

@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Что строим — Find Your Best Exit</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%2315603A'/%3E%3Cpath d='M8 16h13M16 10l6 6-6 6' stroke='%23fff' stroke-width='2.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="demo.css">
+<link rel="stylesheet" href="demo-notes.css">
+<style>
+.doc{max-width:760px;margin:0 auto;padding:46px 28px 90px}
+.doc h1{font-size:clamp(32px,4.6vw,52px);margin-bottom:18px}
+.doc h2{font-size:clamp(21px,2.4vw,30px);margin:54px 0 14px;padding-top:26px;border-top:2px solid var(--ink)}
+.doc h3{font-size:17px;margin:28px 0 8px;text-transform:none;letter-spacing:-.01em}
+.doc p{font-size:15.5px;line-height:1.68;margin:0 0 1em}
+.doc ul{padding-left:20px;margin:0 0 1.1em}.doc li{margin-bottom:.45em;font-size:15.5px;line-height:1.6}
+.doc code{font:400 13px var(--mono);background:#E6E3DA;padding:2px 6px}
+.doc .box{background:#fff;border:1.5px solid var(--ink);padding:20px 24px;margin:22px 0}
+.doc .box.g{background:var(--green);border-color:var(--green);color:#fff}
+.doc .box.g code{background:rgba(255,255,255,.16);color:#CFE3D6}
+.doc .box.y{border-color:var(--yellow);border-left-width:6px}
+.doc .box p:last-child{margin-bottom:0}
+.doc table{width:100%;min-width:0;border-collapse:collapse;font:400 13.5px var(--sans);margin:18px 0}
+.doc th,.doc td{text-align:left;padding:11px 12px;border-bottom:1px solid var(--line);
+  vertical-align:top;white-space:normal}
+.doc th{font:500 10.5px var(--mono);letter-spacing:.07em;text-transform:uppercase;color:var(--grey)}
+.doc .api{font:400 12.5px/1.8 var(--mono);background:var(--ink);color:#C6C2B8;padding:18px 20px;margin:16px 0;
+  overflow-x:auto;white-space:pre}
+.doc .api b{color:#8FD3AC;font-weight:400}
+</style>
+</head>
+<body>
+<div id="demobar"></div>
+<div class="doc">
+
+<p class="sec-no">Для Димы и Левона · 20.10.2026</p>
+<h1>Что мы строим и где здесь бэк</h1>
+
+<p class="lede" style="max-width:none">Коротко идея. Есть живой человек — Джошуа Либерман,
+тридцать лет строил MSP в Альбукерке и продал его в этом году. Теперь выступает на отраслевых
+конференциях и открыл практику <b>Find Your Best Exit</b>: помогает другим владельцам MSP
+подготовиться к продаже. Сайта у практики нет — в объявлении стоит «Watch this space for more».</p>
+
+<p class="lede" style="max-width:none">Мы даём ему фронт под его именем. Он выступает, в конце
+выводит слайд с QR-кодом, зал сканирует и попадает на страницу с калькулятором: два числа —
+и человек видит, сколько стоит его бизнес. <b>Калькулятор живёт у нас на бэке</b>, фронт только
+показывает. Плюс мы делаем ему <b>квартальный отчёт</b> — он собирается из тех же прогонов
+калькулятора и уходит по его списку под его именем.</p>
+
+<p class="lede" style="max-width:none">Он получает поток обращений и повод писать людям,
+ничего не продавая. Мы получаем видимость того, кто из владельцев MSP считает свою цену —
+то есть кто собирается продаваться, за год-два до того, как он выйдет на рынок.</p>
+
+<div class="box y">
+<p><b>Посмотреть вживую.</b> Вверху зелёная полоса: «Сайт», «Слайд», «Кабинет». На каждой
+странице есть кнопка <b>«Показать, где бэк»</b> — она подсвечивает жёлтым всё, что требует
+сервера, и открывает панель с объяснением и методами.</p>
+</div>
+
+<h2>Три экрана</h2>
+<table>
+<tr><th style="width:26%">Экран</th><th>Что это</th></tr>
+<tr><td><b>Слайд</b><br><code>stage.html</code></td><td>Он выводит его на проектор в конце доклада. QR и один вопрос. На каждое выступление генерируется свой код с меткой — иначе конверсию по сценам не посчитать.</td></tr>
+<tr><td><b>Сайт</b><br><code>index.html</code></td><td>Куда ведёт QR. Калькулятор, печатный чек с арифметикой, две кнопки под результатом, четыре услуги, подписка на отчёт, форма связи.</td></tr>
+<tr><td><b>Кабинет</b><br><code>desk.html</code></td><td>Что видит Джошуа. Счётчики по его формуле, список обращений с цифрами, кнопка сборки отчёта.</td></tr>
+</table>
+
+<h2>Что делает фронт, а что бэк</h2>
+
+<p><b>Фронт</b> — поля калькулятора. Человек их крутит, ничего никуда не уходит. Это важно:
+первый шаг анонимный, владелец MSP ещё никому не сказал, что думает о продаже.</p>
+
+<p><b>Бэк</b> — вся арифметика. Сейчас она лежит в <code>app.js</code>, чтобы демо работало,
+но жить там не должна: коэффициенты будут меняться, а фронтов у нас будет много — по одному
+на каждого партнёра. Расхождений в цифрах между ними быть не может.</p>
+
+<div class="api">POST /api/estimate
+  <b>→</b> { revenue, owner_earnings, replacement_salary,
+      recurring_pct, largest_client_pct, growth, owner_role }
+  <b>←</b> { lines: [ {label, value, negative} ],
+      adjusted_earnings, multiple_low, multiple_high,
+      range_low, range_high, recoverable, worst: {key, label, value} }</div>
+
+<p>Фронт получает готовые строки и просто печатает их на чеке. <code>worst</code> — та самая
+строка, которая подставляется во вторую кнопку под результатом: «вот это стоит тебе дороже всего».</p>
+
+<h3>Три формы, один приём</h3>
+<p>Письменная версия, подписка на отчёт и форма связи шлют в одно место и различаются полем
+<code>subject</code>. Метка выступления <code>talk</code> берётся из <code>?t=</code> в адресе —
+без неё половина формулы Джошуа не считается.</p>
+
+<div class="api">POST /api/lead
+  <b>→</b> { subject: "valuation" | "benchmark" | "talk",
+      source: "liberman", talk: "ascii-sa-2026",
+      email, name?, note?, answers? }</div>
+
+<p>На <code>subject: valuation</code> бэк делает три вещи: кладёт прогон в базу, собирает PDF
+на одну страницу и отправляет письмо. PDF — не «подробный расчёт», а документ, который владелец
+распечатает и положит перед женой и бухгалтером. Это осознанное решение, а не оформление.</p>
+
+<h2>Отчёт — вторая половина продукта</h2>
+
+<p>Данные для него производит сам калькулятор. Каждый прогон оставляет шесть параметров
+структуры бизнеса: выручка, сколько владелец вынимает, доля повторяющейся выручки, концентрация
+клиента, динамика, его роль. <b>Публично этого не собирает никто</b> — владельцы такого
+не рассказывают ни в опросах, ни прессе.</p>
+
+<p>После двухсот-трёхсот прогонов печатается то, чего нет нигде: «медианный MSP Юго-Запада
+держит 64% повторяющейся выручки, верхняя четверть — 81%». Для владельца это первый способ
+понять, он нормальный или отстал. Для Джошуа — повод написать своему списку, ничего не продавая.</p>
+
+<div class="box g">
+<p><b>Одна кнопка.</b> В кабинете нажимается «Generate benchmark» — бэк берёт все прогоны
+за квартал, режет по региону, считает медианы и квартили, добавляет сделки из канальной прессы,
+ставит имя и фотографию партнёра на обложку, <b>оставляет одну страницу пустой под его
+собственный комментарий</b> и отдаёт PDF.</p>
+<p style="margin-top:12px"><code>POST /api/partner/:id/report { period, region }</code></p>
+</div>
+
+<p>Пустая страница под его текст — не украшение. Без неё он знает, что документ не его,
+и рассылать не станет. Заодно это чинит риск одинаковости: когда двадцать партнёров рассылают
+одно и то же, это читается как спам.</p>
+
+<p>И сразу про масштаб: десять партнёров по четыре выпуска — сорок документов в год. Руками
+это не делается. С самого начала конвейер: один расчёт срезов, один шаблон, на вход имя
+партнёра и регион.</p>
+
+<h2>Что нужно от бэка, списком</h2>
+<table>
+<tr><th style="width:38%">Метод</th><th>Зачем</th></tr>
+<tr><td><code>POST /api/estimate</code></td><td>Вся арифметика оценки. Фронт только печатает</td></tr>
+<tr><td><code>POST /api/lead</code></td><td>Три формы. Пишет прогон в базу, шлёт PDF и письмо</td></tr>
+<tr><td><code>GET /api/partner/:id/stats</code></td><td>Счётчики кабинета: выступления, сканы, конверсия, звонки</td></tr>
+<tr><td><code>GET /api/partner/:id/leads</code></td><td>Список обращений с их цифрами</td></tr>
+<tr><td><code>GET /api/partner/:id/subscribers</code></td><td>Список подписчиков отчёта</td></tr>
+<tr><td><code>POST /api/partner/:id/report</code></td><td>Сборка квартального отчёта в PDF</td></tr>
+<tr><td><code>GET /api/partner/:id/qr?talk=</code></td><td>QR с меткой выступления для слайда</td></tr>
+</table>
+
+<h2>Блокеры запуска</h2>
+
+<div class="box y">
+<p><b>1 · Источники арифметики.</b> Лестница базовых мультипликаторов, 5,2× и 8,9×, маржа 11%
+и 20%, пять величин поправок — перенесены из нашего движка и <b>ссылки на источник не имеют</b>.
+На нашем сайте терпимо, там написано «арифметика, а не модель». Под именем Джошуа — нет:
+каждая цифра там обеспечена его тридцатилетней репутацией. Где источника не найдётся —
+поправку убираем или заменяем диапазоном.</p>
+<p style="margin-top:12px">Подтверждено и ссылку имеет только замещающая зарплата:
+<b>$105 770</b> — медиана General and Operations Managers, BLS, май 2025. Второй якорь
+для спора — $175 140 по Computer and Information Systems Managers, тот же источник.</p>
+</div>
+
+<ul>
+<li><b>Согласие Джошуа</b>, фотография в хорошем качестве и адрес для заявок.</li>
+<li><b>Снимок дороги</b> в шапке — сейчас нарисован SVG. У него есть свой, он фотограф;
+права спросить.</li>
+<li><b>Домен.</b> QR и подпись под ним сейчас ведут на <code>join.intwin.tech</code>.
+Подпись обязана совпадать с тем, что внутри кода, дословно.</li>
+<li><b>Название.</b> В посте он написал «Find Your Best Exit», а в профиле место работы
+указано «Your Best Exit Strategy». Это разные названия — спросить, какое настоящее.</li>
+</ul>
+
+<h2>Чего на сайте нет намеренно</h2>
+<p>Прайса, отзывов, календаря записи на первом экране, поп-апов, чата, слов «free consultation»
+и вопроса «вы собираетесь продавать?» на входе. Человек с тридцатью годами репутации
+в сообществе не может выглядеть продающим — это стоит ему ровно того, что делает его ценным.
+Его собственное поведение это подтверждает: почти в каждом посте про конференцию он раздаёт
+бесплатные коды на вход.</p>
+<p>Если что-то из этого захочется добавить — сначала прочитать разбор, он лежит в репозитории
+<code>roll-ups</code>, <code>5-production/specs/partner-fronts/liberman/brief.html</code>.</p>
+
+</div>
+<script src="demo-notes.js"></script>
+</body>
+</html>
