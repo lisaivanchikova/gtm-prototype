@@ -400,3 +400,126 @@ td a{font-weight:600}
   .facts div,.headline,.hist{background:#f2f5f9}
   .cardhd h1,.headline .rg b,.bar s,.weakl .it b,.hist b{color:#111}
 }
+
+/* ——— About ——— */
+.abt{display:grid;grid-template-columns:1.08fr .92fr;gap:56px;align-items:start}
+.abt h1{font-size:clamp(34px,4.4vw,54px);color:#fff;margin-top:16px}
+.abt .lede{color:var(--dim);font-size:16.5px;line-height:1.6;margin:26px 0 0}
+.abt .lede b{color:#fff;font-weight:600}
+.abt img{width:100%;border-radius:14px;display:block}
+.pills{display:flex;flex-wrap:wrap;gap:9px;margin-top:26px}
+.pills span{border:1px solid var(--line2);border-radius:999px;padding:8px 16px;font-size:13.5px;color:var(--fg)}
+.pills-cap{color:var(--mute);font-size:13.5px;margin:16px 0 0}
+.rec{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:30px}
+.rc{background:var(--card2);border:1px solid var(--line);border-radius:13px;padding:26px 28px 28px}
+.rc .yr{font-family:var(--disp);font-weight:800;font-size:44px;letter-spacing:-.04em;color:var(--blue);line-height:1}
+.rc .yr.word{font-size:30px}
+.rc b{display:block;font-size:15.5px;color:#fff;margin-top:14px}
+.rc .org{color:var(--mute);font-size:13px;margin-top:5px}
+.rc p{color:var(--dim);font-size:13.5px;line-height:1.55;margin:14px 0 0}
+.closer{display:grid;grid-template-columns:1fr 1fr;gap:44px;align-items:center}
+.closer h2{color:#fff;font-size:clamp(24px,3vw,34px);line-height:1.18}
+.closer .btns{display:flex;gap:12px;justify-content:flex-end;flex-wrap:nowrap}
+.closer .cta{margin-top:0}
+.closer .cta.ghost{margin-left:0}
+
+/* ——— Services: четыре карточки в ряд ——— */
+.svc4{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin-top:34px}
+.sv{background:var(--card2);border:1px solid var(--line);border-radius:13px;padding:24px 24px 26px}
+.sv .t{display:flex;align-items:baseline;gap:10px;margin-bottom:14px}
+.sv .t i{font-style:normal;font-family:var(--body);font-size:12px;font-weight:700;color:var(--blue)}
+.sv .t b{font-family:var(--disp);font-weight:800;font-size:20px;letter-spacing:.01em;color:#fff}
+.sv p{color:var(--dim);font-size:13.5px;line-height:1.6;margin:0}
+
+.seg{margin-top:30px}
+.seg .bars{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.seg .bars u{display:block;height:7px;border-radius:4px;background:rgba(255,255,255,.14);text-decoration:none}
+.seg .bars u.on{background:var(--blue)}
+.seg .names{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:12px}
+.seg .names div{padding-right:14px}
+.seg .names u{text-decoration:none;display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--mute);margin-bottom:7px}
+.seg .names b{display:block;font-family:var(--disp);font-weight:800;font-size:15.5px;letter-spacing:-.02em;
+  line-height:1.2;color:#fff}
+.seg .ends{display:flex;margin-top:18px;color:var(--mute);font-size:12px;letter-spacing:.1em;text-transform:uppercase}
+.seg .ends span:last-child{margin-left:auto}
+.svtext{display:grid;grid-template-columns:repeat(3,1fr);gap:34px;margin-top:4px}
+.svtext h3{font-size:19px;margin-bottom:12px}
+.svtext p{color:var(--dim);font-size:14px;line-height:1.65;margin:0}
+.svtext p+p{margin-top:10px}
+
+/* ——— Resources по макету ——— */
+.pub2{display:grid;grid-template-columns:1.25fr .75fr;gap:22px;margin-top:32px;align-items:stretch}
+.pubL{background:var(--card2);border:1px solid var(--line);border-radius:14px;padding:26px;
+  display:grid;grid-template-columns:200px 1fr;gap:28px;align-items:start}
+.cover{background:#fff;border-radius:8px;padding:20px 18px;color:#0A1128;min-height:200px;
+  display:flex;flex-direction:column}
+.cover .kic{font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;color:#5B6B82;font-weight:700}
+.cover h4{font-family:var(--disp);font-weight:800;font-size:19px;letter-spacing:-.03em;line-height:1.12;
+  color:#0A1128;margin:14px 0 0}
+.cover .lines{margin-top:18px}
+.cover .lines i{display:block;height:5px;border-radius:3px;background:#0A1128;margin-bottom:6px}
+.cover .lines i:nth-child(2){background:#2BA1FD;width:76%}
+.cover .lines i:nth-child(3){background:#C9D6E6;width:58%}
+.cover .foot{margin-top:auto;font-size:10.5px;color:#5B6B82}
+.pubL h3{font-size:25px;color:#fff}
+.pubL p{color:var(--dim);font-size:14.5px;margin:14px 0 0}
+.pubL a{display:inline-block;margin-top:16px;font-weight:600;font-size:14.5px}
+.pubR{background:var(--blue);border-radius:14px;padding:26px 28px 28px;color:#fff;display:flex;flex-direction:column}
+.pubR .kic{font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:rgba(255,255,255,.85)}
+.pubR .num{font-family:var(--disp);font-weight:800;font-size:66px;letter-spacing:-.045em;line-height:1;margin:22px 0 0}
+.pubR .num s{text-decoration:none;font-size:20px;opacity:.7;margin-left:6px}
+.pubR h3{font-size:22px;margin:20px 0 0;color:#fff}
+.pubR p{font-size:14px;margin:10px 0 0;color:rgba(255,255,255,.9)}
+.pubR a{margin-top:auto;padding-top:16px;color:#fff;font-weight:600;font-size:14.5px}
+
+.paper{background:#F2F5F9;color:#151A1F}
+.paper h2{color:#0A1128}
+.paper .ph{display:flex;align-items:baseline;gap:18px;flex-wrap:wrap;
+  border-bottom:1px solid #D4DEEA;padding-bottom:16px}
+.paper .key{margin-left:auto;display:flex;gap:16px;font-size:12px;color:#5B6B82}
+.paper .key i{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:6px;background:#9FB0C6}
+.paper .key span:nth-child(2) i{background:#31435B}
+.paper .key span:nth-child(3) i{background:#2BA1FD}
+.mcards{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:22px}
+.mc{background:#fff;border-radius:11px;padding:20px 22px 22px;box-shadow:0 1px 2px rgba(16,37,70,.08)}
+.mc .nm{font-size:14px;font-weight:600;color:#151A1F}
+.mc .nums{font-family:var(--disp);font-weight:800;font-size:25px;letter-spacing:-.03em;display:flex;gap:16px;margin-top:12px}
+.mc .nums u{text-decoration:none;color:#9FB0C6}
+.mc .nums u.md{color:#31435B} .mc .nums u.tp{color:#2BA1FD}
+.mc .scale{position:relative;height:3px;background:#E1E8F1;border-radius:2px;margin:16px 0 4px}
+.mc .scale i{position:absolute;top:-3px;width:9px;height:9px;border-radius:50%;transform:translateX(-50%)}
+.mc .buckets{display:flex;gap:4px;margin-top:12px;font-size:11.5px}
+.mc .buckets span{flex:1;border-radius:5px;padding:6px 8px;background:#E1E8F1;color:#5B6B82;white-space:nowrap}
+.mc .buckets span.md{background:#31435B;color:#fff}
+.mc .buckets span.tp{background:#2BA1FD;color:#fff}
+.mc .say{font-size:13px;font-style:italic;line-height:1.55;color:#4A5A70;margin:14px 0 0}
+.paper .pf{display:flex;align-items:baseline;gap:18px;flex-wrap:wrap;margin-top:22px;font-size:12.5px;color:#5B6B82}
+.paper .pf a{margin-left:auto;font-weight:600;color:#1183E8}
+
+/* ——— низ обзора по макету ——— */
+.dots{position:relative;margin-top:34px}
+.dots::before{content:"";position:absolute;left:6px;right:6px;top:6px;height:1px;background:var(--line2)}
+.dots .r{display:grid;grid-template-columns:repeat(3,1fr);gap:30px;position:relative}
+.dots .r>div{padding-right:20px}
+.dots .r>div::before{content:"";display:block;width:13px;height:13px;border-radius:50%;
+  border:2px solid var(--blue);background:var(--bg);margin-bottom:22px}
+.dots .r>div:first-child::before{background:var(--blue)}
+.dots b{display:block;font-family:var(--disp);font-weight:800;font-size:13px;letter-spacing:.14em;
+  color:var(--blue);margin-bottom:10px}
+.dots p{color:var(--dim);font-size:14px;margin:0}
+.dots .here{display:block;margin-top:12px;font-size:12.5px;font-weight:600;color:#fff}
+.who2{display:grid;grid-template-columns:230px 1fr;gap:40px;align-items:start;margin-top:30px}
+.who2 img{width:100%;border-radius:12px;display:block}
+.who2 p{color:var(--dim)}
+.srcs4{display:grid;grid-template-columns:repeat(4,1fr);gap:28px;border-top:1px solid #D4DEEA;
+  border-bottom:1px solid #D4DEEA;padding:22px 0;margin-top:26px}
+.srcs4 b{display:block;font-size:14px;color:#151A1F;margin-bottom:9px}
+.srcs4 p{color:#4A5A70;font-size:13px;line-height:1.6;margin:0}
+
+@media(max-width:980px){
+  .abt,.rec,.closer,.svc4,.svtext,.pub2,.pubL,.mcards,.dots .r,.who2,.srcs4{grid-template-columns:1fr}
+  .seg .bars,.seg .names{grid-template-columns:1fr;gap:6px}
+  .closer .btns{justify-content:flex-start}
+  .dots::before{display:none}
+}
