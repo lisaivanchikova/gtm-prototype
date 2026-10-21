@@ -525,3 +525,44 @@ td a{font-weight:600}
 }
 
 
+
+/* ——— сравнение с другими: закрыто до почты ——— */
+.cmp{border-top:1px solid var(--line);margin-top:20px;padding-top:18px}
+.cmp h4{font-size:17px;margin-bottom:4px}
+.cmp .hint{color:var(--mute);font-size:12.5px;margin:0 0 14px}
+.cmp .row{display:grid;grid-template-columns:120px 1fr 74px;gap:10px;align-items:center;
+  font-size:13px;color:var(--dim);margin-bottom:9px}
+.cmp .row .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cmp .track{position:relative;height:8px;border-radius:5px;background:rgba(255,255,255,.12)}
+.cmp .track i{position:absolute;top:-3px;width:14px;height:14px;border-radius:50%;
+  transform:translateX(-50%);border:2px solid var(--bg)}
+.cmp .track i.you{background:var(--blue);z-index:2}
+.cmp .track i.mid{background:#7D93AF}
+.cmp .row s{text-decoration:none;text-align:right;font-family:var(--disp);font-weight:800;font-size:14px;color:#fff;white-space:nowrap}
+.cmp.locked .track i.mid{display:none}
+.cmp.locked .row s{color:var(--mute)}
+.cmp .verdict{font-size:13.5px;line-height:1.55;color:var(--dim);margin:14px 0 0}
+.cmp .verdict b{color:#fff}
+.lockbox{border:1px solid var(--blue);background:rgba(43,161,253,.08);border-radius:11px;
+  padding:16px 18px;margin-top:16px}
+.lockbox b{display:block;color:#fff;font-size:14.5px;margin-bottom:6px}
+.lockbox p{color:var(--dim);font-size:13px;margin:0 0 12px;line-height:1.55}
+.lockbox .mailrow{margin-top:0}
+.lockbox .fine{color:var(--mute);font-size:11.5px;margin:10px 0 0}
+.lockbox.done{border-color:var(--line);background:transparent}
+
+/* закрытые карточки бенчмарка на Resources */
+.mc.shut{position:relative}
+.mc.shut .nums,.mc.shut .buckets,.mc.shut .say,.mc.shut .scale{filter:blur(5px);opacity:.45;user-select:none}
+.mc .shuttag{position:absolute;inset:auto 0 0 0;padding:14px 22px 20px;text-align:center;
+  font-size:12.5px;color:#4A5A70;background:linear-gradient(180deg,rgba(255,255,255,0),#fff 42%)}
+.mc .shuttag b{display:block;color:#151A1F;font-size:13.5px;margin-bottom:3px}
+.unlockbar{background:#fff;border-radius:12px;padding:22px 24px;margin-top:20px;
+  display:grid;grid-template-columns:1fr 360px;gap:28px;align-items:center;
+  box-shadow:0 1px 2px rgba(16,37,70,.08)}
+.unlockbar h3{font-size:19px;color:#0A1128}
+.unlockbar p{color:#4A5A70;font-size:13.5px;margin:8px 0 0}
+.unlockbar .mailrow{margin-top:0}
+.unlockbar .mailrow input{background:#F4F6F9;border-color:#D4DEEA;color:#151A1F}
+.unlockbar .ok{color:#1183E8}
+@media(max-width:980px){.unlockbar{grid-template-columns:1fr}}

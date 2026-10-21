@@ -142,9 +142,11 @@
         'next year &mdash; what slips first is usually concentration and your own role in it.</div>';
     }
     h+='<p class="fine">Not an offer. Not an appraisal. Arithmetic on figures you typed, with the '+
-      'working shown below.</p><p class="anon">This run is anonymous. Nobody knows it was you.</p>'+
-      '<a class="go" href="#next">What to do with this &rarr;</a>';
+      'working shown below.</p><p class="anon">This run is anonymous. Nobody knows it was you.</p>';
+    h+= compare({ recurring:recPct, margin:+(mg*100).toFixed(1), concentration:concPct,
+                  sales:sl, books:bk, owner:ow });
     out.innerHTML=h;
+    wireGate();
 
     window.__review={revenue:r,under_contract_pct:recPct,profit_before_owner_pay:p,
       replacement_salary:s,employees:n,revenue_per_head:Math.round(rph),largest_client_pct:concPct,
@@ -164,6 +166,80 @@
       worstName:worst.length?worst[0].name:'—',
       upside:(m2>m)?(money(e*(m2-0.6))+'–'+money(e*(m2+0.6))):null
     });
+  }
+
+
+  /* ——— сравнение с другими владельцами ———
+     Свои числа выше открыты всегда. Здесь начинаются чужие, и это стоит адреса. */
+  function pct(v,dom){ return Math.max(2,Math.min(98, v/dom*100)); }
+  function verdict(r,v){
+    if(r.higherIsBetter) return v>=r.top?'top quarter':v>=r.mid?'above the median':v>=r.low?'below the median':'bottom third';
+    return v<=r.top?'top quarter':v<=r.mid?'better than the median':v<=r.low?'worse than the median':'bottom third';
+  }
+  function compare(mine){
+    if(!window.MSPM||!MSPM.bench) return '';
+    var B=MSPM.bench, open=MSPM.unlocked();
+    var h='<div class="cmp'+(open?'':' locked')+'" id="cmp">'+
+      '<h4>Where you sit against everyone else</h4>'+
+      '<p class="hint">'+B.region+' &middot; '+B.quarter+' &middot; '+MSPM.counts().finished+' owners</p>';
+    B.rows.forEach(function(r){
+      var v=mine[r.k], dom, pos, mid, label;
+      if(r.buckets){
+        var i=(v|0)+1, cnt=[r.low,r.mid,r.top][i];
+        dom=r.low+r.mid+r.top; pos=pct(cnt,dom); mid=pct(Math.max(r.low,r.mid,r.top),dom);
+        label=open? cnt+' of '+dom : '&mdash;';
+        h+='<div class="row"><span class="nm">'+r.name+'</span>'+
+           '<span class="track"><i class="mid" style="left:'+mid.toFixed(1)+'%"></i>'+
+           '<i class="you" style="left:'+pos.toFixed(1)+'%"></i></span><s>'+label+'</s></div>';
+      } else {
+        dom=(r.higherIsBetter? r.top : r.low)*1.3;
+        pos=pct(v,dom); mid=pct(r.mid,dom);
+        label=open? r.mid+r.unit : '&mdash;';
+        h+='<div class="row"><span class="nm">'+r.name+'</span>'+
+           '<span class="track"><i class="mid" style="left:'+mid.toFixed(1)+'%"></i>'+
+           '<i class="you" style="left:'+pos.toFixed(1)+'%"></i></span><s>'+label+'</s></div>';
+      }
+    });
+    if(open){
+      var worstRow=null, worstV=null;
+      B.rows.forEach(function(r){
+        if(r.buckets) return;
+        var v=mine[r.k], d=verdict(r,v);
+        if(d==='bottom third' && !worstRow){ worstRow=r; worstV=v; }
+      });
+      h+='<p class="verdict">'+(worstRow
+          ? 'Your <b>'+worstRow.name.toLowerCase()+'</b> is in the <b>bottom third</b> at '+worstV+worstRow.unit+
+            ', against a median of '+worstRow.mid+worstRow.unit+'. &ldquo;'+worstRow.say+'&rdquo;'
+          : 'Nothing of yours sits in the bottom third this quarter. That is rarer than it sounds.')+'</p>'+
+        '<div class="lockbox done"><b>Opened.</b><p>The full Q4 benchmark, all six measures with '+
+        'Neil&rsquo;s commentary, is in <a href="report.html">the report</a>. '+
+        '<a href="#" id="printcmp">Print your copy</a>.</p></div>';
+    } else {
+      h+='<div class="lockbox"><b>Open the comparison</b>'+
+        '<p>Your six numbers against the medians of every owner who has finished this quarter, '+
+        'plus the full Q4 benchmark with Neil&rsquo;s commentary. Everything above stays as it is '+
+        '&mdash; this adds everybody else.</p>'+
+        '<div class="idrow"><input type="text" id="g-name" placeholder="Your name" autocomplete="name">'+
+        '<input type="text" id="g-co" placeholder="Company" autocomplete="organization">'+
+        '<input type="text" id="g-city" placeholder="City, ST" autocomplete="address-level2"></div>'+
+        '<div class="mailrow"><input type="email" id="g-mail" placeholder="you@yourmsp.com">'+
+        '<button id="g-go">Open it</button></div>'+
+        '<p class="fine">Your own figures never leave this page. The name and address reach Neil, '+
+        'and nothing else does unless you book a call.</p></div>';
+    }
+    return h+'</div>';
+  }
+  function wireGate(){
+    var go=$('g-go');
+    if(go) go.addEventListener('click',function(){
+      var m=$('g-mail'), v=(m.value||'').trim();
+      if(!/^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(v)){ m.focus(); m.style.borderColor='#F0A32E'; return; }
+      MSPM.unlock(v);
+      identify('g-name','g-co','g-city','g-mail','report');
+      calc();
+    });
+    var pr=$('printcmp');
+    if(pr) pr.addEventListener('click',function(e){ e.preventDefault(); window.print(); });
   }
 
   /* ——— запись прогона ——— */
@@ -224,6 +300,7 @@
     m.disabled=true; send.disabled=true; send.textContent='Sent';
     window.__reportRequest={email:v,review:window.__review||null,at:new Date().toISOString()};
     identify('r-name','r-co','r-city','mail','report');
+    if(window.MSPM){ MSPM.unlock(v); calc(); }
   });
 
   var slot='';

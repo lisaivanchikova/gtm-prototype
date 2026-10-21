@@ -185,3 +185,34 @@ MSPM.counts = function () {
     medianScore: b.medianScore
   };
 };
+
+/* ——— бенчмарк квартала ———
+   Одно место для шести показателей: обзор сравнивает с ними, Resources печатает,
+   отчёт собирает. Раньше числа лежали в трёх вёрстках и разъезжались. */
+MSPM.bench = {
+  quarter: 'Q4 2026',
+  region: 'Texas & the Southwest',
+  open: 'recurring',              /* показатель квартала — единственный открытый */
+  rows: [
+    { k:'recurring', name:'Share under contract', unit:'%', low:38, mid:61, top:84, higherIsBetter:true,
+      say:'Six in ten dollars renews on its own. The top quarter is at 84% — that gap is most of the difference in what the two get offered.' },
+    { k:'margin', name:'Adjusted margin', unit:'%', low:7.4, mid:13.1, top:21.6, higherIsBetter:true,
+      say:'The bottom third is not underpriced. It is overstaffed. I carried 15 to 20 percent more people than I needed in my own firm and did not see it.' },
+    { k:'concentration', name:'Largest client share', unit:'%', low:34, mid:19, top:9, higherIsBetter:false,
+      say:'One in five owners has a client worth a third of the business. That is the defect a buyer prices hardest, and the one owners argue about longest.' },
+    { k:'owner', name:'Longest stretch away', unit:'owners', low:66, mid:41, top:21, buckets:['A few days','About a week','Two weeks or more'],
+      say:'Two thirds have not been away longer than a few days in a year. That is the single most expensive line on the list.' },
+    { k:'sales', name:'Who sells', unit:'owners', low:61, mid:44, top:23, buckets:['The owner','Owner and help','A salesperson or team'],
+      say:'Half the room still brings in every new client personally. Growth that stops the day the owner steps back is not growth a buyer pays for.' },
+    { k:'books', name:'Books ready today', unit:'owners', low:47, mid:59, top:22, buckets:['A month of work','Some tidying','Ready today'],
+      say:'Only twenty-two could open the books tomorrow. Every week of tidying under time pressure is a week the other side spends asking why.' }
+  ]
+};
+
+/* замок снимается, когда владелец оставил почту; помним это в браузере */
+MSPM.unlocked = function () {
+  try { return !!localStorage.getItem('mspm.unlocked'); } catch (e) { return false; }
+};
+MSPM.unlock = function (email) {
+  try { localStorage.setItem('mspm.unlocked', email || '1'); } catch (e) {}
+};
