@@ -70,7 +70,7 @@
     A.push({ k:'concentration', name:'Client concentration',
       v: ca, next: concTurn(concPct>40?40:concPct>30?30:concPct>20?20:concPct>10?10:concPct),
       step: 'Getting it one band lower is worth about ',
-      score: clamp(100-Math.max(0,concPct-10)*2.5,0,100),
+      score: Math.round(clamp(100-Math.max(0,concPct-10)*2.5,0,100)),
       line: ca>=0 ? 'No client is above '+concPct+'% of revenue. Nothing here can walk out and take the year with it.'
                   : 'One client is '+concPct+'% of revenue. This is the defect a buyer cannot fix after closing, so it is priced hard.',
       });
