@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Owner card | MSP Mergers</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='5' fill='%230A1128'/%3E%3Cpath d='M16 6l7 7-7 13-7-13z' fill='%232BA1FD'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="demo.css">
+</head>
+<body>
+
+<div class="card">
+  <div class="cardbar">
+    <a href="desk.html">&larr; Your desk</a>
+    <span class="sp"></span>
+    <button class="btn" onclick="window.print()">Print</button>
+  </div>
+  <div id="card"></div>
+</div>
+
+<script src="store.js"></script>
+<script>
+(function(){
+  MSPM.seed();
+  var id = new URLSearchParams(location.search).get('id');
+  var r = id ? MSPM.get(id) : null;
+  var box = document.getElementById('card');
+  var M = MSPM.money;
+
+  if(!r){
+    box.innerHTML = '<div class="cardhd"><h1>No card here.</h1>'+
+      '<p class="co">Either this run is anonymous, or it has not happened yet. '+
+      '<a href="desk.html">Back to the desk</a>.</p></div>';
+    return;
+  }
+  if(r.anon){
+    box.innerHTML = '<div class="cardhd"><h1>Anonymous run.</h1>'+
+      '<p class="co">State, size band and six scores &mdash; that is everything this run left. '+
+      'A name reaches you only if the owner asks for the report or books a call. '+
+      '<a href="desk.html">Back to the desk</a>.</p></div>';
+    return;
+  }
+
+  var askTag = r.asked==='call' ? 'Booked 30 minutes'+(r.slot?' &middot; '+r.slot:'')
+             : r.asked==='report' ? 'Asked for the full report'+(r.askedTwice?' &middot; twice':'')
+             : 'Asked for nothing';
+
+  var h = '<div class="cardhd">'+
+    '<h1>'+r.name+'</h1>'+
+    '<p class="co">'+r.company+' &middot; '+(r.city||r.state)+'</p>'+
+    '<span class="tag'+(r.asked==='nothing'?' flat':'')+'">'+askTag+'</span>'+
+    '</div>';
+
+  h += '<div class="facts">'+
+    '<div><span>Revenue</span><b>'+M(r.revenue)+'</b></div>'+
+    '<div><span>People</span><b>'+(r.employees||'—')+'</b></div>'+
+    '<div><span>Adj. earnings</span><b>'+M(r.earnings)+'</b></div>'+
+    '</div>';
+
+  h += '<div class="headline">'+
+    '<div class="rg"><span>Likely worth</span><b>'+M(r.lo)+'&ndash;'+M(r.hi)+'</b></div>'+
+    '<div class="dm"><b>'+r.score+'</b><span>Diamond Score</span></div>'+
+    '</div>';
+
+  h += '<div class="bars">'+ r.scales.map(function(s){
+    return '<div class="bar'+(s.score<40?' low':'')+'"><span>'+s.name+'</span>'+
+      '<u><i style="width:'+Math.max(3,s.score)+'%"></i></u><s>'+s.score+'</s></div>';
+  }).join('') +'</div>';
+
+  if(r.worst && r.worst.length && r.worst[0].cash){
+    h += '<div class="weakl"><h3 style="font-size:17px;margin-bottom:4px">What is costing him the most</h3>'+
+      '<p style="color:var(--mute);font-size:12.5px;margin:0 0 14px">Word for word what he read on the review.</p>'+
+      r.worst.filter(function(w){return w.cash;}).map(function(w){
+        return '<div class="it"><b>'+w.name+'</b><s>'+M(w.cash)+'</s>'+
+          '<p>'+w.line+'</p></div>';
+      }).join('') +'</div>';
+  }
+
+  h += '<div class="hist">'+
+    (r.runs>1
+      ? 'Run '+r.runs+'. Score moved <span class="mv">'+r.firstScore+' &rarr; '+r.score+'</span> since the first one. '
+      : 'First run. ')+
+    'Finished <b>'+MSPM.when(r.ts)+'</b>'+(r.email?' &middot; <b>'+r.email+'</b>':'')+'.</div>';
+
+  h += '<div class="noteb"><h3>After the call</h3>'+
+    '<textarea id="note" placeholder="What he actually said. Only you ever see this."></textarea>'+
+    '<div class="row"><button class="btn pri" id="savenote">Save note</button>'+
+    '<span class="saved" id="saved">Saved</span></div></div>';
+
+  box.innerHTML = h;
+  var t = document.getElementById('note');
+  t.value = r.note || '';
+  document.getElementById('savenote').addEventListener('click', function(){
+    MSPM.patch(r.id, {note: t.value});
+    var s = document.getElementById('saved');
+    s.style.display='inline'; setTimeout(function(){ s.style.display='none'; }, 1800);
+  });
+})();
+</script>
+</body>
+</html>

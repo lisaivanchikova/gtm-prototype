@@ -152,6 +152,55 @@
       adjusted_multiple:+m.toFixed(2),range:money(lo)+'–'+money(hi),diamond_score:score,
       scales:A.map(function(x){return {k:x.k,score:x.score};}),
       worst:worst.map(function(x){return x.k;})};
+
+    /* прогон уходит на стол Нила в тот момент, когда диапазон посчитан.
+       Пока анонимно: штат, диапазон выручки, шесть оценок. */
+    store({
+      revenue:r, employees:n, earnings:Math.round(e),
+      lo:Math.round(lo), hi:Math.round(hi), mult:+m.toFixed(2), score:score,
+      recPct:recPct, concPct:concPct, margin:+(mg*100).toFixed(1),
+      scales:A.map(function(x){return {k:x.k,name:x.name,score:x.score,line:x.line};}),
+      worst:worst.map(function(x){return {k:x.k,name:x.name,line:x.line,cash:Math.round(x.cash),step:x.step};}),
+      worstName:worst.length?worst[0].name:'—',
+      upside:(m2>m)?(money(e*(m2-0.6))+'–'+money(e*(m2+0.6))):null
+    });
+  }
+
+  /* ——— запись прогона ——— */
+  var RID = null;
+  try { RID = sessionStorage.getItem('mspm.rid'); } catch(err){}
+  function rid(){
+    if(!RID){ RID='r'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+      try{ sessionStorage.setItem('mspm.rid',RID); }catch(err){} }
+    return RID;
+  }
+  function store(data){
+    if(!window.MSPM) return;
+    var prev = window.MSPM.get(rid()) || {};
+    data.id = rid();
+    data.ts = prev.ts || Date.now();
+    data.runs = prev.runs || 1;
+    data.firstScore = (prev.firstScore === undefined) ? data.score : prev.firstScore;
+    data.asked = prev.asked || 'nothing';
+    data.name = prev.name || ''; data.company = prev.company || '';
+    data.city = prev.city || ''; data.email = prev.email || '';
+    data.slot = prev.slot || ''; data.note = prev.note || '';
+    window.MSPM.upsert(data);
+  }
+  function identify(nameId,coId,cityId,mailId,asked,slot){
+    if(!window.MSPM) return;
+    var g=function(id){var el=$(id);return el?(el.value||'').trim():'';};
+    window.MSPM.patch(rid(),{
+      name:g(nameId)||'Name withheld', company:g(coId)||'Company withheld',
+      city:g(cityId)||'', email:g(mailId), asked:asked, slot:slot||'', askedAt:Date.now()
+    });
+    var box=$('out'); if(!box) return;
+    var old=box.querySelector('.landed'); if(old) old.remove();
+    var d=document.createElement('div'); d.className='landed';
+    d.innerHTML = asked==='call'
+      ? 'Your six numbers are with <b>Neil</b>. He opens them before the call &mdash; you will not be starting at the beginning.'
+      : 'Your six numbers are with <b>Neil</b>. The written report follows within the hour.';
+    box.appendChild(d);
   }
 
   [rev,sde,rep,emp,rec,conc].forEach(function(el){ el.addEventListener('input',calc); });
@@ -174,6 +223,24 @@
     m.style.borderColor=''; $('ok').style.display='block';
     m.disabled=true; send.disabled=true; send.textContent='Sent';
     window.__reportRequest={email:v,review:window.__review||null,at:new Date().toISOString()};
+    identify('r-name','r-co','r-city','mail','report');
+  });
+
+  var slot='';
+  var slots=$('slots');
+  if(slots) slots.addEventListener('click',function(ev){
+    var b=ev.target.closest('.chip'); if(!b) return;
+    slots.querySelectorAll('.chip').forEach(function(x){x.classList.remove('on');});
+    b.classList.add('on'); slot=b.getAttribute('data-slot');
+  });
+  var book=$('book');
+  if(book) book.addEventListener('click',function(){
+    var m=$('b-mail'), v=(m.value||'').trim();
+    if(!/^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(v)){ m.focus(); m.style.borderColor='#F0A32E'; return; }
+    if(!slot){ var f=slots.querySelector('.chip'); f.classList.add('on'); slot=f.getAttribute('data-slot'); }
+    m.style.borderColor=''; $('bok').style.display='block';
+    m.disabled=true; book.disabled=true; book.textContent='Booked';
+    identify('b-name','b-co','b-city','b-mail','call',slot);
   });
 
   calc();

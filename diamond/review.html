@@ -15,8 +15,8 @@
   <a href="index.html"><img src="logo.jpg" alt="MSP Mergers, LLC"></a>
   <a href="index.html">Home</a>
   <a href="https://www.mspmergers.com/home-1">About</a>
-  <a href="https://www.mspmergers.com/blank-9">Services</a>
-  <a href="https://www.mspmergers.com/blog">Resources</a>
+  <a href="services.html">Services</a>
+  <a href="resources.html">Resources</a>
   <span class="sp"></span>
   <a href="review.html" class="btn-n">Get a Valuation</a>
 </div></nav>
@@ -114,6 +114,11 @@
       <p>Get the full report: your six scores, what each one is costing you in dollars, and the
         order I&rsquo;d fix them in over the next twelve months. Re-run this next year and see
         what moved.</p>
+      <div class="idrow">
+        <input type="text" id="r-name" placeholder="Your name" autocomplete="name">
+        <input type="text" id="r-co" placeholder="Company" autocomplete="organization">
+        <input type="text" id="r-city" placeholder="City, ST" autocomplete="address-level2">
+      </div>
       <div class="mailrow"><input type="email" id="mail" placeholder="you@yourmsp.com"><button id="send">Send it</button></div>
       <p class="ok" id="ok">On its way. The report lands within the hour.</p>
     </div>
@@ -122,7 +127,18 @@
       <p>Thirty minutes with Neil. No cost, confidential, and it does not start a process.
         Bring the numbers above &mdash; we&rsquo;ll start where the review left off instead of
         at the beginning.</p>
-      <a class="go" href="https://www.mspmergers.com/book-online">Book 30 minutes &rarr;</a>
+      <div class="chips" id="slots" style="margin-top:16px">
+        <button class="chip" data-slot="Thursday, 10:00 CT">Thursday, 10:00 CT</button>
+        <button class="chip" data-slot="Thursday, 15:30 CT">Thursday, 15:30 CT</button>
+        <button class="chip" data-slot="Friday, 09:00 CT">Friday, 09:00 CT</button>
+      </div>
+      <div class="idrow">
+        <input type="text" id="b-name" placeholder="Your name" autocomplete="name">
+        <input type="text" id="b-co" placeholder="Company" autocomplete="organization">
+        <input type="text" id="b-city" placeholder="City, ST" autocomplete="address-level2">
+      </div>
+      <div class="mailrow"><input type="email" id="b-mail" placeholder="you@yourmsp.com"><button id="book">Book it</button></div>
+      <p class="ok" id="bok">Booked. Neil has your six numbers before the call starts.</p>
     </div>
   </div>
 </div></section>
@@ -187,8 +203,10 @@
   <span class="sp"></span>
   <a href="mailto:neil@mspmergers.com">neil@mspmergers.com</a>
   <span>MSP Mergers, LLC &middot; Dallas, TX</span>
+  <a href="desk.html">Sign in</a>
 </div></footer>
 
+<script src="store.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
