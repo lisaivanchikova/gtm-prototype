@@ -612,3 +612,20 @@ td a{font-weight:600}
   .pg-review .printft{display:block;font-size:10.5px;color:#5B6B7D;margin-top:20px;
     padding-top:12px;border-top:1px solid #C9D2DD}
 }
+
+/* печать открытого сравнения (compare.js) */
+@media print{
+  .pg-review .cx{background:none;border:1px solid #C9D2DD;break-inside:avoid}
+  .pg-review .cx-hd h4,.pg-review .cx-nums .you,.pg-review .cx-top .nm,
+  .pg-review .cx-verdict b,.pg-review .cx-sum span b{color:#151A1F}
+  .pg-review .cx-hd .hint,.pg-review .cx-nums .md,.pg-review .cx-top .dir,
+  .pg-review .cx-ax,.pg-review .cx-say,.pg-review .cx-key,.pg-review .cx-verdict,
+  .pg-review .cx-st-l span{color:#4A5A70}
+  .pg-review .cx-m{background:#F7F9FC;border-color:#D4DEEA}
+  .pg-review .cx-bar .z.mi{background:#E1E8F1}
+  .pg-review .cx-bar .you{box-shadow:0 0 0 3px #F7F9FC}
+  .pg-review .cx-st div{background:#E1E8F1;color:#5B6B7D}
+  .pg-review .cx-st-l span.me{color:#151A1F}
+  .pg-review .cx-sum span{border-color:#C9D2DD;color:#4A5A70}
+  .pg-review .cx-ft{display:none}
+}
