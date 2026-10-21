@@ -523,3 +523,15 @@ td a{font-weight:600}
   .closer .btns{justify-content:flex-start}
   .dots::before{display:none}
 }
+
+/* ——— его блог рядом с отчётом ——— */
+.posts{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:28px}
+.post{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:22px 24px 24px;
+  display:flex;flex-direction:column}
+.post .meta{color:var(--mute);font-size:12px;letter-spacing:.06em;text-transform:uppercase}
+.post h3{font-size:19px;margin:12px 0 0;color:#fff}
+.post p{color:var(--dim);font-size:14px;margin:12px 0 0}
+.post a{margin-top:auto;padding-top:16px;font-weight:600;font-size:14px}
+.posthd{display:flex;align-items:baseline;gap:18px;flex-wrap:wrap}
+.posthd a{margin-left:auto;font-weight:600;font-size:14.5px}
+@media(max-width:980px){.posts{grid-template-columns:1fr}}
