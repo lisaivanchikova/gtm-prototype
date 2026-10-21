@@ -17,6 +17,24 @@ to the agent.
 
 One file, no dependencies. All data is fictional.
 
+## Partner fronts — one engine, two brands
+
+White-label fronts for channel intermediaries. The same valuation engine, the same
+partner desk and the same report pipeline underneath; the brand, the palette, the
+metaphor and every line of copy change per partner.
+
+https://lisaivanchikova.github.io/gtm-prototype/off-ramp/ — built for an association
+leader who cannot be seen selling. Paper, dark green, a road and an exit sign.
+
+https://lisaivanchikova.github.io/gtm-prototype/diamond/ — built for an M&A advisory
+firm that sells openly. Navy, electric blue, a diamond in the rough. Nine questions,
+a value range, a six-factor score, and the three weakest factors priced in dollars.
+`desk.html` is the partner's view; `build.html` explains what is real, what is sample
+data and which seven API methods it needs.
+
+All partner data in the desks is fictional. The arithmetic on the owner-facing pages
+is real and runs on whatever is typed in.
+
 ## Earlier — superseded
 
 https://lisaivanchikova.github.io/gtm-prototype/ — the first shape of the unified

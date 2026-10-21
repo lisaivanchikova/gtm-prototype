@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Что здесь собрано — для Димы и Левона</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="demo.css">
+<style>
+body{background:#fff}
+.doc{max-width:820px;margin:0 auto;padding:0 32px 90px;
+  font:400 16.5px/1.68 Inter,-apple-system,sans-serif;color:#17212F}
+.doc h1{font-size:clamp(30px,4vw,46px);margin:56px 0 10px}
+.doc h2{font-size:clamp(22px,2.6vw,30px);margin:56px 0 10px;padding-top:26px;border-top:1px solid var(--line)}
+.doc h3{font-size:18px;margin:30px 0 8px;font-family:var(--disp);font-weight:700;letter-spacing:-.02em}
+.doc p{margin:0 0 .95em}
+.doc .lede{font-size:19px;color:var(--slate)}
+.doc .kick{color:var(--blue-d);font-weight:600;font-size:13px;letter-spacing:.13em;text-transform:uppercase}
+.doc code{background:#F1F5FA;border:1px solid var(--line);border-radius:5px;padding:1px 6px;
+  font:500 14px ui-monospace,SFMono-Regular,Menlo,monospace}
+.doc pre{background:var(--navy);color:#DCEBF8;border-radius:11px;padding:20px 22px;overflow:auto;
+  font:400 13.5px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace}
+.doc pre b{color:#6FC0FF;font-weight:500}
+.doc table{min-width:0;font-size:14.5px;margin-top:16px}
+.doc .scroll{margin-top:0}
+.doc ol,.doc ul{padding-left:22px}
+.doc li{margin-bottom:.45em}
+.box{border:1px solid var(--line);border-left:3px solid var(--blue);border-radius:0 11px 11px 0;
+  padding:18px 22px;margin:22px 0;background:#F8FBFF;font-size:15.5px}
+.box.warn{border-left-color:#F2A33C;background:#FFFBF5}
+.box p:last-child{margin-bottom:0}
+</style>
+</head>
+<body>
+<header class="topbar"><div class="wrap">
+  <img src="logo.jpg" alt="">
+  <nav><a href="index.html">Страница</a><a href="desk.html">Кабинет</a><a href="build.html" class="on">Что собрано</a></nav>
+</div></header>
+
+<div class="doc">
+<p class="kick" style="margin-top:46px">Второй партнёрский фронт &middot; 21.10.2026</p>
+<h1>Что здесь собрано и где начинается бэк</h1>
+<p class="lede">Короткое объяснение для Димы и Левона: что это за две страницы, что на них
+настоящее, что подставлено, и какие ровно семь методов нужны, чтобы это перестало быть
+статикой.</p>
+
+<h2>Идея в двух абзацах</h2>
+<p>У холдинга нет потока продавцов MSP. Поток есть у посредников — людей, вокруг которых
+владельцы уже собрались. Мы не покупаем у них рекламу и не просим контакты. Мы отдаём им
+продукт под их именем: инструмент, который владелец запускает сам, и кабинет, где посредник
+видит всех, кто его запустил.</p>
+<p>Первый такой фронт собран под Джошуа Либермана. Этот — под <b>Нила Медведа</b>, Даллас,
+43 года в канале, 26 лет собственного MSP, который он продал, потом 11 купленных MSP на
+стороне покупателя, а с сентября 2026 — своя контора <b>MSP Mergers, LLC</b>. На его сайте
+в меню уже висит кнопка <code>Get a Valuation</code>, и она ведёт на форму записи на звонок.
+Мы ставим ровно то, что эта кнопка обещает.</p>
+
+<h2>Две страницы</h2>
+<div class="scroll"><table>
+<tr><th>Файл</th><th>Для кого</th><th>Что делает</th></tr>
+<tr><td><code>index.html</code></td><td>владелец MSP</td>
+  <td>девять вопросов, диапазон стоимости, Diamond Score из шести факторов, три самых дорогих
+  слабых места с деньгами, две развилки — отчёт на почту или 30 минут с Нилом</td></tr>
+<tr><td><code>desk.html</code></td><td>Нил</td>
+  <td>семь чисел сверху, шесть карточек бенчмарка с редактируемыми подписями, список всех
+  прогонов с тремя слабыми местами, вернувшиеся повторно, кнопка сборки квартального отчёта</td></tr>
+</table></div>
+
+<h2>Что здесь настоящее</h2>
+<ul>
+<li><b>Вся арифметика.</b> <code>app.js</code> считает по-настоящему: приведённая прибыль,
+базовый множитель по размеру, шесть поправок, коридор ±0,6 оборота. Поменяйте любое поле —
+пересчитается всё, включая деньги у каждого слабого места.</li>
+<li><b>Замещающая зарплата $105 770</b> — медиана по США для General and Operations Managers
+(SOC 11-1021), BLS OEWS, май 2025. Это поле, а не константа: владелец правит под свой рынок.</li>
+<li><b>Все факты о Ниле на странице</b> — из его профиля, его постов и его сайта. Цитата
+в блоке «кто считает» — дословная.</li>
+<li><b>Палитра и шрифты</b> сняты с mspmergers.com: тёмно-синий <code>#0A1128</code>, акцент
+<code>#2BA1FD</code>, Inter в тексте. Заголовочный шрифт у него лицензионный (Benzin),
+здесь стоит ближайший свободный — Outfit.</li>
+<li><b>Экспорт списка в CSV</b> в кабинете работает: жмёт — скачивается файл.</li>
+</ul>
+
+<h2>Что подставлено и ждёт бэка</h2>
+<div class="box warn">
+<p><b>Все цифры в кабинете</b> — 128 прогонов, медианы, список компаний, вернувшиеся —
+это образец данных, чтобы было видно форму. Живых прогонов нет ни одного. На странице
+владельца подставленного нет ничего: там считается то, что он ввёл.</p>
+</div>
+<ul>
+<li>Кнопка <b>«Send it»</b> складывает результат в <code>window.__reportRequest</code>
+и показывает подтверждение. Письма не уходит — нужен эндпойнт.</li>
+<li>Кнопка <b>«Draft the Q4 regional report»</b> имитирует сборку и открывает печать.
+Настоящий PDF собирает бэк.</li>
+<li><b>Множители</b> — наша модель, а не рыночный обзор. На странице это сказано прямо,
+в блоке «Where the numbers come from». До запуска нужен источник или честная оговорка,
+которая там уже стоит.</li>
+</ul>
+
+<h2>Семь методов, и фронт оживает</h2>
+<p>Всё остальное — статика, которую можно не трогать.</p>
+<pre><b>POST</b> /v1/reviews                  сохранить прогон целиком
+     &rarr; { partner_id, revenue, under_contract_pct, profit_before_owner_pay,
+         replacement_salary, employees, largest_client_pct, sells, books,
+         longest_away, adjusted_earnings, multiple, range, diamond_score, weakest[] }
+     &larr; { review_id }
+
+<b>POST</b> /v1/reviews/{id}/report       запросить полный отчёт на почту
+     &rarr; { email } &larr; { queued: true }
+
+<b>GET</b>  /v1/partners/{id}/kpis        семь чисел в шапке кабинета
+<b>GET</b>  /v1/partners/{id}/benchmark   шесть карточек: медиана, верхняя четверть, нижняя треть
+         ?region=TX-SW&amp;quarter=2026Q4
+<b>GET</b>  /v1/partners/{id}/reviews     список прогонов для таблицы
+         ?sort=score&amp;limit=50
+<b>POST</b> /v1/partners/{id}/digest      собрать квартальный PDF под его брендом
+     &rarr; { region, quarter, captions[] }   &larr; { pdf_url }
+<b>GET</b>  /v1/partners/{id}/returns     кто вернулся и что сдвинулось</pre>
+
+<div class="box">
+<p><b>Про партнёра.</b> <code>partner_id</code> — единственное, что отличает один фронт от
+другого на бэке. Бренд, палитра, тексты и домен живут на фронте; расчёт, хранение и отчёт —
+общие. Это и есть white label в нашем исполнении.</p>
+</div>
+
+<h2>Как считается — чтобы спор был о коэффициентах, а не о коде</h2>
+<pre>E   = profit_before_owner_pay &minus; replacement_salary      <b>// приведённая прибыль</b>
+base= 3.00 | 3.75 | 4.50 | 5.25 | 6.00 | 6.75            <b>// по размеру E</b>
+adj = recurring + concentration + margin + sales + books + owner
+m   = clamp(base + adj, 2.5, 8)
+range = E &times; (m &minus; 0.6) … E &times; (m + 0.6)
+
+<b>// поправки</b>
+recurring     = clamp(((pct &minus; 60) / 10) &times; 0.5, &minus;1.5, 1.5)
+concentration = +0.4 / +0.2 / 0 / &minus;0.75 / &minus;1.5     <b>// ≤10 / ≤20 / ≤30 / ≤40 / больше</b>
+margin        = &minus;0.5 / &minus;0.15 / +0.25 / +0.6        <b>// E/revenue: &lt;10 / &lt;15 / &lt;20 / ≥20 %</b>
+sales         = &minus;0.5 / 0 / +0.4
+books         = &minus;0.4 / 0 / +0.2
+owner         = &minus;0.9 / 0 / +0.3
+
+<b>// цена слабого места = сколько даст один шаг вверх, не идеал</b>
+gain$ = E &times; (next_step_turn &minus; current_turn)</pre>
+<p>Последняя строка важна. Сначала считали «сколько даст идеал» — выходило, что бизнес стоит
+втрое больше, и это выглядело как реклама. Теперь каждая строка говорит про <b>один шаг</b>:
+не «доведите контрактную выручку до 90 %», а «ещё десять пунктов стоят столько-то».</p>
+
+<h2>Чего не хватает до запуска</h2>
+<ol>
+<li><b>Согласие Нила</b> на его имя, цитаты и логотип на странице. Логотип и фото со сцены
+взяты с его сайта — для показа ему же это нормально, для публикации нужно «да».</li>
+<li><b>Домен.</b> Поддомен на mspmergers.com или отдельный адрес. От ответа зависит, чей
+это актив.</li>
+<li><b>Адрес, куда уходит письмо</b>, и кто отвечает на запрос отчёта.</li>
+<li><b>Проверка лестницы множителей.</b> Она досталась по наследству и до сих пор без
+внешнего источника.</li>
+<li><b>Что мы получаем.</b> Минимум — право первого взгляда на прогоны ниже порога крупных
+покупателей. Это договорённость, не код, но без неё сборка бессмысленна.</li>
+</ol>
+
+<h2>Что это доказывает про шаблон</h2>
+<p>Два фронта, один движок. У Джошуа — бумага, тёмно-зелёный, дорожная метафора, рамка
+«разговор о выходе без продажи». У Нила — тёмно-синий, электрический акцент, алмаз в породе,
+прямая коммерческая рамка. Снаружи это два разных бизнеса. Внутри — один <code>app.js</code>,
+одна формула, один кабинет и один конвейер отчёта.</p>
+<p>Если третьего партнёра получится собрать за часы, а не за дни, — шаблон доказан.
+Проверять это на двадцатом было бы дорого.</p>
+
+<p style="color:var(--mute);font-size:14px;margin-top:46px">
+Нил Медвед &middot; MSP Mergers, LLC &middot; neil@mspmergers.com &middot; mspmergers.com<br>
+Факты собраны 21.10.2026 из открытых источников. Разбор целиком — <code>brief.html</code> рядом.</p>
+</div>
+</body>
+</html>

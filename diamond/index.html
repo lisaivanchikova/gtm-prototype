@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pre-Exit Review | MSP Mergers</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="demo.css">
+</head>
+<body>
+
+<nav class="nav"><div class="wrap">
+  <a href="https://www.mspmergers.com/"><img src="logo.jpg" alt="MSP Mergers, LLC"></a>
+  <span class="sp"></span>
+  <a href="https://www.mspmergers.com/home-1#Section%202">About Us</a>
+  <a href="https://www.mspmergers.com/blank-9">Services</a>
+  <a href="https://www.mspmergers.com/blog">Resources</a>
+  <a href="#tool" class="on">Get a Valuation</a>
+</div></nav>
+
+<header class="hero">
+  <img src="stage.jpg" alt="">
+  <div class="wrap">
+    <h1>KNOW WHAT IT&rsquo;S<br>WORTH TODAY.<br>KNOW WHAT&rsquo;S<br>HOLDING IT DOWN.</h1>
+    <p class="lede">Nine questions. Four minutes. <b>No call, no NDA, no listing.</b><br>
+      You get a value range and the six things I look at before I take on an owner &mdash;
+      the same six that move your multiple.</p>
+    <a href="#tool" class="cta">Start the review &rarr;</a>
+    <p class="q">&ldquo;You don&rsquo;t have to be ready to transact today.&rdquo;
+      This is how you start the conversation with yourself.</p>
+  </div>
+</header>
+
+<div class="strip"><div class="wrap">
+  <div><b>43</b><span>Years in the channel</span></div>
+  <div><b>26</b><span>Years running his own MSP</span></div>
+  <div><b>1</b><span>Exit of his own</span></div>
+  <div><b>11</b><span>MSPs acquired</span></div>
+</div></div>
+
+<section class="tool" id="tool">
+<div class="wrap">
+  <p class="sec-lab">The review</p>
+  <h2>Your business is a diamond in the rough.<br>This finds the rough.</h2>
+  <p class="sub">Every figure below stays in your browser. Nothing is sent anywhere
+    unless you ask for the report at the end.</p>
+
+  <div class="grid" id="val-calc">
+    <div class="card">
+
+      <div class="f">
+        <label for="v-rev">Annual revenue</label>
+        <span class="h">Last full twelve months, all of it.</span>
+        <input type="text" id="v-rev" inputmode="numeric" placeholder="$2,400,000">
+      </div>
+
+      <div class="f">
+        <label for="v-rec">Share of revenue under contract <span class="val" id="v-rec-out">60%</span></label>
+        <span class="h">Managed agreements and anything that renews on its own. Projects don&rsquo;t count.</span>
+        <input type="range" id="v-rec" min="0" max="100" step="5" value="60">
+      </div>
+
+      <div class="two">
+        <div class="f">
+          <label for="v-sde">Profit before your own pay</label>
+          <span class="h">What the business produced for you last year, before salary and distributions.</span>
+          <input type="text" id="v-sde" inputmode="numeric" placeholder="$420,000">
+        </div>
+        <div class="f">
+          <label for="v-rep">Cost to replace you</label>
+          <span class="h">What you&rsquo;d pay someone to run it. Change it if yours is different.</span>
+          <input type="text" id="v-rep" inputmode="numeric" value="$105,770">
+        </div>
+      </div>
+
+      <div class="two">
+        <div class="f">
+          <label for="v-emp">Full-time employees</label>
+          <span class="h">Everyone on payroll, including you.</span>
+          <input type="text" id="v-emp" inputmode="numeric" placeholder="14">
+        </div>
+        <div class="f">
+          <label for="v-conc">Largest client <span class="val" id="v-conc-out">20%</span></label>
+          <span class="h">Its share of your revenue.</span>
+          <input type="range" id="v-conc" min="0" max="60" step="5" value="20">
+        </div>
+      </div>
+
+      <div class="f">
+        <label for="v-sales">Who sells?</label>
+        <span class="h">Not who signs. Who finds the next client.</span>
+        <select id="v-sales">
+          <option value="-1">Me. New business comes through me</option>
+          <option value="0" selected>Me, with someone helping</option>
+          <option value="1">A salesperson or team, without me in the room</option>
+        </select>
+      </div>
+
+      <div class="f">
+        <label for="v-books">Could a buyer review your books today?</label>
+        <span class="h">Monthly statements, clean payroll, contracts in one place, utilisation tracked.</span>
+        <select id="v-books">
+          <option value="-1">Not without a month of work first</option>
+          <option value="0" selected>Mostly &mdash; some tidying</option>
+          <option value="1">Yes, today</option>
+        </select>
+      </div>
+
+      <div class="f">
+        <label for="v-owner">Longest stretch you were out of the business last year</label>
+        <span class="h">Out means out: no calls, no approvals, no quotes.</span>
+        <select id="v-owner">
+          <option value="-1">A few days at most</option>
+          <option value="0" selected>About a week</option>
+          <option value="1">Two weeks or more</option>
+        </select>
+      </div>
+
+    </div>
+
+    <div class="res" id="res">
+      <p class="hd">Where you&rsquo;d land today</p>
+      <p class="empty" id="empty">Put in a revenue figure and what the business produced for you,
+        and the range appears here as you type.</p>
+      <div id="out" hidden></div>
+    </div>
+  </div>
+</div>
+</section>
+
+<section>
+<div class="wrap">
+  <p class="sec-lab">Two ways from here</p>
+  <h2>Most owners who run this aren&rsquo;t selling.<br>That&rsquo;s the point.</h2>
+  <p class="sub">The score is a quality score first. A business that scores well is worth more
+    whether or not it ever changes hands &mdash; and it&rsquo;s a better business to own in the meantime.</p>
+
+  <div class="fork">
+    <div class="fk">
+      <h3>I&rsquo;m not selling. I just want it worth more.</h3>
+      <p>Get the full report: your six scores, what each one is costing you in dollars,
+        and the order I&rsquo;d fix them in over the next twelve months. Re-run this next year
+        and see what moved.</p>
+      <div class="mailrow">
+        <input type="email" id="mail" placeholder="you@yourmsp.com">
+        <button id="send">Send it</button>
+      </div>
+      <p class="ok" id="ok">On its way. The report lands within the hour.</p>
+    </div>
+    <div class="fk blue">
+      <h3>I want to talk it through.</h3>
+      <p>Thirty minutes with Neil. No cost, confidential, and it does not start a process.
+        Bring the numbers above &mdash; we&rsquo;ll start where the review left off instead of
+        at the beginning.</p>
+      <a class="go" href="https://www.mspmergers.com/book-online">Book 30 minutes &rarr;</a>
+    </div>
+  </div>
+</div>
+</section>
+
+<section class="proc">
+<div class="wrap">
+  <p class="sec-lab" style="color:#2BA1FD">What happens later</p>
+  <h2>When the day comes, there is a defined 150-day process.<br>This isn&rsquo;t it. This is day zero.</h2>
+  <div class="steps">
+    <div class="st"><b>DAY ZERO</b><p>You know the range, you know the six, and nobody else
+      knows you looked. Most owners stay here for years. That is a legitimate place to be.</p></div>
+    <div class="st"><b>THE JOURNEY</b><p>Work the list. A business that fixes owner dependence
+      and tightens its books is worth more and easier to run &mdash; both, at once, long before
+      any transaction.</p></div>
+    <div class="st"><b>150 DAYS</b><p>Only when you decide. Preparation, marketing materials,
+      a competitive process, and someone who has sat on both sides of the table.</p></div>
+  </div>
+</div>
+</section>
+
+<section class="who">
+<div class="wrap">
+  <p class="sec-lab">Who is behind the numbers</p>
+  <h2>Neil Medwed</h2>
+  <div class="row">
+    <div><img src="logo.jpg" alt="MSP Mergers, LLC"></div>
+    <div>
+      <p>Forty-three years in the technology channel. Twenty-six of them running
+        Preferred Technology Solutions, the MSP he founded in North Texas in 1994 and sold
+        in 2020. Six years after that leading corporate development and M&amp;A for one of the
+        largest MSPs in the country, where he acquired eleven managed service providers.
+        Founder and CEO of MSP Mergers, LLC since September 2026.</p>
+      <p>He has been on both sides of this table: the owner deciding what happens to his
+        employees and his customers, and the buyer running the numbers on someone else&rsquo;s
+        life&rsquo;s work. That is why this review asks what it asks.</p>
+      <blockquote>&ldquo;It is my belief that one is ultimately judged by the number of people
+        who you positively impact in your life.&rdquo;</blockquote>
+      <p class="mail"><a href="mailto:neil@mspmergers.com">neil@mspmergers.com</a></p>
+    </div>
+  </div>
+</div>
+</section>
+
+<section class="src">
+<div class="wrap">
+  <p class="sec-lab">Where the numbers come from</p>
+  <h2>So you can argue with them.</h2>
+  <p class="sub">A valuation tool that will not show its working is an advertisement.
+    Here is the working.</p>
+  <ul>
+    <li><b>Cost to replace you</b> &mdash; defaults to $105,770, the US median annual wage for
+      General and Operations Managers (SOC 11-1021), Bureau of Labor Statistics, OEWS
+      May 2025. It is a field, not a constant: change it to your market.</li>
+    <li><b>The multiple ladder</b> &mdash; set by adjusted earnings, then moved by the six
+      factors on the right. This is our model, not a published market survey, and it is
+      deliberately conservative at the small end.</li>
+    <li><b>The range</b> &mdash; the multiple plus or minus 0.6 turns. A range is where a
+      conversation starts, not where it ends.</li>
+    <li><b>What it is not</b> &mdash; not an offer, not an appraisal, not a listing.
+      Arithmetic on figures you typed yourself.</li>
+  </ul>
+</div>
+</section>
+
+<footer><div class="wrap">
+  <span>MSP Mergers, LLC &middot; Dallas&ndash;Fort Worth</span>
+  <span class="sp"></span>
+  <a href="mailto:neil@mspmergers.com">neil@mspmergers.com</a>
+  <a href="https://www.linkedin.com/in/neilmedwed/">LinkedIn</a>
+</div></footer>
+
+<script src="app.js"></script>
+</body>
+</html>
