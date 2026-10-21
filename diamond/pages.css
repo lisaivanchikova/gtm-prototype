@@ -1,0 +1,179 @@
+/* MSP Mergers — дополнения к demo.css: About, статьи, письмо, уведомления, печатный отчёт.
+   Подключается после demo.css только на тех страницах, где нужен. */
+
+/* ——— About ——— */
+.ab-hero .wrap{display:grid;grid-template-columns:1.1fr .9fr;gap:52px;align-items:center;padding:64px 34px 70px}
+.ab-hero h1{font-size:clamp(32px,4.6vw,56px);color:#fff}
+.ab-hero h1 em{font-style:normal;color:var(--blue)}
+.ab-hero .lede{color:var(--dim);font-size:17px;line-height:1.6;margin:22px 0 0;max-width:560px}
+.ab-photo{border-radius:14px;overflow:hidden;aspect-ratio:4/5;border:1px solid var(--line)}
+.ab-photo img{width:100%;height:100%;object-fit:cover;object-position:26% 18%;display:block}
+.tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
+.tags span{border:1px solid var(--line2);border-radius:999px;padding:7px 14px;font-size:13px;color:var(--dim)}
+.tags-note{color:var(--mute);font-size:13.5px;margin:12px 0 0}
+.life{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:34px;border-top:2px solid var(--line2)}
+.life div{padding:20px 22px 0 0;position:relative}
+.life div::before{content:"";position:absolute;top:-7px;left:0;width:12px;height:12px;border-radius:50%;
+  background:var(--blue);box-shadow:0 0 0 4px var(--bg)}
+.life b{display:block;font-family:var(--disp);font-weight:800;font-size:30px;letter-spacing:-.035em;color:#fff}
+.life span{display:block;color:var(--blue);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;margin:4px 0 10px}
+.life p{color:var(--dim);font-size:14.5px;margin:0}
+.awards{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:30px}
+.aw{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:24px 24px 26px}
+.aw b{display:block;font-family:var(--disp);font-weight:800;font-size:40px;letter-spacing:-.04em;color:var(--blue);line-height:1}
+.aw h3{font-size:19px;margin:14px 0 6px;color:#fff}
+.aw p{color:var(--mute);font-size:13.5px;margin:0}
+.ab-quote{font-family:var(--disp);font-weight:700;font-size:clamp(22px,2.6vw,32px);line-height:1.3;
+  letter-spacing:-.02em;color:#fff;max-width:900px;margin:0}
+.ab-quote::before{content:"\201C";color:var(--blue)}
+.ab-quote::after{content:"\201D";color:var(--blue)}
+
+/* ——— статьи ——— */
+.posts{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:30px}
+.post{display:flex;flex-direction:column;background:var(--card2);border:1px solid var(--line);border-radius:13px;
+  overflow:hidden;color:var(--fg);transition:border-color .15s}
+.post:hover{border-color:var(--blue)}
+.post .ph{aspect-ratio:16/10;overflow:hidden;background:var(--band)}
+.post .ph img{width:100%;height:100%;object-fit:cover;display:block}
+.post .bd{padding:20px 22px 24px;display:flex;flex-direction:column;gap:10px;flex:1}
+.post .meta{color:var(--mute);font-size:12.5px}
+.post h3{font-size:21px;line-height:1.15;color:#fff}
+.post p{color:var(--dim);font-size:14px;margin:0}
+.post .more{margin-top:auto;padding-top:6px;color:var(--blue);font-weight:600;font-size:14px}
+
+.art{max-width:760px;margin:0 auto;padding:0 34px}
+.art-hd{padding:54px 0 30px}
+.art-hd .back{font-size:14px;font-weight:600}
+.art-hd h1{font-size:clamp(30px,4.2vw,48px);color:#fff;margin-top:22px}
+.art-hd .meta{color:var(--mute);font-size:13.5px;margin-top:16px;display:flex;gap:10px;align-items:center}
+.art-hd .meta i{width:28px;height:28px;border-radius:50%;background:var(--band);color:var(--blue);
+  display:inline-grid;place-items:center;font:700 11px var(--body);font-style:normal}
+.art-cover{border-radius:14px;overflow:hidden;margin:6px 0 34px;border:1px solid var(--line)}
+.art-cover img{width:100%;display:block}
+.art-body{color:var(--dim);font-size:17px;line-height:1.72;padding-bottom:30px}
+.art-body h2{font-size:28px;color:#fff;margin:44px 0 14px}
+.art-body h3{font-size:20px;color:#fff;margin:30px 0 10px;letter-spacing:-.02em}
+.art-body p{margin:0 0 16px}
+.art-body ul,.art-body ol{padding-left:22px;margin:0 0 18px}
+.art-body li{margin-bottom:8px}
+.art-body figure{margin:30px 0}
+.art-body figure img{width:100%;border-radius:12px;display:block}
+.art-body figcaption{color:var(--mute);font-size:13px;margin-top:10px}
+.art-next{border-top:1px solid var(--line);padding:40px 0 70px}
+
+/* ——— письмо-дайджест ——— */
+.mailpv{background:#E9EDF2;min-height:100vh;padding:28px 16px 60px;color:#0A1128}
+.mailpv .env{max-width:620px;margin:0 auto 14px;font-size:13px;color:#3C4A5A;line-height:1.6}
+.mailpv .env b{color:#0A1128}
+.mailpv .box{max-width:620px;margin:0 auto;background:#fff;border-radius:10px;overflow:hidden}
+.mailpv .top{background:var(--bg);padding:18px 26px;display:flex;align-items:center;justify-content:space-between}
+.mailpv .top img{height:36px;border-radius:5px;display:block}
+.mailpv .top span{color:var(--dim);font-size:12.5px}
+.mailpv .in{padding:26px 28px}
+.mailpv h1{font-size:26px;color:#0A1128;letter-spacing:-.025em}
+.mailpv .lead{color:#3C4A5A;font-size:15px;margin:10px 0 0}
+.mailpv .who{display:flex;gap:14px;padding:16px 0;border-top:1px solid #E6EBF0}
+.mailpv .who:first-of-type{margin-top:16px}
+.mailpv .who i{flex:0 0 28px;height:28px;border-radius:50%;background:#0A1128;color:#fff;font:700 12.5px var(--body);
+  font-style:normal;display:grid;place-items:center}
+.mailpv .who b{display:block;font-size:15px;color:#0A1128}
+.mailpv .who p{color:#3C4A5A;font-size:14px;margin:4px 0 6px}
+.mailpv .who a{color:#0B6FC2;font-weight:600;font-size:14px}
+.mailpv .came{background:#F4F6F9;border-radius:8px;padding:16px 18px;margin-top:8px;font-size:14px}
+.mailpv .came .lab,.mailpv .reg .lab{font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:#3C4A5A;font-weight:600;margin-bottom:8px}
+.mailpv .came .r{display:flex;justify-content:space-between;gap:16px;padding:4px 0;color:#3C4A5A}
+.mailpv .came .r b{color:#0A1128}
+.mailpv .reg{border-left:3px solid var(--blue);padding:4px 0 4px 16px;margin:20px 0;font-size:15px;color:#0A1128}
+.mailpv .btnm{display:inline-block;background:#0A1128;color:#fff;font-weight:600;font-size:15px;padding:13px 22px;border-radius:999px}
+.mailpv .fine{color:#5B6B7D;font-size:12px;margin:16px 0 0}
+.mailpv .foot{max-width:620px;margin:14px auto 0;text-align:center;color:#5B6B7D;font-size:11.5px}
+
+/* ——— уведомления ——— */
+.ntf{min-height:100vh;display:grid;place-items:center;padding:40px 16px;background:var(--bg)}
+.ntf .phone{width:390px;max-width:100%;min-height:780px;background:#1B2436;border-radius:44px;border:1px solid var(--line2);
+  padding:90px 14px 28px;display:flex;flex-direction:column;gap:12px}
+.ntf .clock{text-align:center;margin-bottom:34px}
+.ntf .clock span{display:block;color:var(--dim);font-size:15px}
+.ntf .clock b{display:block;font-family:var(--disp);font-weight:700;font-size:74px;letter-spacing:-.03em;line-height:1;color:#fff}
+.ntf .n,.ntf a.n{background:rgba(255,255,255,.93);color:#0A1128;border-radius:22px;padding:13px 15px;display:flex;gap:12px}
+.ntf .n img{flex:0 0 38px;width:38px;height:38px;border-radius:9px;object-fit:cover}
+.ntf .n .t{display:flex;justify-content:space-between;font-size:13px}
+.ntf .n .t span{color:#5B6B7D}
+.ntf .n b{display:block;font-size:15px;margin-top:2px}
+.ntf .n p{color:#3C4A5A;font-size:13.5px;line-height:1.4;margin:2px 0 0}
+.ntf .rule{margin-top:auto;border:1px solid var(--line2);border-radius:16px;padding:14px 16px;color:var(--dim);font-size:13px;line-height:1.5}
+.ntf .rule b{color:#fff}
+.ntf .side{max-width:420px;margin-left:56px}
+.ntf .grid2{display:flex;align-items:center;flex-wrap:wrap;justify-content:center;gap:40px}
+.ntf .side h2{font-size:30px}
+.ntf .side p{color:var(--dim)}
+.ntf .side label{display:block;color:var(--mute);font-size:12.5px;margin:18px 0 8px}
+
+/* ——— печатный отчёт (Letter) ——— */
+.rp-tools{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line);padding:12px 0}
+.rp-tools .wrap{display:flex;align-items:center;gap:14px}
+.rp-tools .sp{flex:1}
+.rp-pages{padding:30px 16px 60px;display:flex;flex-direction:column;align-items:center;gap:26px}
+.rp-page{width:8.5in;height:11in;box-sizing:border-box;padding:.62in .62in .5in;display:flex;flex-direction:column;
+  box-shadow:0 10px 40px rgba(0,0,0,.4);overflow:hidden}
+.rp-cover{background:var(--bg);color:#fff;justify-content:space-between}
+.rp-cover .top{display:flex;justify-content:space-between;align-items:flex-start}
+.rp-cover .top img{height:66px;border-radius:6px}
+.rp-cover .top span{text-align:right;color:var(--dim);font-size:12.5px;line-height:1.6}
+.rp-cover .bars{display:flex;gap:6px;align-items:flex-end;height:110px}
+.rp-cover .bars i{width:58px;display:block}
+.rp-cover h1{font-size:58px;line-height:1.02;color:#fff;margin-top:26px}
+.rp-cover .reg{font-family:var(--disp);font-weight:700;font-size:23px;color:var(--blue);margin-top:18px}
+.rp-cover .ld{color:var(--dim);font-size:15.5px;line-height:1.6;max-width:5.4in;margin-top:20px}
+.rp-cover .bot{display:flex;justify-content:space-between;align-items:flex-end;border-top:1px solid var(--line2);padding-top:20px}
+.rp-cover .bot b{display:block;font-family:var(--disp);font-weight:800;font-size:30px;letter-spacing:-.03em}
+.rp-cover .bot small{color:var(--mute);font-size:11px;letter-spacing:.1em;text-transform:uppercase}
+.rp-cover .bot .by{text-align:right;color:var(--dim);font-size:12.5px;line-height:1.6}
+.rp-in{background:#fff;color:#0A1128;gap:14px}
+.rp-in .rh{display:flex;justify-content:space-between;font-size:10.5px;letter-spacing:.12em;font-weight:600;color:#3C4A5A;
+  border-bottom:2px solid #0A1128;padding-bottom:10px;text-transform:uppercase}
+.rp-in .key{display:flex;gap:16px;font-size:10.5px;color:#3C4A5A}
+.rp-in .key i{display:inline-block;width:9px;height:9px;margin-right:5px;vertical-align:-1px}
+.rp-m{flex:1;display:flex;flex-direction:column;gap:10px;border-bottom:1px solid #E6EBF0;padding-bottom:14px}
+.rp-m .nm{display:flex;justify-content:space-between;align-items:baseline}
+.rp-m .nm b{font-family:var(--disp);font-weight:800;font-size:19px;letter-spacing:-.02em}
+.rp-m .nm span{font-size:11px;color:#3C4A5A}
+.rp-m .three{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.rp-m .three div{padding:11px 13px;display:flex;flex-direction:column;gap:3px;background:#F4F6F9}
+.rp-m .three div span{font-size:9.5px;letter-spacing:.08em;color:#3C4A5A;text-transform:uppercase}
+.rp-m .three div b{font-family:var(--disp);font-weight:800;font-size:27px;letter-spacing:-.03em;color:#5B6B7D}
+.rp-m .three div.md{background:#0A1128}
+.rp-m .three div.md span{color:#9AA8B8} .rp-m .three div.md b{color:#fff}
+.rp-m .three div.tp{background:#E3F2FF}
+.rp-m .three div.tp span{color:#0B4F8A} .rp-m .three div.tp b{color:#0B6FC2}
+.rp-m p{margin:0;font-size:12.5px;line-height:1.55;font-style:italic;color:#24303F}
+.rp-in .ft{display:flex;justify-content:space-between;font-size:10px;color:#5B6B7D}
+@page{size:letter;margin:0}
+@media print{
+  body{background:#fff}
+  .rp-tools{display:none}
+  .rp-pages{padding:0;gap:0}
+  .rp-page{box-shadow:none;page-break-after:always;break-after:page}
+  .rp-cover{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .rp-in .three div{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+
+/* ——— мини-diamond в анонсе на главной ——— */
+.mini .dm-row{display:flex;align-items:center;gap:14px;margin:0 0 4px}
+.mini .dm-row b{font-family:var(--disp);font-weight:800;font-size:34px;letter-spacing:-.035em;color:var(--amber);line-height:1}
+.mini .dm-row span{color:var(--mute);font-size:12.5px;line-height:1.4}
+.mini svg{display:block;width:100%;height:auto;margin:4px 0 0}
+
+@media(max-width:980px){
+  .ab-hero .wrap,.awards,.posts,.life{grid-template-columns:1fr}
+  .life{gap:26px;border-top:0}
+  .life div{padding-left:24px}
+  .life div::before{top:8px}
+  .ntf .side{margin-left:0}
+}
+
+/* исправление: в demo.css «.strip div:last-child b» красит все четыре числа в синий
+   (последний ребёнок .strip — это сам .wrap). Синим остаётся только последнее. */
+.strip .wrap>div b{color:#fff}
+.strip .wrap>div:last-child b{color:var(--blue)}
+.ntf #list{display:flex;flex-direction:column;gap:12px}

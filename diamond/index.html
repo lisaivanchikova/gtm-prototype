@@ -8,15 +8,17 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="demo.css">
+<link rel="stylesheet" href="pages.css">
 </head>
 <body>
 
 <nav class="nav"><div class="wrap">
   <a href="index.html"><img src="logo.jpg" alt="MSP Mergers, LLC"></a>
-  <span class="sp"></span>
+  <a href="index.html" class="on">Home</a>
   <a href="about.html">About</a>
   <a href="services.html">Services</a>
   <a href="resources.html">Resources</a>
+  <span class="sp"></span>
   <a href="review.html" class="btn-n">Get a Valuation</a>
 </div></nav>
 
@@ -79,11 +81,25 @@
     <a href="review.html" class="cta">Start the review &rarr;</a>
   </div>
   <div class="mini">
-    <p class="lab">Likely range</p>
-    <p class="big">$2.11M&ndash;$2.66M</p>
-    <div class="r"><span>Recurring mix</span><u><b style="width:62%;background:#F0A32E"></b></u></div>
-    <div class="r"><span>Margin</span><u><b style="width:74%"></b></u></div>
-    <div class="r low"><span>Owner dependence</span><u><b style="width:11%"></b></u></div>
+    <p class="lab">Likely range &middot; example</p>
+    <p class="big">$1.04M&ndash;$1.59M</p>
+    <div class="dm-row"><b>42</b><span>Diamond Score &middot; out of 100<br>The empty facets are the rough.</span></div>
+    <svg viewBox="-34 0 368 200" role="img" aria-label="Example Diamond Score 42: recurring mix 55, client concentration 80, margin 65, sales independence 0, books 50, owner dependence 0">
+      <path d="M150 28L212.4 64L212.4 136L150 172L87.6 136L87.6 64Z" fill="none" stroke="rgba(255,255,255,.14)"/>
+      <path d="M150 60.4L184.3 80.2L184.3 119.8L150 139.6L115.7 119.8L115.7 80.2Z" fill="none" stroke="rgba(255,255,255,.14)" stroke-dasharray="3 4"/>
+      <path d="M150 60.4L199.9 71.2L190.5 123.4L150 102.9L118.8 118L147.5 98.6Z" fill="rgba(43,161,253,.26)" stroke="#2BA1FD" stroke-width="2" stroke-linejoin="round"/>
+      <circle cx="150" cy="60.4" r="4" fill="#2BA1FD"/><circle cx="199.9" cy="71.2" r="4" fill="#2BA1FD"/>
+      <circle cx="190.5" cy="123.4" r="4" fill="#2BA1FD"/><circle cx="150" cy="102.9" r="4" fill="#F0A32E"/>
+      <circle cx="118.8" cy="118" r="4" fill="#F0A32E"/><circle cx="147.5" cy="98.6" r="4" fill="#F0A32E"/>
+      <g font-family="Inter,sans-serif" font-size="10.5" fill="#9FB4CE">
+        <text x="150" y="18" text-anchor="middle">Recurring 55</text>
+        <text x="220" y="60">Concentration 80</text>
+        <text x="220" y="146">Margin 65</text>
+        <text x="150" y="190" text-anchor="middle" fill="#F0A32E">Sales 0</text>
+        <text x="80" y="146" text-anchor="end" fill="#F0A32E">Books 50</text>
+        <text x="80" y="60" text-anchor="end" fill="#F0A32E">Owner 0</text>
+      </g>
+    </svg>
     <p class="fine">Not an offer. Not an appraisal. Arithmetic on figures you typed.</p>
   </div>
 </div></section>

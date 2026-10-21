@@ -63,15 +63,24 @@ window.MSPM = (function () {
            d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
   }
   /* почему этого владельца стоит набрать — тот же порядок, что на панели кабинета */
+  function weakest(r) {
+    if (r.worstName) return r.worstName;
+    if (r.worst && r.worst.length && r.worst[0].name) return r.worst[0].name;
+    if (r.scales && r.scales.length) {
+      return r.scales.slice().sort(function (a, b) { return a.score - b.score; })[0].name;
+    }
+    return 'owner dependence';
+  }
   function reason(r) {
-    if (r.asked === 'call') return 'Booked 30 minutes' + (r.slot ? ' for ' + r.slot : '') + '. Weakest: ' + (r.worstName || '—');
+    if (r.asked === 'call') return 'Booked 30 minutes' + (r.slot ? ' for ' + r.slot : '') + '. Weakest: ' + weakest(r).toLowerCase();
     if (r.runs > 1) return 'Run ' + r.runs + '. Score ' + r.firstScore + ' → ' + r.score + ' since the first one';
     if (r.asked === 'report') return 'Asked for the full report · ' + money(r.revenue) + ' revenue, score ' + r.score;
     return money(r.revenue) + ' revenue, score ' + r.score + ' — finished the review anonymously';
   }
 
   return { all: all, get: get, upsert: upsert, patch: patch, clear: clear,
-           money: money, band: band, initials: initials, ago: ago, when: when, reason: reason };
+           money: money, band: band, initials: initials, ago: ago, when: when,
+           reason: reason, weakest: weakest };
 })();
 
 /* ——— посев ———

@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Alerts | MSP Mergers</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='5' fill='%230A1128'/%3E%3Cpath d='M16 6l7 7-7 13-7-13z' fill='%232BA1FD'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="demo.css">
+<link rel="stylesheet" href="pages.css">
+</head>
+<body>
+<div class="ntf"><div class="grid2">
+  <div class="phone">
+    <div class="clock"><span id="day">Thursday</span><b>9:41</b></div>
+    <div id="list"></div>
+    <div class="rule">Only two reasons to interrupt: a booking, or an owner above
+      <b id="thr-t">$5M</b> revenue. Anonymous runs never notify.</div>
+  </div>
+  <div class="side">
+    <p class="sec-lab">Alerts</p>
+    <h2 style="margin-top:12px">One event, one line.</h2>
+    <p class="sub">Neil is on the road most weeks. These are the only two things worth a buzz in his
+      pocket &mdash; everything else waits for the Monday digest.</p>
+    <label for="thr">Notify me when an owner above this revenue finishes the review</label>
+    <div class="mailrow" style="margin-top:0">
+      <input id="thr" type="text" inputmode="numeric" value="5,000,000">
+      <button id="save">Save</button>
+    </div>
+    <p class="ok" id="ok">Saved.</p>
+    <p style="margin-top:22px"><a href="desk.html">&larr; Back to the desk</a> &middot; <a href="email.html">Monday digest</a></p>
+  </div>
+</div></div>
+
+<script src="store.js"></script>
+<script>
+(function(){
+  MSPM.seed();
+  var M = MSPM.money, all = MSPM.all().sort(function(a,b){ return b.ts - a.ts; });
+  var isNamed = function(r){ return !!r.name && r.asked && r.asked!=='nothing'; };
+  function num(s){ return Number(String(s).replace(/[^0-9.]/g,''))||0; }
+  function render(){
+    var thr = num(document.getElementById('thr').value);
+    document.getElementById('thr-t').textContent = M(thr);
+    var items = [];
+    var call = all.filter(function(r){ return r.asked==='call' && isNamed(r); })[0];
+    if (call) items.push({ when:'now', title:'Booked 30 minutes'+(call.slot?' — '+call.slot:''),
+      text:call.name+', '+(call.city||call.state||'')+' · '+M(call.revenue)+' · score '+call.score+'. Tap for the card.', id:call.id });
+    var big = all.filter(function(r){ return isNamed(r) && r.revenue>=thr && r!==call; })
+                 .sort(function(a,b){ return b.revenue-a.revenue; })[0];
+    if (big) items.push({ when:'2h ago', title:'Above your threshold: '+M(big.revenue)+' owner finished',
+      text:(big.city||big.state||'')+' · score '+big.score+(big.asked==='report'?' · asked for the report':'')+'. Tap for the card.', id:big.id });
+    document.getElementById('list').innerHTML = items.map(function(n){
+      return '<a class="n" href="owner.html?id='+encodeURIComponent(n.id)+'"><img src="logo.jpg" alt="">'+
+        '<div style="flex:1;min-width:0"><div class="t"><strong>The Review</strong><span>'+n.when+'</span></div>'+
+        '<b>'+n.title+'</b><p>'+n.text+'</p></div></a>';
+    }).join('') || '<p style="color:var(--dim);text-align:center">Nothing to interrupt you with.</p>';
+  }
+  try { var v = localStorage.getItem('mspm.alert.thr'); if (v) document.getElementById('thr').value = v; } catch(e){}
+  document.getElementById('save').addEventListener('click', function(){
+    try { localStorage.setItem('mspm.alert.thr', document.getElementById('thr').value); } catch(e){}
+    document.getElementById('ok').style.display='block'; render();
+  });
+  render();
+})();
+</script>
+</body>
+</html>

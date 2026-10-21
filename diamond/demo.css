@@ -240,13 +240,13 @@ tr.anon td{color:var(--mute)}
 .anontag{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);border-radius:6px;
   padding:2px 8px;font-size:11.5px;color:var(--mute)}
 .weak{color:var(--amber);font-size:12.5px;white-space:normal}
-.back{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 20px}
-.back .b{display:flex;align-items:center;gap:12px;border-top:1px solid var(--line);padding:13px 0}
-.back .b:first-of-type{border-top:0}
-.back .b div{flex:1}
-.back .b b{display:block;color:#fff;font-size:14px}
-.back .b span{color:var(--mute);font-size:12.5px}
-.back .b s{text-decoration:none;font-family:var(--disp);font-weight:800;font-size:19px;color:var(--blue);white-space:nowrap}
+.split .back{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 20px}
+.split .back .b{display:flex;align-items:center;gap:12px;border-top:1px solid var(--line);padding:13px 0}
+.split .back .b:first-of-type{border-top:0}
+.split .back .b div{flex:1}
+.split .back .b b{display:block;color:#fff;font-size:14px}
+.split .back .b span{color:var(--mute);font-size:12.5px}
+.split .back .b s{text-decoration:none;font-family:var(--disp);font-weight:800;font-size:19px;color:var(--blue);white-space:nowrap}
 .split{display:grid;grid-template-columns:1fr 330px;gap:18px;align-items:start;margin-top:16px}
 @media(max-width:1100px){.kpis{grid-template-columns:repeat(4,1fr)}.bm{grid-template-columns:1fr}
   .split{grid-template-columns:1fr}.call{grid-template-columns:34px 1fr;gap:8px}}
@@ -524,14 +524,4 @@ td a{font-weight:600}
   .dots::before{display:none}
 }
 
-/* ——— его блог рядом с отчётом ——— */
-.posts{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:28px}
-.post{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:22px 24px 24px;
-  display:flex;flex-direction:column}
-.post .meta{color:var(--mute);font-size:12px;letter-spacing:.06em;text-transform:uppercase}
-.post h3{font-size:19px;margin:12px 0 0;color:#fff}
-.post p{color:var(--dim);font-size:14px;margin:12px 0 0}
-.post a{margin-top:auto;padding-top:16px;font-weight:600;font-size:14px}
-.posthd{display:flex;align-items:baseline;gap:18px;flex-wrap:wrap}
-.posthd a{margin-left:auto;font-weight:600;font-size:14.5px}
-@media(max-width:980px){.posts{grid-template-columns:1fr}}
+

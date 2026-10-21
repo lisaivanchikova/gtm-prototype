@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Monday digest | MSP Mergers</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='5' fill='%230A1128'/%3E%3Cpath d='M16 6l7 7-7 13-7-13z' fill='%232BA1FD'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="demo.css">
+<link rel="stylesheet" href="pages.css">
+</head>
+<body>
+<div class="mailpv">
+  <div class="env">
+    <div><b>From:</b> The Review &middot; MSP Mergers</div>
+    <div><b>To:</b> neil@mspmergers.com</div>
+    <div><b>Subject:</b> <span id="subj">Three owners worth a call this week</span></div>
+    <div style="color:#5B6B7D">Every Monday, 7:00 CT &middot; <a href="desk.html">&larr; back to the desk</a></div>
+  </div>
+  <div class="box">
+    <div class="top"><img src="logo.jpg" alt="MSP Mergers, LLC"><span id="wk">This week</span></div>
+    <div class="in">
+      <h1 id="h">Three owners worth a call this week</h1>
+      <p class="lead" id="lead">Neil &mdash; here is who to ring first.</p>
+      <div id="who"></div>
+      <div class="came"><div class="lab">Came back</div><div id="came"></div></div>
+      <div class="reg"><div class="lab">The region this week</div>
+        Share under contract: median 61%, top quarter 84%. The gap between them is most of the
+        difference in what the two get offered.</div>
+      <a class="btnm" href="desk.html">Open the desk</a>
+      <p class="fine" id="anon"></p>
+    </div>
+  </div>
+  <p class="foot">Sent every Monday &middot; Change frequency in the desk settings</p>
+</div>
+
+<script src="store.js"></script>
+<script>
+(function(){
+  MSPM.seed();
+  var all = MSPM.all(), M = MSPM.money;
+  var isNamed = function(r){ return !!r.name && r.asked && r.asked!=='nothing'; };
+  var named = all.filter(isNamed);
+  var rank = function(r){ return (r.asked==='call'?3:r.asked==='report'?2:1)*1e9 + (r.revenue||0); };
+  named.sort(function(a,b){ return rank(b)-rank(a); });
+  var pick = named.slice(0,3);
+  var why = function(r){
+    try { var t = MSPM.reason(r); if (typeof t === 'string' && t) return t; } catch(e){}
+    var w = (r.worst && r.worst[0]) ? r.worst[0].name.toLowerCase() : 'owner dependence';
+    if (r.asked==='call') return 'Booked 30 minutes'+(r.slot?' for '+r.slot:'')+'. Weakest: '+w+'.';
+    if (r.asked==='report') return 'Asked for the full report. '+M(r.revenue)+' revenue, score '+r.score+'.';
+    return M(r.revenue)+' revenue, score '+r.score+'. Weakest: '+w+'.';
+  };
+  var words = ['No owners','One owner','Two owners','Three owners'];
+  var head = words[pick.length] + ' worth a call this week';
+  document.getElementById('h').textContent = head;
+  document.getElementById('subj').textContent = head;
+  var c = MSPM.counts();
+  document.getElementById('lead').textContent = 'Neil — ' + c.finished + ' owners have finished the review so far, ' +
+    named.length + ' of them by name. Here is who to ring first.';
+  document.getElementById('who').innerHTML = pick.map(function(r,i){
+    return '<div class="who"><i>'+(i+1)+'</i><div><b>'+r.name+' &middot; '+(r.company||'')+', '+(r.city||r.state||'')+'</b>'+
+      '<p>'+why(r)+'</p><a href="owner.html?id='+encodeURIComponent(r.id)+'">Open card &rarr;</a></div></div>';
+  }).join('') || '<p class="lead">Nobody named this week.</p>';
+  var back = all.filter(function(r){ return r.runs > 1 && r.firstScore != null; }).slice(0,3);
+  document.getElementById('came').innerHTML = back.length ? back.map(function(r){
+    return '<div class="r"><span>'+(isNamed(r) ? (r.city||r.state||'')+' &middot; named' : (r.state||'Owner')+' &middot; anonymous')+'</span><b>'+r.firstScore+' &rarr; '+r.score+'</b></div>';
+  }).join('') : '<div class="r"><span>'+c.back+' owners re-ran it this quarter</span><b>see desk</b></div>';
+  var anon = all.length - named.length;
+  document.getElementById('anon').textContent = anon + ' more finished anonymously. Their numbers are in the benchmark; their names are not known to anyone.';
+})();
+</script>
+</body>
+</html>
