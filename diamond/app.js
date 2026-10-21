@@ -220,7 +220,8 @@
           : 'Nothing of yours sits in the bottom third this quarter. That is rarer than it sounds.')+'</p>'+
         '<div class="lockbox done"><b>Opened.</b><p>The full Q4 benchmark, all six measures with '+
         'Neil&rsquo;s commentary, is in <a href="report.html">the report</a>. '+
-        '<a href="#" id="printcmp">Print your copy</a>.</p></div>';
+        '<a href="#" id="printcmp">Print your own numbers</a> &mdash; the range, the six '+
+        'and this comparison, on one page.</p></div>';
     } else {
       h+='<div class="lockbox"><div><b>Open the comparison</b>'+
         '<p>Your six numbers against the medians of every owner who has finished this quarter, '+

@@ -576,3 +576,39 @@ td a{font-weight:600}
 .unlockbar .mailrow input{background:#F4F6F9;border-color:#D4DEEA;color:#151A1F}
 .unlockbar .ok{color:#1183E8}
 @media(max-width:980px){.unlockbar{grid-template-columns:1fr}}
+
+/* ——— печать обзора ———
+   На бумагу уходят только его числа: результат и сравнение. Форма, биография,
+   статьи и подвал не печатаются — иначе владелец получает двенадцать страниц. */
+@media print{
+  .pg-review{background:#fff;color:#151A1F}
+  .pg-review .nav,.pg-review .hero,.pg-review .strip,.pg-review .cards,
+  .pg-review .priv,.pg-review .fork,.pg-review .teaser,.pg-review .who,
+  .pg-review .srcs,.pg-review .paper,.pg-review footer,
+  .pg-review .lockbox,.pg-review .res .anon,.pg-review section>.wrap>h2,
+  .pg-review section>.wrap>.sub,.pg-review section>.wrap>.sec-lab{display:none !important}
+  .pg-review .grid{display:block}
+  .pg-review .res{position:static;background:none;border:0;padding:0;break-inside:avoid}
+  .pg-review .res .hd,.pg-review .res .cap,.pg-review .res .fine,
+  .pg-review .worst .w,.pg-review .cmp .hint,.pg-review .cmp .row,
+  .pg-review .cmp .verdict,.pg-review .cmp .key{color:#4A5A70}
+  .pg-review .res .range,.pg-review .worst h4,.pg-review .cmp h4,
+  .pg-review .sumbox b,.pg-review .cmp .row s,.pg-review .worst .w em{color:#151A1F}
+  .pg-review .sumbox{border-color:#C9D2DD;color:#4A5A70}
+  .pg-review .cmp{background:none;border:1px solid #C9D2DD;margin-top:22px;break-inside:avoid}
+  .pg-review .cmp .track{background:#E1E8F1}
+  .pg-review .cmp .track i{border-color:#fff}
+  .pg-review .radar text{fill:#4A5A70 !important}
+  .pg-review .scorerow b{color:#B4791F}
+  @page{margin:16mm}
+}
+.printhd,.printft{display:none}
+@media print{
+  .pg-review .res .fine{display:none}
+  .pg-review .radar{max-width:400px;margin:4px auto 0}
+  .pg-review .printhd{display:block;font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+    color:#5B6B7D;margin:0 0 18px;padding-bottom:10px;border-bottom:1px solid #C9D2DD}
+  .pg-review .printhd b{color:#151A1F}
+  .pg-review .printft{display:block;font-size:10.5px;color:#5B6B7D;margin-top:20px;
+    padding-top:12px;border-top:1px solid #C9D2DD}
+}
