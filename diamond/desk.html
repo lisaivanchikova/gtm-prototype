@@ -4,200 +4,174 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Your desk | MSP Mergers</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='5' fill='%230A1128'/%3E%3Cpath d='M16 6l7 7-7 13-7-13z' fill='%232BA1FD'/%3E%3Cpath d='M9 13h14' stroke='%230A1128' stroke-width='1.6'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='5' fill='%230A1128'/%3E%3Cpath d='M16 6l7 7-7 13-7-13z' fill='%232BA1FD'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="demo.css">
 </head>
 <body>
 
-<header class="topbar"><div class="wrap">
-  <img src="logo.jpg" alt="MSP Mergers, LLC">
-  <nav><a href="index.html">The page</a><a href="desk.html" class="on">Your desk</a></nav>
+<header class="dkbar"><div class="wrap">
+  <a href="index.html"><img src="logo.jpg" alt="MSP Mergers, LLC"></a>
+  <span class="pv">Private &middot; Q4 2026</span>
   <span class="sp"></span>
-  <span class="me"><i>NM</i>Neil Medwed</span>
+  <button class="btn" id="csv">&darr; Export CSV</button>
+  <button class="btn pri" id="draft">Draft the Q4 regional report &rarr;</button>
 </div></header>
 
-<section class="dk"><div class="wrap">
-  <p class="sec-lab">Your desk &middot; Q4 2026 &middot; 128 completed reviews</p>
-  <div class="hd">
-    <div>
-      <h2>What 128 owners told the review.</h2>
-      <p class="sub" style="margin-top:14px;max-width:560px">Six structural facts about an MSP
-        that nobody collects publicly, typed in by the owners themselves. Enough of them and you
-        can print what exists nowhere else.</p>
-    </div>
-    <div class="acts">
-      <button class="btn" id="draft" type="button">Draft the Q4 regional report &rarr;</button>
-      <button class="btn o" id="csv" type="button">Export the list (.csv)</button>
-    </div>
-  </div>
+<section style="padding:46px 0 0"><div class="wrap">
+  <h2 style="max-width:620px">What 128 owners told the review.</h2>
+  <p class="sub">Six structural facts about an MSP that nobody collects publicly, typed in by the
+    owners themselves. Enough of them and you can print what exists nowhere else.</p>
 
   <div class="kpis">
-    <div class="kpi"><b>4</b><span>Talks and appearances</span></div>
-    <div class="kpi"><b>371</b><span>Opened the review</span></div>
-    <div class="kpi"><b>128</b><span>Finished it &middot; 35%</span></div>
-    <div class="kpi"><b>44</b><span>Diamond Score, median</span></div>
-    <div class="kpi"><b>58</b><span>Asked for the full report</span></div>
-    <div class="kpi on"><b>19</b><span>Booked 30 minutes</span></div>
-    <div class="kpi"><b>23</b><span>Came back and re-ran it</span></div>
+    <div class="kpi"><span>Talks and appearances</span><b>4</b></div>
+    <div class="kpi"><span>Opened the review</span><b>371</b></div>
+    <div class="kpi on"><span>Finished it</span><b>128 <i>35%</i></b></div>
+    <div class="kpi"><span>Diamond Score, median</span><b>44</b></div>
+    <div class="kpi"><span>Asked for the full report</span><b>58</b></div>
+    <div class="kpi on"><span>Booked 30 minutes</span><b>19</b></div>
+    <div class="kpi"><span>Came back and re-ran it</span><b>23</b></div>
+  </div>
+
+  <div class="panel">
+    <div class="ph"><h3>Worth a call this week</h3>
+      <span>Sorted by reason, not by date &middot; named owners only</span></div>
+    <div class="call"><span class="av">BH</span>
+      <span class="who"><b>[Owner name]</b><span>[Company] &middot; Houston, TX</span></span>
+      <span class="why">$8.0M revenue, score 41 &mdash; biggest gap between size and quality this quarter</span>
+      <span class="sc">41</span><a href="#">Open card &rarr;</a></div>
+    <div class="call"><span class="av">RC</span>
+      <span class="who"><b>[Owner name]</b><span>[Company] &middot; Fort Worth, TX</span></span>
+      <span class="why">Third run. Score 37 &rarr; 51 since June: owner dependence and books both moved</span>
+      <span class="sc">51</span><a href="#">Open card &rarr;</a></div>
+    <div class="call"><span class="av">DL</span>
+      <span class="who"><b>[Owner name]</b><span>[Company] &middot; Plano, TX</span></span>
+      <span class="why">Booked 30 minutes for Thursday. Weakest: client concentration at 34%</span>
+      <span class="sc">61</span><a href="#">Open card &rarr;</a></div>
+    <div class="call"><span class="av">MP</span>
+      <span class="who"><b>[Owner name]</b><span>[Company] &middot; San Antonio, TX</span></span>
+      <span class="why">Asked for the full report twice in two weeks</span>
+      <span class="sc">48</span><a href="#">Open card &rarr;</a></div>
   </div>
 </div></section>
 
-<section class="dk" style="padding-top:46px"><div class="wrap">
-  <p class="sec-lab">01 &mdash; The benchmark &middot; Texas and the Southwest, Q4 2026</p>
-  <h2 style="max-width:640px">Six numbers owners never tell anyone.</h2>
-  <p class="sub" style="margin-top:12px">Median, top quarter and bottom third across every
-    completed review this quarter. The line under each card is what goes into the report.
-    Click it and write your own.</p>
-
-  <div class="six">
-    <article>
-      <div class="t"><b>Share under contract</b><span>n = 128</span></div>
-      <div class="nums">
-        <div><u>38%</u><s>Bottom third</s></div>
-        <div class="mid"><u>61%</u><s>Median</s></div>
-        <div><u>84%</u><s>Top quarter</s></div>
-      </div>
-      <p class="say" contenteditable="true">Six in ten dollars renews on its own. The top quarter
-        is at 84% &mdash; that gap is most of the difference in what the two get offered.</p>
-    </article>
-    <article>
-      <div class="t"><b>Adjusted margin</b><span>n = 128</span></div>
-      <div class="nums">
-        <div><u>7.4%</u><s>Bottom third</s></div>
-        <div class="mid"><u>13.1%</u><s>Median</s></div>
-        <div><u>21.6%</u><s>Top quarter</s></div>
-      </div>
-      <p class="say" contenteditable="true">The bottom third is not underpriced. It is overstaffed.
-        I carried 15 to 20 percent more people than I needed in my own firm and did not see it.</p>
-    </article>
-    <article>
-      <div class="t"><b>Largest client</b><span>n = 128</span></div>
-      <div class="nums">
-        <div><u>34%</u><s>Bottom third</s></div>
-        <div class="mid"><u>19%</u><s>Median</s></div>
-        <div><u>9%</u><s>Top quarter</s></div>
-      </div>
-      <p class="say" contenteditable="true">One in five owners has a client worth a third of the
-        business. That is the defect a buyer cannot fix after closing, so it gets priced hard.</p>
-    </article>
-    <article>
-      <div class="t"><b>Sells without the owner</b><span>n = 128</span></div>
-      <div class="nums">
-        <div><u>61</u><s>Owner only</s></div>
-        <div class="mid"><u>44</u><s>Owner + help</s></div>
-        <div><u>23</u><s>A team</s></div>
-      </div>
-      <p class="say" contenteditable="true">Half the room still brings in every new client
-        personally. Growth that stops the day the owner does is growth nobody pays for.</p>
-    </article>
-    <article>
-      <div class="t"><b>Books ready for review</b><span>n = 128</span></div>
-      <div class="nums">
-        <div><u>47</u><s>Not yet</s></div>
-        <div class="mid"><u>59</u><s>Mostly</s></div>
-        <div><u>22</u><s>Today</s></div>
-      </div>
-      <p class="say" contenteditable="true">Only 22 could open the books tomorrow. Every week of
-        tidying under time pressure is a week the other side uses to renegotiate.</p>
-    </article>
-    <article>
-      <div class="t"><b>Longest stretch away</b><span>n = 128</span></div>
-      <div class="nums">
-        <div><u>66</u><s>Days</s></div>
-        <div class="mid"><u>41</u><s>A week</s></div>
-        <div><u>21</u><s>Two weeks+</s></div>
-      </div>
-      <p class="say" contenteditable="true">Two thirds have not been away longer than a few days
-        in a year. That is the single most expensive line on the list.</p>
-    </article>
+<section style="padding:44px 0 0"><div class="wrap">
+  <div style="display:flex;align-items:baseline;gap:20px;flex-wrap:wrap">
+    <h2 style="font-size:28px">Benchmark &middot; bottom third / median / top quarter</h2>
+    <span style="margin-left:auto;color:var(--mute);font-size:12.5px">Your captions go into the quarterly report as written</span>
+  </div>
+  <div class="bm">
+    <div class="bmc"><div class="t"><b>Share under contract</b><a href="#" class="ed">Edit caption</a></div>
+      <div class="nums"><u>38%</u><u class="md">61%</u><u class="tp">84%</u></div>
+      <p>Six in ten dollars renews on its own. The top quarter is at 84% &mdash; that gap is most of
+        the difference in what the two get offered.</p></div>
+    <div class="bmc edit"><div class="t"><b>Adjusted margin</b><em>EDITING</em></div>
+      <div class="nums"><u>7.4%</u><u class="md">13.1%</u><u class="tp">21.6%</u></div>
+      <p class="ph" style="font-style:normal">Caption, first person &mdash; max 220 characters</p>
+      <textarea>The bottom third is not underpriced. It is overstaffed. I carried 15 to 20 percent more people than I needed in my own firm and did not see it.</textarea>
+      <div class="btns"><button>Cancel</button><button class="pri">Save caption</button></div></div>
+    <div class="bmc"><div class="t"><b>Longest stretch away</b><a href="#" class="ed">Edit caption</a></div>
+      <div class="nums"><u>66</u><u class="md">41</u><u class="tp">21</u></div>
+      <p>Two thirds have not been away longer than a few days in a year. That is the single most
+        expensive line on the list.</p></div>
+    <div class="bmc"><div class="t"><b>Largest client share</b><a href="#" class="ed">Edit caption</a></div>
+      <div class="nums"><u>34%</u><u class="md">19%</u><u class="tp">9%</u></div>
+      <p>One in five owners has a client worth a third of the business. That is the defect a buyer
+        cannot fix after closing.</p></div>
+    <div class="bmc"><div class="t"><b>Who sells</b><a href="#" class="ed">Edit caption</a></div>
+      <div class="nums"><u>61</u><u class="md">44</u><u class="tp">23</u></div>
+      <p>Half the room still brings in every new client personally. Growth that stops the day the
+        owner does is growth nobody pays for.</p></div>
+    <div class="bmc"><div class="t"><b>Books ready today</b><a href="#" class="ed">Edit caption</a></div>
+      <div class="nums"><u>47</u><u class="md">59</u><u class="tp">22</u></div>
+      <p>Only 22 could open the books tomorrow. Every week of tidying under time pressure is a week
+        the other side uses to renegotiate.</p></div>
   </div>
 </div></section>
 
-<section class="dk" style="padding-top:46px"><div class="wrap">
-  <p class="sec-lab">02 &mdash; The list</p>
-  <h2>Sorted by what matters, not by when they arrived.</h2>
-  <p class="sub" style="margin-top:12px">Everyone who finished the review. The three weakest
-    factors are the opening line of your next conversation. Owners who asked for nothing stay
-    anonymous &mdash; state, size and score only. A name appears when they ask for the report
-    or book a call.</p>
-
-  <div class="scroll"><table>
-    <thead><tr>
-      <th>Date</th><th>Where</th><th>Revenue</th><th>Adj. earnings</th><th>Score</th>
-      <th>The three weakest</th><th>Asked</th>
-    </tr></thead>
-    <tbody>
-      <tr><td>18 Dec</td><td>Plano, TX</td><td>$4.1M</td><td>$690K</td><td><span class="sc bad">31</span></td>
-        <td><span class="tag">Owner dependence</span><span class="tag">Concentration</span><span class="tag">Books</span></td>
-        <td>30 minutes</td></tr>
-      <tr><td>17 Dec</td><td>Austin, TX</td><td>$2.4M</td><td>$314K</td><td><span class="sc bad">37</span></td>
-        <td><span class="tag">Owner dependence</span><span class="tag">Recurring mix</span><span class="tag">Sales</span></td>
-        <td>Full report</td></tr>
-      <tr><td>17 Dec</td><td>Oklahoma City, OK</td><td>$1.8M</td><td>$402K</td><td><span class="sc good">71</span></td>
-        <td><span class="tag">Books</span><span class="tag">Concentration</span></td>
-        <td>30 minutes</td></tr>
-      <tr><td>15 Dec</td><td>Houston, TX</td><td>$7.6M</td><td>$1.42M</td><td><span class="sc">58</span></td>
-        <td><span class="tag">Sales</span><span class="tag">Margin</span><span class="tag">Books</span></td>
-        <td>Full report</td></tr>
-      <tr class="anon"><td>15 Dec</td><td>AZ <i>anonymous</i></td><td>$960K</td><td>$88K</td><td><span class="sc bad">24</span></td>
-        <td><span class="tag">Margin</span><span class="tag">Recurring mix</span><span class="tag">Owner dependence</span></td>
-        <td>&mdash;</td></tr>
-      <tr><td>12 Dec</td><td>Fort Worth, TX</td><td>$3.3M</td><td>$575K</td><td><span class="sc">52</span></td>
-        <td><span class="tag">Concentration</span><span class="tag">Sales</span></td>
-        <td>Full report</td></tr>
-      <tr><td>11 Dec</td><td>Denver, CO</td><td>$5.2M</td><td>$1.01M</td><td><span class="sc good">76</span></td>
-        <td><span class="tag">Books</span></td>
-        <td>30 minutes</td></tr>
-      <tr class="anon"><td>09 Dec</td><td>TX <i>anonymous</i></td><td>$1.2M</td><td>$155K</td><td><span class="sc bad">29</span></td>
-        <td><span class="tag">Owner dependence</span><span class="tag">Sales</span><span class="tag">Margin</span></td>
-        <td>&mdash;</td></tr>
-    </tbody>
-  </table></div>
-
-  <div class="back">
-    <div class="b">
-      <h3>Came back and ran it again</h3>
-      <p>Twenty-three owners re-ran the review after a quarter or more. This is what moved.</p>
-      <div class="d"><span>Austin, TX &middot; second run</span><em>37 &rarr; 51</em></div>
-      <div class="d"><span>Tulsa, OK &middot; third run</span><em>44 &rarr; 68</em></div>
-      <div class="d"><span>Plano, TX &middot; second run</span><em>31 &rarr; 33</em></div>
-      <div class="d"><span>Dallas, TX &middot; second run</span><em>55 &rarr; 72</em></div>
-    </div>
-    <div class="b">
-      <h3>What the quarterly report says</h3>
-      <p>One PDF per region, under your name, built from the cards above. It is the reason to
-        write to all 128 without selling any of them anything.</p>
-      <div class="d"><span>Texas &amp; Southwest, Q4 2026</span><em>128 reviews</em></div>
-      <div class="d"><span>Mountain West, Q4 2026</span><em>31 reviews &mdash; thin</em></div>
-      <div class="d"><span>Sent last quarter</span><em>opened by 64%</em></div>
+<section style="padding:44px 0 72px"><div class="wrap">
+  <div style="display:flex;align-items:baseline;gap:20px;flex-wrap:wrap">
+    <h2 style="font-size:28px">Everyone who finished</h2>
+    <span class="legend"><span><i style="background:#2BA1FD"></i>Named &middot; asked for something</span>
+      <span><i style="background:#7D93AF"></i>Anonymous &middot; promised</span></span>
+  </div>
+  <div class="split">
+    <div class="tbl"><table>
+      <thead><tr><th>Date</th><th>Owner</th><th>Where</th><th>Revenue</th><th>Adj. earnings</th>
+        <th>Score</th><th>Three weakest</th><th>Asked for</th></tr></thead>
+      <tbody>
+        <tr class="named"><td>Oct 19</td><td><b>[Owner name]</b><small>[Company]</small></td>
+          <td>Houston, TX</td><td>$8.0M</td><td>$1.3M</td><td>41</td>
+          <td class="weak">Owner &middot; Sales &middot; Books</td><td>Report</td></tr>
+        <tr class="anon"><td>Oct 19</td><td><span class="anontag">&#128274; Anonymous</span></td>
+          <td>TX</td><td>$2&ndash;5M band</td><td>&mdash;</td><td>44</td>
+          <td class="weak">Owner &middot; Sales &middot; Books</td><td>&mdash;</td></tr>
+        <tr class="named"><td>Oct 18</td><td><b>[Owner name]</b><small>[Company]</small></td>
+          <td>Plano, TX</td><td>$6.2M</td><td>$910K</td><td>61</td>
+          <td class="weak">Concentration &middot; Sales &middot; Owner</td><td>30 min</td></tr>
+        <tr class="anon"><td>Oct 17</td><td><span class="anontag">&#128274; Anonymous</span></td>
+          <td>OK</td><td>$1&ndash;2M band</td><td>&mdash;</td><td>33</td>
+          <td class="weak">Recurring &middot; Owner &middot; Books</td><td>&mdash;</td></tr>
+        <tr class="anon"><td>Oct 16</td><td><span class="anontag">&#128274; Anonymous</span></td>
+          <td>TX</td><td>$5&ndash;10M band</td><td>&mdash;</td><td>58</td>
+          <td class="weak">Sales &middot; Owner &middot; Margin</td><td>&mdash;</td></tr>
+        <tr class="named"><td>Oct 15</td><td><b>[Owner name]</b><small>[Company]</small></td>
+          <td>San Antonio, TX</td><td>$4.1M</td><td>$530K</td><td>48</td>
+          <td class="weak">Owner &middot; Margin &middot; Sales</td><td>Report &times;2</td></tr>
+        <tr class="anon"><td>Oct 14</td><td><span class="anontag">&#128274; Anonymous</span></td>
+          <td>NM</td><td>$2&ndash;5M band</td><td>&mdash;</td><td>39</td>
+          <td class="weak">Books &middot; Owner &middot; Recurring</td><td>&mdash;</td></tr>
+        <tr class="named"><td>Oct 12</td><td><b>[Owner name]</b><small>[Company]</small></td>
+          <td>Fort Worth, TX</td><td>$3.2M</td><td>$410K</td><td>51</td>
+          <td class="weak">Sales &middot; Recurring &middot; Margin</td><td>Report</td></tr>
+      </tbody>
+    </table></div>
+    <div class="back">
+      <h3 style="font-size:21px;margin-bottom:6px">Came back</h3>
+      <p style="color:var(--dim);font-size:13.5px">Proof the method works &mdash; and the best reason to write.</p>
+      <div class="b"><div><b>Fort Worth, TX &middot; named</b><span>Owner dependence, Books</span></div><s>37 &rarr; 51</s></div>
+      <div class="b"><div><b>TX &middot; anonymous</b><span>Recurring mix</span></div><s>[ ] &rarr; [ ]</s></div>
+      <div class="b"><div><b>Tulsa, OK &middot; named</b><span>Margin, Sales independence</span></div><s>44 &rarr; 68</s></div>
+      <div class="b"><div><b>Plano, TX &middot; named</b><span>Nothing moved</span></div><s>31 &rarr; 33</s></div>
     </div>
   </div>
+  <p style="color:var(--mute);font-size:12px;margin-top:14px">Anonymous rows show state, size band
+    and result only; there is no way to open them.</p>
 </div></section>
 
-<footer style="margin-top:60px"><div class="wrap">
-  <span>MSP Mergers, LLC &middot; Dallas&ndash;Fort Worth</span>
-  <span class="sp"></span>
-  <a href="index.html">The page</a>
-</div></footer>
+<footer><div class="wrap"><span>MSP Mergers, LLC &middot; Dallas&ndash;Fort Worth</span>
+  <span class="sp"></span><a href="index.html">The site</a><a href="review.html">The review</a></div></footer>
 
 <script>
 document.getElementById('draft').addEventListener('click',function(){
   var b=this; b.disabled=true; b.textContent='Building…';
   setTimeout(function(){ b.textContent='Q4 report ready — open it →'; b.disabled=false;
-    b.onclick=function(){ window.print(); }; },900);
+    b.onclick=function(){window.print();}; },900);
 });
 document.getElementById('csv').addEventListener('click',function(){
-  var rows=[['date','where','revenue','adj_earnings','score','weakest','asked']];
+  var rows=[['date','owner','where','revenue','adj_earnings','score','weakest','asked']];
   document.querySelectorAll('tbody tr').forEach(function(tr){
-    var c=[].map.call(tr.children,function(td){return td.innerText.replace(/\s+/g,' ').trim();});
-    rows.push(c);
+    rows.push([].map.call(tr.children,function(td){return td.innerText.replace(/\s+/g,' ').trim();}));
   });
   var csv=rows.map(function(r){return r.map(function(v){return '"'+v.replace(/"/g,'""')+'"';}).join(',');}).join('\n');
   var a=document.createElement('a');
   a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
   a.download='msp-mergers-reviews-q4-2026.csv'; a.click();
+});
+document.querySelectorAll('.bmc .ed').forEach(function(a){
+  a.addEventListener('click',function(e){e.preventDefault();
+    var c=a.closest('.bmc'), p=c.querySelector('p'); if(c.classList.contains('edit'))return;
+    c.classList.add('edit'); a.outerHTML='<em>EDITING</em>';
+    var t=document.createElement('textarea'); t.value=p.textContent.trim(); p.replaceWith(t);
+    var d=document.createElement('div'); d.className='btns';
+    d.innerHTML='<button>Cancel</button><button class="pri">Save caption</button>';
+    c.appendChild(d);
+    d.querySelector('.pri').addEventListener('click',function(){
+      var np=document.createElement('p'); np.textContent=t.value; t.replaceWith(np); d.remove();
+      c.classList.remove('edit'); c.querySelector('em').outerHTML='<a href="#" class="ed">Edit caption</a>';
+    });
+  });
 });
 </script>
 </body>
