@@ -70,8 +70,8 @@ h2{font-size:clamp(25px,3.1vw,38px)}
 .four i{font-style:normal;font-family:var(--body);font-size:12px;color:var(--blue);font-weight:600}
 .four h3{font-size:21px;margin:10px 0 10px}
 .four p{color:var(--dim);font-size:14px;margin:0}
-.ghost-word{text-align:center;font-family:var(--disp);font-weight:800;font-size:clamp(28px,5.4vw,62px);
-  letter-spacing:-.03em;color:transparent;-webkit-text-stroke:1px rgba(43,161,253,.42);padding:30px 0}
+.ghost-word{text-align:center;font-family:var(--disp);font-weight:800;font-size:clamp(22px,4.2vw,56px);
+  letter-spacing:.06em;color:rgba(43,161,253,.17);padding:34px 0;white-space:nowrap;overflow:hidden}
 .two-up{display:grid;grid-template-columns:1fr 1fr;gap:24px}
 .up{border:1px solid var(--line);border-radius:12px;padding:26px 28px;background:var(--card2)}
 .up h3{font-size:23px;margin:12px 0 12px}
