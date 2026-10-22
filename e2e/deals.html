@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Who's buying MSPs — and at what price | ChannelE2E</title><link rel="stylesheet" href="e2e.css"></head><body>
+<header class="hdr"><div class="wrap">
+  <a class="logo" href="host.html">Channel<i>E2E</i></a>
+  <nav><a href="deals.html" class="on">Mergers &amp; Acquisitions</a><a href="multiples.html">Valuations</a>
+    <a href="#">Cybersecurity</a><a href="#">AI</a><a href="#">Events</a></nav>
+  <span class="sp"></span><a class="pill" href="host.html#widget">What&rsquo;s your E2E Score?</a>
+</div></header>
+<div class="wrap" style="padding:28px 0 60px">
+  <p class="kicker">The index</p>
+  <h1 style="margin:8px 0 6px">Who&rsquo;s buying MSPs &mdash; and at what price</h1>
+  <p class="lead" style="margin-bottom:22px">Every disclosed deal since 2019. Updated weekly.</p>
+
+  <div class="card" id="market"><h2>Your market</h2>
+    <div class="grid3" style="margin-top:16px" id="kpis"></div>
+    <h3 style="margin:24px 0 10px">Deals recorded per year</h3>
+    <div id="years"></div>
+    <p class="fine" id="note"></p>
+  </div>
+
+  <div class="card">
+    <div class="filters"><select id="fy"></select><select id="fp">
+      <option value="">Buyer backing: any</option><option value="pe">Private equity behind the buyer</option>
+      <option value="no">No PE disclosed</option></select></div>
+    <table><thead><tr><th>Year</th><th>Buyer</th><th>Acquired</th><th>Focus</th><th>Backing</th><th>Price</th></tr></thead>
+      <tbody id="rows"></tbody></table>
+    <p class="fine" id="shown"></p>
+  </div>
+
+  <div class="card" style="text-align:center">
+    <h2>Where does your business sit in this?</h2>
+    <p class="lead">Five questions, a score, and the range a buyer would offer.</p>
+    <p style="margin-top:16px"><a class="btn" style="max-width:300px;margin:0 auto" href="host.html#widget">What&rsquo;s your E2E Score? &rarr;</a></p>
+  </div>
+</div>
+<footer class="ftr"><div class="wrap"><span>ChannelE2E &middot; from Entrepreneur to Exit</span>
+  <span class="sp"></span><a href="host.html">Home</a><a href="multiples.html">Valuations</a><a href="kelly.html">For partners</a></div></footer>
+<script src="e2e.js"></script>
+<script>
+var A = E2E.ARCHIVE, D = E2E.DEALS;
+document.getElementById('kpis').innerHTML =
+  '<div class="kpi"><span>MSP deals in 2025</span><b>'+A.omdia2025.deals+'</b></div>'+
+  '<div class="kpi"><span>Private equity behind the buyer</span><b>'+A.omdia2025.pePct+'%</b></div>'+
+  '<div class="kpi"><span>Deals in the archive 2019&ndash;2024</span><b>'+A.rows.toLocaleString()+'</b></div>';
+var max = Math.max.apply(null, A.byYear.map(function(y){return y[1]}));
+document.getElementById('years').innerHTML = A.byYear.map(function(y){
+  return '<div style="display:flex;align-items:center;gap:12px;margin:6px 0">'+
+    '<span style="width:42px;font-weight:700;font-size:13px">'+y[0]+'</span>'+
+    '<span class="bar" style="flex:1;margin:0"><i style="width:'+(y[1]/max*100)+'%"></i></span>'+
+    '<span style="width:46px;text-align:right;font-weight:700;font-size:13px">'+y[1]+'</span></div>';
+}).join('');
+document.getElementById('note').innerHTML =
+  'Counts measured against ChannelE2E&rsquo;s own year pages, October 2026. The 2025 page exists but carries ten empty rows, '+
+  'and the hub still describes it as updated daily. Column completeness in the archive: buyer '+A.fill.buyer+'%, '+
+  'state '+A.fill.state+'%, private-equity backer '+A.fill.pe+'%, <strong>price '+A.fill.price+'%, valuation '+A.fill.valuation+
+  '%, employees '+A.fill.employees+'%</strong>. The last three are what this index is for. '+
+  '2025 deal counts: Omdia OM142467, 27 March 2026.';
+
+var fy = document.getElementById('fy');
+fy.innerHTML = '<option value="">Year: all</option>' + [2026,2025,2024].map(function(y){return '<option>'+y+'</option>'}).join('');
+function paint(){
+  var y = fy.value, p = document.getElementById('fp').value;
+  var rows = D.filter(function(d){
+    if (y && String(d.y) !== y) return false;
+    if (p === 'pe' && !d.pe) return false;
+    if (p === 'no' && d.pe) return false;
+    return true; });
+  document.getElementById('rows').innerHTML = rows.map(function(d){
+    return '<tr><td>'+d.y+(d.m!=='—'?' '+d.m:'')+'</td><td><strong>'+d.buyer+'</strong></td><td>'+d.target+'</td>'+
+      '<td>'+d.focus+'</td><td>'+(d.pe?'<span class="tag pe">'+d.pe+'</span>':'<span class="tag">&mdash;</span>')+'</td>'+
+      '<td>'+(d.px||'<span class="src">not disclosed</span>')+'</td></tr>'+
+      '<tr><td></td><td colspan="5" class="src" style="padding-top:0;border-bottom:1px solid var(--line)">'+d.src+'</td></tr>';
+  }).join('') || '<tr><td colspan="6">No rows for this filter.</td></tr>';
+  document.getElementById('shown').innerHTML = rows.length+' of '+D.length+
+    ' rows shown. These are the rows we verified line by line for the demo; the live index imports the full '+
+    A.rows.toLocaleString()+'-row archive and adds the price and multiple columns ChannelE2E never filled.';
+}
+fy.onchange = document.getElementById('fp').onchange = paint; paint();
+</script></body></html>

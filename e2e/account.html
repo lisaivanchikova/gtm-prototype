@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Your account | Intwin</title><link rel="stylesheet" href="e2e.css"></head><body class="pg">
+<header class="hdr"><div class="wrap">
+  <a class="logo" href="review.html">Int<i>win</i></a>
+  <nav><a href="review.html">The breakdown</a><a href="#" class="on">Your account</a><a href="deals.html">M&amp;A index</a></nav>
+  <span class="sp"></span><a class="pill" href="host.html">&larr; ChannelE2E</a>
+</div></header>
+<div class="wrap" style="padding:28px 0 60px;max-width:820px"><div id="out"></div></div>
+<footer class="ftr"><div class="wrap"><span>Intwin</span><span class="sp"></span>
+  <a href="host.html">ChannelE2E</a><a href="kelly.html">Partner dashboard</a></div></footer>
+<script src="e2e.js"></script>
+<script>
+var r = E2E.get(), out = document.getElementById('out');
+if (!E2E.unlocked() || r.profit == null) {
+  out.innerHTML = '<div class="card"><h2>This page opens with your own run</h2>'+
+    '<p class="lead">The account holds your figures so the next quarter is a comparison, not a fresh start.</p>'+
+    '<p style="margin-top:16px"><a class="btn" style="max-width:280px" href="review.html">Open your breakdown &rarr;</a></p></div>';
+} else {
+  var ch = E2E.checks(r), pass = ch.filter(function(c){return c.pass}).length, s = E2E.score(r), g = E2E.range(r);
+  out.innerHTML =
+    '<p class="kicker">'+(r.co||'Your business')+'</p>'+
+    '<h1 style="margin:8px 0 6px">Readiness clock</h1>'+
+    '<p class="lead" style="margin-bottom:22px">You are not selling today. This is the line you are moving.</p>'+
+    '<div class="card"><div class="clock"><b>'+pass+' / '+ch.length+'</b>'+
+      '<span>checks a buyer&rsquo;s diligence would pass today<br>'+
+      '<span class="delta">&uarr; this is your first run &mdash; the next one shows the change</span></span></div>'+
+      '<div class="bar" style="margin-top:18px"><i style="width:'+(pass/ch.length*100)+'%"></i></div>'+
+      '<p class="fine">Re-run it each quarter. Two quarters moving the same way is what tells us &mdash; and you &mdash; that you are ready.</p>'+
+    '</div>'+
+    '<div class="card"><h2>Your runs</h2><ul class="hist">'+
+      '<li><span>'+new Date(r.ts||Date.now()).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})+
+      '</span><span><strong>Score '+s+'</strong> &nbsp;&middot;&nbsp; '+E2E.money(g.low)+'&ndash;'+E2E.money(g.high)+'</span></li>'+
+      '</ul><p class="fine">One run so far. The clock needs a second one to show a direction.</p>'+
+      '<div class="grid2" style="margin-top:16px">'+
+        '<a class="btn" href="review.html">Re-run with new figures &rarr;</a>'+
+        '<a class="btn gh" href="multiples.html">Where you sit this quarter &rarr;</a></div>'+
+    '</div>'+
+    '<div class="card"><h2>What we will do with this</h2>'+
+      '<p class="lead">Your figures are yours. The aggregate &mdash; without your name &mdash; goes into the quarterly index on ChannelE2E. '+
+      'Your name and email reached us at the moment you asked for the comparison, and nothing before that. '+
+      'If you want a conversation about an offer, you ask for it; we do not pass you to anyone.</p>'+
+      '<p style="margin-top:16px"><a class="btn gh" style="max-width:320px" href="#">Ask for a 30-minute conversation &rarr;</a></p>'+
+    '</div>';
+}
+</script></body></html>

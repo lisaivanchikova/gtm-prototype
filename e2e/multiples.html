@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The quarterly MSP valuation index | ChannelE2E</title><link rel="stylesheet" href="e2e.css"></head><body>
+<header class="hdr"><div class="wrap">
+  <a class="logo" href="host.html">Channel<i>E2E</i></a>
+  <nav><a href="deals.html">Mergers &amp; Acquisitions</a><a href="multiples.html" class="on">Valuations</a>
+    <a href="#">Cybersecurity</a><a href="#">AI</a><a href="#">Events</a></nav>
+  <span class="sp"></span><a class="pill" href="host.html#widget">What&rsquo;s your E2E Score?</a>
+</div></header>
+<div class="wrap" style="padding:28px 0 60px;max-width:960px">
+  <p class="kicker">Q4 2026 &middot; published quarterly</p>
+  <h1 style="margin:8px 0 6px">What MSPs actually sell for</h1>
+  <p class="lead" style="margin-bottom:22px">The multiple by revenue band, and how it moves with contracted
+    revenue and margin. Built from disclosed deals plus what owners submit.</p>
+
+  <div class="note" style="margin-bottom:20px">This is the study MSSP Alert announced in July 2024 as
+    &ldquo;the first-ever benchmark pricing study for MSSPs and MSPs&rdquo; and never published. The method below
+    is what makes it publishable: a band is printed only once 30 owners have answered it.</div>
+
+  <div class="card"><h2>Open: the quarter&rsquo;s headline</h2>
+    <div class="grid3" style="margin-top:16px" id="kpis"></div>
+    <p class="fine">2025 deal counts: Omdia OM142467, 27 March 2026. Median score from completed runs on this index.</p>
+  </div>
+
+  <div class="card"><h2>The curve, by revenue band</h2>
+    <p class="lead">Five bands. One is open; the rest open with your own numbers beside them.</p>
+    <div id="bands" style="margin-top:18px"></div>
+  </div>
+
+  <div class="card"><h2>How the number is made</h2>
+    <ul class="chk" style="margin-top:12px">
+      <li class="pass"><span class="ic">&#10003;</span><span><span class="ttl">Disclosed prices from the deal index</span>
+        <span class="sub">Only deals where a price was published. In ChannelE2E&rsquo;s own archive that is 3% of rows &mdash; which is why a second source is needed.</span></span></li>
+      <li class="pass"><span class="ic">&#10003;</span><span><span class="ttl">Figures owners submit to the E2E Score</span>
+        <span class="sub">Revenue, contracted share, margin, concentration. Anonymous in the aggregate, never published per company.</span></span></li>
+      <li class="pass"><span class="ic">&#10003;</span><span><span class="ttl">Minimum 30 answers before a band is printed</span>
+        <span class="sub">Below that the band is withheld rather than estimated.</span></span></li>
+      <li class="fail"><span class="ic">!</span><span><span class="ttl">Ranges, not point values</span>
+        <span class="sub">A single number would be quoted back as an entitlement in every negotiation in the channel. Bands are honest and still usable.</span></span></li>
+    </ul>
+  </div>
+  <div class="card" style="text-align:center"><h2>Put your own business on this curve</h2>
+    <p style="margin-top:14px"><a class="btn" style="max-width:280px;margin:0 auto" href="review.html">Open your breakdown &rarr;</a></p></div>
+</div>
+<footer class="ftr"><div class="wrap"><span>ChannelE2E &middot; from Entrepreneur to Exit</span>
+  <span class="sp"></span><a href="host.html">Home</a><a href="deals.html">M&amp;A index</a><a href="kelly.html">For partners</a></div></footer>
+<script src="e2e.js"></script>
+<script>
+var A = E2E.ARCHIVE, open = E2E.unlocked(), r = E2E.get();
+document.getElementById('kpis').innerHTML =
+  '<div class="kpi"><span>MSP deals tracked in 2025</span><b>'+A.omdia2025.deals+'</b></div>'+
+  '<div class="kpi"><span>PE behind the buyer</span><b>'+A.omdia2025.pePct+'%</b></div>'+
+  '<div class="kpi"><span>Median E2E Score</span><b>44</b></div>';
+document.getElementById('bands').innerHTML = E2E.BANDS.map(function(b,i){
+  var free = (i===1);
+  var inner = '<div style="display:flex;justify-content:space-between;align-items:baseline">'+
+    '<strong>'+b.t+'</strong><span class="src">range, shape illustrative</span></div>'+
+    '<div class="bar" style="margin-top:10px"><i style="width:'+(28+i*13)+'%"></i></div>';
+  if (free || open) return '<div class="mod" style="margin-bottom:12px">'+inner+
+    '<p class="fine">'+(free?'Open to everyone &mdash; this is the band Kelly can quote from the stage.':'Opened with your numbers.')+'</p></div>';
+  return '<div class="mod" style="margin-bottom:12px;position:relative">'+
+    '<div style="filter:blur(4px);opacity:.5">'+inner+'</div>'+
+    '<p class="fine" style="margin-top:10px">Opens with your own numbers beside it. '+
+    '<a href="review.html">Run the five questions &rarr;</a></p></div>';
+}).join('');
+if (open && r.co) document.querySelector('.note').innerHTML =
+  'Opened for <strong>'+r.co+'</strong>. The full Q4 index is also on its way to '+r.mail+'.';
+</script></body></html>

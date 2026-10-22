@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>E2E Score</title><link rel="stylesheet" href="e2e.css">
+<style>body{background:transparent}.w{border-radius:4px}</style>
+</head><body>
+<div class="w" id="w"></div>
+<script src="e2e.js"></script>
+<script>
+var Q = [
+  { id:'rev',  q:'What was revenue last year?', kind:'opts',
+    opts: E2E.BANDS.map(function(b){return b.t}), vals: E2E.BANDS.map(function(b){return b.k}) },
+  { id:'rec',  q:'How much of that renews on its own, under contract?', kind:'pct' },
+  { id:'fte',  q:'How many full-time people, including you?', kind:'num', ph:'e.g. 12' },
+  { id:'sells',q:'Who brings in a new client?', kind:'opts', opts:E2E.SELLS, vals:[0,1,2] },
+  { id:'away', q:'Longest you have been away from the business in the last year?', kind:'opts', opts:E2E.AWAY, vals:[0,1,2] }
+];
+var step = -1, w = document.getElementById('w');
+
+function h(s){ w.innerHTML = s; resize(); }
+function resize(){ try{ parent.postMessage({e2eHeight: document.body.scrollHeight}, '*'); }catch(e){} }
+
+function intro(){
+  h('<div class="w-hd"><div class="t">What&rsquo;s your E2E Score?</div>'+
+    '<div class="s">Five questions. Your score in 30 seconds. No call, no listing.</div></div>'+
+    '<div class="w-bd"><button class="btn" id="go">Start &rarr;</button>'+
+    '<p class="fine">Nothing is sent anywhere until you ask for it.</p></div>'+
+    '<div class="pwr">Powered by <b>Intwin</b></div>');
+  document.getElementById('go').onclick = function(){ E2E.bump('open'); step = 0; draw(); };
+}
+function draw(){
+  if (step >= Q.length) return done();
+  var q = Q[step], body = '';
+  if (q.kind === 'opts') {
+    body = q.opts.map(function(o,i){ return '<button class="opt" data-v="'+i+'">'+o+'</button>'; }).join('');
+  } else if (q.kind === 'pct') {
+    body = '<input class="num" id="in" type="number" min="0" max="100" placeholder="e.g. 62"> '+
+           '<p class="fine" style="margin:8px 0 12px">Per cent of revenue.</p>'+
+           '<button class="btn" id="nx">Next &rarr;</button>';
+  } else {
+    body = '<input class="num" id="in" type="number" min="1" placeholder="'+(q.ph||'')+'">'+
+           '<p class="fine" style="margin:8px 0 12px">&nbsp;</p><button class="btn" id="nx">Next &rarr;</button>';
+  }
+  h('<div class="w-hd"><div class="prg">Question '+(step+1)+' of '+Q.length+'</div>'+
+    '<div class="q">'+q.q+'</div></div><div class="w-bd">'+body+'</div>'+
+    '<div class="pwr">Powered by <b>Intwin</b></div>');
+  if (q.kind === 'opts') {
+    [].forEach.call(w.querySelectorAll('.opt'), function(b){
+      b.onclick = function(){ var o = {}; o[q.id] = q.vals[+b.dataset.v]; E2E.set(o); step++; draw(); };
+    });
+  } else {
+    var inp = document.getElementById('in');
+    inp.focus();
+    var go = function(){ var v = +inp.value; if (!isFinite(v) || v <= 0) { inp.focus(); return; }
+      var o = {}; o[q.id] = q.kind === 'pct' ? Math.min(100, v) : v; E2E.set(o); step++; draw(); };
+    document.getElementById('nx').onclick = go;
+    inp.onkeydown = function(e){ if (e.key === 'Enter') go(); };
+  }
+}
+function done(){
+  E2E.bump('finish');
+  var r = E2E.get(), s = E2E.score(r), weak = E2E.weakest(r, 3);
+  h('<div class="w-hd"><div class="prg">Your result</div>'+
+    '<div class="scorebig">'+s+' <small>/ 100</small></div>'+
+    '<div class="s" style="margin-top:8px">E2E Score &mdash; where your business sits on the six things a buyer looks at.</div></div>'+
+    '<div class="w-bd">'+
+      '<ul class="facets">'+ weak.map(function(f){
+          return '<li><span>'+f.n+'</span><span class="'+(f.s<50?'bad':'good')+'">'+(f.s<34?'weak':f.s<67?'middling':'strong')+'</span></li>';
+        }).join('') +'</ul>'+
+      '<p class="fine" style="margin:12px 0 12px">These three are holding your number down. What each one costs in dollars &mdash; and the range a buyer would offer &mdash; is on the full breakdown.</p>'+
+      '<a class="btn" id="full" href="review.html" target="_top">Open the full breakdown &rarr;</a>'+
+      '<a class="btn gh" href="multiples.html" target="_top" style="margin-top:7px">Compare with the quarter &rarr;</a>'+
+      '<p class="fine">Arithmetic on figures you typed. Not an offer, not an appraisal.</p>'+
+    '</div><div class="pwr">Powered by <b>Intwin</b></div>');
+  document.getElementById('full').onclick = function(){ E2E.bump('through'); };
+}
+intro();
+addEventListener('load', resize);
+</script></body></html>

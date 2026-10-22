@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dr. Backup acquisition could bring new resources to MSPs | ChannelE2E</title>
+<link rel="stylesheet" href="e2e.css"></head><body>
+
+<header class="hdr"><div class="wrap">
+  <a class="logo" href="host.html">Channel<i>E2E</i></a>
+  <nav>
+    <a href="deals.html" class="on">Mergers &amp; Acquisitions</a>
+    <a href="multiples.html">Valuations</a>
+    <a href="#">Cybersecurity</a>
+    <a href="#">AI</a>
+    <a href="#">Events</a>
+  </nav>
+  <span class="sp"></span>
+  <a class="pill" href="#widget">What&rsquo;s your E2E Score?</a>
+</div></header>
+
+<div class="wrap cols">
+  <main class="art">
+    <p class="kicker">Mergers and Acquisitions</p>
+    <h1 style="margin:8px 0 0">Dr. Backup acquisition could bring new resources to MSPs</h1>
+    <p class="byline">By ChannelE2E Team &middot; 21 October 2026</p>
+    <p>Placeholder body copy standing in for their article, so the page around the widget is the
+      real shape: one content column, one rail on the right. The three modules in that rail are the
+      ones their own template carries today &mdash; we are adding one above them, not rebuilding the page.</p>
+    <h2>Why the rail matters</h2>
+    <p>On their live topic pages the first rail module sits 338 pixels down the page, which is the
+      only piece of real estate on the site that is both above the fold and not editorial. That is
+      where Kelly pointed: <em>&ldquo;it would be just somewhere on the right.&rdquo;</em></p>
+    <p>The block headed <strong>MSP, Channel M&amp;A</strong> is already on their homepage &mdash; at
+      3,579 pixels, below the video module. Raising it is the second half of this proposal.</p>
+    <h2>What the reader does next</h2>
+    <p>Five questions in the rail, a score, and a reason to click through. Everything that costs
+      money to produce sits on our side; everything that builds their habit sits on theirs.</p>
+  </main>
+
+  <aside class="rail">
+    <div id="widget">
+      <iframe id="e2e" src="widget.html" style="width:100%;border:0;height:300px;display:block"
+              title="E2E Score" scrolling="no"></iframe>
+    </div>
+
+    <div class="mod"><h3>Fast Five</h3><ul>
+      <li>TD SYNNEX strikes deal to acquire specialty distributor BlueStar</li>
+      <li>Accenture plans $5 billion in acquisitions over the next year</li>
+      <li>WEBIT founder turns succession into employee ownership</li>
+      <li>Dr. Backup acquisition could bring new resources to MSPs</li>
+      <li>Private equity appeared in 69% of disclosed MSP deals in 2025</li>
+    </ul></div>
+
+    <div class="mod"><h3>MSP, Channel M&amp;A</h3>
+      <ul>
+        <li><a href="deals.html">Every disclosed deal since 2019 &rarr;</a></li>
+        <li><a href="deals.html#market">Who is buying in your state &rarr;</a></li>
+        <li><a href="multiples.html">What MSPs sold for this quarter &rarr;</a></li>
+      </ul>
+      <p class="src" style="margin:10px 0 0">Updated weekly.</p>
+    </div>
+  </aside>
+</div>
+
+<footer class="ftr"><div class="wrap">
+  <span>ChannelE2E &middot; from Entrepreneur to Exit</span>
+  <span class="sp"></span>
+  <a href="deals.html">M&amp;A index</a>
+  <a href="multiples.html">Valuations</a>
+  <a href="kelly.html">For partners</a>
+</div></footer>
+
+<script>
+/* the embed contract: the iframe tells the host how tall it is */
+addEventListener('message', function (e) {
+  if (e.data && e.data.e2eHeight) document.getElementById('e2e').style.height = (e.data.e2eHeight + 2) + 'px';
+});
+if (location.hash === '#widget') setTimeout(function(){
+  document.getElementById('widget').scrollIntoView({behavior:'smooth', block:'center'}); }, 300);
+</script>
+</body></html>

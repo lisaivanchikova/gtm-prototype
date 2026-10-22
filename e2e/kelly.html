@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Partner dashboard | ChannelE2E × Intwin</title><link rel="stylesheet" href="e2e.css"></head><body class="pg">
+<header class="hdr"><div class="wrap">
+  <a class="logo" href="host.html">Channel<i>E2E</i></a>
+  <nav><a href="#" class="on">Partner dashboard</a></nav>
+  <span class="sp"></span><span class="src">Private &middot; ChannelE2E &times; Intwin</span>
+</div></header>
+<div class="wrap" style="padding:28px 0 60px;max-width:900px">
+  <p class="kicker">What the widget is doing for you</p>
+  <h1 style="margin:8px 0 6px">Partner dashboard</h1>
+  <p class="lead" style="margin-bottom:22px">The numbers we owe you, visible to you &mdash; not reported by us.
+    This is the proof you put in a media kit.</p>
+  <div class="card"><div class="grid3" id="k"></div>
+    <p class="fine">Live from this browser session in the demo. In production these are server-side counters,
+      broken down by the page the reader came from.</p></div>
+  <div class="card"><h2>What you get, in your own words</h2>
+    <ul class="chk" style="margin-top:12px">
+      <li class="pass"><span class="ic">&#10003;</span><span><span class="ttl">&ldquo;Something of value that makes them come to the site in the first place&rdquo;</span>
+        <span class="sub">The score is free and lives on your page. Nothing is gated before the reader gets an answer.</span></span></li>
+      <li class="pass"><span class="ic">&#10003;</span><span><span class="ttl">&ldquo;You update it in real time. It&rsquo;s a real piece of software&rdquo;</span>
+        <span class="sub">We keep it running. No work lands on your team, ever.</span></span></li>
+      <li class="pass"><span class="ic">&#10003;</span><span><span class="ttl">&ldquo;Exclusive to us&hellip; we can create the name of it&rdquo;</span>
+        <span class="sub">E2E Score is yours. It is named for your brand and your tagline, and it appears nowhere else in the channel.</span></span></li>
+      <li class="pass"><span class="ic">&#10003;</span><span><span class="ttl">&ldquo;In my mind, there&rsquo;d be no money exchange&rdquo;</span>
+        <span class="sub">None. You give placement and the newsletter; we give the software and the maintenance.</span></span></li>
+    </ul>
+  </div>
+  <div class="card"><h2>What we ask in return</h2>
+    <ul class="chk" style="margin-top:12px">
+      <li class="pass"><span class="ic">&#10003;</span><span><span class="ttl">The rail slot and a block on the homepage</span><span class="sub">Above Fast Five on topic pages. On the homepage, where the M&amp;A block should have been all along.</span></span></li>
+      <li class="pass"><span class="ic">&#10003;</span><span><span class="ttl">One line in the weekly newsletter</span><span class="sub">The quarter&rsquo;s number and a link.</span></span></li>
+      <li class="pass"><span class="ic">&#10003;</span><span><span class="ttl">A session at one regional event</span><span class="sub">&ldquo;What&rsquo;s your MSP worth&rdquo; on stage, with the QR going straight into the widget.</span></span></li>
+      <li class="pass"><span class="ic">&#10003;</span><span><span class="ttl">The reader&rsquo;s own figures stay the reader&rsquo;s</span><span class="sub">Aggregate is yours to publish. Identified contact reaches us only when the owner asks for it.</span></span></li>
+    </ul>
+  </div>
+  <p class="src">Demo pages: <a href="host.html">ChannelE2E with the widget</a> &middot;
+    <a href="review.html">the breakdown</a> &middot; <a href="deals.html">M&amp;A index</a> &middot;
+    <a href="multiples.html">valuation index</a> &middot; <a href="account.html">owner account</a> &middot;
+    <a href="?reset">reset the demo</a></p>
+</div>
+<script src="e2e.js"></script>
+<script>
+if (location.search === '?reset') { E2E.clear(); location.replace('kelly.html'); }
+var s = E2E.stats();
+var rows = [['Widget opened','open'],['Finished the five','finish'],['Clicked through to the breakdown','through'],
+            ['Asked for a price','priced'],['Left name and email','identified']];
+document.getElementById('k').innerHTML = rows.map(function(x){
+  return '<div class="kpi"><span>'+x[0]+'</span><b>'+(s[x[1]]||0)+'</b></div>'; }).join('');
+</script></body></html>
