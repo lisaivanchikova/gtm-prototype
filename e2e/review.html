@@ -4,24 +4,25 @@
 <title>Your full breakdown | Intwin</title><link rel="stylesheet" href="e2e.css"></head>
 <body class="pg">
 
-<header class="hdr"><div class="wrap">
-  <a class="logo" href="review.html">Int<i>win</i></a>
-  <nav><a href="#" class="on">The breakdown</a><a href="deals.html">M&amp;A index</a><a href="multiples.html">Valuations</a></nav>
+<header class="inav"><div class="wrap">
+  <a class="ilogo" href="review.html">Int<i>win</i></a>
+  <nav><a href="review.html" class="on">The breakdown</a><a href="deals.html">M&amp;A index</a>
+    <a href="multiples.html">Valuations</a><a href="account.html">Your account</a></nav>
   <span class="sp"></span>
-  <a class="pill" href="host.html">&larr; Back to ChannelE2E</a>
+  <a class="back" href="host.html">&larr; Back to ChannelE2E</a>
 </div></header>
 
-<div class="wrap" style="padding:28px 0 60px;max-width:960px">
-  <p class="kicker">Your full breakdown</p>
-  <h1 style="margin:8px 0 6px">What a buyer would see, and what they would offer.</h1>
-  <p class="lead" style="margin-bottom:22px">Carried over from the five questions you answered on ChannelE2E.
-    Four more and the number becomes money.</p>
+<div class="wrap" style="padding:26px 0 0;max-width:1000px">
+  <p class="kicker">Your full breakdown &middot; from your E2E Score on ChannelE2E</p>
+  <h1 style="margin:9px 0 7px">What a buyer would see, and what they would offer.</h1>
+  <p class="lead" style="margin-bottom:24px">Carried over from the five questions you answered on ChannelE2E.
+    Four more turned the score into money.</p>
 
   <div id="more"></div>
   <div id="out"></div>
 </div>
 
-<footer class="ftr"><div class="wrap">
+<footer class="iftr"><div class="wrap">
   <span>Intwin &middot; we buy and build MSPs</span><span class="sp"></span>
   <a href="host.html">ChannelE2E</a><a href="deals.html">M&amp;A index</a><a href="kelly.html">Partner dashboard</a>
 </div></footer>
@@ -30,28 +31,28 @@
 <script>
 var r = E2E.get();
 
-/* --- if the reader landed here cold, send them back for the five --- */
+/* --- landed here cold: send them back for the five --- */
 if (r.rev == null) {
   document.getElementById('more').innerHTML =
-    '<div class="card"><h2>Start with the five questions</h2>'+
+    '<div class="card top"><h2>Start with the five questions</h2>'+
     '<p class="lead">This page builds on the short version in the ChannelE2E rail.</p>'+
-    '<p style="margin-top:14px"><a class="btn" style="max-width:280px" href="host.html#widget">Take the five questions &rarr;</a></p></div>';
+    '<p style="margin-top:18px"><a class="btn" style="max-width:280px" href="host.html#widget">Take the five questions &rarr;</a></p></div>';
 } else { askMore(); }
 
 /* --- the four that turn a score into a price --- */
 function askMore() {
   if (r.profit != null) return render();
   document.getElementById('more').innerHTML =
-    '<div class="card"><h2>Four more</h2>'+
+    '<div class="card top"><h2>Four more</h2>'+
     '<p class="lead">Nobody can price a business from five answers. These four do it.</p>'+
-    '<div class="gate" style="background:#fff;border:0;padding:0;margin-top:16px">'+
+    '<div class="gate" style="border:0;padding:0">'+
       '<div class="f">'+
-        '<label>Profit last year, before anything you paid yourself<br><input id="p" class="num" type="number" placeholder="e.g. 420000"></label>'+
-        '<label>What you paid yourself<br><input id="o" class="num" type="number" placeholder="e.g. 180000"></label>'+
-        '<label>Largest client, share of revenue (%)<br><input id="c" class="num" type="number" min="0" max="100" placeholder="e.g. 18"></label>'+
-        '<label>Could your books open to a buyer this month?<br><select id="b">'+
+        '<div><label>Profit last year, before anything you paid yourself</label><input id="p" type="number" placeholder="e.g. 420000"></div>'+
+        '<div><label>What you paid yourself</label><input id="o" type="number" placeholder="e.g. 180000"></div>'+
+        '<div><label>Largest client, share of revenue (%)</label><input id="c" type="number" min="0" max="100" placeholder="e.g. 18"></div>'+
+        '<div><label>Could your books open to a buyer this month?</label><select id="b" style="width:100%;padding:10px 12px">'+
           E2E.BOOKS.map(function(t,i){return '<option value="'+i+'">'+t+'</option>'}).join('')+
-        '</select></label>'+
+        '</select></div>'+
       '</div>'+
       '<button class="btn" id="calc" style="max-width:260px">Show the range &rarr;</button>'+
       '<p class="fine">Stays in this browser. Nothing is sent until you ask for it below.</p>'+
@@ -72,34 +73,47 @@ function askMore() {
 function render() {
   var g = E2E.range(r), s = E2E.score(r), st = E2E.structure(r), ch = E2E.checks(r),
       A = E2E.ARCHIVE, open = E2E.unlocked(), h = '';
+  var lo = 2.0, hi = 8.0, pos = Math.max(0, Math.min(1, (g.m - lo) / (hi - lo)));
 
   /* 1 — the number */
-  h += '<div class="card"><p class="kicker">Likely range</p>'+
-       '<div class="range">'+E2E.money(g.low)+' &ndash; '+E2E.money(g.high)+'</div>'+
-       '<div class="grid3" style="margin-top:18px">'+
-         '<div class="kpi"><span>E2E Score</span><b>'+s+' / 100</b></div>'+
-         '<div class="kpi"><span>Adjusted earnings</span><b>'+E2E.money(g.E)+'</b></div>'+
-         '<div class="kpi"><span>Multiple</span><b>'+g.m.toFixed(2)+'&times;</b></div>'+
+  h += '<div class="card top">'+
+       '<div style="display:grid;grid-template-columns:1fr 330px;gap:28px;align-items:start" class="hero-row">'+
+         '<div>'+
+           '<p class="kicker" style="color:var(--dim)">Likely range</p>'+
+           '<div class="range" style="margin-top:8px">'+E2E.money(g.low)+' &ndash; '+E2E.money(g.high)+'</div>'+
+           '<div class="scale"><i style="left:'+(pos*100-7).toFixed(1)+'%;width:14%"></i></div>'+
+           '<div class="scale-l"><span>'+lo.toFixed(1)+'&times; earnings</span>'+
+             '<span><b>Your multiple: '+g.m.toFixed(2)+'&times;</b></span>'+
+             '<span>'+hi.toFixed(1)+'&times; earnings</span></div>'+
+         '</div>'+
+         '<div class="grid3" style="gap:12px">'+
+           '<div class="kpi"><span>E2E Score</span><b>'+s+'<small> / 100</small></b></div>'+
+           '<div class="kpi"><span>Adjusted earnings</span><b>'+E2E.money(g.E)+'</b></div>'+
+           '<div class="kpi"><span>Multiple</span><b>'+g.m.toFixed(2)+'&times;</b></div>'+
+         '</div>'+
        '</div>'+
-       '<p class="fine">Earnings = profit before your pay, less a replacement salary of '+E2E.money(E2E.REPL)+
-       ' &mdash; <span class="src">BLS OEWS May 2025, SOC 11-1021.</span> Not an offer, not an appraisal.</p></div>';
+       '<p class="fine">Earnings = profit before your pay, less a replacement salary of $'+E2E.REPL.toLocaleString('en-US')+
+       ' <span class="src">(BLS OEWS May 2025, SOC 11-1021)</span>. Not an offer, not an appraisal.</p></div>';
 
   /* 2 — offer structure */
   h += '<div class="card"><h2>What you would actually touch at close</h2>'+
        '<p class="lead">The headline is not the cheque. '+st.pct+'% of it would sit behind conditions, because '+
        st.fails+' of the items below are open.</p>'+
-       '<div class="grid2" style="margin-top:18px">'+
-         '<div class="kpi"><span>Cash at close</span><b>'+E2E.money(st.cash)+'</b></div>'+
-         '<div class="kpi"><span>Held back &mdash; earnout, escrow, seller note</span><b>'+E2E.money(st.held)+'</b></div>'+
+       '<div style="display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-top:20px">'+
+         '<div><span class="kicker" style="color:var(--dim)">Cash at close</span>'+
+           '<div style="font-size:30px;font-weight:800;letter-spacing:-.03em;margin-top:5px">'+E2E.money(st.cash)+'</div></div>'+
+         '<div style="text-align:right"><span class="kicker" style="color:var(--dim)">Held back &middot; earnout, escrow, seller note</span>'+
+           '<div class="held" style="font-size:30px;font-weight:800;letter-spacing:-.03em;margin-top:5px">'+E2E.money(st.held)+'</div></div>'+
        '</div>'+
-       '<div class="bar" style="margin-top:16px"><i style="width:'+(100-st.pct)+'%"></i></div>'+
-       '<p class="fine">Illustrative split &mdash; every deal is negotiated. The mechanic is not: each open item below '+
+       '<div class="split"><span class="c" style="flex:0 0 '+(100-st.pct)+'%">'+(100-st.pct)+'%</span>'+
+         '<span class="h">'+st.pct+'%</span></div>'+
+       '<p class="fine">Illustrative split; every deal is negotiated. The mechanic is not: each open item below '+
        'is what a buyer uses to move money out of closing. Close them and the cash share rises.</p></div>';
 
   /* 3 — what breaks the deal */
   h += '<div class="card"><h2>What would break the deal</h2>'+
        '<p class="lead">The questions a buyer&rsquo;s diligence actually asks.</p>'+
-       '<ul class="chk" style="margin-top:14px">'+ ch.map(function(c){
+       '<ul class="chk" style="margin-top:16px">'+ ch.map(function(c){
          return '<li class="'+(c.pass?'pass':'fail')+'"><span class="ic">'+(c.pass?'&#10003;':'!')+'</span>'+
                 '<span><span class="ttl">'+c.t+'</span><span class="sub">'+c.sub+'</span></span></li>'; }).join('')+
        '</ul></div>';
@@ -107,37 +121,43 @@ function render() {
   /* 4 — their market */
   h += '<div class="card" id="market"><h2>Who is buying businesses like yours</h2>'+
        '<p class="lead">From the ChannelE2E deal archive and the quarter&rsquo;s research.</p>'+
-       '<div class="grid3" style="margin-top:18px">'+
+       '<div class="grid3" style="margin-top:20px">'+
          '<div class="kpi"><span>MSP deals in 2025</span><b>'+A.omdia2025.deals+'</b></div>'+
          '<div class="kpi"><span>With private equity behind the buyer</span><b>'+A.omdia2025.pePct+'%</b></div>'+
          '<div class="kpi"><span>Deals in the archive, 2019&ndash;2024</span><b>'+A.rows.toLocaleString()+'</b></div>'+
        '</div>'+
        '<p class="fine">Deal counts for 2025: Omdia OM142467, 27 March 2026. Archive counts measured against '+
-       'ChannelE2E&rsquo;s own year pages. The archive carries a state for '+A.fill.state+'% of rows &mdash; which is '+
+       'ChannelE2E&rsquo;s own year pages. The archive carries a state for '+A.fill.state+'% of rows, which is '+
        'what makes a per-state view possible, and a price for '+A.fill.price+'%, which is what we fill.</p>'+
-       '<p style="margin-top:14px"><a href="deals.html">See every deal in the index &rarr;</a></p></div>';
+       '<p style="margin-top:16px"><a href="deals.html">See every deal in the index &rarr;</a></p></div>';
 
   /* 5 — the gate: yours is free, everybody else's costs an address */
   h += '<div class="card"><h2>Where you sit against everyone else</h2>'+
        '<p class="lead">Your own numbers are above, free. The quarter&rsquo;s medians are what an address buys.</p>';
   if (open) {
-    h += '<div class="grid2" style="margin-top:18px">'+
+    h += '<div class="grid2" style="margin-top:20px">'+
            '<div class="kpi"><span>Your score</span><b>'+s+'</b></div>'+
            '<div class="kpi"><span>Median this quarter</span><b>44</b></div></div>'+
          '<p class="fine">Median from completed runs, recomputed quarterly; a line is published only once 30 owners have answered it.</p>'+
-         '<div class="grid2" style="margin-top:16px">'+
+         '<div class="grid2" style="margin-top:18px">'+
            '<a class="btn" href="multiples.html">Open the quarterly index &rarr;</a>'+
            '<a class="btn gh" href="account.html">Your account and readiness clock &rarr;</a></div></div>';
   } else {
-    h += '<div class="lock" style="margin-top:16px"><div class="veil">'+
-           '<div class="grid2"><div class="kpi"><span>Your score</span><b>'+s+'</b></div>'+
-           '<div class="kpi"><span>Median this quarter</span><b>44</b></div></div></div>'+
-         '<div class="gate"><strong>Four fields and it opens here.</strong>'+
-           '<div class="f"><input id="g1" placeholder="Your name"><input id="g2" placeholder="Company">'+
-           '<input id="g3" placeholder="City and state"><input id="g4" placeholder="Work email"></div>'+
-           '<button class="btn" id="go" style="max-width:300px">Open the comparison &rarr;</button>'+
-           '<p class="fine">We keep the run either way. Name and email are attached only now, and only so we can send the index.</p>'+
-         '</div></div></div>';
+    h += '<div class="grid2" style="margin-top:20px;align-items:start">'+
+           '<div class="lock"><div class="veil">'+
+             '<div class="grid2" style="gap:12px"><div class="kpi"><span>Your score</span><b>'+s+'</b></div>'+
+             '<div class="kpi"><span>Median this quarter</span><b>44</b></div></div></div>'+
+             '<p style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);text-align:center;'+
+               'margin:0;font-weight:700;font-size:13.5px">Opens with four fields &rarr;</p></div>'+
+           '<div class="gate"><strong>Four fields and it opens here.</strong>'+
+             '<div class="f">'+
+               '<div><label>Your name</label><input id="g1" placeholder="Jane Doe"></div>'+
+               '<div><label>Company</label><input id="g2" placeholder="Acme IT"></div>'+
+               '<div><label>City and state</label><input id="g3" placeholder="Austin, TX"></div>'+
+               '<div><label>Work email</label><input id="g4" placeholder="jane@acmeit.com"></div></div>'+
+             '<button class="btn" id="go" style="max-width:260px">Open the comparison &rarr;</button>'+
+             '<p class="fine">We keep the run either way. Name and email are attached only now, and only so we can send the index.</p>'+
+           '</div></div></div>';
   }
   document.getElementById('out').innerHTML = h;
 
@@ -150,4 +170,6 @@ function render() {
     E2E.unlock(m); E2E.bump('identified'); render();
   };
 }
-</script></body></html>
+</script>
+<style>@media(max-width:860px){.hero-row{grid-template-columns:1fr !important}}</style>
+</body></html>

@@ -1,68 +1,117 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>The quarterly MSP valuation index | ChannelE2E</title><link rel="stylesheet" href="e2e.css"></head><body>
+<title>What MSPs actually sell for | ChannelE2E</title><link rel="stylesheet" href="e2e.css"></head>
+<body class="pg">
+
 <header class="hdr"><div class="wrap">
-  <a class="logo" href="host.html">Channel<i>E2E</i></a>
-  <nav><a href="deals.html">Mergers &amp; Acquisitions</a><a href="multiples.html" class="on">Valuations</a>
-    <a href="#">Cybersecurity</a><a href="#">AI</a><a href="#">Events</a></nav>
-  <span class="sp"></span><a class="pill" href="host.html#widget">What&rsquo;s your E2E Score?</a>
+  <a class="logo" href="home.html"><span class="n">Channel<i>E2E</i></span>
+    <span class="sub">A CyberRisk Alliance resource</span></a>
+  <nav><a href="#">Events</a><a href="#">Resources</a><a href="#">Sponsors</a><a href="#">About</a><a href="#">Contact</a></nav>
+  <span class="sp"></span>
+  <a class="login" href="#">Log In</a>
+  <a class="pill" href="host.html#widget">What&rsquo;s your E2E Score?</a>
 </div></header>
-<div class="wrap" style="padding:28px 0 60px;max-width:960px">
-  <p class="kicker">Q4 2026 &middot; published quarterly</p>
-  <h1 style="margin:8px 0 6px">What MSPs actually sell for</h1>
-  <p class="lead" style="margin-bottom:22px">The multiple by revenue band, and how it moves with contracted
-    revenue and margin. Built from disclosed deals plus what owners submit.</p>
+
+<div class="wrap" style="padding:26px 0 0;max-width:1000px">
+  <p class="kicker">Valuations &middot; Q4 2026 &middot; published quarterly</p>
+  <h1 style="margin:9px 0 7px">What MSPs actually sell for</h1>
+  <p class="lead" style="margin-bottom:20px">The multiple by revenue band, and how it moves with contracted
+    revenue and margin. Built from disclosed deals plus what owners submit to the E2E Score.</p>
 
   <div class="note" style="margin-bottom:20px">This is the study MSSP Alert announced in July 2024 as
     &ldquo;the first-ever benchmark pricing study for MSSPs and MSPs&rdquo; and never published. The method below
     is what makes it publishable: a band is printed only once 30 owners have answered it.</div>
 
   <div class="card"><h2>Open: the quarter&rsquo;s headline</h2>
-    <div class="grid3" style="margin-top:16px" id="kpis"></div>
+    <div class="grid3" style="margin-top:18px" id="kpis"></div>
     <p class="fine">2025 deal counts: Omdia OM142467, 27 March 2026. Median score from completed runs on this index.</p>
   </div>
 
-  <div class="card"><h2>The curve, by revenue band</h2>
-    <p class="lead">Five bands. One is open; the rest open with your own numbers beside them.</p>
-    <div id="bands" style="margin-top:18px"></div>
+  <div class="card top"><h2>The curve, by revenue band</h2>
+    <p class="lead">Five bands on one axis of earnings multiples. One is open to everyone; the rest open with
+      your own numbers beside them.</p>
+    <div class="axis" style="margin-top:20px"><span></span>
+      <span class="ticks"><span>2&times;</span><span>3&times;</span><span>4&times;</span><span>5&times;</span>
+        <span>6&times;</span><span>7&times;</span><span>8&times;</span></span>
+      <span class="rg">Range</span></div>
+    <div id="bands"></div>
+    <div class="key">
+      <span><i style="background:var(--grn)"></i>Open band &mdash; the one Kelly can quote from the stage</span>
+      <span><i style="background:var(--ink);width:3px"></i>Your multiple from the breakdown</span>
+      <span><i style="background:#d7dbe0"></i>Opens with your own numbers beside it</span>
+    </div>
+    <p class="fine">Ranges and answer counts are illustrative in the demo. Shape of the curve: the ladder in the
+      engine, 3.0&times; under $250K of earnings rising to 6.75&times; above $4M.</p>
   </div>
 
   <div class="card"><h2>How the number is made</h2>
-    <ul class="chk" style="margin-top:12px">
+    <ul class="chk" style="margin-top:14px">
       <li class="pass"><span class="ic">&#10003;</span><span><span class="ttl">Disclosed prices from the deal index</span>
-        <span class="sub">Only deals where a price was published. In ChannelE2E&rsquo;s own archive that is 3% of rows &mdash; which is why a second source is needed.</span></span></li>
+        <span class="sub">Only deals where a price was published. In ChannelE2E&rsquo;s own archive that is 3% of rows, which is why a second source is needed.</span></span></li>
       <li class="pass"><span class="ic">&#10003;</span><span><span class="ttl">Figures owners submit to the E2E Score</span>
         <span class="sub">Revenue, contracted share, margin, concentration. Anonymous in the aggregate, never published per company.</span></span></li>
       <li class="pass"><span class="ic">&#10003;</span><span><span class="ttl">Minimum 30 answers before a band is printed</span>
         <span class="sub">Below that the band is withheld rather than estimated.</span></span></li>
-      <li class="fail"><span class="ic">!</span><span><span class="ttl">Ranges, not point values</span>
+      <li><span class="ic" style="background:var(--ink)">&asymp;</span><span><span class="ttl">Ranges, not point values</span>
         <span class="sub">A single number would be quoted back as an entitlement in every negotiation in the channel. Bands are honest and still usable.</span></span></li>
     </ul>
   </div>
-  <div class="card" style="text-align:center"><h2>Put your own business on this curve</h2>
-    <p style="margin-top:14px"><a class="btn" style="max-width:280px;margin:0 auto" href="review.html">Open your breakdown &rarr;</a></p></div>
+
+  <div class="card top" style="text-align:center;padding:30px 24px"><h2>Put your own business on this curve</h2>
+    <p class="lead">Five questions on ChannelE2E, four more with us.</p>
+    <p style="margin-top:18px"><a class="btn" style="max-width:280px;margin:0 auto" href="review.html">Open your breakdown &rarr;</a></p></div>
 </div>
-<footer class="ftr"><div class="wrap"><span>ChannelE2E &middot; from Entrepreneur to Exit</span>
-  <span class="sp"></span><a href="host.html">Home</a><a href="deals.html">M&amp;A index</a><a href="kelly.html">For partners</a></div></footer>
+
+<footer class="dftr"><div class="wrap">
+  <div class="r1">
+    <a class="logo" href="home.html"><span class="n">Channel<i>E2E</i></span>
+      <span class="sub">A CyberRisk Alliance resource &middot; from Entrepreneur to Exit</span></a>
+    <nav><a href="#">Events</a><a href="#">Resources</a><a href="#">Sponsors</a><a href="#">About</a><a href="#">Contact</a></nav>
+  </div>
+  <div class="r2"><a href="#">Privacy Statement</a><a href="#">Editorial Policy</a><a href="kelly.html">For partners</a>
+    <span class="sp"></span><span>All contents Copyright &copy; 2026 ChannelE2E and CyberRisk Alliance</span></div>
+</div></footer>
+
 <script src="e2e.js"></script>
 <script>
-var A = E2E.ARCHIVE, open = E2E.unlocked(), r = E2E.get();
+var A = E2E.ARCHIVE, open = E2E.unlocked(), r = E2E.get(),
+    priced = r.profit != null, g = priced ? E2E.range(r) : null,
+    mine = priced ? E2E.band(r.rev).k : null;
+
 document.getElementById('kpis').innerHTML =
   '<div class="kpi"><span>MSP deals tracked in 2025</span><b>'+A.omdia2025.deals+'</b></div>'+
   '<div class="kpi"><span>PE behind the buyer</span><b>'+A.omdia2025.pePct+'%</b></div>'+
   '<div class="kpi"><span>Median E2E Score</span><b>44</b></div>';
+
+/* illustrative curve: ranges and answer counts are demo figures, the floor rule is not */
+var CURVE = [
+  { k:'a', lo:2.5, hi:3.5, n:31 },
+  { k:'b', lo:3.0, hi:4.5, n:58 },
+  { k:'c', lo:4.0, hi:5.5, n:44 },
+  { k:'d', lo:5.0, hi:6.5, n:30 },
+  { k:'e', lo:6.0, hi:7.5, n:12 }
+];
+var FREE = 'b', AX_LO = 2, AX_HI = 8;
+function pc(v){ return ((v - AX_LO) / (AX_HI - AX_LO) * 100).toFixed(1); }
+
 document.getElementById('bands').innerHTML = E2E.BANDS.map(function(b,i){
-  var free = (i===1);
-  var inner = '<div style="display:flex;justify-content:space-between;align-items:baseline">'+
-    '<strong>'+b.t+'</strong><span class="src">range, shape illustrative</span></div>'+
-    '<div class="bar" style="margin-top:10px"><i style="width:'+(28+i*13)+'%"></i></div>';
-  if (free || open) return '<div class="mod" style="margin-bottom:12px">'+inner+
-    '<p class="fine">'+(free?'Open to everyone &mdash; this is the band Kelly can quote from the stage.':'Opened with your numbers.')+'</p></div>';
-  return '<div class="mod" style="margin-bottom:12px;position:relative">'+
-    '<div style="filter:blur(4px);opacity:.5">'+inner+'</div>'+
-    '<p class="fine" style="margin-top:10px">Opens with your own numbers beside it. '+
-    '<a href="review.html">Run the five questions &rarr;</a></p></div>';
+  var c = CURVE[i], held = c.n < 30, free = c.k === FREE, shown = free || open;
+  var state = held ? 'Withheld &middot; ' + c.n + ' answers'
+            : free ? 'Open &middot; ' + c.n + ' answers'
+            : c.n + ' answers';
+  var mark = (priced && mine === c.k && shown)
+    ? '<span class="you" style="left:'+pc(g.m)+'%"></span>' : '';
+  return '<div class="band '+(free?'open ':'')+((shown && !held)?'':'shut')+'">'+
+    '<span class="nm">'+b.t+'<span>'+state+'</span></span>'+
+    '<span class="t"><i style="left:'+pc(c.lo)+'%;width:'+(pc(c.hi)-pc(c.lo)).toFixed(1)+'%"></i>'+mark+'</span>'+
+    '<span class="rg">'+c.lo.toFixed(1)+'&ndash;'+c.hi.toFixed(1)+'&times;</span></div>';
 }).join('');
-if (open && r.co) document.querySelector('.note').innerHTML =
-  'Opened for <strong>'+r.co+'</strong>. The full Q4 index is also on its way to '+r.mail+'.';
+
+if (open && r.co) {
+  var n = document.createElement('p');
+  n.className = 'src';
+  n.style.cssText = 'margin:0 0 14px;color:var(--grn-d);font-weight:700';
+  n.innerHTML = 'Opened for ' + r.co + ' &middot; the full Q4 index is on its way to ' + r.mail;
+  document.querySelector('.note').insertAdjacentElement('beforebegin', n);
+}
 </script></body></html>
