@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Valuations and M&A for MSPs | ChannelE2E</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@500;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="c2e.css"><link rel="stylesheet" href="e2e.css">
+</head><body>
+
+<header class="hdr"><div class="wrap">
+  <a class="lg" href="index.html">
+    <svg class="mk" viewBox="0 0 34 34" aria-hidden="true">
+      <rect x="1" y="1" width="32" height="32" rx="2" fill="none" stroke="#77c338" stroke-width="2.6"/>
+      <path d="M9 11h13M9 17h10M9 23h13" stroke="#77c338" stroke-width="2.6" stroke-linecap="round"/></svg>
+    <span><span class="wd">Channel<i>E2E</i></span><span class="cra">&#9883; CyberRisk Alliance</span></span>
+  </a>
+  <nav><a href="#">Events</a><a href="valuations.html" class="on">Valuations</a>
+    <a href="#">Resources</a><a href="#">Sponsors</a><a href="#">About</a><a href="#">Contact</a></nav>
+  <span class="sp"></span>
+  <a class="login" href="#">Log In</a>
+  <a class="cta" href="#">Create Account</a>
+</div></header>
+
+<section class="hero"><div class="wrap">
+  <p class="kick"><span class="u">Valua</span>tions &middot; MSP, Channel M&amp;A</p>
+  <h1>What your MSP is worth, and who is buying</h1>
+  <p>Thirty seconds and five questions give you a score out of 100 and the three things holding it down.
+    Below that: what MSPs actually sold for this quarter, and every disclosed deal since 2019.</p>
+  <p class="pw">A ChannelE2E feature, powered by <a href="https://join.intwin.tech/" rel="noopener">Intwin</a>
+    &middot; free, and nothing leaves the page until you ask for it.</p>
+</div></section>
+
+<div class="wrap">
+
+  <section class="blk" id="score">
+    <div class="cols2">
+      <div>
+        <h2>The E2E Score</h2>
+        <p class="lede">Five questions, no typing, no email. You get a number out of 100 and the three
+          weakest of the six things a buyer looks at first &mdash; in words, not dollars.</p>
+        <ul class="chk">
+          <li class="pass"><span class="ic">&#10003;</span><span><span class="ttl">Free, and it stays on this page</span>
+            <span class="sub">Nothing is sent anywhere while you answer. No account, no newsletter sign-up.</span></span></li>
+          <li class="pass"><span class="ic">&#10003;</span><span><span class="ttl">Thirty seconds, five taps</span>
+            <span class="sub">Revenue band, contracted share, head count, who sells, and the longest you have been away.</span></span></li>
+          <li class="pass"><span class="ic">&#10003;</span><span><span class="ttl">The dollar range sits one click further</span>
+            <span class="sub">Four more answers, on Intwin&rsquo;s side, turn the score into a number a buyer would offer.</span></span></li>
+        </ul>
+      </div>
+      <div>
+        <iframe id="e2e" src="widget.html" title="E2E Score"
+                style="width:100%;border:0;height:330px;display:block" scrolling="no"></iframe>
+      </div>
+    </div>
+  </section>
+
+  <section class="blk" id="multiples">
+    <h2>What MSPs actually sold for this quarter</h2>
+    <p class="lede">The multiple by revenue band, rebuilt every quarter from disclosed deal prices and
+      from what owners answer here. A band is printed only once thirty owners have answered it.</p>
+    <div class="axis"><span></span>
+      <span class="ticks"><span>2&times;</span><span>3&times;</span><span>4&times;</span><span>5&times;</span>
+        <span>6&times;</span><span>7&times;</span><span>8&times;</span></span>
+      <span class="rg">Range</span></div>
+    <div id="bands"></div>
+    <div class="key">
+      <span><i style="background:var(--grn)"></i>Open to everyone</span>
+      <span><i style="background:#ced4da"></i>Opens with your own numbers beside it</span>
+    </div>
+    <p style="margin-top:18px"><a class="more" href="multiples.html">The full quarterly index</a></p>
+  </section>
+
+  <section class="blk" id="deals">
+    <h2>Who is buying MSPs</h2>
+    <p class="lede">Every disclosed channel deal since 2019, with the price and multiple columns the
+      archive never filled.</p>
+    <div class="kpis" id="kpis"></div>
+    <div style="margin-top:26px" id="years"></div>
+    <p class="src" style="margin-top:12px">Grey: the archive as it stands. Green: what we add.
+      2025 counts: Omdia OM142467, 27 March 2026.</p>
+    <p style="margin-top:18px"><a class="more" href="deals.html">Open the deal index</a></p>
+  </section>
+
+  <section class="blk" id="more">
+    <div class="cols2">
+      <div>
+        <h2>What a buyer would actually offer</h2>
+        <p class="lede">The score is the door. The number, what you would touch at close, and the six
+          questions a buyer&rsquo;s diligence actually asks sit with Intwin, who built and maintain this
+          feature and who buy MSPs themselves.</p>
+      </div>
+      <div>
+        <a class="btn" href="https://join.intwin.tech/" rel="noopener">Get your valuation range &rarr;</a>
+        <p class="fine">Four more answers. Not an offer, not an appraisal.</p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<footer class="ftr"><div class="wrap">
+  <a href="#">Privacy Statement</a><a href="#">Editorial Policy</a><a href="kelly.html">For partners</a>
+  <span class="sp"></span><span>All contents Copyright &copy; 2026 ChannelE2E and CyberRisk Alliance</span>
+</div></footer>
+
+<script src="e2e.js"></script>
+<script>
+var A = E2E.ARCHIVE;
+document.getElementById('kpis').innerHTML =
+  '<div class="kpi"><span>MSP deals in 2025</span><b>'+A.omdia2025.deals+'</b></div>'+
+  '<div class="kpi"><span>PE behind the buyer</span><b>'+A.omdia2025.pePct+'%</b></div>'+
+  '<div class="kpi"><span>Deals in the archive, 2019&ndash;2024</span><b>'+A.rows.toLocaleString()+'</b></div>';
+
+var years = A.byYear.map(function(y){ return y[0] === 2025 ? [2025, A.omdia2025.deals, true] : y; });
+var max = Math.max.apply(null, years.map(function(y){ return y[1]; }));
+document.getElementById('years').innerHTML = years.map(function(y){
+  return '<div class="yr'+(y[2]?' new':'')+'"><b>'+y[0]+'</b><span class="t"><i style="width:'+
+    (y[1]/max*100)+'%"></i></span><u>'+y[1]+'</u></div>'; }).join('');
+
+var CURVE = [{lo:2.5,hi:3.5,n:31},{lo:3.0,hi:4.5,n:58},{lo:4.0,hi:5.5,n:44},{lo:5.0,hi:6.5,n:30},{lo:6.0,hi:7.5,n:12}];
+function pc(v){ return ((v-2)/6*100).toFixed(1); }
+document.getElementById('bands').innerHTML = E2E.BANDS.map(function(b,i){
+  var c = CURVE[i], held = c.n < 30, free = i === 1;
+  return '<div class="band '+(free?'open':(held?'shut':'shut'))+'">'+
+    '<span class="nm">'+b.t+'<span>'+(held?'Withheld &middot; '+c.n+' answers':(free?'Open &middot; '+c.n+' answers':c.n+' answers'))+'</span></span>'+
+    '<span class="t"><i style="left:'+pc(c.lo)+'%;width:'+(pc(c.hi)-pc(c.lo)).toFixed(1)+'%"></i></span>'+
+    '<span class="rg">'+c.lo.toFixed(1)+'&ndash;'+c.hi.toFixed(1)+'&times;</span></div>'; }).join('');
+
+addEventListener('message', function (e) {
+  if (e.data && e.data.e2eHeight) document.getElementById('e2e').style.height = (e.data.e2eHeight+2)+'px';
+});
+</script>
+</body></html>

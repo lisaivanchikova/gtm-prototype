@@ -1,0 +1,111 @@
+/* ChannelE2E chrome, rebuilt from the live site on 23 October 2026.
+   Measured: body Roboto 18/27 #212529; headings Red Hat Display 600;
+   logo green #77c338; header 77px; bottom zone splits 853 / 427 at 1280. */
+:root{
+  --grn:#77c338; --grn-d:#5da127;
+  --ink:#212529; --mid:#333; --dim:#6c757d; --line:#dee2e6; --soft:#f1f3f5;
+  --sans:Roboto,system-ui,arial,helvetica,sans-serif;
+  --disp:"Red Hat Display",system-ui,helvetica,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;font:18px/1.5 var(--sans);color:var(--ink);background:#fff;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+h1,h2,h3,h4,h5{font-family:var(--disp);font-weight:600;margin:0;line-height:1.2;color:var(--ink)}
+img{max-width:100%;display:block}
+.wrap{max-width:1232px;margin:0 auto;padding:0 26px}
+.sp{flex:1}
+
+/* ---- header ---- */
+.hdr{border-bottom:1px solid var(--line);background:#fff;position:sticky;top:0;z-index:30}
+.hdr .wrap{display:flex;align-items:center;gap:30px;height:77px}
+.lg{display:flex;align-items:center;gap:9px}
+.lg .mk{width:34px;height:34px;flex:0 0 34px}
+.lg .wd{font:700 29px/1 var(--disp);letter-spacing:-.02em}
+.lg .wd i{color:var(--grn);font-style:normal}
+.lg .cra{display:block;font:400 10px/1 var(--sans);color:var(--dim);margin-top:4px;letter-spacing:.01em}
+.hdr nav{display:flex;gap:26px}
+.hdr nav a{white-space:nowrap;font-size:15px;font-weight:500;letter-spacing:.02em;text-transform:uppercase;color:var(--mid)}
+.hdr nav a:hover{color:var(--ink)}
+.hdr nav a.on{color:var(--ink);box-shadow:inset 0 -3px 0 var(--grn)}
+.hdr .ico{display:flex;gap:15px;color:var(--mid)}
+.hdr .ico svg{width:19px;height:19px}
+.login{font-weight:700;font-size:16px;white-space:nowrap}
+.cta{display:inline-flex;align-items:center;gap:8px;background:var(--grn);color:#fff;font:600 16px var(--sans);
+  padding:11px 18px;border-radius:4px;white-space:nowrap}
+.cta:hover{background:var(--grn-d)}
+.adband{background:var(--soft);height:104px;display:flex;align-items:center;justify-content:center;
+  color:#adb5bd;font-size:12px;letter-spacing:.08em;text-transform:uppercase}
+
+/* ---- section headings: Red Hat Display with a green rule under the first word ---- */
+.sh{font-size:25px;margin:0 0 14px;position:relative;padding-bottom:9px}
+.sh .u{box-shadow:inset 0 -3px 0 var(--grn)}
+.sh.sm{font-size:21px}
+.sh.caps{text-transform:uppercase;font-size:21px;letter-spacing:.01em}
+.rule{border:0;border-top:1px solid var(--line);margin:16px 0}
+
+/* ---- article cards ---- */
+.kick{font-size:16px;font-weight:700;text-transform:uppercase;color:var(--mid);margin:0 0 7px}
+.kick .u{box-shadow:inset 0 -3px 0 var(--grn)}
+.by{font-size:12px;color:var(--ink);margin:8px 0 0}
+.by a{text-decoration:underline}
+.by .dt{color:var(--dim);margin-left:10px}
+.lead h1{font-size:46px;line-height:1.14;margin:0 0 4px}
+.story{display:grid;grid-template-columns:300px 1fr;gap:20px;padding:22px 0;border-bottom:1px solid var(--line)}
+.story h5{font-size:22px;line-height:1.2}
+.story img{aspect-ratio:16/9;object-fit:cover}
+.mini{display:grid;grid-template-columns:80px 1fr;gap:13px;padding:14px 0;border-bottom:1px solid var(--line)}
+.mini:last-child{border-bottom:0}
+.mini h5{font-size:17px;line-height:1.25}
+.mini img{aspect-ratio:1/1;object-fit:cover}
+.mini .by{font-size:11px;margin-top:5px}
+.row{display:grid;grid-template-columns:118px 1fr;gap:14px;padding:15px 0;border-bottom:1px solid var(--line)}
+.row:last-child{border-bottom:0}
+.row h5{font-size:18px;line-height:1.25}
+.row img{aspect-ratio:16/10;object-fit:cover}
+.more{display:inline-block;font-size:15px;text-transform:uppercase;font-weight:500;text-decoration:underline;margin-top:12px}
+
+/* ---- the three zones of the homepage ---- */
+.zoneA{display:grid;grid-template-columns:1fr 320px 320px;gap:30px;padding:26px 0 34px}
+.zoneB{display:grid;grid-template-columns:1fr 400px;gap:34px;padding:10px 0 50px}
+@media(max-width:1100px){.zoneA{grid-template-columns:1fr 320px}.zoneA .colC{display:none}}
+@media(max-width:900px){.zoneA,.zoneB{grid-template-columns:1fr}}
+.rail{display:flex;flex-direction:column;gap:30px}
+.band{background:var(--soft);padding:34px 0;text-align:center}
+.band h3{font-size:25px}.band h5{font-size:17px;font-weight:400;color:var(--mid);margin-top:6px}
+.sub{display:flex;gap:10px;max-width:520px;margin:18px auto 10px}
+.sub input{flex:1;border:1px solid var(--line);border-radius:4px;padding:12px 14px;font:400 15px var(--sans)}
+.sub button{border:0;background:var(--grn);color:#fff;font:600 15px var(--sans);padding:12px 24px;border-radius:4px;cursor:pointer}
+.fine{font-size:12px;color:var(--dim);margin:6px 0 0}
+.evt{border:1px solid var(--line);border-radius:4px;padding:16px;display:grid;grid-template-columns:86px 1fr;gap:16px}
+.evt .dt{background:var(--soft);border-radius:4px;text-align:center;padding:10px 6px}
+.evt .dt b{display:block;font:700 26px/1 var(--disp)}
+.evt .dt span{font-size:11px;color:var(--dim)}
+.evt .tag{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--dim)}
+.evt h5{font-size:19px;margin:5px 0 7px}
+.evt p{font-size:14px;color:var(--mid);margin:0}
+
+/* ---- footer ---- */
+.ftr{border-top:1px solid var(--line);padding:26px 0;font-size:13px;color:var(--dim)}
+.ftr .wrap{display:flex;gap:22px;flex-wrap:wrap}
+.ftr a{text-decoration:underline}
+
+/* ---- narrow screens: their chrome collapses, nothing overflows ---- */
+@media(max-width:1060px){
+  .hdr nav{gap:18px}
+  .hdr nav a{font-size:13.5px}
+  .hdr .ico{display:none}
+}
+@media(max-width:880px){
+  .hdr .wrap{height:auto;padding-top:12px;padding-bottom:12px;flex-wrap:wrap;gap:12px 18px}
+  .hdr nav{order:3;width:100%;gap:16px;overflow-x:auto;padding-bottom:2px}
+  .login{margin-left:auto}
+  .lead h1{font-size:32px}
+  .story{grid-template-columns:1fr}
+  .story img{max-height:200px;width:100%}
+  .row{grid-template-columns:96px 1fr}
+}
+@media(max-width:620px){
+  body{font-size:16px}
+  .cta{padding:9px 13px;font-size:14px}
+  .wrap{padding:0 16px}
+}

@@ -1,117 +1,97 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>What MSPs actually sell for | ChannelE2E</title><link rel="stylesheet" href="e2e.css"></head>
-<body class="pg">
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>What MSPs actually sell for | ChannelE2E</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@500;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="c2e.css"><link rel="stylesheet" href="e2e.css">
+</head><body>
 
 <header class="hdr"><div class="wrap">
-  <a class="logo" href="home.html"><span class="n">Channel<i>E2E</i></span>
-    <span class="sub">A CyberRisk Alliance resource</span></a>
-  <nav><a href="#">Events</a><a href="#">Resources</a><a href="#">Sponsors</a><a href="#">About</a><a href="#">Contact</a></nav>
+  <a class="lg" href="index.html">
+    <svg class="mk" viewBox="0 0 34 34" aria-hidden="true">
+      <rect x="1" y="1" width="32" height="32" rx="2" fill="none" stroke="#77c338" stroke-width="2.6"/>
+      <path d="M9 11h13M9 17h10M9 23h13" stroke="#77c338" stroke-width="2.6" stroke-linecap="round"/></svg>
+    <span><span class="wd">Channel<i>E2E</i></span><span class="cra">&#9883; CyberRisk Alliance</span></span>
+  </a>
+  <nav><a href="#">Events</a><a href="valuations.html" class="on">Valuations</a>
+    <a href="#">Resources</a><a href="#">Sponsors</a><a href="#">About</a><a href="#">Contact</a></nav>
   <span class="sp"></span>
   <a class="login" href="#">Log In</a>
-  <a class="pill" href="host.html#widget">What&rsquo;s your E2E Score?</a>
+  <a class="cta" href="#">Create Account</a>
 </div></header>
+<section class="hero"><div class="wrap">
+  <p class="kick"><a href="valuations.html"><span class="u">Valua</span>tions</a> &middot; Q4 2026</p>
+  <h1>What MSPs actually sell for</h1>
+  <p>The multiple by revenue band, and how it moves with contracted revenue and margin. Built from
+    disclosed deal prices plus what owners submit to the E2E Score.</p>
+  <p class="pw">Published quarterly &middot; powered by <a href="https://join.intwin.tech/" rel="noopener">Intwin</a></p>
+</div></section>
 
-<div class="wrap" style="padding:26px 0 0;max-width:1000px">
-  <p class="kicker">Valuations &middot; Q4 2026 &middot; published quarterly</p>
-  <h1 style="margin:9px 0 7px">What MSPs actually sell for</h1>
-  <p class="lead" style="margin-bottom:20px">The multiple by revenue band, and how it moves with contracted
-    revenue and margin. Built from disclosed deals plus what owners submit to the E2E Score.</p>
+<div class="wrap">
+  <section class="blk">
+    <p class="note">This is the study MSSP Alert announced in July 2024 as &ldquo;the first-ever benchmark
+      pricing study for MSSPs and MSPs&rdquo; and never published. The method below is what makes it
+      publishable: a band is printed only once thirty owners have answered it.</p>
+    <div class="kpis" id="kpis"></div>
+    <p class="src" style="margin-top:12px">2025 deal counts: Omdia OM142467, 27 March 2026.
+      Median score from completed runs on this index.</p>
+  </section>
 
-  <div class="note" style="margin-bottom:20px">This is the study MSSP Alert announced in July 2024 as
-    &ldquo;the first-ever benchmark pricing study for MSSPs and MSPs&rdquo; and never published. The method below
-    is what makes it publishable: a band is printed only once 30 owners have answered it.</div>
-
-  <div class="card"><h2>Open: the quarter&rsquo;s headline</h2>
-    <div class="grid3" style="margin-top:18px" id="kpis"></div>
-    <p class="fine">2025 deal counts: Omdia OM142467, 27 March 2026. Median score from completed runs on this index.</p>
-  </div>
-
-  <div class="card top"><h2>The curve, by revenue band</h2>
-    <p class="lead">Five bands on one axis of earnings multiples. One is open to everyone; the rest open with
-      your own numbers beside them.</p>
-    <div class="axis" style="margin-top:20px"><span></span>
+  <section class="blk">
+    <h2>The curve, by revenue band</h2>
+    <p class="lede">Five bands on one axis of earnings multiples. One is open to everyone; the rest open
+      with your own numbers beside them.</p>
+    <div class="axis"><span></span>
       <span class="ticks"><span>2&times;</span><span>3&times;</span><span>4&times;</span><span>5&times;</span>
         <span>6&times;</span><span>7&times;</span><span>8&times;</span></span>
       <span class="rg">Range</span></div>
     <div id="bands"></div>
     <div class="key">
-      <span><i style="background:var(--grn)"></i>Open band &mdash; the one Kelly can quote from the stage</span>
-      <span><i style="background:var(--ink);width:3px"></i>Your multiple from the breakdown</span>
-      <span><i style="background:#d7dbe0"></i>Opens with your own numbers beside it</span>
+      <span><i style="background:var(--grn)"></i>Open &mdash; the band anyone can quote</span>
+      <span><i style="background:#ced4da"></i>Opens with your own numbers beside it</span>
     </div>
-    <p class="fine">Ranges and answer counts are illustrative in the demo. Shape of the curve: the ladder in the
-      engine, 3.0&times; under $250K of earnings rising to 6.75&times; above $4M.</p>
-  </div>
+    <p class="src" style="margin-top:16px">Ranges and answer counts are illustrative here. Shape of the
+      curve: 3.0&times; under $250K of earnings rising to 6.75&times; above $4M.</p>
+  </section>
 
-  <div class="card"><h2>How the number is made</h2>
-    <ul class="chk" style="margin-top:14px">
+  <section class="blk">
+    <h2>How the number is made</h2>
+    <ul class="chk" style="margin-top:16px">
       <li class="pass"><span class="ic">&#10003;</span><span><span class="ttl">Disclosed prices from the deal index</span>
         <span class="sub">Only deals where a price was published. In ChannelE2E&rsquo;s own archive that is 3% of rows, which is why a second source is needed.</span></span></li>
       <li class="pass"><span class="ic">&#10003;</span><span><span class="ttl">Figures owners submit to the E2E Score</span>
         <span class="sub">Revenue, contracted share, margin, concentration. Anonymous in the aggregate, never published per company.</span></span></li>
-      <li class="pass"><span class="ic">&#10003;</span><span><span class="ttl">Minimum 30 answers before a band is printed</span>
+      <li class="pass"><span class="ic">&#10003;</span><span><span class="ttl">Minimum thirty answers before a band is printed</span>
         <span class="sub">Below that the band is withheld rather than estimated.</span></span></li>
-      <li><span class="ic" style="background:var(--ink)">&asymp;</span><span><span class="ttl">Ranges, not point values</span>
+      <li class="no"><span class="ic">&asymp;</span><span><span class="ttl">Ranges, not point values</span>
         <span class="sub">A single number would be quoted back as an entitlement in every negotiation in the channel. Bands are honest and still usable.</span></span></li>
     </ul>
-  </div>
+  </section>
 
-  <div class="card top" style="text-align:center;padding:30px 24px"><h2>Put your own business on this curve</h2>
-    <p class="lead">Five questions on ChannelE2E, four more with us.</p>
-    <p style="margin-top:18px"><a class="btn" style="max-width:280px;margin:0 auto" href="https://join.intwin.tech/" rel="noopener">Open your breakdown &rarr;</a></p></div>
+  <section class="blk" style="text-align:center">
+    <h2>Put your own business on this curve</h2>
+    <p class="lede" style="margin:8px auto 18px">Five questions here, four more with Intwin.</p>
+    <p><a class="btn" style="max-width:300px;margin:0 auto" href="valuations.html#score">Start the five questions &rarr;</a></p>
+  </section>
 </div>
-
-<footer class="dftr"><div class="wrap">
-  <div class="r1">
-    <a class="logo" href="home.html"><span class="n">Channel<i>E2E</i></span>
-      <span class="sub">A CyberRisk Alliance resource &middot; from Entrepreneur to Exit</span></a>
-    <nav><a href="#">Events</a><a href="#">Resources</a><a href="#">Sponsors</a><a href="#">About</a><a href="#">Contact</a></nav>
-  </div>
-  <div class="r2"><a href="#">Privacy Statement</a><a href="#">Editorial Policy</a><a href="kelly.html">For partners</a>
-    <span class="sp"></span><span>All contents Copyright &copy; 2026 ChannelE2E and CyberRisk Alliance</span></div>
+<footer class="ftr"><div class="wrap">
+  <a href="#">Privacy Statement</a><a href="#">Editorial Policy</a><a href="kelly.html">For partners</a>
+  <span class="sp"></span><span>All contents Copyright &copy; 2026 ChannelE2E and CyberRisk Alliance</span>
 </div></footer>
-
 <script src="e2e.js"></script>
 <script>
-var A = E2E.ARCHIVE, open = E2E.unlocked(), r = E2E.get(),
-    priced = r.profit != null, g = priced ? E2E.range(r) : null,
-    mine = priced ? E2E.band(r.rev).k : null;
-
+var A = E2E.ARCHIVE;
 document.getElementById('kpis').innerHTML =
   '<div class="kpi"><span>MSP deals tracked in 2025</span><b>'+A.omdia2025.deals+'</b></div>'+
   '<div class="kpi"><span>PE behind the buyer</span><b>'+A.omdia2025.pePct+'%</b></div>'+
   '<div class="kpi"><span>Median E2E Score</span><b>44</b></div>';
-
-/* illustrative curve: ranges and answer counts are demo figures, the floor rule is not */
-var CURVE = [
-  { k:'a', lo:2.5, hi:3.5, n:31 },
-  { k:'b', lo:3.0, hi:4.5, n:58 },
-  { k:'c', lo:4.0, hi:5.5, n:44 },
-  { k:'d', lo:5.0, hi:6.5, n:30 },
-  { k:'e', lo:6.0, hi:7.5, n:12 }
-];
-var FREE = 'b', AX_LO = 2, AX_HI = 8;
-function pc(v){ return ((v - AX_LO) / (AX_HI - AX_LO) * 100).toFixed(1); }
-
+var CURVE = [{lo:2.5,hi:3.5,n:31},{lo:3.0,hi:4.5,n:58},{lo:4.0,hi:5.5,n:44},{lo:5.0,hi:6.5,n:30},{lo:6.0,hi:7.5,n:12}];
+function pc(v){ return ((v-2)/6*100).toFixed(1); }
 document.getElementById('bands').innerHTML = E2E.BANDS.map(function(b,i){
-  var c = CURVE[i], held = c.n < 30, free = c.k === FREE, shown = free || open;
-  var state = held ? 'Withheld &middot; ' + c.n + ' answers'
-            : free ? 'Open &middot; ' + c.n + ' answers'
-            : c.n + ' answers';
-  var mark = (priced && mine === c.k && shown)
-    ? '<span class="you" style="left:'+pc(g.m)+'%"></span>' : '';
-  return '<div class="band '+(free?'open ':'')+((shown && !held)?'':'shut')+'">'+
-    '<span class="nm">'+b.t+'<span>'+state+'</span></span>'+
-    '<span class="t"><i style="left:'+pc(c.lo)+'%;width:'+(pc(c.hi)-pc(c.lo)).toFixed(1)+'%"></i>'+mark+'</span>'+
-    '<span class="rg">'+c.lo.toFixed(1)+'&ndash;'+c.hi.toFixed(1)+'&times;</span></div>';
-}).join('');
-
-if (open && r.co) {
-  var n = document.createElement('p');
-  n.className = 'src';
-  n.style.cssText = 'margin:0 0 14px;color:var(--grn-d);font-weight:700';
-  n.innerHTML = 'Opened for ' + r.co + ' &middot; the full Q4 index is on its way to ' + r.mail;
-  document.querySelector('.note').insertAdjacentElement('beforebegin', n);
-}
+  var c = CURVE[i], held = c.n < 30, free = i === 1;
+  return '<div class="band '+(free?'open':'shut')+'">'+
+    '<span class="nm">'+b.t+'<span>'+(held?'Withheld &middot; '+c.n+' answers':(free?'Open &middot; '+c.n+' answers':c.n+' answers'))+'</span></span>'+
+    '<span class="t"><i style="left:'+pc(c.lo)+'%;width:'+(pc(c.hi)-pc(c.lo)).toFixed(1)+'%"></i></span>'+
+    '<span class="rg">'+c.lo.toFixed(1)+'&ndash;'+c.hi.toFixed(1)+'&times;</span></div>'; }).join('');
 </script></body></html>

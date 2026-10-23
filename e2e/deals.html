@@ -1,72 +1,63 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Who's buying MSPs — and at what price | ChannelE2E</title><link rel="stylesheet" href="e2e.css"></head>
-<body class="pg">
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Who’s buying MSPs — and at what price | ChannelE2E</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@500;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="c2e.css"><link rel="stylesheet" href="e2e.css">
+</head><body>
 
 <header class="hdr"><div class="wrap">
-  <a class="logo" href="home.html"><span class="n">Channel<i>E2E</i></span>
-    <span class="sub">A CyberRisk Alliance resource</span></a>
-  <nav><a href="#">Events</a><a href="#">Resources</a><a href="#">Sponsors</a><a href="#">About</a><a href="#">Contact</a></nav>
+  <a class="lg" href="index.html">
+    <svg class="mk" viewBox="0 0 34 34" aria-hidden="true">
+      <rect x="1" y="1" width="32" height="32" rx="2" fill="none" stroke="#77c338" stroke-width="2.6"/>
+      <path d="M9 11h13M9 17h10M9 23h13" stroke="#77c338" stroke-width="2.6" stroke-linecap="round"/></svg>
+    <span><span class="wd">Channel<i>E2E</i></span><span class="cra">&#9883; CyberRisk Alliance</span></span>
+  </a>
+  <nav><a href="#">Events</a><a href="valuations.html" class="on">Valuations</a>
+    <a href="#">Resources</a><a href="#">Sponsors</a><a href="#">About</a><a href="#">Contact</a></nav>
   <span class="sp"></span>
   <a class="login" href="#">Log In</a>
-  <a class="pill" href="host.html#widget">What&rsquo;s your E2E Score?</a>
+  <a class="cta" href="#">Create Account</a>
 </div></header>
+<section class="hero"><div class="wrap">
+  <p class="kick"><a href="valuations.html"><span class="u">Valua</span>tions</a> &middot; the deal index</p>
+  <h1>Who&rsquo;s buying MSPs &mdash; and at what price</h1>
+  <p>Every disclosed channel deal since 2019, with the price and multiple columns the archive never filled.</p>
+  <p class="pw">Updated weekly &middot; powered by <a href="https://join.intwin.tech/" rel="noopener">Intwin</a></p>
+</div></section>
 
-<div class="wrap" style="padding:26px 0 0">
-  <p class="kicker">MSP, Channel M&amp;A &middot; the index</p>
-  <div style="display:flex;align-items:flex-end;gap:24px;flex-wrap:wrap;margin:9px 0 24px">
-    <div>
-      <h1>Who&rsquo;s buying MSPs &mdash; and at what price</h1>
-      <p class="lead">Every disclosed deal since 2019. Updated weekly, with the price and multiple columns
-        the archive never filled.</p>
-    </div>
-    <span class="sp"></span>
-    <span class="src">Last update: 21 October 2026</span>
-  </div>
+<div class="wrap">
+  <section class="blk">
+    <div class="kpis" id="kpis"></div>
+    <h2 style="font-size:22px;margin:30px 0 12px">Deals recorded per year</h2>
+    <div id="years"></div>
+    <p class="src" style="margin-top:12px">Grey: the archive as it stands. Green: what we add. The 2025 page
+      exists today with ten empty rows, while the hub still describes it as updated daily.
+      2025 counts: Omdia OM142467, 27 March 2026.</p>
+  </section>
 
-  <div class="grid2" style="margin-bottom:20px">
-    <div class="card" id="market" style="margin:0"><h2>Your market</h2>
-      <div class="grid3" style="margin-top:18px;gap:12px" id="kpis"></div>
-      <p class="fine">2025: Omdia OM142467, 27 March 2026. Archive counts measured against ChannelE2E&rsquo;s
-        own year pages, October 2026.</p>
-    </div>
-    <div class="card" style="margin:0">
-      <p class="kicker" style="color:var(--dim)">Deals recorded per year</p>
-      <div id="years" style="margin-top:14px"></div>
-      <p class="fine">Grey: the archive as it stands. Green: what we add. The 2025 page exists today with
-        ten empty rows, while the hub still describes it as updated daily.</p>
-    </div>
-  </div>
-
-  <div class="card">
-    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:18px">
-      <div class="filters" style="margin:0"><select id="fy"></select><select id="fp">
-        <option value="">Buyer backing: any</option><option value="pe">Private equity behind the buyer</option>
-        <option value="no">No PE disclosed</option></select></div>
-      <span class="sp"></span><span class="src" id="shown"></span>
-    </div>
-    <div class="tscroll"><table><thead><tr><th>When</th><th>Buyer</th><th>Acquired</th><th>Focus</th><th>Backing</th><th>Price</th></tr></thead>
+  <section class="blk">
+    <div class="filters"><select id="fy"></select><select id="fp">
+      <option value="">Buyer backing: any</option><option value="pe">Private equity behind the buyer</option>
+      <option value="no">No PE disclosed</option></select>
+      <span class="sp"></span><span class="src" id="shown"></span></div>
+    <div class="tscroll"><table>
+      <thead><tr><th>When</th><th>Buyer</th><th>Acquired</th><th>Focus</th><th>Backing</th><th>Price</th></tr></thead>
       <tbody id="rows"></tbody></table></div>
-    <p class="fine" id="note"></p>
-  </div>
+    <p class="src" style="margin-top:14px" id="note"></p>
+  </section>
 
-  <div class="card top" style="text-align:center;padding:30px 24px">
+  <section class="blk" style="text-align:center">
     <h2>Where does your business sit in this?</h2>
-    <p class="lead">Five questions, a score, and the range a buyer would offer.</p>
-    <p style="margin-top:18px"><a class="btn" style="max-width:300px;margin:0 auto" href="host.html#widget">What&rsquo;s your E2E Score? &rarr;</a></p>
-  </div>
+    <p class="lede" style="margin:8px auto 18px">Five questions, a score, and the range a buyer would offer.</p>
+    <p><a class="btn" style="max-width:330px;margin:0 auto" href="valuations.html#score">What&rsquo;s your E2E Score? &rarr;</a></p>
+  </section>
 </div>
-
-<footer class="dftr"><div class="wrap">
-  <div class="r1">
-    <a class="logo" href="home.html"><span class="n">Channel<i>E2E</i></span>
-      <span class="sub">A CyberRisk Alliance resource &middot; from Entrepreneur to Exit</span></a>
-    <nav><a href="#">Events</a><a href="#">Resources</a><a href="#">Sponsors</a><a href="#">About</a><a href="#">Contact</a></nav>
-  </div>
-  <div class="r2"><a href="#">Privacy Statement</a><a href="#">Editorial Policy</a><a href="kelly.html">For partners</a>
-    <span class="sp"></span><span>All contents Copyright &copy; 2026 ChannelE2E and CyberRisk Alliance</span></div>
+<footer class="ftr"><div class="wrap">
+  <a href="#">Privacy Statement</a><a href="#">Editorial Policy</a><a href="kelly.html">For partners</a>
+  <span class="sp"></span><span>All contents Copyright &copy; 2026 ChannelE2E and CyberRisk Alliance</span>
 </div></footer>
-
 <script src="e2e.js"></script>
 <script>
 var A = E2E.ARCHIVE, D = E2E.DEALS;
@@ -74,37 +65,28 @@ document.getElementById('kpis').innerHTML =
   '<div class="kpi"><span>MSP deals in 2025</span><b>'+A.omdia2025.deals+'</b></div>'+
   '<div class="kpi"><span>PE behind the buyer</span><b>'+A.omdia2025.pePct+'%</b></div>'+
   '<div class="kpi"><span>Archive 2019&ndash;2024</span><b>'+A.rows.toLocaleString()+'</b></div>';
-
-var years = A.byYear.map(function(y){ return y[0] === 2025 ? [2025, A.omdia2025.deals, true] : y; });
+var years = A.byYear.map(function(y){ return y[0]===2025 ? [2025, A.omdia2025.deals, true] : y; });
 var max = Math.max.apply(null, years.map(function(y){return y[1]}));
 document.getElementById('years').innerHTML = years.map(function(y){
-  return '<div class="yr'+(y[2]?' new':'')+'"><b>'+y[0]+'</b>'+
-    '<span class="t"><i style="width:'+(y[1]/max*100)+'%"></i></span>'+
-    '<u>'+y[1]+'</u></div>'; }).join('');
-
+  return '<div class="yr'+(y[2]?' new':'')+'"><b>'+y[0]+'</b><span class="t"><i style="width:'+
+    (y[1]/max*100)+'%"></i></span><u>'+y[1]+'</u></div>'; }).join('');
 document.getElementById('note').innerHTML =
-  'Column completeness in the archive: buyer '+A.fill.buyer+'%, state '+A.fill.state+'%, private-equity backer '+
-  A.fill.pe+'%, <strong>price '+A.fill.price+'%, valuation '+A.fill.valuation+'%, employees '+A.fill.employees+
-  '%</strong>. The last three are what this index is for. These are the rows verified line by line for the demo; '+
-  'the live index imports the full '+A.rows.toLocaleString()+'-row archive and adds the price and multiple columns '+
-  'ChannelE2E never filled.';
-
+  'Column completeness in the archive: buyer '+A.fill.buyer+'%, state '+A.fill.state+'%, PE backer '+A.fill.pe+
+  '%, <strong>price '+A.fill.price+'%, valuation '+A.fill.valuation+'%, employees '+A.fill.employees+'%</strong>. '+
+  'The last three are what this index is for. These are the rows verified line by line; the live index imports '+
+  'the full '+A.rows.toLocaleString()+'-row archive.';
 var fy = document.getElementById('fy');
 fy.innerHTML = '<option value="">Year: all</option>' + [2026,2025,2024].map(function(y){return '<option>'+y+'</option>'}).join('');
 function paint(){
   var y = fy.value, p = document.getElementById('fp').value;
-  var rows = D.filter(function(d){
-    if (y && String(d.y) !== y) return false;
-    if (p === 'pe' && !d.pe) return false;
-    if (p === 'no' && d.pe) return false;
-    return true; });
+  var rows = D.filter(function(d){ if(y && String(d.y)!==y) return false;
+    if(p==='pe' && !d.pe) return false; if(p==='no' && d.pe) return false; return true; });
   document.getElementById('rows').innerHTML = rows.map(function(d){
-    return '<tr class="d"><td style="white-space:nowrap">'+(d.m!=='—'?d.m+' ':'')+d.y+'</td>'+
-      '<td><strong>'+d.buyer+'</strong></td>'+
-      '<td>'+d.target+'<span class="src" style="display:block;margin-top:4px">'+d.src+'</span></td>'+
-      '<td>'+d.focus+'</td><td>'+(d.pe?'<span class="tag pe">'+d.pe+'</span>':'<span class="tag">&mdash;</span>')+'</td>'+
-      '<td>'+(d.px?'<strong>'+d.px+'</strong>':'<span class="src">not disclosed</span>')+'</td></tr>';
-  }).join('') || '<tr class="d"><td colspan="6">No rows for this filter.</td></tr>';
+    return '<tr><td style="white-space:nowrap">'+(d.m!=='—'?d.m+' ':'')+d.y+'</td><td><strong>'+d.buyer+'</strong></td>'+
+      '<td>'+d.target+'<span class="src" style="display:block;margin-top:4px">'+d.src+'</span></td><td>'+d.focus+'</td>'+
+      '<td>'+(d.pe?'<span class="tag pe">'+d.pe+'</span>':'<span class="tag">&mdash;</span>')+'</td>'+
+      '<td>'+(d.px?'<strong>'+d.px+'</strong>':'<span class="src">not disclosed</span>')+'</td></tr>'; }).join('')
+    || '<tr><td colspan="6">No rows for this filter.</td></tr>';
   document.getElementById('shown').textContent = rows.length+' of '+D.length+' rows shown';
 }
 fy.onchange = document.getElementById('fp').onchange = paint; paint();

@@ -1,107 +1,166 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ChannelE2E — from Entrepreneur to Exit</title>
-<link rel="stylesheet" href="e2e.css">
-<style>
-.home{display:grid;grid-template-columns:1fr 440px;gap:40px;padding:26px 0 0}
-@media(max-width:960px){.home{grid-template-columns:1fr}}
-.lead-s h2{font-size:27px;line-height:1.2;margin:10px 0 0}
-.lead-s .hero{height:260px;border-radius:4px;background:linear-gradient(135deg,#2f3b4a,#4a6076)}
-.k a{color:inherit}
-.k{font-size:10.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--grn-d);margin:14px 0 0}
-.by{font-size:12px;color:var(--dim);margin-top:9px}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:26px}
-@media(max-width:620px){.row{grid-template-columns:1fr}}
-.row h3{font-size:16px;line-height:1.3;margin:9px 0 0}
-.row .thumb{height:118px;border-radius:3px;background:linear-gradient(135deg,#33414f,#55707f)}
-.mna li{padding:11px 0;border-bottom:1px solid var(--line);font-weight:700;font-size:14.5px}
-.mna ul{margin:0 0 16px;padding:0;list-style:none}
-.news li{padding:12px 0;border-bottom:1px solid var(--line);font-weight:700;font-size:14.5px;line-height:1.35}
-.news .dt{display:block;font-weight:500;font-size:12px;color:var(--dim);margin-top:5px}
-.news ul{margin:0;padding:0;list-style:none}
-</style></head><body>
+<title>Home: VAR, MSP, CSP News, Valuations, Mergers, Acquisitions | ChannelE2E</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@500;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="c2e.css"><link rel="stylesheet" href="e2e.css">
+</head><body>
 
 <header class="hdr"><div class="wrap">
-  <a class="logo" href="home.html"><span class="n">Channel<i>E2E</i></span>
-    <span class="sub">A CyberRisk Alliance resource</span></a>
-  <nav><a href="host.html">Mergers &amp; Acquisitions</a><a href="deals.html">Events</a><a href="#">Resources</a><a href="#">Sponsors</a>
-    <a href="#">About</a><a href="#">Contact</a></nav>
+  <a class="lg" href="index.html">
+    <svg class="mk" viewBox="0 0 34 34" aria-hidden="true">
+      <rect x="1" y="1" width="32" height="32" rx="2" fill="none" stroke="#77c338" stroke-width="2.6"/>
+      <path d="M9 11h13M9 17h10M9 23h13" stroke="#77c338" stroke-width="2.6" stroke-linecap="round"/></svg>
+    <span><span class="wd">Channel<i>E2E</i></span><span class="cra">&#9883; CyberRisk Alliance</span></span>
+  </a>
+  <nav>
+    <a href="#">Events</a>
+    <a href="valuations.html">Valuations</a>
+    <a href="#">Resources</a><a href="#">Sponsors</a><a href="#">About</a><a href="#">Contact</a>
+  </nav>
   <span class="sp"></span>
+  <span class="ico">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 11a9 9 0 0 1 9 9M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1.6" fill="currentColor"/></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="15" rx="2"/><path d="M3 10h18"/></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+  </span>
   <a class="login" href="#">Log In</a>
-  <a class="pill" href="#widget">What&rsquo;s your E2E Score?</a>
+  <a class="cta" href="#">Create Account</a>
 </div></header>
 
-<div class="wrap home">
+<div class="adband">Advertisement</div>
+
+<div class="wrap zoneA">
   <main>
-    <article class="lead-s">
-      <div class="hero"></div>
-      <p class="k"><a href="host.html">Mergers and Acquisitions</a></p>
-      <h2>Private equity appeared in 69% of disclosed MSP deals in 2025</h2>
-      <p class="by">ChannelE2E Team &middot; October 21, 2026</p>
-    </article>
-    <div class="row">
-      <article><div class="thumb"></div>
-        <p class="k" style="margin:12px 0 0"><a href="host.html">Channel Technologies</a></p>
-        <h3>Dr. Backup acquisition could bring new resources to MSPs</h3>
-        <p class="by">October 21, 2026</p></article>
-      <article><div class="thumb"></div>
-        <p class="k" style="margin:12px 0 0"><a href="host.html">Mergers and Acquisitions</a></p>
-        <h3>Accenture plans $5 billion in acquisitions over the next year</h3>
-        <p class="by">October 9, 2026</p></article>
-    </div>
+    <article class="lead" id="lead"></article>
+    <div id="top"></div>
+    <a class="more" href="#latest">More news</a>
+  </main>
+  <div class="colB">
+    <h3 class="sh"><span class="u">Perspec</span>tives</h3>
+    <div id="persp"></div>
+    <a class="more" href="#">More perspectives</a>
+    <h3 class="sh" style="margin-top:34px"><span class="u">Channel</span> Briefs</h3>
+    <div id="briefs"></div>
+    <h3 class="sh" style="margin-top:34px"><span class="u">CRA</span> News Service</h3>
+    <div id="cra"></div>
+  </div>
+  <div class="colC">
+    <h3 class="sh caps"><span class="u">MSSP</span> Alert Live</h3>
+    <a href="#" style="display:block;background:#2b1620;border:1px solid var(--line);border-radius:4px;padding:22px 18px;text-align:center;color:#fff">
+    <span style="display:block;font:700 20px/1.1 var(--disp)">MSSP<span style="color:#e24a4a">Alert</span>Live</span>
+    <span style="display:block;font-size:12px;color:#d9c2c2;margin-top:6px">December 8&ndash;10, 2026 &middot; MGM National Harbor, Maryland</span></a>
+    <p style="text-align:center;margin:14px 0 0"><a class="cta" href="#" style="width:100%;justify-content:center">Register now</a></p>
+    <h3 class="sh" style="margin-top:34px"><span class="u">Our</span> Sponsors</h3>
+    <p style="font-size:15px;margin:0 0 10px">Click sponsor name to learn more</p>
+    <p style="border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:12px 0;margin:0"><a href="#" style="text-decoration:underline">Opentext Cybersecurity</a></p>
+    <a class="more" href="#">View all sponsors</a>
+    <h3 class="sh" style="margin-top:34px"><span class="u">Guest</span> Insights</h3>
+    <div id="guest"></div>
+  </div>
+</div>
+
+<div class="band"><div class="wrap">
+  <h3>Stay on top of MSP news, trends, and insights.</h3>
+  <h5>Don't miss the information you need to keep your business successful.</h5>
+  <form class="sub" onsubmit="return false"><input placeholder="Business Email*"><button>Subscribe</button></form>
+  <p class="fine">By clicking the Subscribe button above, you agree to ChannelE2E <a href="#" style="text-decoration:underline">Privacy Policy</a>.</p>
+</div></div>
+
+<div class="wrap zoneB">
+  <main>
+    <h3 class="sh" style="margin-top:26px"><span class="u">Upcoming</span> Events</h3>
+    <div id="evt"></div>
+    <a class="more" href="#">View all webcasts</a>
+    <h3 class="sh" id="latest" style="margin-top:36px"><span class="u">Latest</span> News</h3>
+    <div id="latest-list"></div>
+    <a class="more" href="#">View all news</a>
   </main>
 
   <aside class="rail">
+    <!-- ours: the door -->
     <div id="widget">
-      <iframe id="e2e" src="widget.html" style="width:100%;border:0;height:300px;display:block"
-              title="E2E Score" scrolling="no"></iframe>
+      <iframe id="e2e" src="widget.html" title="E2E Score"
+              style="width:100%;border:0;height:320px;display:block" scrolling="no"></iframe>
     </div>
 
-    <div class="mna">
-      <p class="modt">MSP, Channel M&amp;A</p>
-      <ul>
-        <li><a href="deals.html">Every disclosed MSP deal since 2019 &rarr;</a></li>
-        <li><a href="deals.html#market">Who is buying in your state &rarr;</a></li>
-        <li><a href="multiples.html">What MSPs sold for this quarter &rarr;</a></li>
-      </ul>
-      <div class="grid3" id="mk"></div>
-      <p class="src" style="margin-top:12px">Updated weekly. 2025 counts: Omdia, March 2026.</p>
+    <!-- theirs, raised out of the basement and pointed at the section -->
+    <div>
+      <h3 class="sh"><span class="u">MSP,</span> Channel M&amp;A</h3>
+      <p class="mna-cta"><a href="valuations.html">The index, the quarter's multiples and what your own
+        business is worth &rarr;</a></p>
+      <div id="mna"></div>
+      <a class="more" href="valuations.html">Open the M&amp;A section</a>
     </div>
 
-    <div class="news">
-      <p class="modt">Latest news</p>
-      <ul>
-        <li>Dr. Backup acquisition could bring new resources to MSPs<span class="dt">October 21, 2026</span></li>
-        <li>Accenture plans $5 billion in acquisitions over the next year<span class="dt">October 9, 2026</span></li>
-        <li>TD SYNNEX strikes deal to acquire specialty distributor BlueStar<span class="dt">October 8, 2026</span></li>
-      </ul>
+    <div>
+      <h3 class="sh"><span class="u">Most</span> Read</h3>
+      <div id="most"></div>
+    </div>
+    <div>
+      <h3 class="sh"><span class="u">Cyber</span>security</h3>
+      <div id="cyber"></div>
+    </div>
+    <div>
+      <h3 class="sh"><span class="u">Artificial</span> Intelligence (AI)</h3>
+      <div id="ai"></div>
     </div>
   </aside>
 </div>
 
-<footer class="dftr"><div class="wrap">
-  <div class="r1">
-    <a class="logo" href="home.html"><span class="n">Channel<i>E2E</i></span>
-      <span class="sub">A CyberRisk Alliance resource &middot; from Entrepreneur to Exit</span></a>
-    <nav><a href="#">Events</a><a href="#">Resources</a><a href="#">Sponsors</a><a href="#">About</a><a href="#">Contact</a></nav>
-  </div>
-  <div class="r2"><a href="#">Privacy Statement</a><a href="#">Editorial Policy</a>
-    <a href="kelly.html">For partners</a>
-    <span class="sp"></span><span>All contents Copyright &copy; 2026 ChannelE2E and CyberRisk Alliance</span></div>
+<footer class="ftr"><div class="wrap">
+  <a href="#">Privacy Statement</a><a href="#">Editorial Policy</a><a href="kelly.html">For partners</a>
+  <span class="sp"></span>
+  <span>All contents Copyright &copy; 2026 ChannelE2E and CyberRisk Alliance</span>
 </div></footer>
 
-<script src="e2e.js"></script>
+<script src="data.js"></script>
 <script>
-var A = E2E.ARCHIVE;
-document.getElementById('mk').innerHTML =
-  '<div class="kpi"><span>Deals in 2025</span><b>'+A.omdia2025.deals+'</b></div>'+
-  '<div class="kpi"><span>PE behind the buyer</span><b>'+A.omdia2025.pePct+'%</b></div>'+
-  '<div class="kpi"><span>In the archive</span><b>'+A.rows.toLocaleString()+'</b></div>';
+var C = C2E, $ = function(id){ return document.getElementById(id); };
+function by(a){ return '<p class="by"><a href="'+a.u+'">'+(a.by||'ChannelE2E Team')+'</a>'+
+  (a.d ? '<span class="dt">'+a.d+'</span>' : '')+'</p>'; }
+function kick(a){ if(!a.topic) return '';
+  var p = a.topic.split(' '); return '<p class="kick"><span class="u">'+p[0]+'</span>'+
+  (p.length>1 ? ' '+p.slice(1).join(' ') : '')+'</p>'; }
+
+$('lead').innerHTML = '<a href="'+C.LEAD.u+'"><h1>'+C.LEAD.t+'</h1></a>'+by(C.LEAD);
+$('top').innerHTML = C.TOP.map(function(a){
+  return '<article class="story"><a href="'+a.u+'"><img src="'+C.thumb(a.img,600)+'" alt=""></a>'+
+    '<div>'+kick(a)+'<a href="'+a.u+'"><h5>'+a.t+'</h5></a>'+by(a)+'</div></article>'; }).join('');
+
+function minis(list){ return list.map(function(a){
+  return '<article class="mini">'+(a.img?'<a href="'+a.u+'"><img src="'+C.thumb(a.img,160)+'" alt=""></a>':'<span></span>')+
+    '<div><a href="'+a.u+'"><h5>'+a.t+'</h5></a>'+by(a)+'</div></article>'; }).join(''); }
+function rows(list){ return list.map(function(a){
+  return '<article class="row">'+(a.img?'<a href="'+a.u+'"><img src="'+C.thumb(a.img,240)+'" alt=""></a>':'<span></span>')+
+    '<div><a href="'+a.u+'"><h5>'+a.t+'</h5></a>'+by(a)+'</div></article>'; }).join(''); }
+
+$('persp').innerHTML = minis(C.PERSPECTIVES);
+$('briefs').innerHTML = C.BRIEFS.map(function(a){
+  return '<article class="mini"><a href="'+a.u+'"><img src="'+C.thumb(a.img,160)+'" alt=""></a>'+
+    '<div><a href="'+a.u+'"><h5>'+a.t+'</h5></a></div></article>'; }).join('');
+$('cra').innerHTML = C.CRA.map(function(a){
+  return '<article class="mini" style="grid-template-columns:1fr"><a href="'+a.u+'"><h5>'+a.t+'</h5></a></article>'; }).join('');
+$('guest').innerHTML = minis(C.GUEST);
+$('most').innerHTML = rows(C.MOSTREAD);
+$('cyber').innerHTML = rows(C.CYBER);
+$('ai').innerHTML = rows(C.AI);
+$('mna').innerHTML = rows(C.MNA);
+$('latest-list').innerHTML = C.LATEST.map(function(a){
+  return '<article class="story"><a href="'+a.u+'"><img src="'+C.thumb(a.img,600)+'" alt=""></a>'+
+    '<div>'+kick(a)+'<a href="'+a.u+'"><h5>'+a.t+'</h5></a>'+by(a)+'</div></article>'; }).join('');
+
+var w = C.WEBCAST;
+$('evt').innerHTML = '<div class="evt"><div class="dt"><span>'+w.month+'</span><b>'+w.day+'</b><span>'+w.time+'</span></div>'+
+  '<div><p class="tag">Webcast &middot; '+w.when+'</p><a href="'+w.u+'"><h5>'+w.t+'</h5></a>'+
+  '<p>'+w.blurb+'</p><a class="more" href="'+w.u+'">More info</a></div></div>';
+
 addEventListener('message', function (e) {
-  if (e.data && e.data.e2eHeight) document.getElementById('e2e').style.height = (e.data.e2eHeight + 2) + 'px';
+  if (e.data && e.data.e2eHeight) $('e2e').style.height = (e.data.e2eHeight + 2) + 'px';
 });
 if (location.hash === '#widget') setTimeout(function(){
-  document.getElementById('widget').scrollIntoView({behavior:'smooth', block:'center'}); }, 300);
+  $('widget').scrollIntoView({behavior:'smooth', block:'center'}); }, 300);
 </script>
 </body></html>

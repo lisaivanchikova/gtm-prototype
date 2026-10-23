@@ -1,100 +1,108 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Partner dashboard | ChannelE2E × Intwin</title><link rel="stylesheet" href="e2e.css"></head><body class="pg">
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Partner view | ChannelE2E × Intwin</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@500;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="c2e.css"><link rel="stylesheet" href="e2e.css">
+</head><body>
 
-<header class="inav"><div class="wrap">
-  <span class="ilogo">Channel<i>E2E</i> <span style="color:var(--dim);font-weight:500">&times;</span> Int<i>win</i></span>
+<header class="hdr"><div class="wrap">
+  <a class="lg" href="index.html">
+    <svg class="mk" viewBox="0 0 34 34" aria-hidden="true">
+      <rect x="1" y="1" width="32" height="32" rx="2" fill="none" stroke="#77c338" stroke-width="2.6"/>
+      <path d="M9 11h13M9 17h10M9 23h13" stroke="#77c338" stroke-width="2.6" stroke-linecap="round"/></svg>
+    <span><span class="wd">Channel<i>E2E</i></span><span class="cra">&#9883; CyberRisk Alliance</span></span>
+  </a>
   <span class="sp"></span>
   <span class="src">Private &middot; partner view</span>
 </div></header>
 
-<div class="wrap" style="padding:26px 0 0;max-width:940px">
-  <p class="kicker">What the widget is doing for you</p>
-  <h1 style="margin:9px 0 7px">Partner dashboard</h1>
-  <p class="lead" style="margin-bottom:24px">The numbers we owe you, visible to you, not reported by us.
-    This is the proof you put in a media kit.</p>
+<section class="hero"><div class="wrap">
+  <p class="kick"><span class="u">What</span> the section is doing for you</p>
+  <h1>Partner view</h1>
+  <p>The numbers we owe you, visible to you, not reported by us. This is the proof you put in a media kit.</p>
+</div></section>
 
-  <div class="card top">
-    <div style="display:flex;align-items:baseline;gap:16px;flex-wrap:wrap">
-      <h2>Readers, from your page to ours</h2>
-      <span class="sp"></span>
-      <span class="kicker" style="color:var(--dim)">Last 30 days &middot; sample figures</span>
+<div class="wrap">
+  <section class="blk">
+    <div style="display:flex;align-items:baseline;gap:18px;flex-wrap:wrap">
+      <h2>Readers, from your pages to ours</h2><span class="sp"></span>
+      <span class="src">Last 30 days &middot; sample figures</span>
     </div>
     <div style="margin-top:18px" id="fun"></div>
-    <div class="key" style="margin-top:14px">
+    <div class="key">
       <span><i style="background:var(--grn)"></i>Happens on ChannelE2E</span>
-      <span><i style="background:var(--ink)"></i>Happens on <a href="https://join.intwin.tech/" rel="noopener">join.intwin.tech</a></span>
+      <span><i style="background:#212529"></i>Happens on <a href="https://join.intwin.tech/" rel="noopener" style="text-decoration:underline">join.intwin.tech</a></span>
     </div>
-
-    <p class="kicker" style="color:var(--dim);margin-top:24px">Where they came from</p>
-    <div class="srcs">
-      <div class="kpi"><span>Topic page rail</span><b>58%</b></div>
-      <div class="kpi"><span>Homepage column</span><b>23%</b></div>
-      <div class="kpi"><span>Newsletter</span><b>14%</b></div>
+    <h2 style="font-size:20px;margin:28px 0 12px">Where they came from</h2>
+    <div class="kpis" style="grid-template-columns:repeat(4,1fr)">
+      <div class="kpi"><span>Valuations section</span><b>44%</b></div>
+      <div class="kpi"><span>Homepage rail</span><b>31%</b></div>
+      <div class="kpi"><span>Newsletter</span><b>20%</b></div>
       <div class="kpi"><span>Social</span><b>5%</b></div>
     </div>
-    <p class="fine">In production these are server-side counters, broken down by the page the reader came from.
-      The figures above are a sample to show the shape. <span id="live"></span></p>
-  </div>
+    <p class="src" style="margin-top:14px">In production these are server-side counters, broken down by the
+      page the reader came from. The figures above are a sample to show the shape. <span id="live"></span></p>
+  </section>
 
-  <div class="card"><h2>What you get, in your own words</h2>
-    <ul class="chk" style="margin-top:14px">
+  <section class="blk">
+    <h2>What you get, in your own words</h2>
+    <ul class="chk" style="margin-top:16px">
       <li class="pass"><span class="ic">&#10003;</span><span><span class="ttl">&ldquo;Something of value that makes them come to the site in the first place&rdquo;</span>
-        <span class="sub">The score is free and lives on your page. Nothing is gated before the reader gets an answer.</span></span></li>
+        <span class="sub">The score is free and lives on your pages. Nothing is gated before the reader gets an answer.</span></span></li>
+      <li class="pass"><span class="ic">&#10003;</span><span><span class="ttl">&ldquo;They would have to open up another page in our website first&rdquo;</span>
+        <span class="sub">That is the Valuations section. The reader stays with you for the index and the quarter&rsquo;s multiples, and only then clicks through.</span></span></li>
       <li class="pass"><span class="ic">&#10003;</span><span><span class="ttl">&ldquo;You update it in real time. It&rsquo;s a real piece of software&rdquo;</span>
         <span class="sub">We keep it running. No work lands on your team, ever.</span></span></li>
       <li class="pass"><span class="ic">&#10003;</span><span><span class="ttl">&ldquo;Exclusive to us&hellip; we can create the name of it&rdquo;</span>
-        <span class="sub">E2E Score is yours. It is named for your brand and your tagline, and it appears nowhere else in the channel.</span></span></li>
+        <span class="sub">E2E Score is yours. Named for your brand and your tagline, and it appears nowhere else in the channel.</span></span></li>
       <li class="pass"><span class="ic">&#10003;</span><span><span class="ttl">&ldquo;In my mind, there&rsquo;d be no money exchange&rdquo;</span>
         <span class="sub">None. You give placement and the newsletter; we give the software and the maintenance.</span></span></li>
     </ul>
-  </div>
+  </section>
 
-  <div class="card"><h2>What we ask in return</h2>
-    <ul class="chk" style="margin-top:14px">
-      <li><span class="num-ic">1</span><span><span class="ttl">The rail slot and a block on the homepage</span>
-        <span class="sub">Above Fast Five on topic pages. On the homepage, where the M&amp;A block should have been all along.</span></span></li>
-      <li><span class="num-ic">2</span><span><span class="ttl">One line in the weekly newsletter</span>
-        <span class="sub">The quarter&rsquo;s number and a link.</span></span></li>
-      <li><span class="num-ic">3</span><span><span class="ttl">A session at one regional event</span>
+  <section class="blk">
+    <h2>What we ask in return</h2>
+    <ul class="chk" style="margin-top:16px">
+      <li class="no"><span class="ic">1</span><span><span class="ttl">The Valuations section, and the rail slot on the homepage</span>
+        <span class="sub">A nav item your own page title has promised for years, and the widget above Most Read.</span></span></li>
+      <li class="no"><span class="ic">2</span><span><span class="ttl">One line in the weekly newsletter</span>
+        <span class="sub">The quarter&rsquo;s number and a link into the section.</span></span></li>
+      <li class="no"><span class="ic">3</span><span><span class="ttl">A session at one regional event</span>
         <span class="sub">&ldquo;What&rsquo;s your MSP worth&rdquo; on stage, with the QR going straight into the widget.</span></span></li>
-      <li><span class="num-ic">4</span><span><span class="ttl">The reader&rsquo;s own figures stay the reader&rsquo;s</span>
+      <li class="no"><span class="ic">4</span><span><span class="ttl">The reader&rsquo;s own figures stay the reader&rsquo;s</span>
         <span class="sub">Aggregate is yours to publish. Identified contact reaches us only when the owner asks for it.</span></span></li>
     </ul>
-  </div>
+  </section>
 </div>
 
-<footer class="iftr"><div class="wrap"><span>ChannelE2E &times; Intwin</span><span class="sp"></span>
-  <a href="host.html">The widget on a topic page</a><a href="home.html">On the homepage</a>
-  <a href="deals.html">Deal index</a><a href="multiples.html">Valuations</a>
-  <a href="kelly.html?reset">Reset</a></div></footer>
+<footer class="ftr"><div class="wrap">
+  <a href="index.html">Homepage</a><a href="valuations.html">Valuations section</a>
+  <a href="deals.html">Deal index</a><a href="multiples.html">Quarterly multiples</a>
+  <a href="kelly.html?reset">Reset</a>
+  <span class="sp"></span><span>ChannelE2E &times; Intwin</span>
+</div></footer>
 
 <script src="e2e.js"></script>
 <script>
 if (location.search === '?reset') { E2E.clear(); location.replace('kelly.html'); }
-
 var ROWS = [
-  { t:'Widget opened',                  s:'On your pages',                   n:1240, k:'open',       ours:false },
-  { t:'Finished the five',              s:'Got a score, free, on your site', n: 756, k:'finish',     ours:false },
-  { t:'Clicked through to the breakdown',s:'The hand-off to us',             n: 362, k:'through',    ours:true  },
-  { t:'Asked for a price',              s:'Four more questions',             n: 171, k:'priced',     ours:true  },
-  { t:'Left name and email',            s:'Only at the comparison gate',     n:  64, k:'identified', ours:true  }
+  { t:'Widget opened', s:'On your pages', n:1240, k:'open', ours:false },
+  { t:'Finished the five', s:'Got a score, free, on your site', n:756, k:'finish', ours:false },
+  { t:'Clicked through for the range', s:'The hand-off to us', n:362, k:'through', ours:true },
+  { t:'Asked for a price', s:'Four more questions', n:171, k:'priced', ours:true },
+  { t:'Left name and email', s:'Only at the comparison gate', n:64, k:'identified', ours:true }
 ];
 var peak = ROWS[0].n;
 document.getElementById('fun').innerHTML = ROWS.map(function(x){
-  return '<div class="fun'+(x.ours?' ours':'')+'">'+
-    '<span class="nm">'+x.t+'<span>'+x.s+'</span></span>'+
+  return '<div class="fun'+(x.ours?' ours':'')+'"><span class="nm">'+x.t+'<span>'+x.s+'</span></span>'+
     '<span class="t"><i style="width:'+(x.n/peak*100).toFixed(1)+'%"></i></span>'+
-    '<span class="v">'+x.n.toLocaleString()+'</span>'+
-    '<span class="p">'+Math.round(x.n/peak*100)+'%</span></div>';
+    '<span class="v">'+x.n.toLocaleString()+'</span><span class="p">'+Math.round(x.n/peak*100)+'%</span></div>';
 }).join('');
-
-/* the demo only sees what happens on ChannelE2E; the last two steps happen on
-   join.intwin.tech and are counted there */
-var AFTER = ['priced','identified'];
-var s = E2E.stats(), seen = ROWS.filter(function(x){ return AFTER.indexOf(x.k) < 0; });
-document.getElementById('live').textContent =
-  'This browser session on these pages: ' +
-  seen.map(function(x){ return (s[x.k]||0) + ' ' + x.t.toLowerCase(); }).join(', ') +
+var AFTER = ['priced','identified'], s = E2E.stats();
+document.getElementById('live').textContent = 'This browser session on these pages: ' +
+  ROWS.filter(function(x){ return AFTER.indexOf(x.k) < 0; })
+      .map(function(x){ return (s[x.k]||0) + ' ' + x.t.toLowerCase(); }).join(', ') +
   '. The steps after the hand-off are counted on our side.';
 </script></body></html>
