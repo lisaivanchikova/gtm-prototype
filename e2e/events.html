@@ -19,6 +19,7 @@
        site, not taken from search results.</p>
     <p class="pw"><span id="count"></span> &middot; last checked <span id="checked"></span>
        &middot; maintained for ChannelE2E by <a href="https://join.intwin.tech/" target="_blank" rel="noopener"><b>Intwin</b></a></p>
+    <aside class="herocard" id="nextup"></aside>
   </div>
 </div>
 
@@ -62,8 +63,7 @@
         <button type="button" class="vb2" id="v-list">List</button>
       </div>
     </div>
-    <p class="lede">Click a month to open it. The number on a month is how many events
-      fall in it.</p>
+    <p class="lede">A tick on a month is one event. Open a month to see where in it they fall.</p>
     <div id="ystrip"></div>
     <div id="grid"></div>
   </section>
@@ -183,6 +183,15 @@ function draw() {
   var up = all.filter(function (e) { return e.e >= TODAY; }).length;
   $('count').innerHTML = up + ' events ahead, ' + all.length + ' tracked';
   $('checked').innerHTML = DESK.CHECKED;
+
+  var nx = all.filter(function (e) { return e.e >= TODAY; })[0];
+  $('nextup').innerHTML = nx ? '<p class="hk">Next up</p><div class="nu">' +
+    '<div class="dt"><span class="dy">' + DESK.dayNum(nx.s) + '</span>' +
+    '<span class="mo">' + DESK.shortMon(nx.s) + '</span></div>' +
+    '<div><p class="lbl">Next in the channel</p>' +
+    '<a href="' + nx.url + '" target="_blank" rel="noopener"><b>' + nx.n + '</b></a>' +
+    '<p class="sub">' + nx.org + ' &middot; ' + nx.city + '</p></div></div>' : '';
+
   if (typeof drawCal === 'function') drawCal();
 }
 
@@ -223,87 +232,83 @@ function strip() {
   list.forEach(function (e) {
     var y = +e.s.slice(0,4), m = +e.s.slice(5,7);
     years[y] = years[y] || {};
-    years[y][m] = (years[y][m] || 0) + 1;
+    (years[y][m] = years[y][m] || []).push(e);
   });
   var ys = Object.keys(years).sort();
-  return ys.map(function (y) {
+  return '<div class="ystrip">' + ys.map(function (y) {
     return '<div class="yrow"><span class="ylab">' + y + '</span>' +
       DESK.MONTHS.map(function (nm, i) {
-        var m = i + 1, n = (years[y] || {})[m] || 0;
+        var m = i + 1, evs = (years[y] || {})[m] || [];
         var on = (+y === cur.y && m === cur.m) ? ' on' : '';
-        return '<button type="button" class="mcell' + (n ? ' has' : '') + on +
-          '" data-y="' + y + '" data-m="' + m + '">' +
+        return '<button type="button" class="mcell' + (evs.length ? ' has' : '') + on +
+          '" data-y="' + y + '" data-m="' + m + '"' +
+          (evs.length ? ' title="' + evs.length + ' event' + (evs.length>1?'s':'') + '"' : '') + '>' +
           '<span class="mn">' + nm.slice(0,3) + '</span>' +
-          (n ? '<span class="cnt">' + n + '</span>' : '<span class="cnt dot">&middot;</span>') +
-          '</button>';
+          '<span class="ticks">' + evs.map(function (e) {
+            return '<i class="' + (e.cra ? 'ours' : e.check !== 'ok' ? 'unc' : 'other') + '"></i>';
+          }).join('') + '</span></button>';
       }).join('') + '</div>';
-  }).join('');
-}
-
-/* lay the week out in lanes so multi-day bars never collide */
-function weekLanes(list, days) {
-  var first = days[0], last = days[days.length-1], lanes = [];
-  list.filter(function (e) { return e.s <= last && e.e >= first; })
-      .sort(function (a, b) { return a.s < b.s ? -1 : a.s > b.s ? 1 : (b.e > a.e ? -1 : 1); })
-      .forEach(function (e) {
-        var c0 = Math.max(0, days.indexOf(e.s < first ? first : e.s));
-        var c1 = days.indexOf(e.e > last ? last : e.e);
-        if (c1 < 0) c1 = days.length - 1;
-        var placed = false;
-        for (var i = 0; i < lanes.length && !placed; i++) {
-          var free = lanes[i].every(function (x) { return c0 > x.c1 || c1 < x.c0; });
-          if (free) { lanes[i].push({ e: e, c0: c0, c1: c1 }); placed = true; }
-        }
-        if (!placed) lanes.push([{ e: e, c0: c0, c1: c1 }]);
-      });
-  return lanes;
+  }).join('') + '</div>';
 }
 
 function monthGrid() {
-  var list = visible(), y = cur.y, m = cur.m;
-  var n = daysIn(y, m), lead = dowOf(y, m, 1), cells = [];
-  for (var i = 0; i < lead; i++) cells.push(null);
-  for (var d = 1; d <= n; d++) cells.push(iso(y, m, d));
-  while (cells.length % 7) cells.push(null);
+  var list = visible(), y = cur.y, m = cur.m, n = daysIn(y, m);
+  var mine = list.filter(function (e) {
+    return e.s <= iso(y,m,n) && e.e >= iso(y,m,1);
+  }).sort(function (a,b) { return a.s < b.s ? -1 : 1; });
 
-  var out = '<div class="cal"><div class="dow">' +
-    DOW.map(function (x) { return '<span>' + x + '</span>'; }).join('') + '</div>';
-
-  for (var w = 0; w < cells.length / 7; w++) {
-    var days = cells.slice(w*7, w*7+7);
-    var real = days.filter(Boolean);
-    out += '<div class="wk">';
-    out += '<div class="nums">' + days.map(function (c) {
-      return '<span' + (c ? '' : ' class="off"') + '>' + (c ? +c.slice(8) : '') + '</span>';
-    }).join('') + '</div>';
-    var lanes = real.length ? weekLanes(list, real) : [];
-    lanes.forEach(function (lane) {
-      out += '<div class="lane">';
-      lane.sort(function (a,b){ return a.c0 - b.c0; }).forEach(function (it) {
-        var off = days.indexOf(real[0]);
-        var a = it.c0 + off + 1, span = it.c1 - it.c0 + 1;
-        out += '<a class="bar w-' + it.e.who + (it.e.cra ? ' ours' : '') +
-          (it.e.check !== 'ok' ? ' flagged' : '') + '" href="' + it.e.url +
-          '" target="_blank" rel="noopener" style="grid-column:' + a + '/span ' + span + '"' +
-          ' title="' + it.e.org + ' &middot; ' + it.e.city + '">' + it.e.n + '</a>';
-      });
-      out += '</div>';
-    });
-    if (!lanes.length) out += '<div class="lane empty"></div>';
-    out += '</div>';
+  var days = '';
+  for (var d = 1; d <= n; d++) {
+    var w = dowOf(y,m,d);
+    days += '<span class="' + (w===0||w===6 ? 'we' : '') + '">' + d + '</span>';
   }
-  return out + '</div>' +
-    '<div class="legend"><span><i class="w-owners"></i>MSP owners</span>' +
-    '<span><i class="w-security"></i>MSSP &amp; security</span>' +
-    '<span><i class="w-vendors"></i>Vendors</span>' +
-    '<span><i class="w-mixed"></i>Mixed</span>' +
-    '<span><i class="oursdot"></i>Ours</span></div>';
+
+  var rows = mine.map(function (e) {
+    var a = e.s.slice(0,7) === iso(y,m,1).slice(0,7) ? DESK.dayNum(e.s) : 1;
+    var b = e.e.slice(0,7) === iso(y,m,1).slice(0,7) ? DESK.dayNum(e.e) : n;
+    var kind = e.cra ? 'ours' : e.check !== 'ok' ? 'unc' : 'other';
+    var d1 = DESK.shortMon(e.s) + ' ' + DESK.dayNum(e.s) + (a === b ? '' : '&ndash;' + b);
+    return '<div class="erow">' +
+      '<div class="einfo"><a href="' + e.url + '" target="_blank" rel="noopener">' + e.n + '</a>' +
+        '<p class="ebadge">' + BADGE[e.check] + '</p>' +
+        '<p class="emeta">' + d1 + ' &middot; ' + e.org + ' &middot; ' + e.city + '</p></div>' +
+      '<div class="etrack" style="grid-template-columns:repeat(' + n + ',1fr)">' +
+        (function () {
+          var cells = '';
+          for (var d = 1; d <= n; d++) {
+            var w = dowOf(y,m,d);
+            cells += '<span class="' + (w===0||w===6 ? 'we' : '') + '"></span>';
+          }
+          return cells;
+        })() +
+        '<i class="ebar ' + kind + '" style="grid-column:' + a + '/span ' + (b-a+1) + '"></i>' +
+      '</div></div>';
+  }).join('');
+
+  var prev = m === 1 ? {y:y-1,m:12} : {y:y,m:m-1};
+  var next = m === 12 ? {y:y+1,m:1} : {y:y,m:m+1};
+
+  return '<div class="mhead2">' +
+      '<h3>' + DESK.MONTHS[m-1] + ' ' + y + '</h3>' +
+      '<span class="mcount">' + mine.length + ' event' + (mine.length===1?'':'s') + '</span>' +
+      '<span class="legend2"><span><i class="ours"></i>ours</span>' +
+        '<span><i class="other"></i>everyone else</span>' +
+        '<span><i class="unc"></i>date not yet confirmed</span></span>' +
+      '<span class="mnav"><button type="button" data-y="'+prev.y+'" data-m="'+prev.m+'">&lsaquo; ' +
+        DESK.MONTHS[prev.m-1].slice(0,3) + '</button>' +
+        '<button type="button" data-y="'+next.y+'" data-m="'+next.m+'">' +
+        DESK.MONTHS[next.m-1].slice(0,3) + ' &rsaquo;</button></span>' +
+    '</div>' +
+    '<div class="daxis"><span class="dlab">Day of the month</span>' +
+      '<div class="dnums" style="grid-template-columns:repeat(' + n + ',1fr)">' + days + '</div></div>' +
+    (rows || '<p class="empty">Nothing in this month.</p>') +
+    (mine.length ? '' : '');
 }
 
 function drawCal() {
   $('ystrip').innerHTML = strip();
   $('grid').innerHTML = monthGrid();
-  [].forEach.call(document.querySelectorAll('.mcell'), function (b) {
+  [].forEach.call(document.querySelectorAll('.mcell, .mnav button'), function (b) {
     b.onclick = function () { cur = { y: +b.dataset.y, m: +b.dataset.m }; drawCal(); };
   });
 }

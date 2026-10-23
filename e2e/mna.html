@@ -19,14 +19,15 @@
        update. Every row carries its source.</p>
     <p class="pw"><span id="count"></span> &middot; last checked <span id="checked"></span>
        &middot; maintained for ChannelE2E by <a href="https://join.intwin.tech/" target="_blank" rel="noopener"><b>Intwin</b></a></p>
+    <aside class="herocard" id="holds"></aside>
   </div>
 </div>
 
 <div class="wrap">
 
   <div class="tabs" role="tablist">
-    <button type="button" class="tb on" id="tb-buyers" role="tab">Buyers</button>
-    <button type="button" class="tb" id="tb-deals" role="tab">Deals</button>
+    <button type="button" class="tb on" id="tb-buyers" role="tab">Buyers <em id="nb"></em></button>
+    <button type="button" class="tb" id="tb-deals" role="tab">Deals <em id="nd"></em></button>
   </div>
 
   <!-- ============ BUYERS ============ -->
@@ -120,9 +121,9 @@
 <script>
 var $ = function (i) { return document.getElementById(i); };
 var BADGE = {
-  ok:       '<span class="vb ok">&#10003;</span>',
-  inferred: '<span class="vb inf">?</span>',
-  suspect:  '<span class="vb sus">!</span>'
+  ok:       '<i class="chip ok" title="Confirmed at source">&#10003;</i>',
+  inferred: '<i class="chip inf" title="Date derived">?</i>',
+  suspect:  '<i class="chip sus" title="Awaiting confirmation">!</i>'
 };
 
 /* ---- tabs ---- */
@@ -151,26 +152,28 @@ function drawBuyers() {
   });
 
   $('buyers').innerHTML = list.map(function (b) {
+    var n = b.n26, word = n === 1 ? 'deal in 2026' : 'deals in 2026';
     return '<article class="byr">' +
-      '<div class="hd"><h3>' + b.n + '</h3>' +
-        '<span class="tag' + (/PE-backed/.test(b.type) ? ' pe' : '') + '">' + b.type + '</span>' +
-        (b.last ? '<span class="lastdeal">last deal ' + DESK.fmtDate(b.last) + '</span>'
-                : '<span class="lastdeal none">no deal recorded yet</span>') + '</div>' +
-      '<dl>' +
-        '<div><dt>Deals in 2026</dt><dd class="big">' + b.n26 + '</dd></div>' +
-        '<div><dt>In 2025</dt><dd class="big dim">' + b.n25 + '</dd></div>' +
-        '<div><dt>Held in total</dt><dd class="big dim">' + b.tot + '</dd></div>' +
-        '<div><dt>Money behind them</dt><dd>' + (b.backer || '&mdash; not stated') + '</dd></div>' +
-        '<div><dt>Where they buy</dt><dd>' + b.geo + '</dd></div>' +
-        '<div><dt>Headquarters</dt><dd>' + b.hq + '</dd></div>' +
-        (b.units && b.units.length
-          ? '<div class="wide"><dt>Buys through</dt><dd>' + b.units.join(' &middot; ') + '</dd></div>'
-          : '') +
-      '</dl>' +
-      '<p class="buys">' + b.buys + '</p>' +
-      (b.note ? '<p class="note2">' + b.note + '</p>' : '') +
-      '<p class="prov"><span class="src">' + b.src + ' &middot; read ' + DESK.fmtDate(b.seen) + '</span></p>' +
-    '</article>';
+      '<div class="tally"><span class="big">' + n + '</span>' +
+        '<span class="lbl">' + word + '</span>' +
+        '<span class="rest"><b>' + b.n25 + '</b> in 2025<br><b>' + b.tot + '</b> held in total</span></div>' +
+      '<div class="body">' +
+        '<div class="hd"><h3>' + b.n + '</h3>' +
+          '<span class="tag' + (/PE-backed/.test(b.type) ? ' pe' : '') + '">' + b.type + '</span>' +
+          (b.last ? '<span class="lastdeal">last deal ' + DESK.fmtDate(b.last) + '</span>'
+                  : '<span class="lastdeal none">no deal recorded yet</span>') + '</div>' +
+        '<dl>' +
+          '<div><dt>Money behind them</dt><dd>' + (b.backer || '&mdash; not stated') + '</dd></div>' +
+          '<div><dt>Where they buy</dt><dd>' + b.geo + '</dd></div>' +
+          '<div><dt>Headquarters</dt><dd>' + b.hq + '</dd></div>' +
+          (b.units && b.units.length
+            ? '<div class="wide"><dt>Buys through</dt><dd>' + b.units.join(' &middot; ') + '</dd></div>'
+            : '') +
+        '</dl>' +
+        '<div class="say"><p class="buys">' + b.buys + '</p>' +
+        (b.note ? '<p class="note2">' + b.note + '</p>' : '') +
+        '<p class="prov"><span class="src">' + b.src + ' &middot; read ' + DESK.fmtDate(b.seen) + '</span></p></div>' +
+      '</div></article>';
   }).join('');
 }
 
@@ -189,14 +192,16 @@ function drawDeals() {
 
   $('deals').innerHTML = head + '<tbody>' + list.map(function (d) {
     return '<tr' + (d.check !== 'ok' ? ' class="flag"' : '') + '>' +
-      '<td class="nw">' + BADGE[d.check] + ' ' + DESK.fmtDate(d.d) + '</td>' +
+      '<td class="nw dtc">' + BADGE[d.check] + '<span>' + DESK.fmtDate(d.d) + '</span></td>' +
       '<td>' + (d.buyer || '<em>not named</em>') + '</td>' +
-      '<td><b>' + d.target + '</b>' + (d.kind === 'plan' ? ' <span class="tag">intent</span>' : '') + '</td>' +
+      '<td><b>' + d.target + '</b>' +
+        (d.kind === 'plan' ? '<span class="tag intent">intent</span>' : '') +
+        (d.why ? '<span class="why">' + d.why + '</span>' : '') + '</td>' +
       '<td>' + d.focus + '</td>' +
       '<td class="nw">' + d.geo + '</td>' +
       '<td>' + (d.backer || '&mdash;') + '</td>' +
       '<td class="nw"><a href="' + d.url + '" target="_blank" rel="noopener">' + d.src + ' &#8599;</a></td>' +
-    '</tr>' + (d.why ? '<tr class="whyrow"><td colspan="7"><span class="why">' + d.why + '</span></td></tr>' : '');
+    '</tr>';
   }).join('') + '</tbody>';
 
   $('dempty').hidden = list.length > 0;
@@ -208,6 +213,16 @@ $('btype').onchange = drawBuyers;
 var y26 = DESK.DEALS.filter(function (d) { return d.d.slice(0,4) === '2026'; }).length;
 $('count').innerHTML = DESK.DEALS.length + ' deals held &middot; ' + y26 + ' of them in 2026 &middot; ' +
   DESK.BUYERS.length + ' buyers tracked';
+$('nb').innerHTML = DESK.BUYERS.length;
+$('nd').innerHTML = DESK.DEALS.length;
+$('holds').innerHTML = '<p class="hk">What the index holds</p>' +
+  '<div class="holds3">' +
+    '<div><b>' + DESK.DEALS.length + '</b><span>deals held</span></div>' +
+    '<div><b>' + y26 + '</b><span>of them in 2026</span></div>' +
+    '<div><b>' + DESK.BUYERS.length + '</b><span>buyers tracked</span></div>' +
+  '</div>' +
+  '<p class="hnote">Counts of what this index holds, not of everything that happened. ' +
+  'No ranking, no recommendation.</p>';
 
 /* годы в фильтре — из самих данных, а не руками */
 var years = {};
