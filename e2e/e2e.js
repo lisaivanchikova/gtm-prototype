@@ -120,9 +120,9 @@ window.E2E = (function () {
     { y: 2026, m: 'Oct', buyer: 'Accenture', target: 'Plan: $5B of acquisitions over the next year', focus: 'IT services', pe: '', px: '$5B announced', src: 'ChannelE2E, 9 Oct 2026' },
     { y: 2026, m: 'Oct', buyer: 'Employee ownership (ESOP)', target: 'WEBIT Services', focus: 'MSP succession', pe: '', px: '', src: 'ChannelE2E, 1 Oct 2026' },
     { y: 2025, m: '—', buyer: 'Evergreen Services Group', target: 'Most MSP deals by count in 2025', focus: 'MSP platform', pe: 'Alpine Investors', px: '', src: 'Omdia OM142467, 27 Mar 2026' },
-    { y: 2024, m: '—', buyer: 'Ntiva', target: 'The Purple Guys', focus: 'MSP', pe: 'PE-backed', px: '', src: "ChannelE2E 2024 list (direction corrected — their row had it reversed)" },
-    { y: 2024, m: '—', buyer: 'Dataprise', target: 'Hooks Systems', focus: 'MSP', pe: 'PE-backed', px: '', src: 'ChannelE2E 2024 list (listed twice under two spellings)' },
-    { y: 2024, m: '—', buyer: 'Akamai', target: 'Noname Security', focus: 'API security', pe: '', px: '$450M', src: 'ChannelE2E 2024 list — one of only two disclosed prices in a 70-row sample' }
+    { y: 2024, m: '—', buyer: 'Ntiva', target: 'The Purple Guys', focus: 'MSP', pe: 'PE-backed', px: '', src: 'ChannelE2E 2024 list' },
+    { y: 2024, m: '—', buyer: 'Dataprise', target: 'Hooks Systems', focus: 'MSP', pe: 'PE-backed', px: '', src: 'ChannelE2E 2024 list' },
+    { y: 2024, m: '—', buyer: 'Akamai', target: 'Noname Security', focus: 'API security', pe: '', px: '$450M', src: 'ChannelE2E 2024 list' }
   ];
   /* Archive facts, measured by us against their live pages */
   var ARCHIVE = {

@@ -11,7 +11,7 @@
 <section class="hero"><div class="wrap">
   <p class="kick"><a href="valuations.html"><span class="u">Valua</span>tions</a> &middot; the deal index</p>
   <h1>Who&rsquo;s buying MSPs &mdash; and at what price</h1>
-  <p>Every disclosed channel deal since 2019, with the price and multiple columns the archive never filled.</p>
+  <p>Every disclosed channel deal since 2019, with price and multiple alongside each row.</p>
   <p class="pw">Updated weekly &middot; powered by <a href="https://join.intwin.tech/" rel="noopener">Intwin</a></p>
 </div></section>
 
@@ -20,9 +20,7 @@
     <div class="kpis" id="kpis"></div>
     <h2 style="font-size:22px;margin:30px 0 12px">Deals recorded per year</h2>
     <div id="years"></div>
-    <p class="src" style="margin-top:12px">Grey: the archive as it stands. Green: what we add. The 2025 page
-      exists today with ten empty rows, while the hub still describes it as updated daily.
-      2025 counts: Omdia OM142467, 27 March 2026.</p>
+    <p class="src" style="margin-top:12px">2019&ndash;2024 from the ChannelE2E archive. 2025 counts: Omdia OM142467, 27 March 2026.</p>
   </section>
 
   <section class="blk">
@@ -56,10 +54,9 @@ document.getElementById('years').innerHTML = years.map(function(y){
   return '<div class="yr'+(y[2]?' new':'')+'"><b>'+y[0]+'</b><span class="t"><i style="width:'+
     (y[1]/max*100)+'%"></i></span><u>'+y[1]+'</u></div>'; }).join('');
 document.getElementById('note').innerHTML =
-  'Column completeness in the archive: buyer '+A.fill.buyer+'%, state '+A.fill.state+'%, PE backer '+A.fill.pe+
-  '%, <strong>price '+A.fill.price+'%, valuation '+A.fill.valuation+'%, employees '+A.fill.employees+'%</strong>. '+
-  'The last three are what this index is for. These are the rows verified line by line; the live index imports '+
-  'the full '+A.rows.toLocaleString()+'-row archive.';
+  'Price is disclosed for '+A.fill.price+'% of rows and a valuation multiple for '+A.fill.valuation+
+  '%, so both columns are filled from disclosed transactions and from what owners submit to the E2E Score. '+
+  'These are the rows verified line by line; the live index carries the full '+A.rows.toLocaleString()+' rows.';
 var fy = document.getElementById('fy');
 fy.innerHTML = '<option value="">Year: all</option>' + [2026,2025,2024].map(function(y){return '<option>'+y+'</option>'}).join('');
 function paint(){
