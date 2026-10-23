@@ -76,18 +76,18 @@
 .yr u{width:50px;text-align:right;font-weight:700;text-decoration:none}
 
 /* the curve */
-.axis,.band{display:grid;grid-template-columns:168px 1fr 84px;gap:16px;align-items:center}
+.axis,.vband{display:grid;grid-template-columns:168px 1fr 84px;gap:16px;align-items:center}
 .axis{font-size:12.5px;color:var(--dim);padding-bottom:8px}
 .axis .ticks{display:flex;justify-content:space-between}
 .axis .rg{text-align:right}
-.band{padding:13px 0;border-top:1px solid var(--line)}
-.band .nm{font-weight:700;font-size:15px}
-.band .nm span{display:block;font-weight:400;font-size:12.5px;color:var(--dim);margin-top:2px}
-.band .t{position:relative;height:14px;background:#f1f3f5;border-radius:2px}
-.band .t i{position:absolute;top:0;height:14px;border-radius:2px;background:#ced4da}
-.band.open .t i{background:var(--grn)}
-.band .rg{text-align:right;font-weight:700;font-size:14px}
-.band.shut .rg,.band.shut .t i{filter:blur(3px)}
+.vband{padding:13px 0;border-top:1px solid var(--line)}
+.vband .nm{font-weight:700;font-size:15px}
+.vband .nm span{display:block;font-weight:400;font-size:12.5px;color:var(--dim);margin-top:2px}
+.vband .t{position:relative;height:14px;background:#f1f3f5;border-radius:2px}
+.vband .t i{position:absolute;top:0;height:14px;border-radius:2px;background:#ced4da}
+.vband.open .t i{background:var(--grn)}
+.vband .rg{text-align:right;font-weight:700;font-size:14px}
+.vband.shut .rg,.vband.shut .t i{filter:blur(3px)}
 .key{display:flex;gap:20px;flex-wrap:wrap;font-size:13px;color:var(--mid);margin-top:16px}
 .key i{display:inline-block;width:12px;height:12px;border-radius:2px;margin-right:7px;vertical-align:-1px}
 
@@ -133,8 +133,8 @@ select{border:1px solid var(--line);border-radius:4px;padding:10px 12px;font:500
   .hero p{font-size:17px}
   .blk h2{font-size:24px}
   .axis{display:none}
-  .band{grid-template-columns:1fr;gap:7px;padding:14px 0}
-  .band .rg{text-align:left}
+  .vband{grid-template-columns:1fr;gap:7px;padding:14px 0}
+  .vband .rg{text-align:left}
   .kpis{grid-template-columns:1fr !important}
   .yr b{width:42px}.yr u{width:42px}
 }

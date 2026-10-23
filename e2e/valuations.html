@@ -104,7 +104,7 @@ var CURVE = [{lo:2.5,hi:3.5,n:31},{lo:3.0,hi:4.5,n:58},{lo:4.0,hi:5.5,n:44},{lo:
 function pc(v){ return ((v-2)/6*100).toFixed(1); }
 document.getElementById('bands').innerHTML = E2E.BANDS.map(function(b,i){
   var c = CURVE[i], held = c.n < 30, free = i === 1;
-  return '<div class="band '+(free?'open':(held?'shut':'shut'))+'">'+
+  return '<div class="vband '+(free?'open':'shut')+'">'+
     '<span class="nm">'+b.t+'<span>'+(held?'Withheld &middot; '+c.n+' answers':(free?'Open &middot; '+c.n+' answers':c.n+' answers'))+'</span></span>'+
     '<span class="t"><i style="left:'+pc(c.lo)+'%;width:'+(pc(c.hi)-pc(c.lo)).toFixed(1)+'%"></i></span>'+
     '<span class="rg">'+c.lo.toFixed(1)+'&ndash;'+c.hi.toFixed(1)+'&times;</span></div>'; }).join('');
