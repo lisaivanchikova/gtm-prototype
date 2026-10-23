@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Channel Events Calendar: Conferences, Summits and Peer Groups | ChannelE2E</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@500;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="c2e.css"><link rel="stylesheet" href="e2e.css">
+</head><body class="pg">
+
+<script src="chrome.js"></script><script>C2Echrome('Events');</script>
+
+<div class="hero">
+  <div class="wrap">
+    <p class="kick">Events &middot; Channel Calendar</p>
+    <h1>Every event in the channel, in one place</h1>
+    <p>Conferences, summits and peer-group meetings for MSPs, MSSPs and the vendors that
+       serve them &mdash; ours and everyone else&rsquo;s. Dates are read at the organizer&rsquo;s own
+       site, not taken from search results.</p>
+    <p class="pw"><span id="count"></span> &middot; last checked <span id="checked"></span>
+       &middot; maintained for ChannelE2E by <a href="https://join.intwin.tech/" target="_blank" rel="noopener"><b>Intwin</b></a></p>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <div class="fbar" id="fbar">
+    <label>Who is in the room
+      <select id="fwho">
+        <option value="">Everyone</option>
+        <option value="owners">MSP owners</option>
+        <option value="security">MSSP &amp; security</option>
+        <option value="vendors">Vendors &amp; distributors</option>
+        <option value="mixed">Mixed</option>
+      </select></label>
+    <label>Format
+      <select id="ffmt">
+        <option value="">Any</option>
+        <option value="person">In person</option>
+        <option value="virtual">Virtual</option>
+      </select></label>
+    <label>Organizer
+      <select id="fcra">
+        <option value="">Everyone</option>
+        <option value="1">ChannelE2E &amp; CyberRisk Alliance</option>
+        <option value="0">Everyone else</option>
+      </select></label>
+    <label>When
+      <select id="fwhen">
+        <option value="up">Upcoming</option>
+        <option value="all">Including past</option>
+      </select></label>
+    <span class="sp"></span>
+    <button type="button" class="lnk" id="reset">Reset</button>
+  </div>
+
+  <section class="blk" id="calblk">
+    <div class="calhead">
+      <h2>The year ahead</h2>
+      <div class="vsw" role="tablist">
+        <button type="button" class="vb2 on" id="v-cal">Calendar</button>
+        <button type="button" class="vb2" id="v-list">List</button>
+      </div>
+    </div>
+    <p class="lede">Click a month to open it. The number on a month is how many events
+      fall in it.</p>
+    <div id="ystrip"></div>
+    <div id="grid"></div>
+  </section>
+
+  <section class="blk" id="pinned">
+    <h2>Our events</h2>
+    <p class="lede">Everything ChannelE2E, MSSP Alert and ChannelPro Network are running,
+      no longer split across three different sites.</p>
+    <div id="pinrows"></div>
+  </section>
+
+  <section class="blk" id="listblk">
+    <h2>Every event in detail</h2>
+    <p class="lede">Grouped by month. The line under each event says where the dates came from
+      and when we last checked them.</p>
+    <div id="rows"></div>
+    <p class="empty" id="empty" hidden>Nothing matches those filters.</p>
+  </section>
+
+  <section class="blk">
+    <h2>How the dates are checked</h2>
+    <ul class="chk">
+      <li class="pass"><span class="ic">&#10003;</span><span><span class="ttl">Confirmed</span>
+        <span class="sub">The organizer&rsquo;s own page carries the date, and that page has been
+        updated recently.</span></span></li>
+      <li class="no"><span class="ic">?</span><span><span class="ttl">Derived</span>
+        <span class="sub">Something had to be worked out &mdash; most often a year the organizer
+        did not print. Shown, but marked, and queued for a call to the organizer.</span></span></li>
+      <li class="no"><span class="ic">!</span><span><span class="ttl">Held back</span>
+        <span class="sub">The sources disagree, or a future date sits on a page nobody has
+        touched in over a year. Not published until a human confirms it.</span></span></li>
+    </ul>
+    <p class="src" style="margin-top:16px">Three traps this exists to avoid: search engines return
+      last year&rsquo;s dates as current; events that have closed keep their landing pages live and
+      ranking; and organizers print days without a year. All three were hit while building this
+      calendar.</p>
+    <p class="src">Running an event for the channel?
+      <a href="https://www.channele2e.com/events" target="_blank" rel="noopener">Submit it here</a> &mdash;
+      all submissions are reviewed by ChannelE2E before they appear.</p>
+  </section>
+
+</div>
+
+<script src="chrome.js"></script><script>C2Efooter();</script>
+<script src="desk.js"></script>
+<script>
+var $ = function (i) { return document.getElementById(i); };
+var TODAY = '2026-10-23';
+
+var BADGE = {
+  ok:       '<span class="vb ok">&#10003; Confirmed at source</span>',
+  inferred: '<span class="vb inf">? Date derived</span>',
+  suspect:  '<span class="vb sus">! Awaiting confirmation</span>'
+};
+var WHO = { owners:'MSP owners', vendors:'Vendors &amp; distributors',
+            security:'MSSP &amp; security', mixed:'Mixed room' };
+
+function span(ev) {
+  var a = DESK.dayNum(ev.s), b = DESK.dayNum(ev.e);
+  return a === b ? String(a) : a + '&ndash;' + b;
+}
+
+function row(ev) {
+  var past = ev.e < TODAY;
+  return '<article class="ev' + (past ? ' past' : '') + (ev.cra ? ' ours' : '') + '">' +
+    '<div class="dt"><span class="mo">' + DESK.shortMon(ev.s) + '</span>' +
+      '<span class="dy">' + span(ev) + '</span>' +
+      '<span class="yr">' + ev.s.slice(0,4) + '</span></div>' +
+    '<div class="bd">' +
+      '<h3>' + ev.n + (past ? ' <em class="pastx">finished</em>' : '') + '</h3>' +
+      '<p class="meta"><b>' + ev.org + '</b>' + (ev.cra ? ' <span class="tag pe">ours</span>' : '') +
+        ' &middot; ' + ev.city +
+        ' &middot; ' + (ev.fmt === 'virtual' ? 'Virtual' : 'In person') +
+        ' &middot; ' + WHO[ev.who] +
+        (ev.price ? ' &middot; ' + ev.price : '') + '</p>' +
+      (ev.note ? '<p class="note2">' + ev.note + '</p>' : '') +
+      '<p class="prov">' + BADGE[ev.check] + '<span class="src">' + ev.src +
+        ' &middot; read ' + DESK.fmtDate(ev.seen) + '</span></p>' +
+    '</div>' +
+    '<div class="go"><a class="btn gh" href="' + ev.url + '" target="_blank" rel="noopener">' +
+      (past ? 'Organizer' : 'Register') + ' &#8599;</a></div>' +
+  '</article>';
+}
+
+function grouped(list) {
+  var out = '', last = '';
+  list.forEach(function (ev) {
+    var k = DESK.monKey(ev.s);
+    if (k !== last) { out += '<h4 class="mhead">' + k + '</h4>'; last = k; }
+    out += row(ev);
+  });
+  return out;
+}
+
+function draw() {
+  var who = $('fwho').value, fmt = $('ffmt').value,
+      cra = $('fcra').value, when = $('fwhen').value;
+
+  var all = DESK.EVENTS.slice().sort(function (a, b) { return a.s < b.s ? -1 : 1; });
+
+  var pin = all.filter(function (e) { return e.cra && e.e >= TODAY; });
+  $('pinrows').innerHTML = pin.length ? pin.map(row).join('') :
+    '<p class="empty">Nothing of ours scheduled right now.</p>';
+
+  var list = all.filter(function (e) {
+    if (who && e.who !== who) return false;
+    if (fmt && e.fmt !== fmt) return false;
+    if (cra === '1' && !e.cra) return false;
+    if (cra === '0' && e.cra) return false;
+    if (when === 'up' && e.e < TODAY) return false;
+    return true;
+  });
+
+  $('rows').innerHTML = grouped(list);
+  $('empty').hidden = list.length > 0;
+
+  var up = all.filter(function (e) { return e.e >= TODAY; }).length;
+  $('count').innerHTML = up + ' events ahead, ' + all.length + ' tracked';
+  $('checked').innerHTML = DESK.CHECKED;
+  if (typeof drawCal === 'function') drawCal();
+}
+
+
+/* ---------------- calendar: year strip + month grid ----------------
+   Events here are multi-day and spread across a year, so a bare month grid
+   would read as empty. The strip above it carries the year at a glance and
+   the grid carries the month you picked. */
+
+var DOW = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+/* open on the first month that still has something ahead, not on today's */
+var cur = (function () {
+  var up = DESK.EVENTS.filter(function (e) { return e.e >= TODAY; })
+                      .sort(function (a, b) { return a.s < b.s ? -1 : 1; })[0];
+  return up ? { y: +up.s.slice(0,4), m: +up.s.slice(5,7) } : { y: 2026, m: 10 };
+})();
+
+function iso(y, m, d) {
+  return y + '-' + ('0'+m).slice(-2) + '-' + ('0'+d).slice(-2);
+}
+function daysIn(y, m) { return new Date(y, m, 0).getDate(); }
+function dowOf(y, m, d) { return new Date(y, m-1, d).getDay(); }
+
+/* events visible under the current filters */
+function visible() {
+  var who = $('fwho').value, fmt = $('ffmt').value, cra = $('fcra').value;
+  return DESK.EVENTS.filter(function (e) {
+    if (who && e.who !== who) return false;
+    if (fmt && e.fmt !== fmt) return false;
+    if (cra === '1' && !e.cra) return false;
+    if (cra === '0' && e.cra) return false;
+    return true;
+  });
+}
+
+function strip() {
+  var list = visible(), years = {};
+  list.forEach(function (e) {
+    var y = +e.s.slice(0,4), m = +e.s.slice(5,7);
+    years[y] = years[y] || {};
+    years[y][m] = (years[y][m] || 0) + 1;
+  });
+  var ys = Object.keys(years).sort();
+  return ys.map(function (y) {
+    return '<div class="yrow"><span class="ylab">' + y + '</span>' +
+      DESK.MONTHS.map(function (nm, i) {
+        var m = i + 1, n = (years[y] || {})[m] || 0;
+        var on = (+y === cur.y && m === cur.m) ? ' on' : '';
+        return '<button type="button" class="mcell' + (n ? ' has' : '') + on +
+          '" data-y="' + y + '" data-m="' + m + '">' +
+          '<span class="mn">' + nm.slice(0,3) + '</span>' +
+          (n ? '<span class="cnt">' + n + '</span>' : '<span class="cnt dot">&middot;</span>') +
+          '</button>';
+      }).join('') + '</div>';
+  }).join('');
+}
+
+/* lay the week out in lanes so multi-day bars never collide */
+function weekLanes(list, days) {
+  var first = days[0], last = days[days.length-1], lanes = [];
+  list.filter(function (e) { return e.s <= last && e.e >= first; })
+      .sort(function (a, b) { return a.s < b.s ? -1 : a.s > b.s ? 1 : (b.e > a.e ? -1 : 1); })
+      .forEach(function (e) {
+        var c0 = Math.max(0, days.indexOf(e.s < first ? first : e.s));
+        var c1 = days.indexOf(e.e > last ? last : e.e);
+        if (c1 < 0) c1 = days.length - 1;
+        var placed = false;
+        for (var i = 0; i < lanes.length && !placed; i++) {
+          var free = lanes[i].every(function (x) { return c0 > x.c1 || c1 < x.c0; });
+          if (free) { lanes[i].push({ e: e, c0: c0, c1: c1 }); placed = true; }
+        }
+        if (!placed) lanes.push([{ e: e, c0: c0, c1: c1 }]);
+      });
+  return lanes;
+}
+
+function monthGrid() {
+  var list = visible(), y = cur.y, m = cur.m;
+  var n = daysIn(y, m), lead = dowOf(y, m, 1), cells = [];
+  for (var i = 0; i < lead; i++) cells.push(null);
+  for (var d = 1; d <= n; d++) cells.push(iso(y, m, d));
+  while (cells.length % 7) cells.push(null);
+
+  var out = '<div class="cal"><div class="dow">' +
+    DOW.map(function (x) { return '<span>' + x + '</span>'; }).join('') + '</div>';
+
+  for (var w = 0; w < cells.length / 7; w++) {
+    var days = cells.slice(w*7, w*7+7);
+    var real = days.filter(Boolean);
+    out += '<div class="wk">';
+    out += '<div class="nums">' + days.map(function (c) {
+      return '<span' + (c ? '' : ' class="off"') + '>' + (c ? +c.slice(8) : '') + '</span>';
+    }).join('') + '</div>';
+    var lanes = real.length ? weekLanes(list, real) : [];
+    lanes.forEach(function (lane) {
+      out += '<div class="lane">';
+      lane.sort(function (a,b){ return a.c0 - b.c0; }).forEach(function (it) {
+        var off = days.indexOf(real[0]);
+        var a = it.c0 + off + 1, span = it.c1 - it.c0 + 1;
+        out += '<a class="bar w-' + it.e.who + (it.e.cra ? ' ours' : '') +
+          (it.e.check !== 'ok' ? ' flagged' : '') + '" href="' + it.e.url +
+          '" target="_blank" rel="noopener" style="grid-column:' + a + '/span ' + span + '"' +
+          ' title="' + it.e.org + ' &middot; ' + it.e.city + '">' + it.e.n + '</a>';
+      });
+      out += '</div>';
+    });
+    if (!lanes.length) out += '<div class="lane empty"></div>';
+    out += '</div>';
+  }
+  return out + '</div>' +
+    '<div class="legend"><span><i class="w-owners"></i>MSP owners</span>' +
+    '<span><i class="w-security"></i>MSSP &amp; security</span>' +
+    '<span><i class="w-vendors"></i>Vendors</span>' +
+    '<span><i class="w-mixed"></i>Mixed</span>' +
+    '<span><i class="oursdot"></i>Ours</span></div>';
+}
+
+function drawCal() {
+  $('ystrip').innerHTML = strip();
+  $('grid').innerHTML = monthGrid();
+  [].forEach.call(document.querySelectorAll('.mcell'), function (b) {
+    b.onclick = function () { cur = { y: +b.dataset.y, m: +b.dataset.m }; drawCal(); };
+  });
+}
+
+/* Calendar / List switch */
+function view(v) {
+  var c = v === 'cal';
+  $('v-cal').className  = 'vb2' + (c ? ' on' : '');
+  $('v-list').className = 'vb2' + (c ? '' : ' on');
+  $('ystrip').hidden = !c; $('grid').hidden = !c;
+  $('listblk').hidden = c;
+}
+$('v-cal').onclick  = function () { view('cal'); };
+$('v-list').onclick = function () { view('list'); };
+
+['fwho','ffmt','fcra','fwhen'].forEach(function (i) { $(i).onchange = draw; });
+$('reset').onclick = function () {
+  $('fwho').value = ''; $('ffmt').value = ''; $('fcra').value = ''; $('fwhen').value = 'up'; draw();
+};
+draw(); drawCal(); view('cal');
+</script>
+</body></html>

@@ -4,16 +4,13 @@
 (function () {
   var S = 'https://www.channele2e.com';
   var MENU = [
-    { label: 'Events', items: [
-      { t: 'Webcasts', u: S + '/webcasts' },
-      { t: 'MSSP Alert Event', u: 'https://msspalertlive.com/2026-virtual', ext: 1 },
-      { t: 'ChannelPro Network Events', u: 'https://events.channelpronetwork.com/', ext: 1 }
-    ]},
-    { label: 'Valuations', href: 'valuations.html', ours: 1 },
+    /* Was a dropdown scattering the reader across three different domains, with the
+       actual calendar page not even listed in it. Now one link to one calendar;
+       their own three destinations sit pinned at the top of it. */
+    { label: 'Events', href: 'events.html', ours: 1 },
     { label: 'Resources', items: [
-      { t: 'MSP Valuations &amp; E2E Score', u: 'valuations.html', ours: 1 },
       { t: 'Resource Library', u: S + '/resource-library' },
-      { t: 'Tech M&amp;A List', u: S + '/acquisitions' },
+      { t: 'Tech M&amp;A List', u: 'mna.html', ours: 1 },
       { t: 'Top 250 Cloud MSPs', u: S + '/msp-top-250' },
       { t: 'Top 100 Vertical Market MSPs', u: S + '/msp-top-100' },
       { t: 'Channel Terms Glossary', u: S + '/resource/channel-terms-glossary' }

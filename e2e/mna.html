@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Technology Company Mergers and Acquisitions: Who Is Buying | ChannelE2E</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@500;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="c2e.css"><link rel="stylesheet" href="e2e.css">
+</head><body class="pg">
+
+<script src="chrome.js"></script><script>C2Echrome('Resources');</script>
+
+<div class="hero">
+  <div class="wrap">
+    <p class="kick">Resources &middot; Tech M&amp;A</p>
+    <h1>Who is buying in the channel</h1>
+    <p>Deals involving MSPs, MSSPs, VARs, ISVs and the platforms that buy them. Read from
+       the acquirers&rsquo; own announcements, not from a spreadsheet anyone has to remember to
+       update. Every row carries its source.</p>
+    <p class="pw"><span id="count"></span> &middot; last checked <span id="checked"></span>
+       &middot; maintained for ChannelE2E by <a href="https://join.intwin.tech/" target="_blank" rel="noopener"><b>Intwin</b></a></p>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <div class="tabs" role="tablist">
+    <button type="button" class="tb on" id="tb-buyers" role="tab">Buyers</button>
+    <button type="button" class="tb" id="tb-deals" role="tab">Deals</button>
+  </div>
+
+  <!-- ============ BUYERS ============ -->
+  <section class="blk" id="pane-buyers">
+    <h2>Active buyers</h2>
+    <p class="lede">The question an owner actually has is not which deals happened, but
+      <b>who buys businesses like mine, and are they still buying.</b> Sorted by how active they
+      have been this year, then by their most recent deal.</p>
+
+    <div class="filters">
+      <label>Type
+        <select id="btype">
+          <option value="">All buyers</option>
+          <option value="PE">PE-backed platforms</option>
+          <option value="Strategic">Strategic</option>
+          <option value="Association">Associations</option>
+        </select></label>
+      <span class="sp"></span>
+      <span class="src">No ranking, no recommendation. Facts and sources only.</span>
+    </div>
+
+    <div id="buyers"></div>
+
+    <p class="src" style="margin-top:18px">Deal counts are of what this index holds, not of
+      everything that happened. A buyer that announces quietly will be under-counted until
+      another source catches it.</p>
+  </section>
+
+  <!-- ============ DEALS ============ -->
+  <section class="blk" id="pane-deals" hidden>
+    <h2>Deals</h2>
+    <p class="lede">Newest first. A deal appears once a primary source names it.</p>
+
+    <div class="filters">
+      <label>Year
+        <select id="dyear"><option value="">All years</option></select></label>
+      <label>Buyer type
+        <select id="dkind">
+          <option value="">All</option>
+          <option value="deal">Closed or announced deals</option>
+          <option value="plan">Stated intent to buy</option>
+        </select></label>
+      <label>Confidence
+        <select id="dchk">
+          <option value="">Everything we hold</option>
+          <option value="ok">Confirmed only</option>
+        </select></label>
+    </div>
+
+    <div class="tscroll">
+      <table id="deals"></table>
+    </div>
+    <p class="empty" id="dempty" hidden>Nothing matches those filters.</p>
+
+    <div class="pricebox">
+      <b>Why there is no price column.</b> Price is disclosed in only a small minority of
+      channel deals, and valuation almost never. Rather than print a column that is mostly
+      blank, this index prints a price only inside the row where the acquirer actually
+      stated one.
+    </div>
+  </section>
+
+  <section class="blk">
+    <h2>Where this comes from</h2>
+    <ul class="chk">
+      <li class="pass"><span class="ic">&#10003;</span><span><span class="ttl">The acquirer&rsquo;s own newsroom</span>
+        <span class="sub">Serial buyers announce every tuck-in themselves. One platform&rsquo;s own
+        deal page carried 25 transactions.</span></span></li>
+      <li class="pass"><span class="ic">&#10003;</span><span><span class="ttl">SEC filings</span>
+        <span class="sub">Form 8-K item 2.01 for public acquirers &mdash; dated and not arguable.</span></span></li>
+      <li class="pass"><span class="ic">&#10003;</span><span><span class="ttl">Advisor tombstones and fund portfolios</span>
+        <span class="sub">Closed-deal pages at the firms that broker them, and add-on lists at
+        the funds behind the buyers.</span></span></li>
+      <li class="pass"><span class="ic">&#10003;</span><span><span class="ttl">ChannelE2E&rsquo;s own reporting</span>
+        <span class="sub">Structured here for the first time, as one source among several rather
+        than the only one.</span></span></li>
+    </ul>
+    <p class="src" style="margin-top:16px">Scale check: an independent count put 2025 at
+      <b>169 channel deals, 69% of them PE-backed</b> (Omdia OM142467, 27 March 2026). That is
+      roughly three a week &mdash; more than any newsroom can track by hand, which is the whole
+      reason this runs on a schedule.</p>
+    <p class="src">Dates carry the same three states as the events calendar: confirmed, derived,
+      or held back until a human checks them. A publish date on a press page is not the deal
+      date, and is treated as a signal to verify, not a fact.</p>
+  </section>
+
+</div>
+
+<script src="chrome.js"></script><script>C2Efooter();</script>
+<script src="desk.js"></script>
+<script>
+var $ = function (i) { return document.getElementById(i); };
+var BADGE = {
+  ok:       '<span class="vb ok">&#10003;</span>',
+  inferred: '<span class="vb inf">?</span>',
+  suspect:  '<span class="vb sus">!</span>'
+};
+
+/* ---- tabs ---- */
+function tab(which) {
+  var b = which === 'buyers';
+  $('tb-buyers').className = 'tb' + (b ? ' on' : '');
+  $('tb-deals').className  = 'tb' + (b ? '' : ' on');
+  $('pane-buyers').hidden = !b;
+  $('pane-deals').hidden  = b;
+}
+$('tb-buyers').onclick = function () { tab('buyers'); };
+$('tb-deals').onclick  = function () { tab('deals'); };
+
+/* ---- buyers ---- */
+function drawBuyers() {
+  var f = $('btype').value;
+  var list = DESK.BUYERS.filter(function (b) {
+    if (!f) return true;
+    if (f === 'PE') return /PE-backed/.test(b.type);
+    if (f === 'Strategic') return /Strategic/.test(b.type);
+    if (f === 'Association') return /Association/.test(b.type);
+    return true;
+  }).sort(function (a, b) {
+    if (b.n26 !== a.n26) return b.n26 - a.n26;           /* most active first */
+    return (b.last || '') < (a.last || '') ? -1 : 1;      /* then most recent */
+  });
+
+  $('buyers').innerHTML = list.map(function (b) {
+    return '<article class="byr">' +
+      '<div class="hd"><h3>' + b.n + '</h3>' +
+        '<span class="tag' + (/PE-backed/.test(b.type) ? ' pe' : '') + '">' + b.type + '</span>' +
+        (b.last ? '<span class="lastdeal">last deal ' + DESK.fmtDate(b.last) + '</span>'
+                : '<span class="lastdeal none">no deal recorded yet</span>') + '</div>' +
+      '<dl>' +
+        '<div><dt>Deals in 2026</dt><dd class="big">' + b.n26 + '</dd></div>' +
+        '<div><dt>In 2025</dt><dd class="big dim">' + b.n25 + '</dd></div>' +
+        '<div><dt>Held in total</dt><dd class="big dim">' + b.tot + '</dd></div>' +
+        '<div><dt>Money behind them</dt><dd>' + (b.backer || '&mdash; not stated') + '</dd></div>' +
+        '<div><dt>Where they buy</dt><dd>' + b.geo + '</dd></div>' +
+        '<div><dt>Headquarters</dt><dd>' + b.hq + '</dd></div>' +
+        (b.units && b.units.length
+          ? '<div class="wide"><dt>Buys through</dt><dd>' + b.units.join(' &middot; ') + '</dd></div>'
+          : '') +
+      '</dl>' +
+      '<p class="buys">' + b.buys + '</p>' +
+      (b.note ? '<p class="note2">' + b.note + '</p>' : '') +
+      '<p class="prov"><span class="src">' + b.src + ' &middot; read ' + DESK.fmtDate(b.seen) + '</span></p>' +
+    '</article>';
+  }).join('');
+}
+
+/* ---- deals ---- */
+function drawDeals() {
+  var y = $('dyear').value, k = $('dkind').value, c = $('dchk').value;
+  var list = DESK.DEALS.filter(function (d) {
+    if (y && d.d.slice(0,4) !== y) return false;
+    if (k && d.kind !== k) return false;
+    if (c && d.check !== c) return false;
+    return true;
+  }).sort(function (a, b) { return a.d < b.d ? 1 : -1; });
+
+  var head = '<thead><tr><th>Date</th><th>Buyer</th><th>Acquired</th><th>Focus</th>' +
+             '<th>Where</th><th>Money behind</th><th>Source</th></tr></thead>';
+
+  $('deals').innerHTML = head + '<tbody>' + list.map(function (d) {
+    return '<tr' + (d.check !== 'ok' ? ' class="flag"' : '') + '>' +
+      '<td class="nw">' + BADGE[d.check] + ' ' + DESK.fmtDate(d.d) + '</td>' +
+      '<td>' + (d.buyer || '<em>not named</em>') + '</td>' +
+      '<td><b>' + d.target + '</b>' + (d.kind === 'plan' ? ' <span class="tag">intent</span>' : '') + '</td>' +
+      '<td>' + d.focus + '</td>' +
+      '<td class="nw">' + d.geo + '</td>' +
+      '<td>' + (d.backer || '&mdash;') + '</td>' +
+      '<td class="nw"><a href="' + d.url + '" target="_blank" rel="noopener">' + d.src + ' &#8599;</a></td>' +
+    '</tr>' + (d.why ? '<tr class="whyrow"><td colspan="7"><span class="why">' + d.why + '</span></td></tr>' : '');
+  }).join('') + '</tbody>';
+
+  $('dempty').hidden = list.length > 0;
+}
+
+$('btype').onchange = drawBuyers;
+['dyear','dkind','dchk'].forEach(function (i) { $(i).onchange = drawDeals; });
+
+var y26 = DESK.DEALS.filter(function (d) { return d.d.slice(0,4) === '2026'; }).length;
+$('count').innerHTML = DESK.DEALS.length + ' deals held &middot; ' + y26 + ' of them in 2026 &middot; ' +
+  DESK.BUYERS.length + ' buyers tracked';
+
+/* годы в фильтре — из самих данных, а не руками */
+var years = {};
+DESK.DEALS.forEach(function (d) { years[d.d.slice(0,4)] = 1; });
+Object.keys(years).sort().reverse().forEach(function (y) {
+  var o = document.createElement('option'); o.value = y; o.textContent = y;
+  $('dyear').appendChild(o);
+});
+$('checked').innerHTML = DESK.CHECKED;
+
+drawBuyers(); drawDeals(); tab('buyers');
+</script>
+</body></html>

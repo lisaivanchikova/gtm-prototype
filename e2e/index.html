@@ -31,7 +31,7 @@
     <h3 class="sh caps"><span class="u">MSSP</span> Alert Live</h3>
     <a href="#" style="display:block;background:#2b1620;border:1px solid var(--line);border-radius:4px;padding:22px 18px;text-align:center;color:#fff">
     <span style="display:block;font:700 20px/1.1 var(--disp)">MSSP<span style="color:#e24a4a">Alert</span>Live</span>
-    <span style="display:block;font-size:12px;color:#d9c2c2;margin-top:6px">December 8&ndash;10, 2026 &middot; MGM National Harbor, Maryland</span></a>
+    </a>
     <p style="text-align:center;margin:14px 0 0"><a class="cta" href="#" style="width:100%;justify-content:center">Register now</a></p>
     <h3 class="sh" style="margin-top:34px"><span class="u">Our</span> Sponsors</h3>
     <p style="font-size:15px;margin:0 0 10px">Click sponsor name to learn more</p>
@@ -53,7 +53,7 @@
   <main>
     <h3 class="sh" style="margin-top:26px"><span class="u">Upcoming</span> Events</h3>
     <div id="evt"></div>
-    <a class="more" href="#">View all webcasts</a>
+    <a class="more" href="events.html">See the whole channel calendar</a>
     <h3 class="sh" id="latest" style="margin-top:36px"><span class="u">Latest</span> News</h3>
     <div id="latest-list"></div>
     <a class="more" href="#">View all news</a>
@@ -69,10 +69,10 @@
     <!-- theirs, raised out of the basement and pointed at the section -->
     <div>
       <h3 class="sh"><span class="u">MSP,</span> Channel M&amp;A</h3>
-      <p class="mna-cta"><a href="valuations.html">The index, the quarter's multiples and what your own
-        business is worth &rarr;</a></p>
+      <p class="mna-cta"><a href="mna.html">Who is buying in the channel &mdash; and whether they are
+        still buying &rarr;</a></p>
       <div id="mna"></div>
-      <a class="more" href="valuations.html">Open the M&amp;A section</a>
+      <a class="more" href="mna.html">Open the M&amp;A index</a>
     </div>
 
     <div>
@@ -93,6 +93,7 @@
 <script>C2Efooter();</script>
 
 <script src="data.js"></script>
+<script src="desk.js"></script>
 <script>
 var C = C2E, $ = function(id){ return document.getElementById(id); };
 function by(a){ return '<p class="by"><a href="'+a.u+'">'+(a.by||'ChannelE2E Team')+'</a>'+
@@ -123,15 +124,41 @@ $('guest').innerHTML = minis(C.GUEST);
 $('most').innerHTML = rows(C.MOSTREAD);
 $('cyber').innerHTML = rows(C.CYBER);
 $('ai').innerHTML = rows(C.AI);
-$('mna').innerHTML = rows(C.MNA);
+/* was their article teasers; now the three freshest confirmed deals */
+$('mna').innerHTML = DESK.DEALS
+  .filter(function (d) { return d.check === 'ok' && d.kind === 'deal' && d.buyer; })
+  .sort(function (a, b) { return a.d < b.d ? 1 : -1; }).slice(0, 3)
+  .map(function (d) {
+    return '<article class="drow"><p class="dd">'+DESK.fmtDate(d.d)+'</p>'+
+      '<a href="mna.html"><h5>'+d.buyer+' &rarr; '+d.target+'</h5></a>'+
+      '<p class="df">'+d.focus+' &middot; '+d.geo+'</p></article>';
+  }).join('');
 $('latest-list').innerHTML = C.LATEST.map(function(a){
   return '<article class="story"><a href="'+a.u+'"><img src="'+C.thumb(a.img,600)+'" alt=""></a>'+
     '<div>'+kick(a)+'<a href="'+a.u+'"><h5>'+a.t+'</h5></a>'+by(a)+'</div></article>'; }).join('');
 
 var w = C.WEBCAST;
-$('evt').innerHTML = '<div class="evt"><div class="dt"><span>'+w.month+'</span><b>'+w.day+'</b><span>'+w.time+'</span></div>'+
-  '<div><p class="tag">Webcast &middot; '+w.when+'</p><a href="'+w.u+'"><h5>'+w.t+'</h5></a>'+
-  '<p>'+w.blurb+'</p><a class="more" href="'+w.u+'">More info</a></div></div>';
+var TODAY = '2026-10-23';
+var WHOLBL = { owners:'MSP owners', vendors:'Vendors', security:'MSSP &amp; security', mixed:'Mixed room' };
+
+/* theirs first, then the rest of the channel — the point of the calendar in one block */
+var soon = DESK.EVENTS.filter(function (e) { return e.e >= TODAY && !e.cra; })
+                      .sort(function (a, b) { return a.s < b.s ? -1 : 1; }).slice(0, 4);
+
+$('evt').innerHTML =
+  '<div class="evt"><div class="dt"><span>'+w.month+'</span><b>'+w.day+'</b><span>'+w.time+'</span></div>'+
+    '<div><p class="tag">Webcast &middot; '+w.when+'</p><a href="'+w.u+'"><h5>'+w.t+'</h5></a>'+
+    '<p>'+w.blurb+'</p><a class="more" href="'+w.u+'">More info</a></div></div>' +
+  soon.map(function (e) {
+    var d = DESK.dayNum(e.s), d2 = DESK.dayNum(e.e);
+    return '<div class="evt"><div class="dt"><span>'+DESK.shortMon(e.s)+'</span>'+
+        '<b>'+(d === d2 ? d : d+'&ndash;'+d2)+'</b><span>'+e.s.slice(0,4)+'</span></div>'+
+      '<div><p class="tag">'+e.org+' &middot; '+(e.fmt==='virtual'?'Virtual':'In person')+
+        ' &middot; '+WHOLBL[e.who]+'</p>'+
+      '<a href="events.html"><h5>'+e.n+'</h5></a>'+
+      '<p>'+e.city+(e.note ? ' &mdash; '+e.note : '')+'</p>'+
+      '<a class="more" href="'+e.url+'" target="_blank" rel="noopener">Register &#8599;</a></div></div>';
+  }).join('');
 
 addEventListener('message', function (e) {
   if (e.data && e.data.e2eHeight) $('e2e').style.height = (e.data.e2eHeight + 2) + 'px';
