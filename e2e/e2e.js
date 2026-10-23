@@ -23,6 +23,8 @@ window.E2E = (function () {
     { k: 'd', t: '$10M – $25M', mid: 16000000 },
     { k: 'e', t: 'Over $25M', mid: 35000000 }
   ];
+  var GROWTH = ['Revenue shrinking', 'Roughly flat', 'Growing under 10% a year', 'Growing over 10% a year'];
+  var ROLE   = ['It runs without me', 'I hold the clients', 'I still do the tech'];
   var SELLS = ['I do, personally', 'Me and someone else', 'A salesperson or a team'];
   var AWAY  = ['A few days', 'About a week', 'Two weeks or more'];
   var BOOKS = ['A month of work', 'Some tidying', 'Ready today'];
@@ -33,11 +35,16 @@ window.E2E = (function () {
   function facets(r) {
     var f = [];
     f.push({ n: 'Revenue under contract', v: clampPct(r.rec), s: Math.round(clampPct(r.rec)) });
-    f.push({ n: 'Sales independence', v: null, s: [0, 50, 100][r.sells || 0] });
-    f.push({ n: 'Owner dependence', v: null, s: [0, 50, 100][r.away || 0] });
-    if (r.conc != null) f.push({ n: 'Largest client share', v: r.conc, s: Math.max(0, Math.round(100 - r.conc * 2.2)) });
+    if (r.conc != null) f.push({ n: 'Largest client share', v: r.conc,
+      s: Math.max(0, Math.round(100 - clampPct(r.conc) * 2.2)) });
+    if (r.grow != null) f.push({ n: 'Growth over three years', v: null, s: [0, 40, 70, 100][r.grow] });
+    if (r.role != null) f.push({ n: 'Owner dependence', v: null, s: [100, 50, 0][r.role] });
+    /* kept for older runs */
+    if (r.sells != null) f.push({ n: 'Sales independence', v: null, s: [0, 50, 100][r.sells] });
+    if (r.away  != null) f.push({ n: 'Time away from the business', v: null, s: [0, 50, 100][r.away] });
     if (r.books != null) f.push({ n: 'Books ready', v: null, s: [0, 55, 100][r.books] });
-    if (r.margin != null) f.push({ n: 'Adjusted margin', v: r.margin, s: Math.max(0, Math.min(100, Math.round(r.margin * 4.6))) });
+    if (r.margin != null) f.push({ n: 'Adjusted margin', v: r.margin,
+      s: Math.max(0, Math.min(100, Math.round(r.margin * 4.6))) });
     return f;
   }
   function clampPct(v) { v = +v; if (!isFinite(v)) return 0; return Math.max(0, Math.min(100, v)); }
@@ -139,7 +146,7 @@ window.E2E = (function () {
     return '$' + Math.round(n);
   }
   return { get: get, set: set, clear: clear, unlocked: unlocked, unlock: unlock, bump: bump, stats: stats,
-    BANDS: BANDS, SELLS: SELLS, AWAY: AWAY, BOOKS: BOOKS, band: band,
+    BANDS: BANDS, GROWTH: GROWTH, ROLE: ROLE, SELLS: SELLS, AWAY: AWAY, BOOKS: BOOKS, band: band,
     facets: facets, score: score, weakest: weakest, earnings: earnings, multiple: multiple,
     range: range, structure: structure, checks: checks, DEALS: DEALS, ARCHIVE: ARCHIVE,
     money: money, REPL: REPL };

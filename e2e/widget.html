@@ -14,9 +14,10 @@ var Q = [
   { id:'rev',  q:'What was revenue last year?', kind:'opts',
     opts: E2E.BANDS.map(function(b){return b.t}), vals: E2E.BANDS.map(function(b){return b.k}) },
   { id:'rec',  q:'How much of that renews on its own, under contract?', kind:'pct' },
-  { id:'fte',  q:'How many full-time people, including you?', kind:'num', ph:'e.g. 12' },
-  { id:'sells',q:'Who brings in a new client?', kind:'opts', opts:E2E.SELLS, vals:[0,1,2] },
-  { id:'away', q:'Longest you have been away from the business in the last year?', kind:'opts', opts:E2E.AWAY, vals:[0,1,2] }
+  { id:'conc', q:'Your largest client &mdash; what share of revenue?', kind:'pct', hint:'Per cent of revenue.' },
+  { id:'grow', q:'Over the last three years, revenue has&hellip;', kind:'opts',
+    opts: E2E.GROWTH, vals:[0,1,2,3] },
+  { id:'role', q:'Your role in it today?', kind:'opts', opts: E2E.ROLE, vals:[0,1,2] }
 ];
 var SITE = 'https://join.intwin.tech/';
 var step = -1, w = document.getElementById('w');
@@ -67,7 +68,7 @@ function draw(){
            '<button class="btn" id="nx">Next &rarr;</button>';
   } else {
     body = '<input class="num" id="in" type="number" min="1" placeholder="'+(q.ph||'')+'">'+
-           '<p class="fine" style="margin:8px 0 13px">Head count, not contractors.</p>'+
+           '<p class="fine" style="margin:8px 0 13px">'+(q.hint||'')+'</p>'+
            '<button class="btn" id="nx">Next &rarr;</button>';
   }
   h(segs(step) + '<div class="w-bd">'+
@@ -96,7 +97,7 @@ function draw(){
    this the result quietly averages in things the owner never answered. */
 function mine(){
   var all = E2E.get(), r = {};
-  ['rev','rec','fte','sells','away'].forEach(function (k) {
+  ['rev','rec','conc','grow','role'].forEach(function (k) {
     if (all[k] != null) r[k] = all[k];
   });
   return r;
