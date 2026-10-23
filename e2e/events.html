@@ -32,6 +32,7 @@
         <option value="owners">MSP owners</option>
         <option value="security">MSSP &amp; security</option>
         <option value="vendors">Vendors &amp; distributors</option>
+        <option value="capital">Investors &amp; capital</option>
         <option value="mixed">Mixed</option>
       </select></label>
     <label>Format
@@ -119,7 +120,8 @@ var BADGE = {
   suspect:  '<span class="vb sus">! Awaiting confirmation</span>'
 };
 var WHO = { owners:'MSP owners', vendors:'Vendors &amp; distributors',
-            security:'MSSP &amp; security', mixed:'Mixed room' };
+            security:'MSSP &amp; security', capital:'Investors &amp; capital',
+            mixed:'Mixed room' };
 
 function span(ev) {
   var a = DESK.dayNum(ev.s), b = DESK.dayNum(ev.e);

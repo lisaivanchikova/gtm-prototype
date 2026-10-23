@@ -139,7 +139,8 @@ $('latest-list').innerHTML = C.LATEST.map(function(a){
 
 var w = C.WEBCAST;
 var TODAY = '2026-10-23';
-var WHOLBL = { owners:'MSP owners', vendors:'Vendors', security:'MSSP &amp; security', mixed:'Mixed room' };
+var WHOLBL = { owners:'MSP owners', vendors:'Vendors', security:'MSSP &amp; security',
+               capital:'Investors &amp; capital', mixed:'Mixed room' };
 
 /* theirs first, then the rest of the channel — the point of the calendar in one block */
 var soon = DESK.EVENTS.filter(function (e) { return e.e >= TODAY && !e.cra; })

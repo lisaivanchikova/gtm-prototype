@@ -51,7 +51,9 @@ function intro(){
         '<p class="fine">Nothing leaves this page until you ask for it. Not an offer, not an appraisal.</p>'+
       '</div>'+
     '</div>');
-  document.getElementById('go').onclick = function(){ E2E.bump('open'); step = 0; draw(); };
+  document.getElementById('go').onclick = function(){
+    E2E.clear();                      /* start clean: drop any older run */
+    E2E.bump('open'); step = 0; draw(); };
 }
 
 function draw(){
@@ -89,9 +91,20 @@ function draw(){
   }
 }
 
+/* Score only the five answers this widget collected. Earlier versions of the
+   demo asked more questions and left their values in localStorage; without
+   this the result quietly averages in things the owner never answered. */
+function mine(){
+  var all = E2E.get(), r = {};
+  ['rev','rec','fte','sells','away'].forEach(function (k) {
+    if (all[k] != null) r[k] = all[k];
+  });
+  return r;
+}
+
 function done(){
   E2E.bump('finish');
-  var r = E2E.get(), s = E2E.score(r), weak = E2E.weakest(r, 3);
+  var r = mine(), s = E2E.score(r), weak = E2E.weakest(r, 3);
   h('<div class="w-bd">'+
       '<p class="prg">Your E2E Score</p>'+
       '<div class="ring">'+ ring(s) +
