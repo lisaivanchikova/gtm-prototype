@@ -263,3 +263,7 @@ body.pg>.iftr,body.pg>.dftr{flex:0 0 auto}
 
 .tscroll{overflow-x:auto}
 .tscroll table{min-width:720px}
+
+/* the hand-off line in the widget footer */
+.pwr a{color:var(--mid)}
+.pwr a:hover{color:var(--ink)}

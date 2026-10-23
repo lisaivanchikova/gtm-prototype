@@ -15,11 +15,12 @@ var Q = [
   { id:'sells',q:'Who brings in a new client?', kind:'opts', opts:E2E.SELLS, vals:[0,1,2] },
   { id:'away', q:'Longest you have been away from the business in the last year?', kind:'opts', opts:E2E.AWAY, vals:[0,1,2] }
 ];
+var SITE = 'https://join.intwin.tech/';
 var step = -1, w = document.getElementById('w');
 
 var TOP = '<div class="w-top"><span class="sq"></span><span class="nm">E2E Score</span>'+
           '<span class="free">Free &middot; 30 seconds</span></div>';
-var PWR = '<div class="pwr">Powered by <b>Intwin</b> &middot; we buy and build MSPs</div>';
+var PWR = '<div class="pwr">Powered by <a href="'+SITE+'" target="_top" rel="noopener"><b>Intwin</b></a> &middot; we buy and build MSPs</div>';
 
 function h(s){ w.innerHTML = TOP + s + PWR; resize(); }
 function resize(){ try{ parent.postMessage({e2eHeight: document.body.scrollHeight}, '*'); }catch(e){} }
@@ -100,7 +101,7 @@ function done(){
         }).join('') +'</ul>'+
       '<p class="fine" style="margin-bottom:14px">These three hold your number down. What each costs in dollars, '+
         'and the range a buyer would offer, is on the full breakdown.</p>'+
-      '<a class="btn" id="full" href="review.html" target="_top">Open the full breakdown &rarr;</a>'+
+      '<a class="btn" id="full" href="https://join.intwin.tech/" target="_top" rel="noopener">Open the full breakdown &rarr;</a>'+
       '<a class="btn gh" href="multiples.html" target="_top" style="margin-top:8px">Compare with the quarter &rarr;</a>'+
       '<p class="fine">Arithmetic on figures you chose. Not an offer, not an appraisal.</p>'+
     '</div>');

@@ -23,7 +23,7 @@
     <div style="margin-top:18px" id="fun"></div>
     <div class="key" style="margin-top:14px">
       <span><i style="background:var(--grn)"></i>Happens on ChannelE2E</span>
-      <span><i style="background:var(--ink)"></i>Happens on Intwin</span>
+      <span><i style="background:var(--ink)"></i>Happens on <a href="https://join.intwin.tech/" rel="noopener">join.intwin.tech</a></span>
     </div>
 
     <p class="kicker" style="color:var(--dim);margin-top:24px">Where they came from</p>
@@ -65,8 +65,8 @@
 </div>
 
 <footer class="iftr"><div class="wrap"><span>ChannelE2E &times; Intwin</span><span class="sp"></span>
-  <a href="host.html">The widget</a><a href="review.html">The breakdown</a><a href="deals.html">Deal index</a>
-  <a href="multiples.html">Valuations</a><a href="account.html">Owner account</a>
+  <a href="host.html">The widget on a topic page</a><a href="home.html">On the homepage</a>
+  <a href="deals.html">Deal index</a><a href="multiples.html">Valuations</a>
   <a href="kelly.html?reset">Reset</a></div></footer>
 
 <script src="e2e.js"></script>
@@ -89,7 +89,12 @@ document.getElementById('fun').innerHTML = ROWS.map(function(x){
     '<span class="p">'+Math.round(x.n/peak*100)+'%</span></div>';
 }).join('');
 
-var s = E2E.stats(), live = ROWS.map(function(x){ return (s[x.k]||0); });
+/* the demo only sees what happens on ChannelE2E; the last two steps happen on
+   join.intwin.tech and are counted there */
+var AFTER = ['priced','identified'];
+var s = E2E.stats(), seen = ROWS.filter(function(x){ return AFTER.indexOf(x.k) < 0; });
 document.getElementById('live').textContent =
-  'This browser session so far: ' + ROWS.map(function(x,i){ return live[i] + ' ' + x.t.toLowerCase(); }).join(', ') + '.';
+  'This browser session on these pages: ' +
+  seen.map(function(x){ return (s[x.k]||0) + ' ' + x.t.toLowerCase(); }).join(', ') +
+  '. The steps after the hand-off are counted on our side.';
 </script></body></html>
